@@ -1,0 +1,46 @@
+import React from 'react'
+import TitleAfter from "../../../modules/TitleAfter/TitleAfter"
+
+export default function OrdersReturnTop() {
+  return (
+    <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center space-x-4 ">
+                <div>
+                  <TitleAfter title={"درخواست مرجوعی سفارش #ORD-7842"} />
+                  <p className="text-gray-600 dark:text-gray-400 mt-1">
+                    ثبت درخواست بازگشت کالا و استرداد وجه
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 md:mt-0">
+                <div className="flex items-center space-x-3 ">
+                  <div className="text-right space-y-1">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      مهلت مرجوعی
+                    </p>
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">
+                      ۵ روز باقی مانده
+                    </span>
+                  </div>
+                  <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center">
+                    <svg
+                      className="w-6 h-6 text-orange-600 dark:text-orange-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"
+                      ></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+  )
+}

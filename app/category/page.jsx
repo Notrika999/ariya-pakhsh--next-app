@@ -1,0 +1,188 @@
+import Breadcrumb from "@/components/modules/Breadcrumb/Breadcrumb";
+import SectionTitle from "@/components/modules/SectionTitle/SectionTitle";
+import Categories from "@/components/ui/Store/Categories/Categories";
+import FilterAndProducts from "@/components/ui/Store/FilterAndProducts/FilterAndProducts";
+import FilterResponsive from "@/components/ui/Store/FilterResponsive/FilterResponsive";
+import Image from "next/image";
+import React, { useState } from "react";
+
+function StorePage() {
+  const storeProducts = [
+    {
+      id: 1,
+      title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
+      image: "images/product/laptop-2.png",
+      discount: "3",
+      price: "13,550,000",
+      oldPrice: "13,900,000",
+      rating: 4,
+      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
+      href: "/product",
+    },
+    {
+      id: 2,
+      title: "تبلت سامسونگ مدل S8",
+      image: "images/product/laptop-1.png",
+      discount: "3",
+      price: "13,550,000",
+      oldPrice: "13,900,000",
+      rating: 4,
+      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
+      href: "/product",
+    },
+    {
+      id: 3,
+      title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
+      image: "images/product/laptop-3.png",
+      discount: "3",
+      price: "13,550,000",
+      oldPrice: "13,900,000",
+      rating: 4,
+      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
+      href: "/product",
+    },
+    {
+      id: 4,
+      title: "تبلت سامسونگ مدل S8",
+      image: "images/product/television-2.png",
+      discount: "3",
+      price: "13,550,000",
+      oldPrice: "13,900,000",
+      rating: 4,
+      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
+      href: "/product",
+    },
+    {
+      id: 5,
+      title: "سامسونگ مدل S8",
+      image: "images/product/laptop-5.png",
+      discount: "3",
+      price: "13,550,000",
+      oldPrice: "13,900,000",
+      rating: 4,
+      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
+      href: "/product",
+    },
+    {
+      id: 6,
+      title: "تبلت مدل S8",
+      image: "images/product/laptop-1.png",
+      discount: "3",
+      price: "13,550,000",
+      oldPrice: "13,900,000",
+      rating: 4,
+      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
+      href: "/product",
+    },
+    {
+      id: 7,
+      title: "تبلت سامسونگ مدل S8",
+      image: "images/product/wach-2.png",
+      discount: "3",
+      price: "13,550,000",
+      oldPrice: "13,900,000",
+      rating: 4,
+      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
+      href: "/product",
+    },
+    {
+      id: 8,
+      title: "تبلت سامسونگ مدل S8",
+      image: "images/product/laptop-1.png",
+      discount: "3",
+      price: "13,550,000",
+      oldPrice: "13,900,000",
+      rating: 4,
+      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
+      href: "/product",
+    },
+  ];
+
+  const [filters, setFilters] = useState({
+    search: "",
+    color: "",
+    brand: [],
+  });
+
+  const filteredProducts = storeProducts.filter((product) => {
+    const matchSearch = product.title.includes(filters.search);
+
+    const matchColor = !filters.color || product.colors.includes(filters.color);
+
+    return matchSearch && matchColor;
+  });
+
+  return (
+    <section className="py-5">
+      <div className="container mx-auto">
+        {/* <!-- Breadcrumb --> */}
+        <Breadcrumb title={"دسته بندی"} href={"/category"} />
+
+        {/* <!-- Title --> */}
+        <SectionTitle title={" همه محصولات فروشگاه"} />
+
+        {/* <!-- Categories Swiper --> */}
+        <Categories />
+
+        {/* <!-- Filter show in responsive break point lg --> */}
+        <FilterResponsive filters={filters} setFilters={setFilters} />
+
+        {/* <!-- Filter And Products --> */}
+        <FilterAndProducts storeProducts={filteredProducts} />
+
+        {/* <!-- Description Category --> */}
+        <div className="p-5 mt-5 bg-white dark:bg-custom-dark dark:border-gray-700 dark:text-gray-200 rounded-xl tab-content border border-gray-300 drop-shadow">
+          <div className="space-y-5">
+            <h2 className="text-lg pb-3 font-black text-zinc-800 relative before:absolute before:bottom-0 before:start-0 before:h-1 before:w-22 before:bg-primary-500 before:rounded dark:text-white">
+              دسته بندی گوشی موبایل
+            </h2>
+            <div className="text-neutral-700 leading-9 text-justify text-base dark:text-white">
+              به عنوان گوشی‌ای که قیمت خیلی زیادی ندارد، باید به این موضوع اشاره
+              کنیم که داخل بسته بندی Redmi 9A آیتم‌های خاصی دیده نمی شود. دفترچه
+              راهنما، ابزار خارج کردن سیم کارت و شارژ ۱۰ واتی را به همراه کابل
+              USB مشاهده می‌کنید. این گوشی شیائومی در ابعاد ۱۶۴.۹ در ۷۷.۱ در ۹
+              میلی متر ساخته شده و وزن آن هم ۱۹۶ گرم است. در حال کلی باید به این
+              موضوع اشاره کنیم که این گوشی خیلی خوب در دست قرار میگیرد. قاب این
+              گوشی بافت جالب توجهی دارد و به همین دلیل خیلی خوب داخل دست قرار
+              میگیرد. البته باید به این موضوع اشاره کنیم که قاب پشتی گوشی خیلی
+              زود اثر انگشت را به خود جلب می‌کند. قاب پشتی که به صورت مات طراحی
+              شده میزبان دوربین‌های پشت است و به جز دوربین‌ها چیزی روی آن قرار
+              نگرفته است. به همین دلیل گوشی بسیار ساده به نظر می‌رسد. زمانی که
+              به گوشی نگاه می‌کنید، متوجه می‌شوید که صفحه نمایش آن حاشیه‌های
+              بسبتا بزرگی دارد.
+              <div
+                id="extra-text"
+                className="text-neutral-700 leading-9 text-justify text-lg dark:text-white"
+                style={{ display: "none" }}
+              >
+                اگر به دنبال تهیه یک هدفون بی‌سیم گیمینگ هستید، هدفون بلوتوثی
+                مدل K55 به‌عنوان یکی از جدیدترین گزینه‌های موجود در بازار ارزش
+                بررسی را دارد. این مدل با ابعادی کوچک تولید شده است. ابعاد و وزن
+                کم آن، جابه‌جایی این وسیله و استفاده طولانی‌مدت از آن را آسان
+                می‌کند و باعث خستگی گوش‌ها نخواهد شد. این مدل برای اتصال به
+                دستگاه‌ به بلوتوث نسخه 5.0 مجهز شده است و در مدت زمان اندکی،
+                اتصال با گوشی موبایل اندروید یا ios شما برقرار خواهد شد. هدفون
+                بی سیم K55 دارای یک میکروفون با کیفیت است و و این ویژگی، آن را
+                برای مکالمه مناسب می‌سازد. از ویژگی‌های اصلی این محصول محفظه
+                نگهدارنده یا همان کیس آن است. این کیس قابلیت شارژ هدفون را دارد.
+                برای شارژ آن کافی است از درگاه USB-C تعبیه شده بر روی کیس و کابل
+                شارژ درون بسته‌بندی استفاده کنید. گفتنی است باتری 400 میلی‌آمپر
+                ساعتی این هدفون در حدود 4-6 ساعت مکالمه و 4-6 ساعت پخش موسیقی را
+                پاسخ‌گو خواهد بود.
+              </div>
+              <button
+                id="toggle-btn"
+                onClick="toggleText()"
+                className="mt-2 bg-gray-700 block dark:bg-gray-200 dark:text-gray-900 text-white text-sm px-4 py-2 rounded-lg"
+              >
+                ادامه مطلب
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+export default StorePage;
