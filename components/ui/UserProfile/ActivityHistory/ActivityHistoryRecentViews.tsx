@@ -1,7 +1,7 @@
 import React from "react";
 import TitleAfter from "../../../modules/TitleAfter/TitleAfter";
 import ActivityHistoryCard from "../../../modules/ActivityHistoryCard/ActivityHistoryCard";
-import { RecentViewItem } from "@/types/userpanel/activity-history";
+import { RecentViewItem } from "@/lib/types/userpanel/activity-history";
 
 interface Props {
   recentViews: RecentViewItem[];

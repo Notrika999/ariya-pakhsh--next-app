@@ -40,10 +40,10 @@ export default function Faq() {
           {tabs?.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.slug)}
+              onClick={() => setActiveTab(tab.id)}
               className={`filter-btn px-4 py-2 rounded-lg font-medium transition
       ${
-        activeTab === tab.slug
+        activeTab === tab.id
           ? "bg-blue-600 text-white"
           : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
       }`}
@@ -56,7 +56,7 @@ export default function Faq() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* <!--Main part of the questions--> */}
           <div className="lg:col-span-2 space-y-6">
-            {faqs?.map((faq) => (
+            {filteredFaqs?.map((faq) => (
               <MainContent key={faq.id} content={faq} />
             ))}
           </div>

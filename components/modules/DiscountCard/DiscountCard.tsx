@@ -1,4 +1,4 @@
-import { DiscountCode } from "@/types/userpanel/Discount";
+import { DiscountCode } from "@/lib/types/userpanel/Discount";
 
 const variantStyles = {
   green: {

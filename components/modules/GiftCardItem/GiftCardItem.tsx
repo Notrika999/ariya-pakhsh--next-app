@@ -1,4 +1,4 @@
-import { GiftCard } from "@/types/userpanel/GiftCard";
+import { GiftCard } from "@/lib/types/userpanel/GiftCard";
 
 export default function GiftCardItem({ card }: { card: GiftCard }) {
   const isActive = card.type === "active";

@@ -1,4 +1,4 @@
-import { RecentViewItem } from "@/types/userpanel/activity-history";
+import { RecentViewItem } from "@/lib/types/userpanel/activity-history";
 import React from "react";
 
 interface Props {

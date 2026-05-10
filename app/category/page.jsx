@@ -1,3 +1,5 @@
+"use client"
+
 import Breadcrumb from "@/components/modules/Breadcrumb/Breadcrumb";
 import SectionTitle from "@/components/modules/SectionTitle/SectionTitle";
 import Categories from "@/components/ui/Store/Categories/Categories";

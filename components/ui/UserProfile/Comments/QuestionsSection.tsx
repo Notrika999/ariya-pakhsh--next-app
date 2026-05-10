@@ -1,4 +1,4 @@
-import { QuestionItem } from "@/types/userpanel/comments";
+import { QuestionItem } from "@/lib/types/userpanel/comments";
 import React from "react";
 
 interface Props {

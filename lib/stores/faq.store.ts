@@ -2,18 +2,28 @@
 
 import { create } from "zustand";
 import { fetchFaqs } from "@/lib/api/faqApi";
+import { Faq, FaqTab } from "../types/faqTypes";
+
+interface FaqStore {
+  tabs: FaqTab[];
+  faqs: Faq[];
+  loading: boolean;
+
+  fetchAll: () => Promise<any>;
+  filterByTab: (tabId: string) => Faq[];
+}
 
 export const useFaqStore = create((set, get) => ({
   tabs: [],
   faqs: [],
   loading: false,
-  
+
   fetchAll: async () => {
     set({ loading: true });
 
     const res = await fetchFaqs();
 
-    if (res.error) {
+    if ("error" in res) {
       set({ loading: false });
       return res;
     }
@@ -21,16 +31,18 @@ export const useFaqStore = create((set, get) => ({
     set({
       tabs: res.tabs,
       faqs: res.faqs,
-      loading: false
+      loading: false,
     });
 
     return res;
   },
 
   // مثال: فیلتر کردن
-  filterByTab: (tabId) => {
+  filterByTab: (tabId: string) => {
     const faqs = get().faqs;
-    if (!tabId) return faqs;
-    return faqs.filter(f => f.category === tabId);
-  }
+
+    if (tabId === "all") return faqs;
+
+    return faqs.filter((f) => f.category === tabId);
+  },
 }));

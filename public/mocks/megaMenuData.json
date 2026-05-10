@@ -1,0 +1,115 @@
+{
+  "leftMenuItems": [
+    { "menuID": "1", "title": "کفپوش و موکت" },
+    { "menuID": "2", "title": "روکش و صندلی" },
+    { "menuID": "3", "title": "تزئینات داخلی" },
+    { "menuID": "4", "title": "سیستم صوتی" },
+    { "menuID": "5", "title": "ایمنی و نگهداری" },
+    { "menuID": "6", "title": "نورپردازی داخلی" }
+  ],
+  "megaContent": {
+    "1": [
+      {
+        "title": "کفپوش سه‌بعدی",
+        "items": [
+          { "label": "کفپوش سه‌بعدی چرمی", "href": "#" },
+          { "label": "کفپوش سه‌بعدی PVC", "href": "#" },
+          { "label": "کفپوش ضدآب", "href": "#" }
+        ]
+      },
+      {
+        "title": "موکت خودرو",
+        "items": [
+          { "label": "موکت نمدی", "href": "#" },
+          { "label": "موکت پرزدار", "href": "#" }
+        ]
+      },
+      { "src": "/images/banner/banner-1.webp" }
+    ],
+
+    "2": [
+      {
+        "title": "روکش صندلی",
+        "items": [
+          { "label": "روکش چرمی", "href": "#" },
+          { "label": "روکش پارچه‌ای", "href": "#" },
+          { "label": "روکش اسپرت", "href": "#" }
+        ]
+      },
+      {
+        "title": "متعلقات صندلی",
+        "items": [
+          { "label": "پشت گردنی", "href": "#" },
+          { "label": "بالشتک کمری", "href": "#" }
+        ]
+      },
+      { "src": "/images/banner/banner-2.webp" }
+    ],
+
+    "3": [
+      {
+        "title": "داشبورد",
+        "items": [
+          { "label": "کاور داشبورد", "href": "#" },
+          { "label": "پایه موبایل", "href": "#" }
+        ]
+      },
+      {
+        "title": "فرمان",
+        "items": [{ "label": "روکش فرمان", "href": "#" }]
+      },
+      { "src": "/images/banner/banner-3.webp" }
+    ],
+
+    "4": [
+      {
+        "title": "پخش خودرو",
+        "items": [
+          { "label": "پخش دودین", "href": "#" },
+          { "label": "پخش اندروید", "href": "#" }
+        ]
+      },
+      {
+        "title": "بلندگو",
+        "items": [
+          { "label": "باند گرد", "href": "#" },
+          { "label": "باند بیضی", "href": "#" }
+        ]
+      },
+      { "src": "/images/banner/banner-4.webp" }
+    ],
+
+    "5": [
+      {
+        "title": "ایمنی",
+        "items": [
+          { "label": "کپسول آتش‌نشانی", "href": "#" },
+          { "label": "چکش اضطراری", "href": "#" }
+        ]
+      },
+      {
+        "title": "نظم‌دهنده",
+        "items": [
+          { "label": "نظم‌دهنده صندوق", "href": "#" },
+          { "label": "کاور مدارک", "href": "#" }
+        ]
+      },
+      { "src": "/images/banner/banner-5.webp" }
+    ],
+
+    "6": [
+      {
+        "title": "LED داخلی",
+        "items": [
+          { "label": "LED سقفی", "href": "#" },
+          { "label": "نئون کابین", "href": "#" }
+        ]
+      },
+      {
+        "title": "چراغ مطالعه",
+        "items": [{ "label": "چراغ عقب", "href": "#" }]
+      },
+      { "src": "/images/banner/banner-6.webp" }
+    ]
+  }
+}

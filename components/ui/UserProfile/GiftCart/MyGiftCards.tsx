@@ -1,7 +1,7 @@
 import GiftCardItem from "@/components/modules/GiftCardItem/GiftCardItem";
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
 
-import { GiftCard } from "@/types/userpanel/GiftCard";
+import { GiftCard } from "@/lib/types/userpanel/GiftCard";
 
 export default function MyGiftCards({ data }) {
   const activeCards = data.filter((c) => c.type === "active");

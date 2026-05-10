@@ -1,105 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MenuItem from "./MenuItem";
 import MegaSubmenu from "./MegaSubmenu";
+import { useMegaMenu } from "@/lib/hooks/useMegaMenu";
 
 export default function Menu() {
   const [megaOpen, setMegaOpen] = useState(false);
   const [activeMegaId, setActiveMegaId] = useState("1");
 
-  const leftMenuItems = [
-    { menuID: "1", title: "محصولات دیجیتال" },
-    { menuID: "2", title: "اکسسوری" },
-    { menuID: "3", title: "خانه و آشپز خانه" },
-  ];
+  const { leftMenuItems, megaContent, fetchAll } = useMegaMenu();
 
-  // megaContent.js (یا داخل پرنت، هرجا مناسب)
-  const megaContent = {
-    1: [
-      {
-        title: "گوشی موبایل",
-        items: [
-          { label: "گوشی موبایل هوشمند", href: "#" },
-          { label: "گوشی‌های اقتصادی", href: "#" },
-        ],
-      },
-      {
-        title: "لپ‌تاپ",
-        items: [
-          { label: "لپ‌تاپ‌های گیمینگ", href: "#" },
-          { label: "لپ‌تاپ‌های اداری", href: "#" },
-        ],
-      },
-      {
-        title: "دوربین دیجیتال",
-        items: [
-          { label: "دوربین عکاسی حرفه‌ای", href: "#" },
-          { label: "دوربین‌های ورزشی", href: "#" },
-        ],
-      },
-      {
-        title: "گوشی موبایل",
-        items: [
-          { label: "گوشی موبایل هوشمند", href: "#" },
-          { label: "گوشی‌های اقتصادی", href: "#" },
-        ],
-      },
-      {
-        title: "لپ‌تاپ",
-        items: [
-          { label: "لپ‌تاپ‌های گیمینگ", href: "#" },
-          { label: "لپ‌تاپ‌های اداری", href: "#" },
-        ],
-      },
-      {
-        title: "دوربین دیجیتال",
-        items: [
-          { label: "دوربین عکاسی حرفه‌ای", href: "#" },
-          { label: "دوربین‌های ورزشی", href: "#" },
-        ],
-      },
-      {
-        title: "گوشی موبایل",
-        items: [
-          { label: "گوشی موبایل هوشمند", href: "#" },
-          { label: "گوشی‌های اقتصادی", href: "#" },
-        ],
-      },
-      {
-        title: "لپ‌تاپ",
-        items: [
-          { label: "لپ‌تاپ‌های گیمینگ", href: "#" },
-          { label: "لپ‌تاپ‌های اداری", href: "#" },
-        ],
-      },
-      {
-        title: "دوربین دیجیتال",
-        items: [
-          { label: "دوربین عکاسی حرفه‌ای", href: "#" },
-          { label: "دوربین‌های ورزشی", href: "#" },
-        ],
-      },
-      {
-        src: "images/banner/banner-1.webp",
-      },
-    ],
-    2: [
-      // ساختار زیرمنو برای منوی دوم
-      { title: "لوازم صوتی", items: [{ label: "هدفون بی‌سیم", href: "#" }] },
-      { title: "سخت‌افزار", items: [{ label: "کارت گرافیک", href: "#" }] },
-      { title: "لوازم جانبی", items: [] },
-      { src: "images/banner/banner-4.webp" },
-    ],
-    3: [
-      // ساختار زیرمنو برای منوی سوم
-      {
-        title: "خانه و آشپزخانه",
-        items: [{ label: "مایع شیشه‌ای", href: "#" }],
-      },
-      { title: "ورزشی", items: [] },
-      { title: "DSLR", items: [] },
-      { src: "images/banner/banner-3.webp" },
-    ],
-  };
+  useEffect(() => {
+    fetchAll();
+  }, []);
 
   return (
     <li

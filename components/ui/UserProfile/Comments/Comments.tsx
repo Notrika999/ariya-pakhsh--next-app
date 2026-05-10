@@ -7,7 +7,7 @@ import CommentSection from "./CommentSection";
 import QuestionsSection from "./QuestionsSection";
 
 import type { CommentItem } from "@/types/comments";
-import { QuestionItem } from "@/types/userpanel/comments";
+import { QuestionItem } from "@/lib/types/userpanel/comments";
 
 export default function Comments() {
   const [activeTab, setActiveTab] = useState("my-comments");
