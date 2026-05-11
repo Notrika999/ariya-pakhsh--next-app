@@ -5,7 +5,7 @@ const pColors = {
   colors: ["آبی", "سبز", "قرمز"],
   defaultColor: "آبی",
 };
-export default function Description() {
+export default function Description({title}) {
   const [selectedColor, setSelectedColor] = useState(pColors.defaultColor);
 
   return (
@@ -29,8 +29,7 @@ export default function Description() {
       <div className="space-y-2 mt-2 pb-2 border-b border-b-gray-300 dark:border-b-gray-700">
         {/* <!-- Fa title --> */}
         <h2 className="font-black leading-8">
-          گوشی موبایل اپل مدل iPhone 16 Pro ZAA دو سیم کارت ظرفیت 256 گیگابایت و
-          رم 8 گیگابایت
+          {title}
         </h2>
 
         {/* <!-- En title --> */}

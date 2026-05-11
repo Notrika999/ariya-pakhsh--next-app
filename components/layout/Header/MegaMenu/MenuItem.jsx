@@ -20,7 +20,7 @@ export default function MenuItem({
             <p className="text-xs">{title}</p>
           </div>
         </div>
-        {/* icon */}
+        <i className="fa-solid fa-chevron-left  text-sm ms-2"></i>
       </a>
     </li>
   );

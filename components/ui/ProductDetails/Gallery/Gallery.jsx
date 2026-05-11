@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 
@@ -195,7 +195,7 @@ export default function Gallery({ images }) {
               <div className="border h-full border-gray-300 rounded-lg bg-white dark:bg-zinc-800 dark:border-gray-700 flex items-center justify-center">
                 <div className="swiper-zoom-container">
                   <img
-                    src={img}
+                    src={img.imgSrc}
                     alt={`product-${index}`}
                     className="max-h-[280px] object-contain"
                   />
@@ -220,7 +220,7 @@ export default function Gallery({ images }) {
           <SwiperSlide key={index}>
             <div className="rounded-lg flex justify-center cursor-pointer border border-gray-300 h-20 dark:border-gray-700 p-2 dark:bg-zinc-800">
               <img
-                src={img}
+                src={img.imgSrc}
                 alt={`thumb-${index}`}
                 className="h-full object-contain"
               />

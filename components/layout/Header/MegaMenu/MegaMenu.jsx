@@ -12,8 +12,8 @@ export default function MegaMenu() {
             <Menu />
 
             <li className="">
-              <a
-                href=""
+              <Link
+                href="/"
                 className="flex space-x-3 hover:text-primary transition"
               >
                 <svg
@@ -31,12 +31,12 @@ export default function MegaMenu() {
                   />
                 </svg>
                 <span>صفحه اصلی</span>
-              </a>
+              </Link>
             </li>
 
             <li className="">
-              <a
-                href=""
+              <Link
+                href="#"
                 className="flex space-x-3 hover:text-primary transition"
               >
                 <svg
@@ -54,7 +54,7 @@ export default function MegaMenu() {
                   />
                 </svg>
                 <span>لیست کالا ها</span>
-              </a>
+              </Link>
             </li>
 
             <li className="">
@@ -81,8 +81,8 @@ export default function MegaMenu() {
             </li>
 
             <li className="">
-              <a
-                href=""
+              <Link
+                href="#"
                 className="flex space-x-3 hover:text-primary transition"
               >
                 <svg
@@ -100,12 +100,12 @@ export default function MegaMenu() {
                   />
                 </svg>
                 <span>پیگیری سفارش</span>
-              </a>
+              </Link>
             </li>
 
             <li className="">
-              <a
-                href=""
+              <Link
+                href="/blog"
                 className="flex space-x-3 hover:text-primary transition"
               >
                 <svg
@@ -123,12 +123,12 @@ export default function MegaMenu() {
                   />
                 </svg>
                 <span>بلاگ</span>
-              </a>
+              </Link>
             </li>
 
             <li className="">
-              <a
-                href=""
+              <Link
+                href="/contact"
                 className="flex space-x-3 hover:text-primary transition"
               >
                 <svg
@@ -146,7 +146,7 @@ export default function MegaMenu() {
                   />
                 </svg>
                 <span>تماس با ما</span>
-              </a>
+              </Link>
             </li>
           </ul>
         </nav>

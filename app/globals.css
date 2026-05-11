@@ -177,8 +177,7 @@
   --blur-sm: 8px;
   --default-transition-duration: 150ms;
   --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  --default-font-family: inter;
-  --default-mono-font-family: var(--font-mono);
+
   --color-primary: oklch(52.986% 0.20551 263.33);
   --color-primary-50: oklch(87.605% 0.04819 267.18);
   --color-primary-100: oklch(83.604% 0.06397 266.3);
@@ -323,4 +322,26 @@ html {
   height: 2px;
   background-color: #e5e7eb;
   z-index: -1;
+}
+
+/* Filter Categoray */
+.range-thumb {
+  @apply absolute w-full appearance-none pointer-events-none bg-transparent h-5; /* Increased height for better interaction */
+}
+
+/* Base styles for the thumb (common to both Webkit and Mozilla) */
+.range-thumb::-webkit-slider-thumb,
+.range-thumb::-moz-range-thumb {
+  @apply appearance-none size-5 rounded-full bg-blue-500 cursor-pointer pointer-events-auto shadow-md; /* Changed to blue-500 and added shadow */
+}
+
+/* Specific adjustments for Webkit (Chrome, Safari) */
+.range-thumb::-webkit-slider-thumb {
+  /* Add any webkit-specific styles here if needed */
+}
+
+/* Specific adjustments for Mozilla (Firefox) */
+.range-thumb::-moz-range-thumb {
+  /* Add any moz-specific styles here if needed */
+  border: none; /* Firefox requires border: none to remove default border */
 }

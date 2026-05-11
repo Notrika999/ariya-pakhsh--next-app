@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import Breadcrumb from "@/components/modules/Breadcrumb/Breadcrumb";
 import Description from "@/components/ui/ProductDetails/Description/Description";
@@ -5,16 +7,24 @@ import Gallery from "./Gallery/Gallery";
 import Action from "./Action/Action";
 import Seller from "./Seller/Seller";
 import Review from "./Review/Review";
+import { useProductDetails } from "@/lib/hooks/useProductDetails";
 
-export default function ProductDetails() {
-  const images = [
-    "/images/product/laptop-1.png",
-    "/images/product/laptop-2.png",
-    "/images/product/laptop-3.png",
-    "/images/product/laptop-4.png",
-    "/images/product/laptop-5.png",
-    "/images/product/laptop-6.png",
-  ];
+interface Props {
+  id: string;
+}
+
+export default function ProductDetails({ id }: Props) {
+  console.log(id);
+  const { product, loading, error } = useProductDetails(id);
+
+  if (loading) return <p>در حال دریافت اطلاعات...</p>;
+
+  if (error) return <p>{error}</p>;
+
+  if (!product) return null;
+
+  console.log(product);
+
   return (
     <>
       {/* <!-- START CONTENT --> */}
@@ -23,7 +33,7 @@ export default function ProductDetails() {
           {/* <!-- Breadcrumb --> */}
           <Breadcrumb
             title={"دسته بندی"}
-            active={" گوشی موبایل اپل مدل iPhone 13 Pro Max دو سیم کارت"}
+            active={product.title}
             href={"/category"}
           />
 
@@ -31,10 +41,10 @@ export default function ProductDetails() {
           <div className="bg-white dark:bg-custom-dark dark:text-gray-200 space-y-3 shadow-sm border border-gray-200 dark:border-gray-700 mt-4 rounded-2xl px-6 py-4">
             <div className="grid grid-cols-12 gap-4 place-items-start">
               {/* <!-- Gallery --> */}
-              <Gallery images={images} />
+              <Gallery images={product.imageSlider} />
 
               {/* <!-- Description --> */}
-              <Description />
+              <Description title={product.title} />
 
               {/* <!-- Action --> */}
               <Action />
@@ -60,7 +70,6 @@ export default function ProductDetails() {
         </div>
       </section>
       {/* <!-- END PRODUCT REVIEW --> */}
-      
     </>
   );
 }

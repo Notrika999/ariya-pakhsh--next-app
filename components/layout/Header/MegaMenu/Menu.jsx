@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import MenuItem from "./MenuItem";
 import MegaSubmenu from "./MegaSubmenu";
 import { useMegaMenu } from "@/lib/hooks/useMegaMenu";
+import Link from "next/link";
 
 export default function Menu() {
   const [megaOpen, setMegaOpen] = useState(false);
@@ -19,42 +20,18 @@ export default function Menu() {
       onMouseLeave={() => setMegaOpen(false)}
       className="border-e-2 pe-3 border-e-gray-300"
     >
-      <a
-        href=""
-        className="flex relative font-bold hover:text-primary transition"
+      <Link
+        href="/category"
+        className="flex items-center relative font-bold hover:text-primary transition"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth="1.5"
-          stroke="currentColor"
-          className="size-6 me-2"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-          />
-        </svg>
+        <i className="fa-solid fa-bars me-1"></i>
+
         فروشگاه
-        <span className="absolute end-0 block">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="size-5"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m19.5 8.25-7.5 7.5-7.5-7.5"
-            />
-          </svg>
-        </span>
-      </a>
+        
+          <i className="fa-solid fa-chevron-down text-sm ms-2"></i>
+
+       
+      </Link>
 
       {megaOpen && (
         <div className="bg-white dark:bg-custom-dark dark:border dark:border-gray-700  container z-50  top-[95%] left-0 right-0 drop-shadow-sm dark:shadow-[0_2px_6px_rgba(0,0,0,0.4)] absolute mt-1 me-10 rounded-b-md transition-colors duration-300">
@@ -70,6 +47,8 @@ export default function Menu() {
                     activeMegaId={activeMegaId}
                     setActiveMegaId={setActiveMegaId}
                   />
+
+                  
                 ))}
               </ul>
             </div>
@@ -78,6 +57,7 @@ export default function Menu() {
             <div className="col-span-10 bg-white dark:bg-zinc-900">
               {activeMegaId && megaContent[activeMegaId] && (
                 <MegaSubmenu sections={megaContent[activeMegaId]} />
+                
               )}
             </div>
           </div>

@@ -57,7 +57,10 @@ export default function ProductCard({ product }) {
           </span>
         </div>
       </div>
-      <a className="absolute inset-0 w-full h-full" href={product.href}></a>
+      <Link
+        className="absolute inset-0 w-full h-full"
+        href={`${product.href}/${product.id}`}
+      ></Link>
     </div>
   );
 }

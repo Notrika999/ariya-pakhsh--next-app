@@ -19,7 +19,7 @@ export default function ContactForm() {
               required
             />
             <label
-              for="lname"
+              htmlFor="lname"
               className="floating-label text-gray-500 dark:text-gray-400"
             >
               نام و نام خانوادگی
@@ -35,7 +35,7 @@ export default function ContactForm() {
               required
             />
             <label
-              for="email"
+              htmlFor="email"
               className="floating-label text-gray-500 dark:text-gray-400"
             >
               آدرس ایمیل
@@ -52,7 +52,7 @@ export default function ContactForm() {
             required
           />
           <label
-            for="subject"
+            htmlFor="subject"
             className="floating-label text-gray-500 dark:text-gray-400"
           >
             موضوع پیام
@@ -68,7 +68,7 @@ export default function ContactForm() {
             required
           ></textarea>
           <label
-            for="message"
+            htmlFor="message"
             className="floating-label text-gray-500 dark:text-gray-400"
           >
             متن پیام

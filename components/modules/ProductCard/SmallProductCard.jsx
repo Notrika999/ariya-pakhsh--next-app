@@ -61,7 +61,7 @@ export default function SmallProductCard({ product }) {
 
         </div>
 
-        <Link href={product.href} className="absolute inset-0" />
+        <Link href={`${product.href}/${product.id}`} className="absolute inset-0" />
       </div>
     </div>
   );
