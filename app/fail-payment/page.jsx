@@ -12,7 +12,7 @@ function FailPayment() {
           {/* <!--Original card--> */}
           <div className="bg-white dark:bg-custom-dark rounded-2xl shadow-xl overflow-hidden border border-red-200 dark:border-red-800">
             {/* <!-- Header --> */}
-            <div className="bg-gradient-to-l from-red-500 to-rose-600 p-6 text-center">
+            <div className="bg-linear-to-l from-red-500 to-rose-600 p-6 text-center">
               <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -256,3 +256,11 @@ function FailPayment() {
 }
 
 export default FailPayment;
+
+// NOINDEX 
+export const metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};

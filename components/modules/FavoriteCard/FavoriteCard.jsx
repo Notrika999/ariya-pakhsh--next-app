@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 export default function FavoriteCard({
@@ -13,7 +14,7 @@ export default function FavoriteCard({
   return (
     <div className="relative dark:border-gray-700 dark:shadow-[0_0_10px_rgba(0,0,0,0.6)] rounded p-3 bg-white dark:bg-zinc-800 transition-all duration-200 ease-in-out group">
       {/* Product Colors */}
-      <ul className="absolute top-4 start-3 space-y-1">
+      <ul className="absolute top-4 inset-s-3 space-y-1">
         {colors.map((color, index) => (
           <li
             key={index}
@@ -25,7 +26,9 @@ export default function FavoriteCard({
 
       {/* Thumbnail */}
       <div className="text-center flex items-center justify-center overflow-hidden">
-        <img
+        <Image
+        width={160}
+        height={160}
           src={image}
           alt={title}
           loading="lazy"
@@ -34,7 +37,7 @@ export default function FavoriteCard({
       </div>
 
       {/* Discount Badge */}
-      <div className="absolute end-3 top-3 bg-secondary-500 text-white text-xs font-bold px-2 py-1 rounded-xl rounded-bl-md shadow shadow-red-500/50 z-10">
+      <div className="absolute inset-e-3 top-3 bg-secondary-500 text-white text-xs font-bold px-2 py-1 rounded-xl rounded-bl-md shadow shadow-red-500/50 z-10">
         {discount}%
       </div>
 

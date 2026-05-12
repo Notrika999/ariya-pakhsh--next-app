@@ -1,4 +1,5 @@
 // MegaSubmenu.jsx
+import Image from "next/image";
 import React from "react";
 
 export default function MegaSubmenu({ sections = [] }) {
@@ -8,7 +9,7 @@ export default function MegaSubmenu({ sections = [] }) {
   const list = sections.filter((s) => !s.src);
 
   return (
-    <div className="grid grid-cols-10 h-[400px] overflow-y-scroll  m-3">
+    <div className="grid grid-cols-10 h-100 overflow-y-scroll  m-3">
       <div className="grid grid-cols-8 col-span-8">
         {list.map((sec, idx) => (
           <div key={idx} className="col-span-2">
@@ -36,7 +37,9 @@ export default function MegaSubmenu({ sections = [] }) {
       <div className="col-span-2">
         {thumbItem && (
           <div>
-            <img
+            <Image
+              width={160}
+              height={120}
               src={thumbItem.src}
               alt="banner"
               className="w-full rounded-lg"

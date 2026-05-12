@@ -8,7 +8,9 @@ import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
-import SliderProductCard from "./SliderProductCard"; // کادر محصول (همان HTML کارت تو)
+// import SliderProductCard from "./SliderProductCard"; // کادر محصول (همان HTML کارت تو)
+import ProductCard from "@/components/modules/ProductCard/ProductCard";
+import Image from "next/image";
 
 // اگر CSS/دکمه‌ها را با کلاس‌های سفارشی داری، این کلاس‌ها را همان نگه می‌داریم:
 const prevBtnClass = ".swiper-button-prev-amazing";
@@ -29,12 +31,16 @@ export default function AmazingProductsSlider({ products }) {
             <div className="xl:col-span-2 col-span-12">
               <div className="xl:space-y-6 [@media(max-width:400px)]:space-y-3 flex-wrap h-full flex items-center xl:justify-center justify-between flex-row xl:flex-col">
                 <div className="flex items-center justify-center">
-                  <img
-                    src="images/amazing/amazing-light.webp"
+                  <Image
+                    width={194}
+                    height={120}
+                    src="/images/amazing/amazing-light.webp"
                     className="w-50 xl:inline-block hidden dark:invert"
                     alt=""
                   />
-                  <h2 className="xl:hidden block font-bold">پیشنهاد شگفت انگیز</h2>
+                  <h2 className="xl:hidden block font-bold">
+                    پیشنهاد شگفت انگیز
+                  </h2>
                 </div>
 
                 <div className="text-center">
@@ -114,8 +120,9 @@ export default function AmazingProductsSlider({ products }) {
                 }}
               >
                 {safeProducts.map((p) => (
-                  <SwiperSlide key={p.id} className="!w-60">
-                    <SliderProductCard product={p} />
+                  <SwiperSlide key={p.id} className="w-60!">
+                    {/* <SliderProductCard product={p} /> */}
+                    <ProductCard product={p} />
                   </SwiperSlide>
                 ))}
               </Swiper>

@@ -26,21 +26,5 @@ export default function MegaSubmenu({ sections = [] }) {
           </div>
         </div>
       ))}
-
-      // menu thumbnail banner، همیشه در ستون اول 
-    //   <div className="col-span-2 col-start-1">
-    //     <div className="me-4">
-    //       <a href="">
-    //         <img
-    //           src="images/banner/banner-1.webp"
-    //           loading="lazy"
-    //           alt=""
-    //           className="w-full rounded-lg"
-    //         />
-    //       </a>
-    //     </div>
-    //   </div>
-
-    // </div>
   );
 }

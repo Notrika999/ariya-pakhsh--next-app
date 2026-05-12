@@ -7,10 +7,9 @@ import { FreeMode } from "swiper/modules";
 // استایل‌های مورد نیاز
 import "swiper/css";
 import "swiper/css/free-mode";
+import Image from "next/image";
 
-export default function CategorySlider({categories}) {
- 
-
+export default function CategorySlider({ categories }) {
   return (
     <section className="py-5">
       <h2 className="sr-only">دسته‌بندی‌های فروشگاه</h2>
@@ -20,8 +19,8 @@ export default function CategorySlider({categories}) {
         <header className="flex flex-wrap mb-2 justify-between items-center">
           <h2
             className="font-bold text-lg mb-4 relative pb-4 text-gray-900 dark:text-gray-200
-                before:absolute before:start-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary
-                after:absolute after:w-40 after:h-2 after:bottom-0 after:start-4 after:bg-primary after:rounded-lg"
+                before:absolute before:inset-s-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary
+                after:absolute after:w-40 after:h-2 after:bottom-0 after:inset-s-4 after:bg-primary after:rounded-lg"
           >
             دسته‌بندی‌های فروشگاه
           </h2>
@@ -45,11 +44,13 @@ export default function CategorySlider({categories}) {
             className="mySwiper"
           >
             {categories.map((item, index) => (
-              <SwiperSlide key={index} className="!w-40">
+              <SwiperSlide key={index} className="w-40!">
                 <a href="">
                   <div className="bg-white dark:bg-custom-dark dark:border-gray-700 dark:text-gray-200 space-y-3 shadow-sm border border-gray-200 p-3 rounded-2xl flex flex-col items-center justify-center duration-200 hover:shadow-md hover:scale-[1.02] transition-all">
                     <figure>
-                      <img
+                      <Image
+                        width={80}
+                        height={80}
                         src={item.img}
                         alt={item.title}
                         className="w-20 dark:invert-0"

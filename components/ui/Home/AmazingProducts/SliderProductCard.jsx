@@ -1,6 +1,7 @@
 // SliderProductCard.jsx
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
 
@@ -42,7 +43,7 @@ export default function SliderProductCard({ product }) {
   return (
     <div className="relative dark:border-gray-700 dark:shadow-[0_0_10px_rgba(0,0,0,0.6)] p-3 bg-white dark:bg-custom-dark transition-all duration-200 ease-in-out group">
       {/* Product Colors */}
-      <ul className="absolute top-4 start-3 space-y-1">
+      <ul className="absolute top-4 inset-s-3 space-y-1">
         {(product?.colors ?? []).slice(0, 6).map((c, idx) => (
           <li
             key={idx}
@@ -70,7 +71,9 @@ export default function SliderProductCard({ product }) {
 
       {/* Thumbnail */}
       <div className="text-center flex items-center justify-center overflow-hidden">
-        <img
+        <Image
+          width={160}
+          height={160}
           src={product?.image}
           alt={product?.title}
           loading="lazy"

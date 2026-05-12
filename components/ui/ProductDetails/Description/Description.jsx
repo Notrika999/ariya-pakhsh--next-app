@@ -1,11 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 const pColors = {
   colors: ["آبی", "سبز", "قرمز"],
   defaultColor: "آبی",
 };
-export default function Description({title}) {
+export default function Description({ title }) {
   const [selectedColor, setSelectedColor] = useState(pColors.defaultColor);
 
   return (
@@ -28,9 +28,7 @@ export default function Description({title}) {
       {/* <!-- Title --> */}
       <div className="space-y-2 mt-2 pb-2 border-b border-b-gray-300 dark:border-b-gray-700">
         {/* <!-- Fa title --> */}
-        <h2 className="font-black leading-8">
-          {title}
-        </h2>
+        <h2 className="font-black leading-8">{title}</h2>
 
         {/* <!-- En title --> */}
         <h2 className="text-gray-400 dark:text-gray-500 text-sm leading-8">
@@ -134,7 +132,7 @@ export default function Description({title}) {
 
               <label
                 htmlFor={color}
-                className="select-none dark:!text-white cursor-pointer flex items-center justify-center rounded-full border-2 border-gray-200 dark:border-gray-600 py-1 px-3 text-gray-700 transition-colors duration-200 ease-in-out peer-checked:text-gray-900 peer-checked:border-primary-500"
+                className="select-none dark:text-white! cursor-pointer flex items-center justify-center rounded-full border-2 border-gray-200 dark:border-gray-600 py-1 px-3 text-gray-700 transition-colors duration-200 ease-in-out peer-checked:text-gray-900 peer-checked:border-primary-500"
               >
                 {color}
               </label>
@@ -157,8 +155,8 @@ export default function Description({title}) {
             </h5>
             <h6 className="line-clamp-1 mt-3 text-xs">AMOLED</h6>
 
-            <span className="absolute text-nowrap z-50 end-1/2 ms-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
-              <span className="absolute end-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
+            <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
+              <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
               AMOLED
             </span>
           </div>
@@ -168,8 +166,8 @@ export default function Description({title}) {
               نرخ نوسازی
             </h5>
             <h6 className="line-clamp-1 mt-3 text-xs">120Hz Adaptive</h6>
-            <span className="absolute text-nowrap z-50 end-1/2 ms-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
-              <span className="absolute end-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
+            <span className="absolute text-nowrap z-50inset-e-1/2 ms-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
+              <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
               120Hz Adaptive
             </span>
           </div>
@@ -179,8 +177,8 @@ export default function Description({title}) {
               حداکثر روشنایی
             </h5>
             <h6 className="line-clamp-1 mt-3 text-xs">2000 nits</h6>
-            <span className="absolute text-nowrap z-50 end-1/2 ms-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
-              <span className="absolute end-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
+            <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
+              <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
               2000 nits
             </span>
           </div>
@@ -190,8 +188,8 @@ export default function Description({title}) {
               رزولوشن
             </h5>
             <h6 className="line-clamp-1 mt-3 text-xs">1290 × 2796</h6>
-            <span className="absolute text-nowrap z-50 end-1/2 ms-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
-              <span className="absolute end-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
+            <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
+              <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
               1290 × 2796
             </span>
           </div>
@@ -201,8 +199,8 @@ export default function Description({title}) {
               نوع محافظ صفحه
             </h5>
             <h6 className="line-clamp-1 mt-3 text-xs">Ceramic Shield</h6>
-            <span className="absolute text-nowrap z-50 end-1/2 ms-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
-              <span className="absolute end-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
+            <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
+              <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
               Ceramic Shield
             </span>
           </div>
@@ -212,8 +210,8 @@ export default function Description({title}) {
               نسبت صفحه به بدنه
             </h5>
             <h6 className="line-clamp-1 mt-3 text-xs">89.8%</h6>
-            <span className="absolute text-nowrap z-50 end-1/2 ms-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
-              <span className="absolute end-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
+            <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
+              <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
               89.8%
             </span>
           </div>

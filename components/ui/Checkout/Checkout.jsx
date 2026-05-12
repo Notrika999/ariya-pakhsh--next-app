@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 export default function Checkout() {
@@ -13,8 +14,8 @@ export default function Checkout() {
               <div className="flex items-baseline justify-between mb-6">
                 <h1
                   className="font-black text-lg mb-4 relative pb-4 text-gray-900 dark:text-gray-200
-                                    before:absolute before:start-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary
-                                    after:absolute after:w-40 after:h-2 after:bottom-0 after:start-4 after:bg-primary after:rounded-lg"
+                                    before:absolute before:inset-s-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary
+                                    after:absolute after:w-40 after:h-2 after:bottom-0 after:inset-s-4 after:bg-primary after:rounded-lg"
                 >
                   جزئیات سفارش
                 </h1>
@@ -416,7 +417,7 @@ export default function Checkout() {
                       className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600"
                     />
                     <label
-                      for="save-address"
+                      htmlFor="save-address"
                       className="ms-2 text-sm text-gray-700 dark:text-gray-300"
                     >
                       این آدرس را ذخیره کن
@@ -427,7 +428,7 @@ export default function Checkout() {
 
               {/* <!--Delivery time--> */}
               <div className="mb-8">
-                <h2 className="font-bold text-lg mb-4 relative pb-4 before:absolute before:start-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-0.5 after:bottom-0 after:start-4 after:bg-primary after:rounded-lg">
+                <h2 className="font-bold text-lg mb-4 relative pb-4 before:absolute before:inset-s-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-0.5 after:bottom-0 after:inset-s-4 after:bg-primary after:rounded-lg">
                   زمان تحویل را انتخاب کنید
                 </h2>
 
@@ -437,42 +438,42 @@ export default function Checkout() {
                     id="day-selector"
                   >
                     <button
-                      className="flex-shrink-0 px-4 py-2 rounded-lg font-medium day-option border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-blue-500/20 dark:hover:text-gray-200 bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300 selected"
+                      className="shrink-0 px-4 py-2 rounded-lg font-medium day-option border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-blue-500/20 dark:hover:text-gray-200 bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300 selected"
                       data-day-id="1"
                       data-day-name="امروز - پنجشنبه"
                     >
                       امروز - پنجشنبه
                     </button>
                     <button
-                      className="flex-shrink-0 px-4 py-2 rounded-lg font-medium day-option border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-blue-500/20 dark:hover:text-gray-200"
+                      className="shrink-0 px-4 py-2 rounded-lg font-medium day-option border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-blue-500/20 dark:hover:text-gray-200"
                       data-day-id="2"
                       data-day-name="فردا - جمعه"
                     >
                       فردا - جمعه
                     </button>
                     <button
-                      className="flex-shrink-0 px-4 py-2 rounded-lg font-medium day-option border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-blue-500/20 dark:hover:text-gray-200"
+                      className="shrink-0 px-4 py-2 rounded-lg font-medium day-option border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-blue-500/20 dark:hover:text-gray-200"
                       data-day-id="3"
                       data-day-name="شنبه"
                     >
                       شنبه
                     </button>
                     <button
-                      className="flex-shrink-0 px-4 py-2 rounded-lg font-medium day-option border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-blue-500/20 dark:hover:text-gray-200"
+                      className="shrink-0 px-4 py-2 rounded-lg font-medium day-option border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-blue-500/20 dark:hover:text-gray-200"
                       data-day-id="4"
                       data-day-name="یکشنبه"
                     >
                       یکشنبه
                     </button>
                     <button
-                      className="flex-shrink-0 px-4 py-2 rounded-lg font-medium day-option border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-blue-500/20 dark:hover:text-gray-200"
+                      className="shrink-0 px-4 py-2 rounded-lg font-medium day-option border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-blue-500/20 dark:hover:text-gray-200"
                       data-day-id="5"
                       data-day-name="دوشنبه"
                     >
                       دوشنبه
                     </button>
                     <button
-                      className="flex-shrink-0 px-4 py-2 rounded-lg font-medium day-option border border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                      className="shrink-0 px-4 py-2 rounded-lg font-medium day-option border border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed"
                       data-day-id="6"
                       data-day-name="سه‌شنبه"
                       disabled
@@ -822,8 +823,8 @@ export default function Checkout() {
             <div className="bg-white dark:bg-custom-dark rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 sticky top-0">
               <h2
                 className="font-black text-lg mb-4 relative pb-4 text-gray-900 dark:text-gray-200
-                before:absolute before:start-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary
-                after:absolute after:w-40 after:h-2 after:bottom-0 after:start-4 after:bg-primary after:rounded-lg"
+                before:absolute before:inset-s-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary
+                after:absolute after:w-40 after:h-2 after:bottom-0 after:inset-s-4 after:bg-primary after:rounded-lg"
               >
                 خلاصه سفارش
               </h2>
@@ -833,7 +834,12 @@ export default function Checkout() {
                 <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-700">
                   <div className="flex items-center">
                     <div className="w-16 h-16 bg-gray-200 dark:bg-zinc-800 rounded-lg flex items-center justify-center me-3">
-                      <img src="/images/product/wach-1.png" alt="" />
+                      <Image
+                        width={56}
+                        height={56}
+                        src="/images/product/wach-1.png"
+                        alt=""
+                      />
                     </div>
                     <div>
                       <h3 className="font-medium text-gray-800 dark:text-gray-200">
@@ -852,7 +858,12 @@ export default function Checkout() {
                 <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-700">
                   <div className="flex items-center">
                     <div className="w-16 h-16 bg-gray-200 dark:bg-zinc-800 rounded-lg flex items-center justify-center me-3">
-                      <img src="/images/product/wach-3.png" alt="" />
+                      <Image
+                        width={56}
+                        height={56}
+                        src="/images/product/wach-3.png"
+                        alt=""
+                      />
                     </div>
                     <div>
                       <h3 className="font-medium text-gray-800 dark:text-gray-200">
@@ -905,7 +916,7 @@ export default function Checkout() {
                   </span>
                 </div>
                 <div
-                  className="flex justify-between hidden"
+                  className="justify-between hidden flex"
                   id="delivery-time-cost-container"
                 >
                   <span className="text-gray-600 dark:text-gray-400">

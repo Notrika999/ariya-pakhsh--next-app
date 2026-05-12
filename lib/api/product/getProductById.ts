@@ -23,3 +23,14 @@ export const fetchProductById = async (
     return { error: true, message: "ارتباط با سرور برقرار نشد" };
   }
 };
+
+
+async function getProduct(id: string) {
+  const res = await fetch(`${process.env.API_URL}/products/${id}`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) throw new Error("Failed to fetch");
+
+  return res.json();
+}

@@ -53,8 +53,7 @@ export default function CompareTable() {
                 className="h-16 text-gray-400 dark:text-gray-500 mb-2 cursor-pointer"
                 fill="none"
                 viewBox="0 0 24 24"
-                stroke="currentColor"
-                onClick="openModal()" //
+                stroke="currentColor"//
               >
                 <path
                   strokeLinecap="round"

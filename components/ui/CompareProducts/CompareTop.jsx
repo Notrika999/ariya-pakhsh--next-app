@@ -6,8 +6,7 @@ export default function CompareTop() {
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {/* <!--Product 1--> */}
       <div
-        className="product-card border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:border-primary-300 transition duration-300 min-h-[200px]"
-        onClick="openModal()"
+        className="product-card border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:border-primary-300 transition duration-300 min-h-50"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -29,8 +28,7 @@ export default function CompareTop() {
       {/* <!--Product 2--> */}
       <div className="product-card bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 relative overflow-hidden">
         <button
-          className="absolute top-2 end-2 text-gray-400 dark:text-gray-300 hover:text-red-500 z-10"
-          onClick="removeProduct(1)"
+          className="absolute top-2 inset-e-2 text-gray-400 dark:text-gray-300 hover:text-red-500 z-10"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -69,8 +67,8 @@ export default function CompareTop() {
       {/* <!--Product 3--> */}
       <div className="product-card bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 relative overflow-hidden">
         <button
-          className="absolute top-2 end-2 text-gray-400 dark:text-gray-300 hover:text-red-500 z-10"
-          onClick="removeProduct(2)"
+          className="absolute top-2 inset-e-2 text-gray-400 dark:text-gray-300 hover:text-red-500 z-10"
+          
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -109,8 +107,8 @@ export default function CompareTop() {
       {/* <!--Product 4--> */}
       <div className="product-card bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 relative overflow-hidden">
         <button
-          className="absolute top-2 end-2 text-gray-400 dark:text-gray-300 hover:text-red-500 z-10"
-          onClick="removeProduct(3)"
+          className="absolute top-2 inset-e-2 text-gray-400 dark:text-gray-300 hover:text-red-500 z-10"
+          
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

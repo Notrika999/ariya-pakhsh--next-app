@@ -13,3 +13,11 @@ function Compare() {
 }
 
 export default Compare;
+
+// NOINDEX 
+export const metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};

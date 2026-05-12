@@ -6,3 +6,11 @@ function GiftCartPage() {
 }
 
 export default GiftCartPage;
+
+// NOINDEX 
+export const metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};

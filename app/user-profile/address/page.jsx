@@ -8,3 +8,11 @@ function AddressPage() {
 }
 
 export default AddressPage
+
+// NOINDEX 
+export const metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};

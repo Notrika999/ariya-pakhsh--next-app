@@ -1,7 +1,7 @@
 "use client";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, FreeMode } from "swiper/modules";
+import { Autoplay } from "swiper/modules";
 import "swiper/css";
 
 import Image from "next/image";
@@ -19,8 +19,8 @@ export default function Brand({ brands }) {
           {/* <!-- title --> */}
           <h2
             className="font-bold text-lg mb-4 relative pb-4 text-gray-900 dark:text-gray-200
-                before:absolute before:start-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary
-                after:absolute after:w-40 after:h-2 after:bottom-0 after:start-4 after:bg-primary after:rounded-lg"
+                before:absolute before:inset-s-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary
+                after:absolute after:w-40 after:h-2 after:bottom-0 after:inset-s-4 after:bg-primary after:rounded-lg"
           >
             برندهای های فروشگاه
           </h2>
@@ -72,7 +72,6 @@ export default function Brand({ brands }) {
                         height={100}
                         className="w-28"
                       />
-                      {/* <img src={brand.img} alt="" /> */}
                     </figure>
                     {/* <!-- title --> */}
                     <h3 className="text-sm font-bold text-gray-900 dark:text-gray-200 text-center">
@@ -84,52 +83,6 @@ export default function Brand({ brands }) {
             ))}
           </Swiper>
 
-          {/* <Swiper
-            modules={[Autoplay, FreeMode]}
-            freeMode={true}
-            loop={true}
-            loopedSlides={4} // حداکثر slidesPerView در breakpointها
-            autoplay={{
-              delay: 2500,
-              disableOnInteraction: false,
-              pauseOnMouseEnter: true,
-            }}
-            spaceBetween={10}
-            slidesPerView={4}
-            breakpoints={{
-              320: { slidesPerView: 2 },
-              640: { slidesPerView: 3 },
-              1024: { slidesPerView: 4 },
-            }}
-            className="free-mode"
-            rtl={true}
-          >
-            {brands.map((brand) => (
-              <SwiperSlide key={brand.id} className="!size-40">
-                <Link href="#">
-                  <div
-                    className="bg-white dark:bg-custom-dark border border-gray-200 dark:border-neutral-700
-                  space-y-4 p-4 rounded-2xl flex flex-col items-center justify-center
-                  transition-all duration-200 hover:shadow-md hover:scale-[1.02]
-                  dark:hover:bg-[#13171c]"
-                  >
-                    <figure>
-                      <Image
-                        src={brand.img}
-                        alt={brand.name}
-                        width={100}
-                        height={100}
-                        className="w-28"
-                      />
-                    </figure>
-                    <h3 className="text-sm font-bold text-gray-900 dark:text-gray-200 text-center">
-                      {brand.name}
-                    </h3>
-                  </div>
-                </Link>
-              </SwiperSlide>
-            ))}
-          </Swiper> */}
         </div>
       </div>
     </section>

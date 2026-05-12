@@ -17,6 +17,8 @@
       "price": 13550000,
       "oldPrice": 13900000,
       "rating": 4,
+      "offer": true,
+      "countdownToISO": "2028-01-01T15:30:00.000Z",
       "colors": ["rgb(248, 162, 3)", "rgb(0, 0, 0)"],
       "href": "/product"
     },
@@ -36,6 +38,8 @@
       "discount": "5",
       "price": 45000000,
       "oldPrice": 47500000,
+      "offer": false,
+      "countdownToISO": "0",
       "rating": 5,
       "colors": ["rgb(128, 128, 128)"],
       "href": "/product"
@@ -56,6 +60,8 @@
       "brandId": 2,
       "price": 13550000,
       "oldPrice": 13900000,
+      "offer": true,
+      "countdownToISO": "2028-01-01T15:30:00.000Z",
       "rating": 4,
       "colors": ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
       "href": "/product"
@@ -77,13 +83,15 @@
       "price": 13550000,
       "oldPrice": 13900000,
       "rating": 4,
+      "offer": true,
+      "countdownToISO": "2028-01-01T15:30:00.000Z",
       "colors": ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
       "href": "/product"
     },
     {
       "id": "5",
       "title": "سامسونگ مدل S8",
-      " image": "/images/product/laptop-5.png",
+      "image": "/images/product/laptop-5.png",
       "imageSlider": [
         { "id": 1, "imgSrc": "/images/product/laptop-1.png" },
         { "id": 2, "imgSrc": "/images/product/laptop-2.png" },
@@ -97,6 +105,8 @@
       "price": 13550000,
       "oldPrice": 13900000,
       "rating": 4,
+      "offer": true,
+      "countdownToISO": "2028-01-01T15:30:00.000Z",
       "colors": ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
       "href": "/product"
     },
@@ -116,6 +126,8 @@
       "brandId": 3,
       "price": 13550000,
       "oldPrice": 13900000,
+      "offer": false,
+      "countdownToISO": "0",
       "rating": 4,
       "colors": ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
       "href": "/product"
@@ -137,6 +149,8 @@
       "price": 13550000,
       "oldPrice": 13900000,
       "rating": 4,
+      "offer": true,
+      "countdownToISO": "2028-01-01T15:30:00.000Z",
       "colors": ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
       "href": "/product"
     },
@@ -156,6 +170,8 @@
       "brandId": 2,
       "price": 13550000,
       "oldPrice": 13900000,
+      "offer": true,
+      "countdownToISO": "2028-01-01T15:30:00.000Z",
       "rating": 4,
       "colors": ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
       "href": "/product"

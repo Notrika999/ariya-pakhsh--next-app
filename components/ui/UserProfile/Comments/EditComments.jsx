@@ -71,7 +71,7 @@ export default function EditComments() {
             <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
               <TitleAfter title={"محصول مرتبط"} />
               <div className="flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-6">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <img
                     src="assets/images/product/television-2.png"
                     className="size-24 rounded-lg"

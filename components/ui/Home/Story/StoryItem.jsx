@@ -1,6 +1,7 @@
 import React from "react";
 
 import storyStyle from "./Story.module.css";
+import Image from "next/image";
 export default function StoryItem({ image, title, onOpen, index, viewed }) {
   return (
     <div
@@ -13,7 +14,9 @@ export default function StoryItem({ image, title, onOpen, index, viewed }) {
       <div
         className={`${storyStyle.storyAvatar} ${viewed ? storyStyle.viewed : ""}`}
       >
-        <img
+        <Image
+        width={100}
+        height={100}
           src={image}
           alt={title}
           onError={(e) => {
@@ -21,7 +24,7 @@ export default function StoryItem({ image, title, onOpen, index, viewed }) {
           }}
         />
       </div>
-      <div className={`dark:!text-white ${storyStyle.storyUsername}`}>
+      <div className={`dark:text-white! ${storyStyle.storyUsername}`}>
         {title}
       </div>
     </div>

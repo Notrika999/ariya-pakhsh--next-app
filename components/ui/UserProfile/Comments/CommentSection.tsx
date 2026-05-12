@@ -1,4 +1,5 @@
 import { CommentItem } from "@/lib/types/userpanel/comments";
+import Image from "next/image";
 import React from "react";
 
 interface Props {
@@ -15,8 +16,10 @@ export default function CommentSection({ comments }: Props) {
         >
           <div className="flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-4">
             {/* Image */}
-            <div className="flex-shrink-0">
-              <img
+            <div className="shrink-0">
+              <Image
+              width={80}
+              height={80}
                 src={comment.productImage}
                 className="size-20 rounded-lg"
                 alt={comment.productTitle}

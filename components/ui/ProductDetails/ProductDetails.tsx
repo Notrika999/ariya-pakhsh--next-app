@@ -14,7 +14,6 @@ interface Props {
 }
 
 export default function ProductDetails({ id }: Props) {
-  console.log(id);
   const { product, loading, error } = useProductDetails(id);
 
   if (loading) return <p>در حال دریافت اطلاعات...</p>;
@@ -22,8 +21,6 @@ export default function ProductDetails({ id }: Props) {
   if (error) return <p>{error}</p>;
 
   if (!product) return null;
-
-  console.log(product);
 
   return (
     <>

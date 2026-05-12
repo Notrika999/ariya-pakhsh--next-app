@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import FilterColor from "./FilterColor";
 import PriceRangeFilter from "./PriceRangeFilter";
@@ -32,8 +32,8 @@ export default function Filter({
     <section className="space-y-5 sticky top-0">
       {/* <!-- Search --> */}
       <section>
-        <div className="dark:bg-custom-dark dark:border-gray-700 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border-1 p-4">
-          <h2 className="font-bold text-base mb-4 relative pb-4 before:absolute before:start-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:start-4 after:bg-primary after:rounded-lg">
+        <div className="dark:bg-custom-dark dark:border-gray-700 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border p-4">
+          <h2 className="font-bold text-base mb-4 relative pb-4 before:absolute before:inset-s-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:inset-s-4 after:bg-primary after:rounded-lg">
             جستجوی محصولات
           </h2>
           <div className="relative flex items-center w-full">
@@ -50,7 +50,7 @@ export default function Filter({
               placeholder="جستجوی محصولات ...."
             />
 
-            <button className="p-2 rounded-3xl absolute end-1 hover:opacity-90 transition-opacity">
+            <button className="p-2 rounded-3xl absolute inset-e-1 hover:opacity-90 transition-opacity">
               <i className="fa fa-search"></i>
             </button>
           </div>

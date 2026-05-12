@@ -9,7 +9,7 @@ export default function CompareProducts() {
       <div className="container mx-auto">
         {/* <!--Select products to compare--> */}
         <div className="bg-white dark:bg-custom-dark rounded-xl shadow-md p-6 mb-8">
-          <h2 className="font-bold text-lg mb-4 relative pb-4 text-gray-900 dark:text-white before:absolute before:start-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:start-4 after:bg-primary after:rounded-lg">
+          <h2 className="font-bold text-lg mb-4 relative pb-4 text-gray-900 dark:text-white before:absolute before:inset-s-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:inset-s-4 after:bg-primary after:rounded-lg">
             انتخاب محصولات برای مقایسه
           </h2>
 
@@ -28,7 +28,7 @@ export default function CompareProducts() {
           id="productModal"
           className="modal fixed z-50 inset-0 w-full h-full overflow-auto backdrop-blur bg-opacity-40 hidden"
         >
-          <div className="modal-content bg-white dark:bg-zinc-900 dark:border dark:border-gray-600 rounded-xl p-6 shadow-lg max-w-[800px] w-[80%] mx-auto mt-[5%] animate-[modalopen_0.4s_ease]">
+          <div className="modal-content bg-white dark:bg-zinc-900 dark:border dark:border-gray-600 rounded-xl p-6 shadow-lg max-w-200 w-[80%] mx-auto mt-[5%] animate-[modalopen_0.4s_ease]">
             {/* <!-- Header --> */}
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">
@@ -36,7 +36,7 @@ export default function CompareProducts() {
               </h3>
               <span
                 className="close text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100 text-2xl cursor-pointer"
-                onClick="closeModal()"
+                
               >
                 &times;
               </span>
@@ -47,7 +47,7 @@ export default function CompareProducts() {
               {/* <!-- Sample Product Card --> */}
               <div
                 className="product-card bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 cursor-pointer hover:shadow-md transition duration-300"
-                onClick="selectProduct(1)"
+               
               >
                 <div className="flex justify-center mb-4">
                   <Image
@@ -71,7 +71,7 @@ export default function CompareProducts() {
               {/* <!--The second product--> */}
               <div
                 className="product-card bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 cursor-pointer hover:shadow-md transition duration-300"
-                onClick="selectProduct(2)"
+                
               >
                 <div className="flex justify-center mb-4">
                   <Image
@@ -95,7 +95,7 @@ export default function CompareProducts() {
               {/* <!--The third product--> */}
               <div
                 className="product-card bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 cursor-pointer hover:shadow-md transition duration-300"
-                onClick="selectProduct(3)"
+                
               >
                 <div className="flex justify-center mb-4">
                   <Image
@@ -121,13 +121,13 @@ export default function CompareProducts() {
             <div className="mt-6 flex justify-end">
               <button
                 className="bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-100 py-2 px-6 rounded-lg text-sm font-medium transition duration-300 me-2"
-                onClick="closeModal()"
+                
               >
                 انصراف
               </button>
               <button
                 className="bg-primary-600 hover:bg-primary-700 text-white py-2 px-6 rounded-lg text-sm font-medium transition duration-300"
-                onClick="closeModal()"
+                
               >
                 تایید انتخاب
               </button>

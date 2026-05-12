@@ -33,7 +33,7 @@ function page404() {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
             <div className="md:flex">
               {/* <!--Image section--> */}
-              <div className="md:w-2/5 p-8 md:p-12 flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 dark:from-indigo-700 dark:to-purple-900 dark:text-white">
+              <div className="md:w-2/5 p-8 md:p-12 flex items-center justify-center bg-linear-to-br from-blue-500 to-indigo-600 dark:from-indigo-700 dark:to-purple-900 dark:text-white">
                 <div className="text-center text-white">
                   <div className="text-8xl font-black mb-4">404</div>
                   <div className="text-xl font-medium">صفحه یافت نشد</div>
@@ -108,7 +108,7 @@ function page404() {
 
                 {/* <!--Action buttons--> */}
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <a
+                  <Link
                     href="/"
                     className="inline-flex justify-center items-center px-4 py-3 border border-transparent text-base font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                   >
@@ -127,7 +127,7 @@ function page404() {
                       />
                     </svg>
                     صفحه اصلی
-                  </a>
+                  </Link>
                   <a
                     href="/contact"
                     className="inline-flex justify-center items-center px-4 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-lg shadow-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"

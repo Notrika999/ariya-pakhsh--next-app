@@ -6,3 +6,11 @@ function TicketsPage() {
 }
 
 export default TicketsPage;
+
+// NOINDEX 
+export const metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};

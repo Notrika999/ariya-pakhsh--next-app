@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import MenuItem from "./MenuItem";
 import MegaSubmenu from "./MegaSubmenu";
 import { useMegaMenu } from "@/lib/hooks/useMegaMenu";
-import Link from "next/link";
 
 export default function Menu() {
   const [megaOpen, setMegaOpen] = useState(false);
@@ -20,9 +19,9 @@ export default function Menu() {
       onMouseLeave={() => setMegaOpen(false)}
       className="border-e-2 pe-3 border-e-gray-300"
     >
-      <Link
-        href="/category"
-        className="flex items-center relative font-bold hover:text-primary transition"
+      <span
+       
+        className="flex items-center relative font-bold hover:text-primary transition cursor-default"
       >
         <i className="fa-solid fa-bars me-1"></i>
 
@@ -31,13 +30,13 @@ export default function Menu() {
           <i className="fa-solid fa-chevron-down text-sm ms-2"></i>
 
        
-      </Link>
+      </span>
 
       {megaOpen && (
         <div className="bg-white dark:bg-custom-dark dark:border dark:border-gray-700  container z-50  top-[95%] left-0 right-0 drop-shadow-sm dark:shadow-[0_2px_6px_rgba(0,0,0,0.4)] absolute mt-1 me-10 rounded-b-md transition-colors duration-300">
           <div className="grid grid-cols-12">
             {/* left menu */}
-            <div className="col-span-2 h-[400px] overflow-y-scroll border-e border-gray-400">
+            <div className="col-span-2 h-100 overflow-y-scroll border-e border-gray-400">
               <ul className="my-2 space-y-1">
                 {leftMenuItems.map((m) => (
                   <MenuItem

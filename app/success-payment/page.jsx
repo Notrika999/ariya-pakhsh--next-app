@@ -99,7 +99,7 @@ function SuccessPayment() {
           {/* <!--Original card--> */}
           <div className="bg-white dark:bg-custom-dark rounded-2xl shadow-xl overflow-hidden border border-green-200 dark:border-green-800">
             {/* <!-- Header --> */}
-            <div className="bg-gradient-to-l from-green-500 to-emerald-600 p-6 text-center">
+            <div className="bg-linear-to-l from-green-500 to-emerald-600 p-6 text-center">
               <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -283,3 +283,11 @@ function SuccessPayment() {
 }
 
 export default SuccessPayment;
+
+// NOINDEX 
+export const metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};

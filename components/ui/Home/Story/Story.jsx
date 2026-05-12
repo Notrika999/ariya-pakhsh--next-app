@@ -10,6 +10,7 @@ import "swiper/css/free-mode";
 import "swiper/css/navigation";
 
 import storyStyle from "./Story.module.css";
+import Image from "next/image";
 
 export default function Story({ stories }) {
   const [open, setOpen] = useState(false);
@@ -202,7 +203,9 @@ export default function Story({ stories }) {
                     }}
                   />
                 ) : (
-                  <img
+                  <Image
+                  width={1027}
+                  height={740}
                     src={current.url}
                     alt={current.user}
                     className={storyStyle.storyImage}

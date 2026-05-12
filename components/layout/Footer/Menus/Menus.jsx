@@ -2,6 +2,7 @@ import React from "react";
 import footerStyles from "../Footer.module.css";
 import MenuItems from "./MenuItems";
 import SocialMediaItem from "./SocialMediaItem";
+import Image from "next/image";
 
 export default function Menus() {
   const footerMenus = [
@@ -109,30 +110,30 @@ export default function Menus() {
                   <nav className="flex justify-center pt-0 mt-0">
                     <div className="flex">
                       <a href="" className="p-1">
-                        <img
+                        <Image
+                          width={80}
+                          height={92}
                           src="/images/namad/enamad.png"
                           className="border h-23 border-gray-300 dark:border-gray-700 dark:brightness-90 rounded"
                           alt="نماد 1"
-                          width="80"
-                          height="80"
                         />
                       </a>
                       <a href="" className="p-1">
-                        <img
+                        <Image
+                          width={80}
+                          height={92}
                           src="/images/namad/namad-01.png"
                           className="border h-23 border-gray-300 dark:border-gray-700 dark:brightness-90 rounded"
                           alt="نماد 2"
-                          width="80"
-                          height="80"
                         />
                       </a>
                       <a href="" className="p-1">
-                        <img
+                        <Image
+                          width={80}
+                          height={92}
                           src="/images/namad/rezi.png"
                           className="border h-23 border-gray-300 dark:border-gray-700 dark:brightness-90 rounded"
                           alt="نماد 3"
-                          width="80"
-                          height="80"
                         />
                       </a>
                     </div>
@@ -159,13 +160,15 @@ export default function Menus() {
                 <div className="w-full lg:block hidden lg:w-2/12 relative">
                   <div className="relative w-56">
                     <div
-                      className={`absolute -start-3 end-0 top-0 h-24 w-64 dark:hidden dark:opacity-70 ${footerStyles.footerLogoShadow}`}
+                      className={`absolute -inset-3 inset-e-0 top-0 h-24 w-64 dark:hidden dark:opacity-70 ${footerStyles.footerLogoShadow}`}
                     ></div>
                     <a
                       href="#"
-                      className="absolute start-0 end-0 text-center dark:mt-0 mt-7 block"
+                      className="absolute inset-s-0 inset-e-0 text-center dark:mt-0 mt-7 block"
                     >
-                      <img
+                      <Image
+                      width={60}
+                      height={60}
                         src="/images/logo/logo.png"
                         className="size-15 mt-1 inline-block mx-auto dark:invert"
                         alt="لوگو"

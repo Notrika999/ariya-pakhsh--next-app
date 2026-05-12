@@ -18,3 +18,5 @@ export const useProductDetails = (id: string) => {
     error,
   };
 };
+
+

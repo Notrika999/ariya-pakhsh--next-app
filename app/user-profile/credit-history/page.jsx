@@ -6,3 +6,11 @@ function CreditHistoryPage() {
 }
 
 export default CreditHistoryPage;
+
+// NOINDEX 
+export const metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};

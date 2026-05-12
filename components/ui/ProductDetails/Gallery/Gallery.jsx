@@ -79,9 +79,9 @@ export default function Gallery({ images }) {
       {/* <!-- Discount Timer --> */}
 
       {/* <!-- Large gallery --> */}
-      <div className="bg-primary relative mb-12 rounded-[15px] h-[350px] pt-5 px-[15px] pb-[33px] dark:bg-custom-dark dark:border dark:border-gray-700">
+      <div className="bg-primary relative mb-12 rounded-[15px] h-87.5 pt-5 px-3.75 pb-8.35 dark:bg-custom-dark dark:border dark:border-gray-700">
         {/* <!-- Action buttons --> */}
-        <div className="flex rounded-2xl px-2 bg-gray-100 dark:bg-custom-dark gap-2 absolute top-3 end-1/2 -translate-x-1/2 z-10 mt-4">
+        <div className="flex rounded-2xl px-2 bg-gray-100 dark:bg-custom-dark gap-2 absolute top-3 inset-e-1/2 -translate-x-1/2 z-10 mt-4">
           {/* <!-- Share --> */}
           <button
             data-modal-target="shareModal"
@@ -102,8 +102,8 @@ export default function Gallery({ images }) {
               />
             </svg>
             {/* <!-- Tooltip --> */}
-            <span className="absolute text-nowrap z-50 end-1/2 ms-2 -top-7 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
-              <span className="absolute end-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
+            <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-7 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
+              <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
               اشتراک گذاری
             </span>
           </button>
@@ -125,8 +125,8 @@ export default function Gallery({ images }) {
               />
             </svg>
             {/* <!-- Tooltip --> */}
-            <span className="absolute text-nowrap z-50 end-1/2 ms-2 -top-7 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
-              <span className="absolute end-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
+            <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-7 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
+              <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
               مقایسه
             </span>
           </button>
@@ -148,8 +148,8 @@ export default function Gallery({ images }) {
               />
             </svg>
             {/* <!-- Tooltip --> */}
-            <span className="absolute text-nowrap z-50 end-1/2 ms-2 -top-7 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
-              <span className="absolute end-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
+            <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-7 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
+              <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
               افزودن به علاقه مندی ها
             </span>
           </button>
@@ -174,8 +174,8 @@ export default function Gallery({ images }) {
               />
             </svg>
             {/* <!-- Tooltip --> */}
-            <span className="absolute text-nowrap z-50 end-1/2 ms-2 -top-7 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
-              <span className="absolute end-1/2 -bottom-[10px] rotate-[90deg] -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
+            <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-7 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
+              <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
               نمودار قیمت
             </span>
           </button>
@@ -197,7 +197,7 @@ export default function Gallery({ images }) {
                   <img
                     src={img.imgSrc}
                     alt={`product-${index}`}
-                    className="max-h-[280px] object-contain"
+                    className="max-h-70 object-contain"
                   />
                 </div>
               </div>

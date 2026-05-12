@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 export default function AcceptPay() {
@@ -115,8 +116,10 @@ export default function AcceptPay() {
                 <div className="flex justify-between items-center rounded-lg border border-gray-200 dark:border-gray-700 p-3 border-b bg-custom-light dark:bg-zinc-800">
                   <div className="flex items-center">
                     <div className="w-16 h-16 rounded-lg flex items-center justify-center me-4">
-                      <img
-                        src="assets/images/product/television-2.png"
+                      <Image
+                        width={64}
+                        height={64}
+                        src="/images/product/television-2.png"
                         alt=""
                       />
                     </div>
@@ -143,8 +146,10 @@ export default function AcceptPay() {
                 <div className="flex justify-between items-center rounded-lg border border-gray-200 dark:border-gray-700 p-3 border-b bg-custom-light dark:bg-zinc-800">
                   <div className="flex items-center">
                     <div className="w-16 h-16 rounded-lg flex items-center justify-center me-4">
-                      <img
-                        src="assets/images/product/television-1.png"
+                      <Image
+                        width={64}
+                        height={64}
+                        src="/images/product/television-1.png"
                         alt=""
                       />
                     </div>
@@ -301,7 +306,7 @@ export default function AcceptPay() {
 
               <div className="space-y-4">
                 <button
-                  onClick="proceedToPayment()"
+                 
                   className="w-full bg-primary-500 hover:bg-primary-600 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
                 >
                   پرداخت و تکمیل سفارش
@@ -326,7 +331,7 @@ export default function AcceptPay() {
             {/* <!--Additional information--> */}
             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800 ">
               <div className="flex">
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   <svg
                     className="h-5 w-5 text-blue-400"
                     xmlns="http://www.w3.org/2000/svg"

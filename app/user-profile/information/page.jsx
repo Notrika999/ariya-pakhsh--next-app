@@ -7,3 +7,11 @@ function UserInformationPage() {
 }
 
 export default UserInformationPage;
+
+// NOINDEX 
+export const metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};

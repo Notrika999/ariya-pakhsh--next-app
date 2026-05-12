@@ -12,3 +12,11 @@ function CartPage() {
 }
 
 export default CartPage;
+
+// NOINDEX 
+export const metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};

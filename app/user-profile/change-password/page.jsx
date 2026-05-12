@@ -7,3 +7,11 @@ function ChangePasswordPage() {
 }
 
 export default ChangePasswordPage;
+
+// NOINDEX 
+export const metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};

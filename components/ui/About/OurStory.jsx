@@ -8,20 +8,16 @@ export default function OurStory() {
       <div className="flex flex-col lg:flex-row items-center gap-12">
         <div className="lg:w-1/2 relative">
           <div className="relative rounded-3xl overflow-hidden shadow-2xl transform hover:scale-[1.02] transition duration-500">
-            {/* <Image
-              width={100}
-              height={100}
-              src="/images/about/about.jpg"
-              alt="همکاری تیم ما"
-              className="w-full h-auto"
-            /> */}
-            <img
+            <Image
+              width={472}
+              height={283}
               src="/images/about/about.jpg"
               alt="همکاری تیم ما"
               className="w-full h-auto"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-gray-900/70 to-transparent opacity-70"></div>
-            <div className="absolute bottom-6 end-6 text-white">
+            
+            <div className="absolute inset-0 bg-linear-to-t from-gray-900/70 to-transparent opacity-70"></div>
+            <div className="absolute bottom-6 inset-e-6 text-white">
               <p className="text-sm">تیم متعهد ما در سال ۱۴۰۲</p>
             </div>
           </div>

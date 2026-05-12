@@ -36,7 +36,7 @@ export default function MegaMenu() {
 
             <li className="">
               <Link
-                href="#"
+                href="/category"
                 className="flex space-x-3 hover:text-primary transition"
               >
                 <svg

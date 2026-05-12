@@ -1,4 +1,5 @@
 import { RecentViewItem } from "@/lib/types/userpanel/activity-history";
+import Image from "next/image";
 import React from "react";
 
 interface Props {
@@ -9,8 +10,10 @@ export default function ActivityHistoryCard({ product }: Props) {
   return (
     <div className="bg-gray-50 dark:bg-zinc-800 border border-gray-200 dark:border-gray-700 rounded-2xl p-4 hover:shadow-md transition duration-200">
       <div className="flex items-start space-x-4">
-        <div className="flex-shrink-0 relative">
-          <img
+        <div className="shrink-0 relative">
+          <Image
+          width={80}
+          height={80}
             src={product.imgSrc}
             className="size-20 rounded-lg"
             alt={product.title}

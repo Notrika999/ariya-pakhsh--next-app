@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 export default function ReturnProducts({ products, onChange }) {
   return (
     <div>
@@ -25,8 +27,10 @@ export default function ReturnProducts({ products, onChange }) {
             />
             <label htmlFor="product1" className="flex-1 cursor-pointer">
               <div className="flex items-center space-x-4 ">
-                <img
-                  src="assets/images/product/television-2.png"
+                <Image
+                width={80}
+                height={80}
+                  src="/images/product/television-2.png"
                   className="w-16 h-16 rounded-lg"
                   alt="گوشی موبایل"
                 />

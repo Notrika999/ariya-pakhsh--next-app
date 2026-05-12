@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 
 export default function Cart() {
@@ -13,8 +14,8 @@ export default function Cart() {
               <div className="flex items-baseline justify-between mb-6">
                 <h1
                   className="font-black text-lg mb-4 relative pb-4 text-gray-900 dark:text-gray-200
-                            before:absolute before:start-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary
-                            after:absolute after:w-40 after:h-2 after:bottom-0 after:start-4 after:bg-primary after:rounded-lg"
+                            before:absolute before:inset-s-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary
+                            after:absolute after:w-40 after:h-2 after:bottom-0 after:inset-s-4 after:bg-primary after:rounded-lg"
                 >
                   سبد خرید
                 </h1>
@@ -208,7 +209,7 @@ export default function Cart() {
                 {/* <!--Product 2--> */}
                 <div className="flex flex-wrap sm:space-y-0 space-y-5 dark:bg-zinc-800 bg-custom-light cart-item items-start space-x-4 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
                   <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                    <img src="/images/product/mobile-2.png" alt="" />
+                    <Image width={80} height={80} src="/images/product/mobile-2.png" alt="" />
                   </div>
                   <div className="flex-1 space-y-4">
                     <h3 className="font-bold text-gray-800 dark:text-white">
@@ -296,8 +297,8 @@ export default function Cart() {
             <div className="bg-white sticky top-0 dark:bg-custom-dark rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <h2
                 className="font-black text-lg mb-4 relative pb-4 text-gray-900 dark:text-gray-200
-                            before:absolute before:start-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary
-                            after:absolute after:w-40 after:h-2 after:bottom-0 after:start-4 after:bg-primary after:rounded-lg"
+                            before:absolute before:inset-s-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary
+                            after:absolute after:w-40 after:h-2 after:bottom-0 after:inset-s-4 after:bg-primary after:rounded-lg"
               >
                 خلاصه سفارش
               </h2>
