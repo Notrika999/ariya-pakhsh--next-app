@@ -28,20 +28,7 @@ export default function Cart() {
                 <div className="timeline-step active flex flex-col items-center text-center">
                   <div className="timeline-icon bg-primary text-white dark:bg-primary-500">
                     {/* <!-- Heroicon: Shopping Cart --> */}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.8"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437m0 0L6.75 12.75m-1.644-7.478h13.052c.883 0 1.542.83 1.349 1.69l-1.2 5.25a1.35 1.35 0 01-1.312 1.06H6.75m0 0L5.25 6.75m1.5 6a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm10.5 0a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"
-                      />
-                    </svg>
+                    <i className="far fa-cart-shopping"></i>
                   </div>
                   <div className="timeline-title dark:text-white">سبد خرید</div>
                 </div>
@@ -50,20 +37,7 @@ export default function Cart() {
                 <div className="timeline-step flex flex-col items-center text-center">
                   <div className="timeline-icon dark:bg-gray-700 dark:text-gray-200">
                     {/* <!-- Heroicon: Credit Card --> */}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.8"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M2.25 8.25h19.5m-16.5 6h3m3 0h3m-9 5.25h12a2.25 2.25 0 002.25-2.25V7.5A2.25 2.25 0 0021.75 5.25H5.25A2.25 2.25 0 003 7.5v9.75A2.25 2.25 0 005.25 18.75z"
-                      />
-                    </svg>
+                    <i className="far fa-credit-card"></i>
                   </div>
                   <div className="timeline-title dark:text-white">
                     جزییات سفارش
@@ -74,20 +48,7 @@ export default function Cart() {
                 <div className="timeline-step flex flex-col items-center text-center">
                   <div className="timeline-icon dark:bg-gray-700 dark:text-gray-200">
                     {/* <!-- Heroicon: Badge Check --> */}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.8"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
+                    <i className="far fa-circle-check"></i>
                   </div>
                   <div className="timeline-title dark:text-white">تأیید</div>
                 </div>
@@ -96,20 +57,7 @@ export default function Cart() {
                 <div className="timeline-step flex flex-col items-center text-center">
                   <div className="timeline-icon dark:bg-gray-700 dark:text-gray-200">
                     {/* <!-- Heroicon: Check --> */}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.8"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4.5 12.75l6 6 9-13.5"
-                      />
-                    </svg>
+                    <i className="far fa-check"></i>
                   </div>
                   <div className="timeline-title dark:text-white">تکمیل</div>
                 </div>
@@ -120,7 +68,7 @@ export default function Cart() {
                 {/* <!--Product 1--> */}
                 <div className="flex flex-wrap sm:space-y-0 space-y-5 dark:bg-zinc-800 bg-custom-light cart-item items-start space-x-4 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
                   <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                    <img src="/images/product/mobile-2.png" alt="" />
+                    <Image width={80} height={80} src="/images/product/mobile-2.png" alt="" />
                   </div>
                   <div className="flex-1 space-y-4">
                     <h3 className="font-bold text-gray-800 dark:text-white">
@@ -133,56 +81,17 @@ export default function Cart() {
                     <div className="flex items-center space-x-4">
                       <div className="flex bg-white dark:bg-zinc-700 items-center border border-gray-300 dark:border-gray-600 rounded-lg">
                         <button className="cart-btn-minus w-8 h-8 flex items-center justify-center text-gray-600 dark:text-gray-400">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M20 12H4"
-                            />
-                          </svg>
+                          -
                         </button>
                         <span className="px-3 py-1 text-gray-800 dark:text-white">
                           1
                         </span>
                         <button className="cart-btn-plus w-8 h-8 flex items-center justify-center text-gray-600 dark:text-gray-400">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M12 4v16m8-8H4"
-                            />
-                          </svg>
+                         +
                         </button>
                       </div>
                       <button className="cart-btn-trash text-red-500 hover:text-red-700 transition-colors flex items-center">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 me-1"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
+                      <i className="far fa-trash-can text-sm"></i>
                         حذف
                       </button>
                     </div>
@@ -222,56 +131,17 @@ export default function Cart() {
                     <div className="flex items-center space-x-4">
                       <div className="flex bg-white dark:bg-zinc-700 items-center border border-gray-300 dark:border-gray-600 rounded-lg">
                         <button className="cart-btn-minus w-8 h-8 flex items-center justify-center text-gray-600 dark:text-gray-400">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M20 12H4"
-                            />
-                          </svg>
+                          -
                         </button>
                         <span className="px-3 py-1 text-gray-800 dark:text-white">
                           1
                         </span>
                         <button className="cart-btn-plus w-8 h-8 flex items-center justify-center text-gray-600 dark:text-gray-400">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M12 4v16m8-8H4"
-                            />
-                          </svg>
+                         +
                         </button>
                       </div>
                       <button className="cart-btn-trash text-red-500 hover:text-red-700 transition-colors flex items-center">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 me-1"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
+                        <i className="far fa-trash-can text-sm"></i>
                         حذف
                       </button>
                     </div>
@@ -339,20 +209,7 @@ export default function Cart() {
               </div>
 
               <button className="w-full bg-primary hover:bg-primary-600 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 me-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                  />
-                </svg>
+                <i className="far fa-credit-card me-1"></i>
                 ادامه فرآیند پرداخت
               </button>
             </div>

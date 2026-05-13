@@ -15,7 +15,7 @@ export default function OurStory() {
               alt="همکاری تیم ما"
               className="w-full h-auto"
             />
-            
+
             <div className="absolute inset-0 bg-linear-to-t from-gray-900/70 to-transparent opacity-70"></div>
             <div className="absolute bottom-6 inset-e-6 text-white">
               <p className="text-sm">تیم متعهد ما در سال ۱۴۰۲</p>
@@ -54,19 +54,7 @@ export default function OurStory() {
               className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-dark transition font-medium shadow-lg hover:shadow-xl"
             >
               بیشتر درباره ما
-              <svg
-                className="w-4 h-4 ms-2"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
+              <i className="fas fa-angle-left ms-2"></i>
             </Link>
             <Link
               href="#"

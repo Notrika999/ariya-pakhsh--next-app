@@ -142,19 +142,8 @@ function PrivacyPolicy() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                   <div className="flex items-start space-x-3 ">
                     <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center shrink-0">
-                      <svg
-                        className="w-4 h-4 text-blue-600 dark:text-blue-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                        ></path>
-                      </svg>
+                      <i className="far fa-bag-shopping text-blue-600 dark:text-blue-400"></i>
+                     
                     </div>
                     <div>
                       <h4 className="font-bold text-gray-800 dark:text-gray-200">
@@ -220,19 +209,8 @@ function PrivacyPolicy() {
 
                   <div className="flex items-start space-x-3 ">
                     <div className="w-8 h-8 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center shrink-0">
-                      <svg
-                        className="w-4 h-4 text-yellow-600 dark:text-yellow-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        ></path>
-                      </svg>
+                      <i className="far fa-circle-exclamation text-sm text-yellow-600 dark:text-yellow-400"></i>
+                      
                     </div>
                     <div>
                       <h4 className="font-bold text-gray-800 dark:text-gray-200">

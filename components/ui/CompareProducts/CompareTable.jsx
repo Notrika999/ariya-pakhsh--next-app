@@ -48,20 +48,8 @@ export default function CompareTable() {
           </td>
           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 dark:text-gray-100 text-center w-1/5 bg-white dark:bg-zinc-800">
             <div className="flex flex-col items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-16 text-gray-400 dark:text-gray-500 mb-2 cursor-pointer"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"//
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                />
-              </svg>
+              <i className="fas fa-plus text-2xl text-gray-400 dark:text-gray-500 mb-2"></i>
+              
               <span className="text-gray-500 dark:text-gray-400">
                 افزودن محصول
               </span>

@@ -8,42 +8,16 @@ export default function CompareTop() {
       <div
         className="product-card border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:border-primary-300 transition duration-300 min-h-50"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-10 w-10 text-gray-400 dark:text-gray-500 mb-2"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-          />
-        </svg>
+       <i className="fas fa-plus text-2xl text-gray-400 mb-2"></i>
         <span className="text-gray-600 dark:text-gray-300">افزودن محصول</span>
       </div>
 
       {/* <!--Product 2--> */}
       <div className="product-card bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 relative overflow-hidden">
         <button
-          className="absolute top-2 inset-e-2 text-gray-400 dark:text-gray-300 hover:text-red-500 z-10"
+          className="absolute top-2 inset-e-2 text-gray-400 dark:text-gray-300 hover:text-red-500 z-10 cursor-pointer"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <i className="fas fa-x text-gray-400 hover:text-red-500"></i>
         </button>
         <div className="flex justify-center mb-4">
           <Image
@@ -67,23 +41,10 @@ export default function CompareTop() {
       {/* <!--Product 3--> */}
       <div className="product-card bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 relative overflow-hidden">
         <button
-          className="absolute top-2 inset-e-2 text-gray-400 dark:text-gray-300 hover:text-red-500 z-10"
+          className="absolute top-2 inset-e-2 text-gray-400 dark:text-gray-300 hover:text-red-500 z-10 cursor-pointer"
           
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <i className="fas fa-x text-gray-400 hover:text-red-500"></i>
         </button>
         <div className="flex justify-center mb-4">
           <Image
@@ -107,23 +68,10 @@ export default function CompareTop() {
       {/* <!--Product 4--> */}
       <div className="product-card bg-white dark:bg-zinc-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 relative overflow-hidden">
         <button
-          className="absolute top-2 inset-e-2 text-gray-400 dark:text-gray-300 hover:text-red-500 z-10"
+          className="absolute top-2 inset-e-2 text-gray-400 dark:text-gray-300 hover:text-red-500 z-10 cursor-pointer"
           
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <i className="fas fa-x text-gray-400 hover:text-red-500"></i>
         </button>
         <div className="flex justify-center mb-4">
           <Image

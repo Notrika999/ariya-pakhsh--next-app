@@ -17,20 +17,7 @@ export default function FilterResponsive({
           onClick={() => setOpen(true)}
           className="bg-primary px-3 py-3 rounded-lg drop-shadow"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="size-8 text-white"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"
-            />
-          </svg>
+          <i className="far fa-sliders text-3xl text-white"></i>
         </button>
       </div>
 
@@ -57,20 +44,7 @@ export default function FilterResponsive({
                 className="cursor-pointer"
                 aria-label="بستن"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                  className="size-8 text-gray-700 dark:text-gray-300 hover:text-primary-500 transition-colors"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M6 18 18 6M6 6l12 12"
-                  />
-                </svg>
+                <i className="far fa-close"></i>
               </button>
             </div>
 

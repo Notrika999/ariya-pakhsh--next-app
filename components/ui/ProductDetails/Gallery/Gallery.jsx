@@ -11,6 +11,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/thumbs";
 import "swiper/css/zoom";
+import Image from "next/image";
 
 // swiper
 
@@ -87,20 +88,8 @@ export default function Gallery({ images }) {
             data-modal-target="shareModal"
             className="modal-trigger flex z-10 group relative items-center justify-center w-full p-2  transition dark:border-gray-700 drop-shadow rounded"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="size-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z"
-              />
-            </svg>
+            <i className="far fa-share-nodes"></i>
+
             {/* <!-- Tooltip --> */}
             <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-7 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
               <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
@@ -110,20 +99,7 @@ export default function Gallery({ images }) {
 
           {/* <!-- Compare --> */}
           <button className="flex z-10 group relative items-center justify-center w-full p-2  transition dark:border-gray-700 drop-shadow rounded">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="size-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
-              />
-            </svg>
+            <i className="fas fa-code-compare"></i>
             {/* <!-- Tooltip --> */}
             <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-7 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
               <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
@@ -133,20 +109,7 @@ export default function Gallery({ images }) {
 
           {/* <!-- Favorite --> */}
           <button className="flex z-10 group relative items-center justify-center w-full p-2  transition dark:border-gray-700 drop-shadow rounded">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="size-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
-              />
-            </svg>
+            <i className="far fa-heart"></i>
             {/* <!-- Tooltip --> */}
             <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-7 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
               <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
@@ -159,20 +122,7 @@ export default function Gallery({ images }) {
             data-modal-target="chartModal"
             className="modal-trigger flex z-10 group relative items-center justify-center w-full p-2  transition dark:border-gray-700 drop-shadow rounded"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="size-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0-1 3m8.5-3 1 3m0 0 .5 1.5m-.5-1.5h-9.5m0 0-.5 1.5m.75-9 3-3 2.148 2.148A12.061 12.061 0 0 1 16.5 7.605"
-              />
-            </svg>
+            <i className="fas fa-chart-line"></i>
             {/* <!-- Tooltip --> */}
             <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-7 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
               <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
@@ -194,7 +144,9 @@ export default function Gallery({ images }) {
             <SwiperSlide key={index}>
               <div className="border h-full border-gray-300 rounded-lg bg-white dark:bg-zinc-800 dark:border-gray-700 flex items-center justify-center">
                 <div className="swiper-zoom-container">
-                  <img
+                  <Image
+                    width={328}
+                    height={328}
                     src={img.imgSrc}
                     alt={`product-${index}`}
                     className="max-h-70 object-contain"
@@ -219,7 +171,9 @@ export default function Gallery({ images }) {
         {images.map((img, index) => (
           <SwiperSlide key={index}>
             <div className="rounded-lg flex justify-center cursor-pointer border border-gray-300 h-20 dark:border-gray-700 p-2 dark:bg-zinc-800">
-              <img
+              <Image
+                width={62}
+                height={62}
                 src={img.imgSrc}
                 alt={`thumb-${index}`}
                 className="h-full object-contain"

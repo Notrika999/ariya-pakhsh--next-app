@@ -40,18 +40,8 @@ export default function Description({ title }) {
       <div className="flex flex-wrap items-center pt-2 mt-2 space-x-2">
         {/* <!-- Rating --> */}
         <div className="flex items-center space-x-1">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="32"
-            height="32"
-            viewBox="0 0 24 24"
-            className="text-amber-400 size-5"
-          >
-            <path
-              fill="currentColor"
-              d="m12 17.27l4.15 2.51c.76.46 1.69-.22 1.49-1.08l-1.1-4.72l3.67-3.18c.67-.58.31-1.68-.57-1.75l-4.83-.41l-1.89-4.46c-.34-.81-1.5-.81-1.84 0L9.19 8.63l-4.83.41c-.88.07-1.24 1.17-.57 1.75l3.67 3.18l-1.1 4.72c-.2.86.73 1.54 1.49 1.08z"
-            />
-          </svg>
+          <i className="fas fa-star text-amber-400"></i>
+        
           <h4 className="text-sm font-bold">4.6</h4>
           <span className="text-xs text-gray-400 dark:text-gray-500">
             (امتیاز ۳۰۸ خریدار)
@@ -65,20 +55,7 @@ export default function Description({ title }) {
             className="bg-gray-200 hover:bg-primary/20 transition dark:bg-zinc-800 dark:text-gray-200 px-2 py-1 space-x-1 rounded-full flex items-center"
           >
             <span className="text-xs">185 دیدگاه </span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="size-4"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-              />
-            </svg>
+           <i className="far fa-angle-left"></i>
           </a>
         </div>
 
@@ -89,20 +66,7 @@ export default function Description({ title }) {
             className="bg-gray-200 hover:bg-primary/20 transition dark:bg-zinc-800 dark:text-gray-200 px-2 py-1 space-x-1 rounded-full flex items-center"
           >
             <span className="text-xs">265 پرسش </span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="size-4"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-              />
-            </svg>
+            <i className="far fa-angle-left"></i>
           </a>
         </div>
       </div>
@@ -222,20 +186,8 @@ export default function Description({ title }) {
       <div className="rounded my-3 mx-5 lg:mx-0">
         <div className="flex">
           <div className="flex mt-1">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              className="size-5 text-gray-500 dark:text-gray-400"
-            >
-              <path
-                fill="currentColor"
-                fillRule="evenodd"
-                d="M1.25 12C1.25 6.063 6.063 1.25 12 1.25S22.75 6.063 22.75 12S17.937 22.75 12 22.75S1.25 17.937 1.25 12M12 6.25a.75.75 0 0 1 .75.75v6a.75.75 0 0 1-1.5 0V7a.75.75 0 0 1 .75-.75m.568 11.25a.75.75 0 0 0-1.115-1.003l-.01.011a.75.75 0 0 0 1.114 1.004z"
-                clipRule="evenodd"
-              />
-            </svg>
+            <i className="fas fa-circle-exclamation text-gray-500 dark:text-gray-400"></i>
+            
           </div>
           <span className="ms-2 text-xs leading-6 text-justify text-neutral-500 dark:text-neutral-400">
             امکان برگشت کالا در گروه موبایل با دلیل انصراف از خرید تنها در صورتی

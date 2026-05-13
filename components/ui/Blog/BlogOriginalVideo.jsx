@@ -16,25 +16,7 @@ export default function BlogOriginalVideo() {
               className="w-full group-hover:scale-105 transition duration-500 h-80 object-cover rounded-xl grayscale"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="size-20 text-secondary-600"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z"
-                />
-              </svg>
+              <i className="far fa-circle-play text-6xl text-secondary-600"></i>
             </div>
             <div className="absolute bottom-0 start-0 end-0 p-4 bg-gradient-to-t from-black to-transparent rounded-b-xl">
               <h3 className="text-sm font-medium text-white truncate mb-2">
@@ -57,25 +39,7 @@ export default function BlogOriginalVideo() {
               className="w-full group-hover:scale-105 transition duration-500 h-80 object-cover rounded-xl grayscale"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="size-20 text-secondary-600"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z"
-                />
-              </svg>
+              <i className="far fa-circle-play text-6xl text-secondary-600"></i>
             </div>
             <div className="absolute bottom-0 start-0 end-0 p-4 bg-gradient-to-t from-black to-transparent rounded-b-xl">
               <h3 className="text-sm font-medium text-white truncate mb-2">
@@ -98,25 +62,7 @@ export default function BlogOriginalVideo() {
               className="w-full group-hover:scale-105 transition duration-500 h-80 object-cover rounded-xl grayscale"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="size-20 text-secondary-600"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z"
-                />
-              </svg>
+              <i className="far fa-circle-play text-6xl text-secondary-600"></i>
             </div>
             <div className="absolute bottom-0 start-0 end-0 p-4 bg-gradient-to-t from-black to-transparent rounded-b-xl">
               <h3 className="text-sm font-medium text-white truncate mb-2">
@@ -139,25 +85,7 @@ export default function BlogOriginalVideo() {
               className="w-full group-hover:scale-105 transition duration-500 h-80 object-cover rounded-xl grayscale"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="size-20 text-secondary-600"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z"
-                />
-              </svg>
+             <i className="far fa-circle-play text-6xl text-secondary-600"></i>
             </div>
             <div className="absolute bottom-0 start-0 end-0 p-4 bg-gradient-to-t from-black to-transparent rounded-b-xl">
               <h3 className="text-sm font-medium text-white truncate mb-2">
@@ -180,25 +108,7 @@ export default function BlogOriginalVideo() {
               className="w-full group-hover:scale-105 transition duration-500 h-80 object-cover rounded-xl grayscale"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="size-20 text-secondary-600"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.91 11.672a.375.375 0 0 1 0 .656l-5.603 3.113a.375.375 0 0 1-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112Z"
-                />
-              </svg>
+              <i className="far fa-circle-play text-6xl text-secondary-600"></i>
             </div>
             <div className="absolute bottom-0 start-0 end-0 p-4 bg-gradient-to-t from-black to-transparent rounded-b-xl">
               <h3 className="text-sm font-medium text-white truncate mb-2">

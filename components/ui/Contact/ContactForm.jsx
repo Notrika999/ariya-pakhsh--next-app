@@ -81,37 +81,15 @@ export default function ContactForm() {
             type="submit"
             className="bg-primary text-white font-bold py-3 px-8 rounded-lg flex items-center hover:bg-primary-700 transition"
           >
-            <svg
-              className="w-5 h-5 me-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M13 5l7 7-7 7M5 5l7 7-7 7"
-              ></path>
-            </svg>
+            <i className="fas fa-angles-right"></i>
+        
             ارسال پیام
           </button>
 
           {/* <!-- Response time --> */}
           <div className="ms-6 text-sm text-gray-500 dark:text-gray-400 flex items-center">
-            <svg
-              className="w-4 h-4 me-1"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
-            </svg>
+            <i className="far fa-clock me-1"></i>
+            
             میانگین زمان پاسخ‌گویی: ۲۴ ساعت
           </div>
         </div>

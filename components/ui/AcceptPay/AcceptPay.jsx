@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 export default function AcceptPay() {
@@ -25,20 +26,8 @@ export default function AcceptPay() {
                 {/* <!--Step 1 - Completed--> */}
                 <div className="timeline-step completed flex flex-col items-center text-center">
                   <div className="timeline-icon">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.8"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4.5 12.75l6 6 9-13.5"
-                      ></path>
-                    </svg>
+                    <i className="fas fa-check"></i>
+                    
                   </div>
                   <div className="timeline-title">سبد خرید</div>
                 </div>
@@ -46,20 +35,7 @@ export default function AcceptPay() {
                 {/* <!--Step 2 - Completed--> */}
                 <div className="timeline-step completed flex flex-col items-center text-center">
                   <div className="timeline-icon">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.8"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4.5 12.75l6 6 9-13.5"
-                      ></path>
-                    </svg>
+                    <i className="fas fa-check"></i>
                   </div>
                   <div className="timeline-title">جزئیات سفارش</div>
                 </div>
@@ -67,20 +43,7 @@ export default function AcceptPay() {
                 {/* <!--Step 3 Active--> */}
                 <div className="timeline-step active flex flex-col items-center text-center">
                   <div className="timeline-icon dark:bg-gray-700 dark:text-gray-200">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.8"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
+                    <i className="far fa-check-circle"></i>
                   </div>
                   <div className="timeline-title dark:text-white">تأیید</div>
                 </div>
@@ -88,20 +51,7 @@ export default function AcceptPay() {
                 {/* <!--Step 4--> */}
                 <div className="timeline-step flex flex-col items-center text-center">
                   <div className="timeline-icon dark:bg-gray-700 dark:text-gray-200">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.8"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4.5 12.75l6 6 9-13.5"
-                      />
-                    </svg>
+                    <i className="far fa-check"></i>
                   </div>
                   <div className="timeline-title dark:text-white">تکمیل</div>
                 </div>
@@ -312,19 +262,19 @@ export default function AcceptPay() {
                   پرداخت و تکمیل سفارش
                 </button>
 
-                <a
-                  href="/shipping"
+                <Link
+                  href="#"
                   className="w-full dark:text-white dark:hover:text-gray-800 border border-gray-300 text-gray-700 hover:bg-gray-100 font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
                 >
                   بازگشت به اطلاعات ارسال
-                </a>
+                </Link>
 
-                <a
-                  href="/cart"
+                <Link
+                  href="#"
                   className="w-full dark:text-white dark:hover:text-gray-800 border border-gray-300 text-gray-700 hover:bg-gray-100 font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center"
                 >
                   بازگشت به سبد خرید
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -332,18 +282,8 @@ export default function AcceptPay() {
             <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 border border-blue-200 dark:border-blue-800 ">
               <div className="flex">
                 <div className="shrink-0">
-                  <svg
-                    className="h-5 w-5 text-blue-400"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  <i className="fas fa-circle-exclamation text-blue-400 rotate-180 text-lg"></i>
+                  
                 </div>
                 <div className="ms-3">
                   <h3 className="text-sm font-medium text-blue-800 dark:text-blue-300">

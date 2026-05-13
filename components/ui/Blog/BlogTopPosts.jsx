@@ -34,20 +34,8 @@ export default function BlogTopPosts() {
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 9 مرداد 1402
               </span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="size-6 text-primary"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"
-                />
-              </svg>
+              <i className="fas fa-arrow-left-long text-primary"></i>
+              
             </div>
           </div>
         </Link>
@@ -70,20 +58,7 @@ export default function BlogTopPosts() {
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 9 تیر 1402
               </span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="size-6 text-primary"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"
-                />
-              </svg>
+               <i className="fas fa-arrow-left-long text-primary"></i>
             </div>
           </div>
         </Link>
@@ -106,20 +81,7 @@ export default function BlogTopPosts() {
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 9 تیر 1402
               </span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="size-6 text-primary"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18"
-                />
-              </svg>
+              <i className="fas fa-arrow-left-long text-primary"></i>
             </div>
           </div>
         </Link>

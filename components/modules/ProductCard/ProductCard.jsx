@@ -101,9 +101,9 @@ console.log("first")
       {/* Product Body */}
       <div className="mt-3">
         <h3 className="font-normal text-sm leading-6 max-h-12 min-h-12 mt-2 px-1 overflow-hidden group-hover:text-primary-600 dark:group-hover:text-primary-400 dark:text-gray-200 text-gray-900 transition-colors duration-200">
-          <a href={product.href} className="font-bold">
+          <Link href={product.href} className="font-bold">
             {product.title}
-          </a>
+          </Link>
         </h3>
       </div>
 

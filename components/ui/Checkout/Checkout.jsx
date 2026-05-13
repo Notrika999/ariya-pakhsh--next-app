@@ -27,20 +27,7 @@ export default function Checkout() {
                 {/* <!--Step 1 - Completed--> */}
                 <div className="timeline-step completed flex flex-col items-center text-center">
                   <div className="timeline-icon">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.8"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4.5 12.75l6 6 9-13.5"
-                      ></path>
-                    </svg>
+                    <i className="far fa-check"></i>
                   </div>
                   <div className="timeline-title">سبد خرید</div>
                 </div>
@@ -48,20 +35,7 @@ export default function Checkout() {
                 {/* <!--Step 2 - Active--> */}
                 <div className="timeline-step active flex flex-col items-center text-center">
                   <div className="timeline-icon dark:bg-gray-700 dark:text-gray-200">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.8"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M2.25 8.25h19.5m-16.5 6h3m3 0h3m-9 5.25h12a2.25 2.25 0 002.25-2.25V7.5A2.25 2.25 0 0021.75 5.25H5.25A2.25 2.25 0 003 7.5v9.75A2.25 2.25 0 005.25 18.75z"
-                      />
-                    </svg>
+                    <i className="far fa-credit-card"></i>
                   </div>
                   <div className="timeline-title dark:text-white">
                     جزئیات سفارش
@@ -71,20 +45,7 @@ export default function Checkout() {
                 {/* <!--Step 3--> */}
                 <div className="timeline-step flex flex-col items-center text-center">
                   <div className="timeline-icon dark:bg-gray-700 dark:text-gray-200">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.8"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
+                    <i className="far fa-circle-check"></i>
                   </div>
                   <div className="timeline-title dark:text-white">تأیید</div>
                 </div>
@@ -92,20 +53,7 @@ export default function Checkout() {
                 {/* <!--Step 4--> */}
                 <div className="timeline-step flex flex-col items-center text-center">
                   <div className="timeline-icon dark:bg-gray-700 dark:text-gray-200">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.8"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4.5 12.75l6 6 9-13.5"
-                      />
-                    </svg>
+                    <i className="far fa-check"></i>
                   </div>
                   <div className="timeline-title dark:text-white">تکمیل</div>
                 </div>
@@ -114,20 +62,7 @@ export default function Checkout() {
               {/* <!--Personal information--> */}
               <div className="mb-8">
                 <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 me-2 text-primary-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
+                  <i className="far fa-user"></i>
                   اطلاعات شخصی
                 </h2>
 
@@ -187,43 +122,12 @@ export default function Checkout() {
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5 me-2 text-primary-500"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
+                    <i className="far fa-location-dot text-primary-500"></i>
+                    
                     آدرس تحویل
                   </h2>
                   <button className="text-primary-500 hover:text-primary-700 text-sm dark:text-gray-400 flex items-center">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4 me-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
+                  <span className="text-xl">+</span>
                     افزودن آدرس جدید
                   </button>
                 </div>
@@ -240,20 +144,8 @@ export default function Checkout() {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5 me-2 text-primary-500"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                            />
-                          </svg>
+                          <i className="far fa-house text-primary-500 me-2"></i>
+                          
                           <div>
                             <h4 className="font-medium text-gray-800 dark:text-white">
                               آدرس منزل
@@ -278,20 +170,8 @@ export default function Checkout() {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5 me-2 text-green-500"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                            />
-                          </svg>
+                          <i className="far fa-toolbox me-2 text-green-500"></i>
+                          
                           <div>
                             <h4 className="font-medium text-gray-800 dark:text-white">
                               آدرس محل کار
@@ -316,20 +196,9 @@ export default function Checkout() {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5 me-2 text-purple-500"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                            />
-                          </svg>
+
+                          <i className="far fa-hotel me-2 text-purple-500"></i>
+                          
                           <div>
                             <h4 className="font-medium text-gray-800 dark:text-white">
                               آدرس فروشگاه
@@ -545,26 +414,8 @@ export default function Checkout() {
               {/* <!--Sending method--> */}
               <div className="mb-8">
                 <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 me-2 text-primary-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
-                    />
-                  </svg>
+                  <i className="far fa-truck me-2 text-primary-500 text-sm"></i>
+                 
                   روش ارسال
                 </h2>
 
@@ -577,26 +428,8 @@ export default function Checkout() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center me-3">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-6 w-6 text-green-600 dark:text-green-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"
-                            />
-                          </svg>
+                        <i className="far fa-truck me-2 text-green-600 dark:text-green-400 "></i>
+                          
                         </div>
                         <div>
                           <h3 className="font-medium text-gray-800 dark:text-white">
@@ -623,21 +456,8 @@ export default function Checkout() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <div className="w-12 h-12 bg-primary-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center me-3">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-6 w-6 text-primary-600 dark:text-primary-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0"
-                            />
-                          </svg>
+                          <i className="far fa-truck me-2 text-primary-600 dark:text-primary-400"></i>
+                          
                         </div>
                         <div>
                           <h3 className="font-medium text-gray-800 dark:text-white">
@@ -664,20 +484,8 @@ export default function Checkout() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center me-3">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-6 w-6 text-purple-600 dark:text-purple-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                              d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                            />
-                          </svg>
+                        <i className="far fa-paper-plane -rotate-45 text-purple-600 dark:text-purple-400 text-lg"></i>
+                          
                         </div>
                         <div>
                           <h3 className="font-medium text-gray-800 dark:text-white">
@@ -701,20 +509,8 @@ export default function Checkout() {
               {/* <!--Payment method--> */}
               <div className="mb-8">
                 <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 me-2 text-primary-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                    />
-                  </svg>
+                  <i className="far fa-credit-card text-sm text-primary-500"></i>
+                  
                   روش پرداخت
                 </h2>
 
@@ -725,20 +521,8 @@ export default function Checkout() {
                   >
                     <div className="flex items-center">
                       <div className="w-12 h-12 bg-primary-100 dark:bg-zinc-800 rounded-lg flex items-center justify-center me-3">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-6 w-6 text-primary-600 dark:text-primary-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                          />
-                        </svg>
+                        <i className="far fa-lock text-primary-600 dark:text-primary-400"></i>
+                        
                       </div>
                       <div>
                         <h3 className="font-medium text-gray-800 dark:text-white">
@@ -757,20 +541,8 @@ export default function Checkout() {
                   >
                     <div className="flex items-center">
                       <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center me-3">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-6 w-6 text-green-600 dark:text-green-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                          />
-                        </svg>
+                      <i className="far fa-money-bills text-green-600 dark:text-green-400"></i>
+                     
                       </div>
                       <div>
                         <h3 className="font-medium text-gray-800 dark:text-white">
@@ -789,20 +561,8 @@ export default function Checkout() {
                   >
                     <div className="flex items-center">
                       <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center me-3">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-6 w-6 text-orange-600 dark:text-orange-400"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
-                          />
-                        </svg>
+                      <i className="far fa-money-bills text-orange-600 dark:text-orange-400"></i>
+                        
                       </div>
                       <div>
                         <h3 className="font-medium text-gray-800 dark:text-white">
