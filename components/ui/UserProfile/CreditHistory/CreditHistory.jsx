@@ -1,9 +1,6 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import SidebarResponsive from "../SidebarResponsive";
-import UserSidebar from "../UserSidebar";
-import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
 import CreditHistoryTop from "./CreditHistoryTop";
 import CreditHistorySummary from "./CreditHistorySummary";
 import FilterBar from "../../../modules/FilterBar/FilterBar";

@@ -24,19 +24,8 @@ export default function OrdersReturnTop() {
                     </span>
                   </div>
                   <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center">
-                    <svg
-                      className="w-6 h-6 text-orange-600 dark:text-orange-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"
-                      ></path>
-                    </svg>
+                    <i className="far fa-square-arrow-up-left text-xl text-orange-600 dark:text-orange-400"></i>
+                    
                   </div>
                 </div>
               </div>

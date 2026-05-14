@@ -27,7 +27,7 @@ console.log(item)
           <div
             className={`w-12 h-12 ${bgColor} rounded-full flex items-center justify-center`}
           >
-            <i className={`fa ${item.icon} ${bgColor}`}></i>
+            <i className={`far ${item.icon} ${bgColor} ${iconColor}`}></i>
           </div>
 
           {/* عنوان */}

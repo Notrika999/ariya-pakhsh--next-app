@@ -1,7 +1,5 @@
 import React from "react";
-import SidebarResponsive from "../SidebarResponsive";
-import UserSidebar from "../UserSidebar";
-import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
+
 import ChangePasswordTop from "./ChangePasswordTop";
 import SecurityTips from "./SecurityTips";
 import ChangePasswordForm from "./ChangePasswordForm";

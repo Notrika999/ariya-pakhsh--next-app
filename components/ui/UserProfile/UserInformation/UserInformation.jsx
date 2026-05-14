@@ -1,6 +1,4 @@
 import React from "react";
-import SidebarResponsive from "../SidebarResponsive";
-import UserSidebar from "../UserSidebar";
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
 import UserInformationTop from "./UserInformationTop";
 import PersonalInfoForm from "./PersonalInfoForm";

@@ -10,20 +10,9 @@ export default function OrderTimeline() {
         <div className="space-y-8">
           {/* <!-- Step 1 - Completed --> */}
           <div className="flex items-start space-x-4 ">
-            <div className="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-              <svg
-                className="w-4 h-4 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                ></path>
-              </svg>
+            <div className="shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+              <i className="far fa-check text-sm text-white"></i>
+             
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
@@ -42,20 +31,8 @@ export default function OrderTimeline() {
 
           {/* <!-- Step 2 - Completed --> */}
           <div className="flex items-start space-x-4 ">
-            <div className="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-              <svg
-                className="w-4 h-4 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                ></path>
-              </svg>
+            <div className="shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+               <i className="far fa-check text-sm text-white"></i>
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
@@ -74,20 +51,8 @@ export default function OrderTimeline() {
 
           {/* <!-- Step 3 - Completed --> */}
           <div className="flex items-start space-x-4 ">
-            <div className="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-              <svg
-                className="w-4 h-4 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                ></path>
-              </svg>
+            <div className="shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+               <i className="far fa-check text-sm text-white"></i>
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
@@ -106,20 +71,8 @@ export default function OrderTimeline() {
 
           {/* <!-- Step 4 - Completed --> */}
           <div className="flex items-start space-x-4 ">
-            <div className="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-              <svg
-                className="w-4 h-4 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                ></path>
-              </svg>
+            <div className="shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+              <i className="far fa-check text-sm text-white"></i>
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
@@ -146,20 +99,8 @@ export default function OrderTimeline() {
 
           {/* <!-- Step 5 - Completed --> */}
           <div className="flex items-start space-x-4 ">
-            <div className="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-              <svg
-                className="w-4 h-4 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 13l4 4L19 7"
-                ></path>
-              </svg>
+            <div className="shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+              <i className="far fa-check text-sm text-white"></i>
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">

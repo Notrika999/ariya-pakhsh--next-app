@@ -1,7 +1,9 @@
 export default function NotificationCard({
   type,
   status,
+  iconBgColor,
   iconColor,
+  iconClass,
   borderColor,
   badgeLabel,
   title,
@@ -19,8 +21,10 @@ export default function NotificationCard({
     >
       <div className="flex items-start space-x-4">
         {/* Icon */}
-        <div className={`flex-shrink-0 w-12 h-12 ${iconColor} rounded-full flex items-center justify-center`}>
-          {/* اینجا بعداً SVG را داینامیک میکنیم */}
+        <div
+          className={`shrink-0 w-12 h-12 ${iconBgColor} rounded-full flex items-center justify-center`}
+        >
+          <div className={`${iconClass} ${iconColor}`}></div>
         </div>
 
         {/* Text */}

@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import SidebarResponsive from "../SidebarResponsive";
-import UserSidebar from "../UserSidebar";
+
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
 import UserFavoritesTop from "./UserFavoritesTop";
-import UserFavoritesFilter from "./UserFavoritesFilter";
+
 import FavoriteCard from "../../../modules/FavoriteCard/FavoriteCard";
 import FilterBar from "../../../modules/FilterBar/FilterBar";
 

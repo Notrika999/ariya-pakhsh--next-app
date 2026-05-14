@@ -24,12 +24,14 @@ export default function UserInformationSecuritySettings() {
       device: "iPhone 13",
       location: "تهران، ایران • فعلاً فعال",
       iconColor: "blue",
+      iconClass: "far fa-mobile"
     },
     {
       id: 2,
       device: "Windows Chrome",
       location: "تهران، ایران • ۲ روز پیش",
       iconColor: "green",
+      iconClass: "far fa-tv"
     },
   ]);
 
@@ -209,32 +211,10 @@ export default function UserInformationSecuritySettings() {
                         : "bg-green-100 dark:bg-green-900"
                     }`}
                   >
-                    <svg
-                      className={`w-4 h-4 ${
-                        s.iconColor === "blue"
+                    <i className={`${s.iconClass} ${s.iconColor === "blue"
                           ? "text-blue-600 dark:text-blue-400"
-                          : "text-green-600 dark:text-green-400"
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      {s.iconColor === "blue" ? (
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-                        ></path>
-                      ) : (
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        ></path>
-                      )}
-                    </svg>
+                          : "text-green-600 dark:text-green-400"} text-sm`}></i>
+                    
                   </div>
 
                   <div>

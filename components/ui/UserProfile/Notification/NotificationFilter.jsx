@@ -27,9 +27,7 @@ export default function NotificationFilter({
           </select>
 
           <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center px-2 text-gray-500">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
+            <i className="far fa-angle-down"></i>
           </div>
         </div>
 
@@ -46,9 +44,8 @@ export default function NotificationFilter({
           </select>
 
           <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center px-2 text-gray-500">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
+            <i className="far fa-angle-down"></i>
+            
           </div>
         </div>
       </div>
@@ -59,19 +56,15 @@ export default function NotificationFilter({
           onClick={onMarkAllRead}
           className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition duration-200 text-sm font-medium flex items-center"
         >
-          <svg className="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-          </svg>
-          علامت‌گذاری همه به عنوان خوانده شده
+          <i className="far fa-check me-2"></i>
+           همه خوانده شد
         </button>
 
         <button
           onClick={onClearAll}
           className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition duration-200 text-sm font-medium flex items-center"
         >
-          <svg className="w-5 h-5 me-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-          </svg>
+          <i className="far fa-trash-can me-2"></i>
           پاک کردن همه
         </button>
       </div>

@@ -104,27 +104,14 @@ export default function OffcanvasRight({
         {/* header */}
         <div className="border-b border-gray-200 dark:border-gray-700 p-3 flex items-center justify-between ">
           <h2 id="store-menu-title" className="font-bold text-base">
-            فروشگاه دیارا
+            فروشگاه آریاپخش
           </h2>
           <button
             onClick={onClose}
             className="cursor-pointer"
             aria-label="بستن منوی فروشگاه"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="1.5"
-              stroke="currentColor"
-              className="size-8 text-gray-700 dark:text-gray-300 hover:text-primary-500 transition-colors"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
+            <i className="far fa-x text-gray-700 dark:text-gray-300 hover:text-primary-500 transition-colors"></i>
           </button>
         </div>
 
@@ -136,7 +123,7 @@ export default function OffcanvasRight({
         >
           <ul className="space-y-2 text-sm">
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="./index">صفحه اصلی</Link>
+              <Link href="/">صفحه اصلی</Link>
             </li>
 
             {/* دیتای منوها: هر کدام با کلیک فقط خودش رو باز می‌کند */}
@@ -156,19 +143,8 @@ export default function OffcanvasRight({
                     onClick={() => toggleMenu(id)}
                   >
                     <span>{m.title}</span>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className={`h-5 w-5 transition-transform transform text-gray-600 dark:text-gray-300 ${isOpenForThis ? "rotate-180" : ""}`}
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <i className={`fas fa-angle-down transition-transform transform text-gray-600 dark:text-gray-300 ${isOpenForThis ? "rotate-180" : ""}`}></i>
+                    
                   </button>
 
                   {isOpenForThis && (
@@ -187,7 +163,7 @@ export default function OffcanvasRight({
 
             {/* صفحات یا آیتم‌های ثابت می‌توانید اینجا اضافه کنید اگر نیاز باشد */}
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="#">لیست کالا ها</Link>
+              <Link href="/categoray">لیست کالا ها</Link>
             </li>
 
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
@@ -195,15 +171,15 @@ export default function OffcanvasRight({
             </li>
 
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="#">سوالی دارید</Link>
+              <Link href="/faq">سوالی دارید</Link>
             </li>
 
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="#">بلاگ</Link>
+              <Link href="/blog">بلاگ</Link>
             </li>
 
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="#">تماس با ما</Link>
+              <Link href="/contact">تماس با ما</Link>
             </li>
           </ul>
         </nav>

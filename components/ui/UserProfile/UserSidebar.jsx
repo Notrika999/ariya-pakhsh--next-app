@@ -18,85 +18,85 @@ export default function UserSidebar() {
       id: 1,
       title: "پیشخوان",
       link: "/user-profile",
-      icon: "fa-solid fa-table-cells",
+      icon: "far fa-table-cells",
     },
     {
       id: 2,
       title: "سفارش های من",
       link: "/user-profile/orders",
-      icon: "fa-solid fa-cart-shopping",
+      icon: "far fa-cart-shopping",
     },
     {
       id: 3,
       title: "سفارش های برگشتی",
       link: "/user-profile/orders-return",
-      icon: "fa-solid fa-rotate-left",
+      icon: "far fa-rotate-left",
     },
     {
       id: 4,
       title: "اطلاعات حساب",
       link: "/user-profile/information",
-      icon: "fa-solid fa-user",
+      icon: "far fa-user",
     },
     {
       id: 5,
       title: "تیکت",
       link: "/user-profile/tickets",
-      icon: "fa-solid fa-ticket",
+      icon: "far fa-ticket",
     },
     {
       id: 6,
       title: "پیام ها",
       link: "/user-profile/notification",
-      icon: "fa-solid fa-envelope",
+      icon: "far fa-envelope",
     },
     {
       id: 7,
       title: "علاقمندی",
       link: "/user-profile/favorites",
-      icon: "fa-solid fa-heart",
+      icon: "far fa-heart",
     },
     {
       id: 8,
       title: "کارت هدیه",
       link: "/user-profile/gift-cart",
-      icon: "fa-solid fa-gift",
+      icon: "far fa-gift",
     },
     {
       id: 9,
       title: "تخفیف",
       link: "/user-profile/discount-points",
-      icon: "fa-solid fa-tags",
+      icon: "far fa-tags",
     },
     {
       id: 10,
       title: "تراکنش ها",
       link: "/user-profile/credit-history",
-      icon: "fa-solid fa-receipt",
+      icon: "far fa-receipt",
     },
     {
       id: 11,
       title: "تاریخچه فعالیت‌",
       link: "/user-profile/activity-history",
-      icon: "fa-solid fa-receipt",
+      icon: "far fa-receipt",
     },
     {
       id: 12,
       title: "نظرات",
       link: "/user-profile/comments",
-      icon: "fa-solid fa-comment",
+      icon: "far fa-comment",
     },
     {
       id: 13,
       title: "تغییر رمز",
       link: "/user-profile/change-password",
-      icon: "fa-solid fa-lock",
+      icon: "far fa-lock",
     },
     {
       id: 14,
       title: "آدرس",
       link: "/user-profile/address",
-      icon: "fa-solid fa-location-dot",
+      icon: "far fa-location-dot",
     },
   ];
 
@@ -174,7 +174,7 @@ export default function UserSidebar() {
             href="#"
             className="relative flex justify-start items-center pt-6 px-5 text-red-500 border-t border-gray-300 dark:border-t-gray-700 before:hidden hover:text-red-500"
           >
-            <i className="fa-solid fa-right-from-bracket text-[#DC3545] w-[17px] h-[17px] me-2.5"></i>
+            <i className="far fa-right-from-bracket text-[#DC3545] w-[17px] h-[17px] me-2.5"></i>
             خروج
           </a>
         </li>

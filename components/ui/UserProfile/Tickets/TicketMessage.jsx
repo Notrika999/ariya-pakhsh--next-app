@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import SidebarResponsive from "../SidebarResponsive";
-import UserSidebar from "../UserSidebar";
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
 
 export default function TicketMessage({ ticketId, onBack }) {
@@ -101,10 +99,10 @@ export default function TicketMessage({ ticketId, onBack }) {
     return "bg-gray-300";
   };
 
-  console.log(ticketId);
   return (
     <div className="lg:col-span-3 space-y-8">
       {/* Header */}
+
       <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div className="flex items-center space-x-4 ">
@@ -127,19 +125,7 @@ export default function TicketMessage({ ticketId, onBack }) {
                 </span>
               </div>
               <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-6 h-6 text-yellow-600 dark:text-yellow-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  ></path>
-                </svg>
+                <i className="far fa-clock text-yellow-600 dark:text-yellow-400 text-xl"></i>
               </div>
             </div>
           </div>
@@ -164,26 +150,17 @@ export default function TicketMessage({ ticketId, onBack }) {
             {timeline.map((step) => (
               <div key={step.id} className="flex items-start space-x-4 ">
                 <div
-                  className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${getStatusIcon(
-                    step,
-                  )}`}
+                  className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${getStatusIcon(step)}`}
                 >
-                  <svg
-                    className="w-4 h-4 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d={
-                        step.status === "current"
-                          ? "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                          : "M5 13l4 4L19 7"
-                      }
-                    ></path>
-                  </svg>
+                  {step.status === "done" && (
+                    <i className="far fa-check text-white"></i>
+                  )}
+                  {step.status === "current" && (
+                    <i className="far fa-clock text-white"></i>
+                  )}
+                  {step.status === "pending" && (
+                    <i className="far fa-hourglass text-white"></i>
+                  )}
                 </div>
 
                 <div className="flex-1">
@@ -235,32 +212,19 @@ export default function TicketMessage({ ticketId, onBack }) {
                 <div key={msg.id} className="flex items-start space-x-4 ">
                   {/* Avatar */}
                   <div
-                    className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                    className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
                       msg.type === "user"
                         ? "bg-blue-100 dark:bg-blue-900"
                         : "bg-green-100 dark:bg-green-900"
                     }`}
                   >
-                    <svg
-                      className={`w-5 h-5 ${
+                    <i
+                      className={`${
                         msg.type === "user"
-                          ? "text-blue-600 dark:text-blue-400"
-                          : "text-green-600 dark:text-green-400"
+                          ? "far fa-user text-blue-600 dark:text-blue-400"
+                          : "far fa-headset text-green-600 dark:text-green-400"
                       }`}
-                      fill="none"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d={
-                          msg.type === "user"
-                            ? "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                            : "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 3.016z"
-                        }
-                      ></path>
-                    </svg>
+                    ></i>
                   </div>
 
                   {/* Message body */}
@@ -315,19 +279,7 @@ export default function TicketMessage({ ticketId, onBack }) {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                   <div className="flex items-center space-x-4">
                     <label className="cursor-pointer flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
-                      <svg
-                        className="w-5 h-5 me-1"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
-                        ></path>
-                      </svg>
+                      <i className="far fa-paperclip me-1"></i>
                       افزودن فایل
                       <input
                         type="file"
@@ -410,15 +362,7 @@ export default function TicketMessage({ ticketId, onBack }) {
 
               <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
                 <button className="w-full bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition duration-200 flex items-center justify-center">
-                  <svg
-                    className="w-5 h-5 me-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
+                  <i className="far fa-eye me-2"></i>
                   مشاهده سفارش
                 </button>
               </div>

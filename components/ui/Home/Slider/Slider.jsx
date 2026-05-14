@@ -14,8 +14,6 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-import styleSlider from "./Slider.module.css";
-
 export default function Slider({ sliders }) {
   return (
     <section className="py-5">
@@ -28,20 +26,6 @@ export default function Slider({ sliders }) {
             className="swiper max-w-[1920px] mx-auto !relative default-carousel swiper-container"
             aria-label="اسلایدر فروشگاه"
           >
-            {/* <div
-              className="swiper-wrapper"
-              style={{ paddingBottom: "0 !important" }}
-            >
-              <div
-                className="swiper-slide"
-                role="group"
-                aria-roledescription="slide"
-              >
-                {sliders.map((slid) => (
-                  <SliderItem key={slid.id} image={slid.image} alt={slid.alt} />
-                ))}
-              </div>
-            </div> */}
             {/* <!-- prev button --> */}
             <Swiper
               modules={[Navigation, Pagination, Autoplay]}
@@ -68,7 +52,7 @@ export default function Slider({ sliders }) {
                 </SwiperSlide>
               ))}
             </Swiper>
-            <div className="absolute lg:block hidden cursor-pointer custom-swiper-prev top-1/2 -translate-y-1/2 -start-1 !z-30 ">
+            <div className="absolute lg:block hidden cursor-pointer custom-swiper-prev top-1/2 -translate-y-1/2 -inset-s-1 z-30! ">
               <svg
                 width="83"
                 height="285"
@@ -96,7 +80,7 @@ export default function Slider({ sliders }) {
               </svg>
             </div>
             {/* <!-- next button --> */}
-            <div className="absolute lg:block hidden cursor-pointer  custom-swiper-next top-1/2 -translate-y-1/2 -end-1 !z-30">
+            <div className="absolute lg:block hidden cursor-pointer  custom-swiper-next top-1/2 -translate-y-1/2 -inset-e-1 z-30!">
               <svg
                 width="83"
                 height="285"
@@ -123,6 +107,7 @@ export default function Slider({ sliders }) {
                 ></path>
               </svg>
             </div>
+           
             {/* <!-- pagination --> */}
             <div className="swiperPaginationCustome swiper-pagination"></div>
           </div>

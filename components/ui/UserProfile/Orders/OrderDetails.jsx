@@ -4,6 +4,7 @@ import UserSidebar from "../UserSidebar";
 import OrderDetailsTop from "./OrderDetailsTop";
 import OrderTimeline from "./OrderTimeline";
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
+import Image from "next/image";
 
 export default function OrderDetails() {
   return (
@@ -25,8 +26,10 @@ export default function OrderDetails() {
               {/* <!-- Product 1 --> */}
               <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 md: border-b border-gray-200 dark:border-gray-700 pb-6">
                 <div className="flex-shrink-0">
-                  <img
-                    src="assets/images/product/television-2.png"
+                  <Image
+                    width={80}
+                    height={80}
+                    src="/images/product/television-2.png"
                     className="size-20 rounded-lg"
                     alt="گوشی موبایل سامسونگ گلکسی A73"
                   />
@@ -57,8 +60,10 @@ export default function OrderDetails() {
               {/* <!-- Product 2 --> */}
               <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 md:">
                 <div className="flex-shrink-0">
-                  <img
-                    src="assets/images/product/wach-1.png"
+                  <Image
+                    width={80}
+                    height={80}
+                    src="/images/product/wach-1.png"
                     className="size-20 rounded-lg"
                     alt="قاب محافظ گوشی سامسونگ گلکسی A73"
                   />
@@ -218,70 +223,24 @@ export default function OrderDetails() {
 
             <div className="space-y-3">
               <button className="w-full bg-primary text-white px-4 py-3 rounded-lg hover:bg-primary/90 active:scale-95 transition duration-200 text-sm font-medium flex items-center justify-center">
-                <svg
-                  className="w-5 h-5 me-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                  ></path>
-                </svg>
+              <i className="far fa-arrow-down-to-bracket me-2"></i>
+       
                 دانلود فاکتور
               </button>
 
               <button className="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 active:scale-95 transition duration-200 text-sm font-medium flex items-center justify-center">
-                <svg
-                  className="w-5 h-5 me-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  ></path>
-                </svg>
+                <i className="far fa-plus me-2"></i>
                 خرید مجدد
               </button>
 
               <button className="w-full border border-gray-300 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-50 active:scale-95 transition duration-200 text-sm font-medium flex items-center justify-center dark:border-gray-600 dark:text-gray-300 dark:hover:bg-zinc-800">
-                <svg
-                  className="w-5 h-5 me-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"
-                  ></path>
-                </svg>
+                <i className="far fa-square-arrow-up-left text-xl me-2"></i>
+               
                 ثبت بازخورد
               </button>
 
               <button className="w-full border border-red-300 text-red-600 px-4 py-3 rounded-lg hover:bg-red-50 active:scale-95 transition duration-200 text-sm font-medium flex items-center justify-center dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20">
-                <svg
-                  className="w-5 h-5 me-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  ></path>
-                </svg>
+                <i className="far fa-trash-can me-2"></i>
                 درخواست مرجوعی
               </button>
             </div>

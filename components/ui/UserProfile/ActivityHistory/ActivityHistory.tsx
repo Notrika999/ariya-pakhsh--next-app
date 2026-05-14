@@ -1,9 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import SidebarResponsive from "../SidebarResponsive";
-import UserSidebar from "../UserSidebar";
-import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
 import ActivityHistoryTop from "./ActivityHistoryTop";
 import ActivityHistoryRecentViews from "./ActivityHistoryRecentViews";
 import ActivityHistoryRecentActivities from "./ActivityHistoryRecentActivities";
@@ -52,8 +49,6 @@ export default function ActivityHistory() {
       price: "۱۱۰۰۰۰۰",
     },
   ];
-
-  const recentActivities = [{ id: 1 }, { id: 2 }];
 
   return (
     <div className="lg:col-span-3 space-y-8">

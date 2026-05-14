@@ -1,5 +1,6 @@
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 export default function UserOrdersList() {
@@ -44,16 +45,19 @@ export default function UserOrdersList() {
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">
                 تحویل شده
               </span>
-              <button className="text-primary hover:text-primary/80 font-medium text-sm dark:text-primary-200">
+              <Link
+                href={`/user-profile/orders/${"1"}`}
+                className="text-primary hover:text-primary/80 font-medium text-sm dark:text-primary-200"
+              >
                 مشاهده جزئیات
-              </button>
+              </Link>
             </div>
           </div>
 
           {/* <!-- Order Items --> */}
           <div className="p-6">
             <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 md: border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <Image
                   width={100}
                   height={100}
@@ -78,7 +82,7 @@ export default function UserOrdersList() {
             </div>
 
             <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 md:">
-              <div className="flex-shrink-0">
+              <div className="shrink-0">
                 <Image
                   width={100}
                   height={100}
@@ -106,35 +110,11 @@ export default function UserOrdersList() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 space-y-3 sm:space-y-0">
               <div className="flex items-center space-x-3 ">
                 <button className="text-primary hover:text-primary/80 font-medium text-sm dark:text-primary-200 flex items-center">
-                  <svg
-                    className="w-4 h-4 me-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                    ></path>
-                  </svg>
+                  <i className="far fa-arrow-down-to-bracket me-1"></i>
                   دانلود فاکتور
                 </button>
                 <button className="text-primary hover:text-primary/80 font-medium text-sm dark:text-primary-200 flex items-center">
-                  <svg
-                    className="w-4 h-4 me-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z"
-                    ></path>
-                  </svg>
+                  <i className="far fa-square-arrow-up-left me-1"></i>
                   ثبت بازخورد
                 </button>
               </div>
@@ -181,9 +161,12 @@ export default function UserOrdersList() {
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300">
                 در حال ارسال
               </span>
-              <button className="text-primary hover:text-primary/80 font-medium text-sm dark:text-primary-200">
+              <Link
+                href={`/user-profile/orders/${"1"}`}
+                className="text-primary hover:text-primary/80 font-medium text-sm dark:text-primary-200"
+              >
                 مشاهده جزئیات
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -223,19 +206,7 @@ export default function UserOrdersList() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="w-10 h-10 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center me-3">
-                      <svg
-                        className="w-5 h-5 text-blue-600 dark:text-blue-400"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M5 13l4 4L19 7"
-                        ></path>
-                      </svg>
+                      <i className="far fa-check text-blue-600 dark:text-blue-400"></i>
                     </div>
                     <div>
                       <p className="font-medium text-gray-800 dark:text-gray-200">
@@ -257,19 +228,7 @@ export default function UserOrdersList() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 space-y-3 sm:space-y-0">
               <div className="flex items-center space-x-3 ">
                 <button className="text-primary hover:text-primary/80 font-medium text-sm dark:text-primary-200 flex items-center">
-                  <svg
-                    className="w-4 h-4 me-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-                    ></path>
-                  </svg>
+                  <i className="far fa-comment-dots me-1"></i>
                   پشتیبانی
                 </button>
               </div>
@@ -316,9 +275,12 @@ export default function UserOrdersList() {
               <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
                 در حال پردازش
               </span>
-              <button className="text-primary hover:text-primary/80 font-medium text-sm dark:text-primary-200">
+              <Link
+                href={`/user-profile/orders/${"1"}`}
+                className="text-primary hover:text-primary/80 font-medium text-sm dark:text-primary-200"
+              >
                 مشاهده جزئیات
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -378,19 +340,7 @@ export default function UserOrdersList() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 space-y-3 sm:space-y-0">
               <div className="flex items-center space-x-3 ">
                 <button className="text-red-500 hover:text-red-700 font-medium text-sm flex items-center">
-                  <svg
-                    className="w-4 h-4 me-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                    ></path>
-                  </svg>
+                  <i className="far fa-trash-can me-1"></i>
                   لغو سفارش
                 </button>
               </div>

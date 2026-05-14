@@ -1,9 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import SidebarResponsive from "../SidebarResponsive";
-import UserSidebar from "../UserSidebar";
-import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
 import TicketMessage from "./TicketMessage";
 import TicketList from "./TicketList";
 
