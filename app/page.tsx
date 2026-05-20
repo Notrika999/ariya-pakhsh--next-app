@@ -1,27 +1,91 @@
-"use client";
+import { getProducts } from "@/src/services/product/product.service";
 
 import Story from "@/components/ui/Home/Story/Story";
 import Slider from "@/components/ui/Home/Slider/Slider";
 import AmazingProducts from "@/components/ui/Home/AmazingProducts/AmazingProducts";
 import Category from "@/components/ui/Home/Category/Category";
 import Banner from "@/components/ui/Home/Banner/Banner";
-import NewProducts from "@/components/ui/Home/NewProducts/NewProducts";
 import UserLatestViews from "@/components/ui/Home/CategoryProductBox/CategoryProductBox";
 import LastProducts from "@/components/ui/Home/LastProducts/LastProducts";
 import Brand from "@/components/ui/Home/Brand/Brand";
 import LastBlogs from "@/components/ui/Home/LastBlogs/LastBlogs";
-import { useProducts } from "@/lib/hooks/useProducts";
-import { useMemo } from "react";
 
-export default function Home() {
-  const { products, loading, error } = useProducts();
+import { getBrands } from "@/src/services/brand/brand.service";
+import { getPromotedCategories } from "@/src/services/category/category.service";
+import SliderProduct from "@/components/modules/SliderProduct/SliderProduct";
 
-  const amazingProducts = useMemo(() => {
-    return products ? products.filter((p) => p.offer === true) : [];
-  }, [products]);
+export default async function Home() {
+  const brands = await getBrands({
+  // letter: "ه",
+  pageNumber: 1,
+  pageSize: 40,
+  grouped: false,
+});
 
-  if (loading) return <div>در حال بارگذاری...</div>;
-  if (error) return <div>خطا در دریافت اطلاعات</div>;
+  // --- دسته‌بندی‌های Promoted واقعی ---
+  const recommendedCategories = await getPromotedCategories({
+    filter: "recommended", // یا "featured" / "recommended" طبق نیاز UI
+    maxCount: 12,
+  });
+
+  // مپ به شکل مورد نیاز کامپوننت Category (id, title, img)
+  const recommendedCategoriesMap = recommendedCategories.map((cat) => ({
+    id: cat.id,
+    title: cat.name,
+    slug: cat.slug,
+    img: cat.image?.iconUrl ?? "/images/category/default.png",
+  }));
+  // --- دسته‌بندی‌های Promoted واقعی ---
+  const featuredCategories = await getPromotedCategories({
+    filter: "featured", // یا "featured" / "recommended" طبق نیاز UI
+    maxCount: 12,
+  });
+
+  // مپ به شکل مورد نیاز کامپوننت Category (id, title, img)
+  const featuredCategoriesMap = featuredCategories.map((cat) => ({
+    id: cat.id,
+    title: cat.name,
+    slug: cat.slug,
+    img: cat.image?.iconUrl ?? "/images/category/default.png",
+  }));
+  const categories = [
+    { id: 1, title: "لپتاپ", img: "/images/category/laptop.png" },
+    { id: 2, title: "آرایشی", img: "/images/category/araeshi.png" },
+    {
+      id: 3,
+      title: "هدفون های نویز کنسلینگ",
+      img: "/images/category/ashpazkhane.png",
+    },
+    {
+      id: 4,
+      title: "لوازم تحریر",
+      img: "/images/category/lavazem-tahrir.png",
+    },
+    { id: 5, title: "موبایل", img: "/images/category/mobile.png" },
+    { id: 6, title: "پوشاک", img: "/images/category/poshak.png" },
+    { id: 7, title: "لپتاپ", img: "/images/category/laptop.png" },
+    { id: 8, title: "آرایشی", img: "/images/category/araeshi.png" },
+    { id: 9, title: "آشپزخانه", img: "/images/category/ashpazkhane.png" },
+    {
+      id: 10,
+      title: "لوازم تحریر",
+      img: "/images/category/lavazem-tahrir.png",
+    },
+    { id: 11, title: "موبایل", img: "/images/category/mobile.png" },
+    { id: 12, title: "پوشاک", img: "/images/category/poshak.png" },
+    // تکرار موارد برای پر شدن اسلایدر...
+  ];
+
+  console.log(categories);
+
+  // stories, sliders, newProducts, productsLast, lastProductLists, lastBlogLits
+  // همگی مثل قبل، فیک بمانند
+
+  // facke
+  const data = await getProducts();
+  const products = data.products;
+
+  const amazingProducts = products?.filter((p) => p.offer === true) ?? [];
 
   const stories = [
     {
@@ -236,29 +300,29 @@ export default function Home() {
   //   // ...
   // ];
 
-  const categories = [
-    { id: 1, title: "لپتاپ", img: "/images/category/laptop.png" },
-    { id: 2, title: "آرایشی", img: "/images/category/araeshi.png" },
-    { id: 3, title: "آشپزخانه", img: "/images/category/ashpazkhane.png" },
-    {
-      id: 4,
-      title: "لوازم تحریر",
-      img: "/images/category/lavazem-tahrir.png",
-    },
-    { id: 5, title: "موبایل", img: "/images/category/mobile.png" },
-    { id: 6, title: "پوشاک", img: "/images/category/poshak.png" },
-    { id: 7, title: "لپتاپ", img: "/images/category/laptop.png" },
-    { id: 8, title: "آرایشی", img: "/images/category/araeshi.png" },
-    { id: 9, title: "آشپزخانه", img: "/images/category/ashpazkhane.png" },
-    {
-      id: 10,
-      title: "لوازم تحریر",
-      img: "/images/category/lavazem-tahrir.png",
-    },
-    { id: 11, title: "موبایل", img: "/images/category/mobile.png" },
-    { id: 12, title: "پوشاک", img: "/images/category/poshak.png" },
-    // تکرار موارد برای پر شدن اسلایدر...
-  ];
+  // const categories = [
+  //   { id: 1, title: "لپتاپ", img: "/images/category/laptop.png" },
+  //   { id: 2, title: "آرایشی", img: "/images/category/araeshi.png" },
+  //   { id: 3, title: "آشپزخانه", img: "/images/category/ashpazkhane.png" },
+  //   {
+  //     id: 4,
+  //     title: "لوازم تحریر",
+  //     img: "/images/category/lavazem-tahrir.png",
+  //   },
+  //   { id: 5, title: "موبایل", img: "/images/category/mobile.png" },
+  //   { id: 6, title: "پوشاک", img: "/images/category/poshak.png" },
+  //   { id: 7, title: "لپتاپ", img: "/images/category/laptop.png" },
+  //   { id: 8, title: "آرایشی", img: "/images/category/araeshi.png" },
+  //   { id: 9, title: "آشپزخانه", img: "/images/category/ashpazkhane.png" },
+  //   {
+  //     id: 10,
+  //     title: "لوازم تحریر",
+  //     img: "/images/category/lavazem-tahrir.png",
+  //   },
+  //   { id: 11, title: "موبایل", img: "/images/category/mobile.png" },
+  //   { id: 12, title: "پوشاک", img: "/images/category/poshak.png" },
+  //   // تکرار موارد برای پر شدن اسلایدر...
+  // ];
 
   const newProducts = [
     {
@@ -635,20 +699,20 @@ export default function Home() {
     },
   ];
 
-  const brands = [
-    { id: 1, name: "شیائومی", img: "/images/brand/brand1-1.png" },
-    { id: 2, name: "سامسونگ", img: "/images/brand/brand1-2.png" },
-    { id: 3, name: "آیفون", img: "/images/brand/brand1-3.png" },
-    { id: 4, name: "لنوو", img: "/images/brand/brand1-4.png" },
-    { id: 5, name: "ال‌جی", img: "/images/brand/brand1-5.png" },
-    { id: 6, name: "Canon", img: "/images/brand/brand1-6.png" },
-    { id: 7, name: "شیائومی", img: "/images/brand/brand1-1.png" },
-    { id: 8, name: "سامسونگ", img: "/images/brand/brand1-2.png" },
-    { id: 9, name: "آیفون", img: "/images/brand/brand1-3.png" },
-    { id: 10, name: "لنوو", img: "/images/brand/brand1-4.png" },
-    { id: 11, name: "ال‌جی", img: "/images/brand/brand1-5.png" },
-    { id: 12, name: "Canon", img: "/images/brand/brand1-6.png" },
-  ];
+  // const brands = [
+  //   { id: 1, name: "شیائومی", img: "/images/brand/brand1-1.png" },
+  //   { id: 2, name: "سامسونگ", img: "/images/brand/brand1-2.png" },
+  //   { id: 3, name: "آیفون", img: "/images/brand/brand1-3.png" },
+  //   { id: 4, name: "لنوو", img: "/images/brand/brand1-4.png" },
+  //   { id: 5, name: "ال‌جی", img: "/images/brand/brand1-5.png" },
+  //   { id: 6, name: "Canon", img: "/images/brand/brand1-6.png" },
+  //   { id: 7, name: "شیائومی", img: "/images/brand/brand1-1.png" },
+  //   { id: 8, name: "سامسونگ", img: "/images/brand/brand1-2.png" },
+  //   { id: 9, name: "آیفون", img: "/images/brand/brand1-3.png" },
+  //   { id: 10, name: "لنوو", img: "/images/brand/brand1-4.png" },
+  //   { id: 11, name: "ال‌جی", img: "/images/brand/brand1-5.png" },
+  //   { id: 12, name: "Canon", img: "/images/brand/brand1-6.png" },
+  // ];
 
   const lastBlogLits = [
     {
@@ -706,15 +770,27 @@ export default function Home() {
       {/* <!-- END AMAZING SECTION --> */}
 
       {/* <!-- START CATEGORY SECTION --> */}
-      <Category categories={categories} />
+      <Category categories={categories} title="دسته‌بندی‌های ویژه" />
       {/* <!-- END CATEGORY SECTION --> */}
 
       {/* <!-- START BANNER SECTION --> */}
       <Banner />
       {/* <!-- END BANNER SECTION --> */}
 
+      {/* <!-- START CATEGORY SECTION --> */}
+      <Category
+        categories={recommendedCategoriesMap}
+        title="دسته‌بندی‌های پیشنهادی"
+      />
+      {/* <!-- END CATEGORY SECTION --> */}
+
       {/* <!-- START PRODUCT SLIDER SECTION -->/ */}
-      <NewProducts products={newProducts} loop={false} />
+      <SliderProduct
+        products={newProducts}
+        loop={false}
+        title="جدیدترین محصولات"
+        href="#"
+      />
       {/* <!-- END PRODUCT SLIDER SECTION --> */}
 
       {/* <!-- START LATEST VIEW SECTION --> */}
@@ -726,11 +802,16 @@ export default function Home() {
       {/* <!-- END NEW PRODUCT SECTION --> */}
 
       {/* <!-- START PRODUCT SLIDER SECTION -->/ */}
-      <NewProducts loop={true} products={newProducts} />
+      <SliderProduct
+        loop={true}
+        products={newProducts}
+        title="جدیدترین محصولات"
+        href="#"
+      />
       {/* <!-- END PRODUCT SLIDER SECTION --> */}
 
       {/* <!-- START BRAND SECTION --> */}
-      <Brand brands={brands} />
+      <Brand brands={brands.items} />
       {/* <!-- END BRAND SECTION --> */}
 
       {/* <!-- START BLOG SECTION --> */}

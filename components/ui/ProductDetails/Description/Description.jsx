@@ -5,9 +5,9 @@ const pColors = {
   colors: ["آبی", "سبز", "قرمز"],
   defaultColor: "آبی",
 };
-export default function Description({ title }) {
-  const [selectedColor, setSelectedColor] = useState(pColors.defaultColor);
-
+export default function Description({ product, isOutOfStock }) {
+  const [selectedColor, setSelectedColor] = useState(product.colors?.[0]);
+  console.log(product);
   return (
     <section className="xl:col-span-5 mt-7 col-span-12 pb-10 w-full dark:text-gray-200">
       {/* <!-- Category --> */}
@@ -28,7 +28,7 @@ export default function Description({ title }) {
       {/* <!-- Title --> */}
       <div className="space-y-2 mt-2 pb-2 border-b border-b-gray-300 dark:border-b-gray-700">
         {/* <!-- Fa title --> */}
-        <h2 className="font-black leading-8">{title}</h2>
+        <h2 className="font-black  leading-8">{product.title}</h2>
 
         {/* <!-- En title --> */}
         <h2 className="text-gray-400 dark:text-gray-500 text-sm leading-8">
@@ -41,7 +41,7 @@ export default function Description({ title }) {
         {/* <!-- Rating --> */}
         <div className="flex items-center space-x-1">
           <i className="fas fa-star text-amber-400"></i>
-        
+
           <h4 className="text-sm font-bold">4.6</h4>
           <span className="text-xs text-gray-400 dark:text-gray-500">
             (امتیاز ۳۰۸ خریدار)
@@ -55,7 +55,7 @@ export default function Description({ title }) {
             className="bg-gray-200 hover:bg-primary/20 transition dark:bg-zinc-800 dark:text-gray-200 px-2 py-1 space-x-1 rounded-full flex items-center"
           >
             <span className="text-xs">185 دیدگاه </span>
-           <i className="far fa-angle-left"></i>
+            <i className="far fa-angle-left"></i>
           </a>
         </div>
 
@@ -71,37 +71,126 @@ export default function Description({ title }) {
         </div>
       </div>
 
-      {/* <!-- Color Picker --> */}
-      <div className="mt-8 space-y-3">
-        <div className="flex items-center space-x-2">
-          <h4 className="font-bold text-lg">رنگ:</h4>
-          <p id="selectedColor" className="text-lg">
-            {selectedColor}
+      {/* <!-- Out of Stock Notice --> */}
+      {isOutOfStock && (
+        <div className="mt-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <div className="flex items-center space-x-2">
+            <i className="far fa-exclamation-triangle text-red-500"></i>
+            <span className="text-red-700 dark:text-red-300 font-medium">
+              این محصول در حال حاضر موجود نمی‌باشد
+            </span>
+          </div>
+
+          <p className="text-red-600 dark:text-red-400 text-sm mt-2">
+            می‌توانید از طریق دکمه زیر، در صورت موجود شدن به شما اطلاع‌رسانی
+            کنیم.
           </p>
         </div>
+      )}
 
-        {/* <!-- Colors --> */}
-        <div className="flex my-4 flex-wrap items-center space-x-3">
-          {pColors.colors.map((color) => (
-            <div key={color} className="flex items-center">
-              <input
-                type="radio"
-                name="color"
-                id={color}
-                value={color}
-                className="hidden peer"
-                checked={selectedColor === color}
-                onChange={(e) => setSelectedColor(e.target.value)}
-              />
+      {/* <!-- Color Picker --> */}
+      <div className="mt-6 space-y-4">
+        {/* Title */}
+        <div className="flex items-center gap-2">
+          <span
+            className="
+             w-4 h-4 rounded-full border
+            "
+            style={{
+              background: Array.isArray(selectedColor.code)
+                ? `linear-gradient(
+                    90deg,
+                    ${selectedColor.code[0]} 0%,
+                    ${selectedColor.code[0]} 50%,
+                    ${selectedColor.code[1]} 50%,
+                    ${selectedColor.code[1]} 100%
+                  )`
+                : selectedColor.code,
+            }}
+          />
+          <p className="font-semibold text-lg">رنگ: {selectedColor?.title}</p>
+        </div>
 
-              <label
-                htmlFor={color}
-                className="select-none dark:text-white! cursor-pointer flex items-center justify-center rounded-full border-2 border-gray-200 dark:border-gray-600 py-1 px-3 text-gray-700 transition-colors duration-200 ease-in-out peer-checked:text-gray-900 peer-checked:border-primary-500"
+        {/* Colors */}
+        <div className="flex items-center gap-4">
+          {product.colors.slice(0, 2).map((color) => {
+            const isActive = selectedColor?.id === color.id;
+
+            return (
+              <button
+                key={color.id}
+                type="button"
+                disabled={isOutOfStock}
+                onClick={() => !isOutOfStock && setSelectedColor(color)}
+                className="
+            relative
+            w-12
+            h-12
+            rounded-full
+            flex
+            items-center
+            justify-center
+          "
               >
-                {color}
-              </label>
-            </div>
-          ))}
+                {/* Outer Active Ring */}
+                {isActive && (
+                  <span
+                    className="
+                absolute
+                inset-0
+                rounded-full
+                ring-4
+                ring-sky-400
+              "
+                  />
+                )}
+
+                {/* Color Circle */}
+                <span
+                  className="
+              relative
+              z-10
+              w-8
+              h-8
+              rounded-full
+              border
+              border-gray-300
+              flex
+              items-center
+              justify-center
+            "
+                  style={{
+                    background: Array.isArray(color.code)
+                      ? `linear-gradient(
+                    90deg,
+                    ${color.code[0]} 0%,
+                    ${color.code[0]} 50%,
+                    ${color.code[1]} 50%,
+                    ${color.code[1]} 100%
+                  )`
+                      : color.code,
+                  }}
+                >
+                  {/* Check Icon */}
+                  {isActive && (
+                    <svg
+                      className="w-4 h-4 text-white"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  )}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -187,7 +276,6 @@ export default function Description({ title }) {
         <div className="flex">
           <div className="flex mt-1">
             <i className="fas fa-circle-exclamation text-gray-500 dark:text-gray-400"></i>
-            
           </div>
           <span className="ms-2 text-xs leading-6 text-justify text-neutral-500 dark:text-neutral-400">
             امکان برگشت کالا در گروه موبایل با دلیل انصراف از خرید تنها در صورتی

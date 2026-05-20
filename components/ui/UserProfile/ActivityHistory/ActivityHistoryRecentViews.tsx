@@ -1,7 +1,7 @@
 import React from "react";
 import TitleAfter from "../../../modules/TitleAfter/TitleAfter";
 import ActivityHistoryCard from "../../../modules/ActivityHistoryCard/ActivityHistoryCard";
-import { RecentViewItem } from "@/lib/types/userpanel/activity-history";
+import { RecentViewItem } from "@/src/lib/types/userpanel/activity-history";
 
 interface Props {
   recentViews: RecentViewItem[];
@@ -49,7 +49,6 @@ export default function ActivityHistoryRecentViews({
           </div>
           <button className="mt-4 sm:mt-0 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition duration-200 text-sm font-medium flex items-center justify-center">
             <i className="far fa-trash-can me-2"></i>
-            
             پاک کردن تاریخچه
           </button>
         </div>

@@ -193,7 +193,8 @@
   --color-secondary-100: oklch(93.346% 0.05824 77.915);
   --color-secondary-200: oklch(89.463% 0.09358 77.634);
   --color-secondary-400: oklch(82.242% 0.15027 73.228);
-  --color-secondary-500: oklch(79.147% 0.1672 68.927);
+  --color-secondary-500: oklch(54.234% 0.21435 28.415);
+  /* --color-secondary-500: oklch(79.147% 0.1672 68.927); */
   --color-secondary-600: oklch(70.637% 0.15834 65.116);
   --color-secondary-900: oklch(27.875% 0.05944 72.794);
   --color-custom-light: #f2f5fc;

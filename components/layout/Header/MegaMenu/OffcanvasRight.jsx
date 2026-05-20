@@ -163,7 +163,7 @@ export default function OffcanvasRight({
 
             {/* صفحات یا آیتم‌های ثابت می‌توانید اینجا اضافه کنید اگر نیاز باشد */}
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="/categoray">لیست کالا ها</Link>
+              <Link href="/categories">لیست کالا ها</Link>
             </li>
 
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">

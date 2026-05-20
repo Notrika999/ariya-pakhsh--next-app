@@ -1,10 +1,9 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 import QuantitySelector from "../../../modules/QuantityProductSelector/QuantityProductSelector";
 
-export default function Action() {
+export default function Action({ product, isOutOfStock }) {
   const [quantity, setQuantity] = useState(1);
-
 
   return (
     <section className="xl:col-span-3 mt-7 col-span-12 pb-10 w-full">
@@ -71,11 +70,29 @@ export default function Action() {
             </span>
           </div>
 
+          {/* <!-- End of inventory --> */}
+          <div className="flex items-center space-x-2">
+            <span className="size-8 flex items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md">
+              <i className="far fa-truck-fast text-gray-700 dark:text-gray-300 text-xs"></i>
+            </span>
+
+            <span className="text-sm font-bold text-gray-800 dark:text-gray-100">
+              وضعیت موجودی
+            </span>
+
+            {isOutOfStock ? (
+              <span className="text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-3 py-1 rounded-full">
+                ناموجود
+              </span>
+            ) : (
+              <span className="text-xs text-green-600">موجود</span>
+            )}
+          </div>
+
           {/* <!-- Delivery --> */}
           <div className="flex items-center space-x-2 ">
             <span className="size-8 flex items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md">
               <i className="far fa-truck-fast text-gray-700 dark:text-gray-300 text-xs"></i>
-              
             </span>
             <span className="text-sm font-bold text-gray-800 dark:text-gray-100">
               ارسال از فروشگاه اصلی
@@ -93,6 +110,13 @@ export default function Action() {
             <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-3 py-1 rounded-full">
               کالای نو
             </span>
+
+            {/* <!-- End of inventory --> */}
+            {isOutOfStock && (
+              <span className="text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-3 py-1 rounded-full">
+                ناموجود
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -117,9 +141,9 @@ export default function Action() {
 
       {/* <!-- Prices And Counter --> */}
       <div className="flex items-center space-x-4 justify-between mt-4 mb-2 ">
-        <QuantitySelector value={quantity}
-        onChange={setQuantity} min={1} />
-         {/* <QuantitySelector value={quantity} onChange={setQuantity} min={1} max={10} /> */}
+        {!isOutOfStock && (
+          <QuantitySelector value={quantity} onChange={setQuantity} min={1} />
+        )}
 
         <div className="flex items-center">
           <div className="text-gray-700 dark:text-zinc-300 flex flex-col items-center">
@@ -127,11 +151,15 @@ export default function Action() {
               <del className="text-zinc-400 dark:text-zinc-500">
                 <span>100000000</span>
               </del>
-              <div className=" bg-secondary-500 text-white text-xs ms-2 font-bold px-2 py-1 rounded-xl rounded-bl-md shadow shadow-red-500/50 z-10">
+              <div
+                className={` text-white text-xs ms-2 font-bold px-2 py-1 rounded-xl rounded-bl-md shadow shadow-red-500/50 z-10 ${isOutOfStock ? "bg-gray-400" : "bg-secondary-500"}`}
+              >
                 35%
               </div>
             </div>
-            <span className="text-xl inline-block mt-2 font-bold dark:text-white">
+            <span
+              className={`text-xl inline-block mt-2 font-bold ${isOutOfStock ? "text-gray-300" : "dark:text-white"}`}
+            >
               90,000,000
             </span>
           </div>
@@ -142,17 +170,38 @@ export default function Action() {
       </div>
 
       {/* <!-- Add to cart --> */}
-      <div className="flex items-center justify-center">
-        <button className="bg-primary shadow-primary-500 w-full mt-3 hover:bg-primary-600 text-white font-semibold rounded-xl px-6 py-4 text-sm">
-          افزودن به سبد خرید
-        </button>
-      </div>
+      {!isOutOfStock && (
+        <div className="flex items-center justify-center">
+          <button className="bg-primary shadow-primary-500 w-full mt-3 hover:bg-primary-600 text-white font-semibold rounded-xl px-6 py-4 text-sm">
+            افزودن به سبد خرید
+          </button>
+        </div>
+      )}
+
+      {isOutOfStock && (
+        <>
+          <div className="flex items-center justify-center">
+            <button className="bg-gray-400 cursor-not-allowed w-full mt-3 text-white font-semibold rounded-xl px-6 py-4 text-sm">
+              اتمام موجودی
+            </button>
+          </div>
+
+          <div className="mt-3">
+            <button className="bg-primary shadow-primary-500 w-full hover:bg-primary-600 text-white font-semibold rounded-xl px-6 py-3 text-sm">
+              📧 به من اطلاع بده
+            </button>
+
+            <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
+              وقتی محصول موجود شد به من اطلاع بده
+            </p>
+          </div>
+        </>
+      )}
 
       {/* <!-- Points --> */}
       <div className="flex items-center mt-2 justify-between pt-2">
         <span className="text-sm text-gray-600 dark:text-gray-300 flex items-center space-x-1 ">
           <i className="fa fa-star text-amber-400 me-1"></i>
-          
           امتیاز باشگاه مشتریان
         </span>
         <div className="flex items-center space-x-2">

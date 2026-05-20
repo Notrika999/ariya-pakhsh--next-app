@@ -1,4 +1,4 @@
-import { RecentViewItem } from "@/lib/types/userpanel/activity-history";
+import { RecentViewItem } from "@/src/lib/types/userpanel/activity-history";
 import Image from "next/image";
 import React from "react";
 

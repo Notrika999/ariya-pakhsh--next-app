@@ -3,7 +3,7 @@ import HeaderLogo from "./HeaderLogo";
 import HeaderSearch from "./HeaderSearch";
 import HeaderSetting from "./HeaderSetting";
 import OffcanvasRight from "../MegaMenu/OffcanvasRight";
-import { useMegaMenu } from "@/lib/hooks/useMegaMenu";
+import { useMegaMenu } from "@/src/lib/hooks/useMegaMenu";
 
 export default function HeaderTop() {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,7 +20,6 @@ export default function HeaderTop() {
       <div className="lg:hidden col-span-4 w-full">
         <button onClick={() => setIsOpen(true)} className="px-4 py-2">
           <i className="fas fa-bars-staggered dark:text-white"></i>
-         
         </button>
         <OffcanvasRight
           isOpen={isOpen}

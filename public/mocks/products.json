@@ -12,6 +12,7 @@
         { "id": 5, "imgSrc": "/images/product/laptop-5.png" },
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
+      "count": 1,
       "brandId": 1,
       "discount": "3",
       "price": 13550000,
@@ -19,7 +20,10 @@
       "rating": 4,
       "offer": true,
       "countdownToISO": "2028-01-01T15:30:00.000Z",
-      "colors": ["rgb(248, 162, 3)", "rgb(0, 0, 0)"],
+      "colors": [
+        { "id": 1, "code": "#0000ff", "title": "آبی" },
+        { "id": 2, "code": "#ff0000", "title": "قرمز" }
+      ],
       "href": "/product"
     },
     {
@@ -34,6 +38,7 @@
         { "id": 5, "imgSrc": "/images/product/laptop-5.png" },
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
+      "count": 2,
       "brandId": 1,
       "discount": "5",
       "price": 45000000,
@@ -41,7 +46,10 @@
       "offer": false,
       "countdownToISO": "0",
       "rating": 5,
-      "colors": ["rgb(128, 128, 128)"],
+      "colors": [
+        { "id": 1, "code": "#19df0f", "title": "سبز" },
+        { "id": 2, "code": "#dfd10f", "title": "زرد" }
+      ],
       "href": "/product"
     },
     {
@@ -56,6 +64,7 @@
         { "id": 5, "imgSrc": "/images/product/laptop-5.png" },
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
+      "count": 0,
       "discount": "3",
       "brandId": 2,
       "price": 13550000,
@@ -63,7 +72,10 @@
       "offer": true,
       "countdownToISO": "2028-01-01T15:30:00.000Z",
       "rating": 4,
-      "colors": ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
+      "colors": [
+        { "id": 1, "code": "#19df0f", "title": "سبز" },
+        { "id": 2, "code": ["#0000ff", "#ff0000"], "title": "آبی-قرمز" }
+      ],
       "href": "/product"
     },
     {
@@ -78,6 +90,7 @@
         { "id": 5, "imgSrc": "/images/product/laptop-5.png" },
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
+      "count": 0,
       "brandId": 2,
       "discount": "3",
       "price": 13550000,
@@ -85,7 +98,10 @@
       "rating": 4,
       "offer": true,
       "countdownToISO": "2028-01-01T15:30:00.000Z",
-      "colors": ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
+      "colors": [
+        { "id": 1, "code": "#19df0f", "title": "سبز" },
+        { "id": 2, "code": "#dfd10f", "title": "زرد" }
+      ],
       "href": "/product"
     },
     {
@@ -100,6 +116,7 @@
         { "id": 5, "imgSrc": "/images/product/laptop-5.png" },
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
+      "count": 0,
       "discount": "3",
       "brandId": 3,
       "price": 13550000,
@@ -107,7 +124,10 @@
       "rating": 4,
       "offer": true,
       "countdownToISO": "2028-01-01T15:30:00.000Z",
-      "colors": ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
+      "colors": [
+        { "id": 1, "code": "#19df0f", "title": "سبز" },
+        { "id": 2, "code": "#dfd10f", "title": "زرد" }
+      ],
       "href": "/product"
     },
     {
@@ -122,6 +142,7 @@
         { "id": 5, "imgSrc": "/images/product/laptop-5.png" },
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
+      "count": 2,
       "discount": "3",
       "brandId": 3,
       "price": 13550000,
@@ -129,7 +150,10 @@
       "offer": false,
       "countdownToISO": "0",
       "rating": 4,
-      "colors": ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
+      "colors": [
+        { "id": 1, "code": "#19df0f", "title": "سبز" },
+        { "id": 2, "code": "#dfd10f", "title": "زرد" }
+      ],
       "href": "/product"
     },
     {
@@ -144,6 +168,7 @@
         { "id": 5, "imgSrc": "/images/product/laptop-5.png" },
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
+      "count": 0,
       "discount": "3",
       "brandId": 3,
       "price": 13550000,
@@ -151,7 +176,10 @@
       "rating": 4,
       "offer": true,
       "countdownToISO": "2028-01-01T15:30:00.000Z",
-      "colors": ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
+      "colors": [
+        { "id": 1, "code": "#19df0f", "title": "سبز" },
+        { "id": 2, "code": "#dfd10f", "title": "زرد" }
+      ],
       "href": "/product"
     },
     {
@@ -166,6 +194,7 @@
         { "id": 5, "imgSrc": "/images/product/laptop-5.png" },
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
+      "count": 1,
       "discount": "3",
       "brandId": 2,
       "price": 13550000,
@@ -173,7 +202,10 @@
       "offer": true,
       "countdownToISO": "2028-01-01T15:30:00.000Z",
       "rating": 4,
-      "colors": ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
+      "colors": [
+        { "id": 1, "code": "#19df0f", "title": "سبز" },
+        { "id": 2, "code": "#dfd10f", "title": "زرد" }
+      ],
       "href": "/product"
     }
   ],

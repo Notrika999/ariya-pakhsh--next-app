@@ -18,6 +18,7 @@
   font-family: "Payda";
   font-style: normal;
   font-weight: 700;
+  color: #dfd10f;
   src: url("/fonts/payda/PeydaWebFaNum-Bold.woff2") format("woff2");
   font-display: swap;
 }

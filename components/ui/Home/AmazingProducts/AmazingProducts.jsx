@@ -11,6 +11,7 @@ import "swiper/css/navigation";
 // import SliderProductCard from "./SliderProductCard"; // کادر محصول (همان HTML کارت تو)
 import ProductCard from "@/components/modules/ProductCard/ProductCard";
 import Image from "next/image";
+import Link from "next/link";
 
 // اگر CSS/دکمه‌ها را با کلاس‌های سفارشی داری، این کلاس‌ها را همان نگه می‌داریم:
 const prevBtnClass = ".swiper-button-prev-amazing";
@@ -44,21 +45,21 @@ export default function AmazingProductsSlider({ products }) {
                 </div>
 
                 <div className="text-center">
-                  <a
-                    href="#"
+                  <Link
+                    href="/amazing"
                     className="bg-white xl:inline-block hidden dark:bg-zinc-800 dark:text-gray-200 text-gray-900 px-3 py-2 rounded-xl shadow-sm"
                   >
                     مشاهده محصولات
-                  </a>
+                  </Link>
                 </div>
 
                 <div className="flex space-x-3 items-center justify-center">
-                  <a
-                    href="#"
+                  <Link
+                    href="/amazing"
                     className="bg-white xl:hidden block dark:bg-zinc-800 dark:text-gray-200 text-gray-900 px-3 py-2 rounded-xl shadow-sm"
                   >
                     مشاهده محصولات
-                  </a>
+                  </Link>
 
                   <div className="bg-gray-800 dark:bg-gray-900 flex w-25 rounded-lg p-2 justify-between items-center">
                     <button className="swiper-button-prev-amazing hover:opacity-80 transition cursor-pointer">

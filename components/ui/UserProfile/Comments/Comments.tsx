@@ -6,8 +6,7 @@ import TabsSection from "../../../modules/TabsSection/TabsSection";
 import CommentSection from "./CommentSection";
 import QuestionsSection from "./QuestionsSection";
 
-
-import { CommentItem, QuestionItem } from "@/lib/types/userpanel/comments";
+import { CommentItem, QuestionItem } from "@/src/lib/types/userpanel/comments";
 
 export default function Comments() {
   const [activeTab, setActiveTab] = useState("my-comments");
@@ -120,12 +119,12 @@ export default function Comments() {
           </div>
           <div className="flex items-center space-x-2">
             <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-zinc-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-zinc-700 dark:hover:text-white">
-             <i className="far fa-angle-right me-1"></i>
+              <i className="far fa-angle-right me-1"></i>
               قبلی
             </button>
             <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-zinc-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-zinc-700 dark:hover:text-white">
               بعدی
-             <i className="far fa-angle-left ms-1"></i>
+              <i className="far fa-angle-left ms-1"></i>
             </button>
           </div>
         </div>

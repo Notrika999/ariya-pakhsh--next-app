@@ -9,7 +9,7 @@ interface PageProps {
 async function ProductDetailsPage({ params }: PageProps) {
   const { id } = await params;
 
-  console.log(id);
+
   return <ProductDetails id={id} />;
 }
 

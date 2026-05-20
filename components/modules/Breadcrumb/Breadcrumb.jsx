@@ -1,7 +1,8 @@
 import Link from "next/link";
 import React from "react";
 
-export default function Breadcrumb({ title, active, href }) {
+export default function Breadcrumb({ title, active, href, items }) {
+  console.log(items)
   return (
     <nav className="w-full py-3" aria-label="Breadcrumb">
       <ol className="flex flex-wrap items-center text-sm font-medium text-gray-700 dark:text-gray-400">
@@ -20,9 +21,9 @@ export default function Breadcrumb({ title, active, href }) {
         {/* <!-- Divider --> */}
         {href && (
           <>
-            <li className="flex items-center mx-2 text-gray-400">
+            {/* <li className="flex items-center mx-2 text-gray-400">
              <i className="fas fa-angle-left"></i>
-            </li>
+            </li> */}
 
             <li>
               <Link
@@ -36,9 +37,9 @@ export default function Breadcrumb({ title, active, href }) {
         )}
 
         {/* <!-- Divider --> */}
-        <li className="flex items-center mx-2 text-gray-400">
+        {/* <li className="flex items-center mx-2 text-gray-400">
           <i className="fas fa-angle-left"></i>
-        </li>
+        </li> */}
 
         {/* <!-- Active Page --> */}
         <li
@@ -47,6 +48,22 @@ export default function Breadcrumb({ title, active, href }) {
         >
           {active}
         </li>
+
+        {
+          items.map((item) => (
+           
+
+            <li key={item.id}>
+              <i className="fas fa-angle-left text-gray-400"></i>
+              <span
+                className="hover:text-primary transition-colors"
+              >
+                {item.name}
+              </span>
+            </li>
+      
+          ))
+        }
       </ol>
     </nav>
   );

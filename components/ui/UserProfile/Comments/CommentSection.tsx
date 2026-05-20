@@ -1,4 +1,4 @@
-import { CommentItem } from "@/lib/types/userpanel/comments";
+import { CommentItem } from "@/src/lib/types/userpanel/comments";
 import Image from "next/image";
 import React from "react";
 
@@ -18,8 +18,8 @@ export default function CommentSection({ comments }: Props) {
             {/* Image */}
             <div className="shrink-0">
               <Image
-              width={80}
-              height={80}
+                width={80}
+                height={80}
                 src={comment.productImage}
                 className="size-20 rounded-lg"
                 alt={comment.productTitle}

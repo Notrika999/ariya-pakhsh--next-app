@@ -1,4 +1,4 @@
-import { QuestionItem } from "@/lib/types/userpanel/comments";
+import { QuestionItem } from "@/src/lib/types/userpanel/comments";
 import Image from "next/image";
 import React from "react";
 

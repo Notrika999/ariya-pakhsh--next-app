@@ -12,6 +12,8 @@ import "swiper/css/pagination";
 import "swiper/css/thumbs";
 import "swiper/css/zoom";
 import Image from "next/image";
+import ShareModal from "./ShareModal";
+import ChartModal from "./ChartModal";
 
 // swiper
 
@@ -45,17 +47,19 @@ function useCountdown(targetISO) {
   return { h, m, s, done: diff === 0 };
 }
 
-export default function Gallery({ images }) {
+export default function Gallery({ images, isOutOfStock }) {
+  const [shareOpen, setShareOpen] = useState(false);
+  const [chartOpen, setChartOpen] = useState(false);
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
   const { h, m, s, done } = useCountdown("2028-01-01T15:30:00.000Z");
   return (
     <section className="xl:col-span-4 mt-7 col-span-12 pb-10 w-full">
       {/* <!-- Discount Timer --> */}
-      <div className="bg-secondary-200 dark:bg-custom-dark dark:text-gray-200 shadow-sm border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-2xl flex items-center justify-between mb-4 transition-all duration-200">
+      {/* <div className="bg-secondary-200 dark:bg-custom-dark dark:text-gray-200 shadow-sm border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-2xl flex items-center justify-between mb-4 transition-all duration-200">
         <h3 className="font-black text-gray-800 dark:text-gray-100">
           فروش ویژه
         </h3>
-        {/* <!-- Timer --> */}
+        <!-- Timer -->
         <div
           className="countdown"
           style={{ direction: "ltr" }}
@@ -76,60 +80,50 @@ export default function Gallery({ images }) {
           data-date="2028-01-01"
           data-time="18:30"
         ></div>
-      </div>
+      </div> */}
       {/* <!-- Discount Timer --> */}
+
+      {/* <!-- Out of Stock Badge --> */}
+      {isOutOfStock && (
+        <div className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 shadow-sm border border-red-200 dark:border-red-800 px-3 py-2 rounded-2xl flex items-center justify-between mb-4 transition-all duration-200">
+          <h3 className="font-black">اتمام موجودی</h3>
+          <i className="far fa-exclamation-triangle"></i>
+        </div>
+      )}
 
       {/* <!-- Large gallery --> */}
       <div className="bg-primary relative mb-12 rounded-[15px] h-87.5 pt-5 px-3.75 pb-8.35 dark:bg-custom-dark dark:border dark:border-gray-700">
         {/* <!-- Action buttons --> */}
         <div className="flex rounded-2xl px-2 bg-gray-100 dark:bg-custom-dark gap-2 absolute top-3 inset-e-1/2 -translate-x-1/2 z-10 mt-4">
-          {/* <!-- Share --> */}
+          {/* Share */}
           <button
-            data-modal-target="shareModal"
-            className="modal-trigger flex z-10 group relative items-center justify-center w-full p-2  transition dark:border-gray-700 drop-shadow rounded"
+            onClick={() => setShareOpen(true)}
+            className="flex z-10 group relative items-center justify-center w-full p-2 transition dark:border-gray-700 drop-shadow rounded"
           >
             <i className="far fa-share-nodes"></i>
-
-            {/* <!-- Tooltip --> */}
-            <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-7 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
-              <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
-              اشتراک گذاری
-            </span>
           </button>
 
-          {/* <!-- Compare --> */}
-          <button className="flex z-10 group relative items-center justify-center w-full p-2  transition dark:border-gray-700 drop-shadow rounded">
+          {/* Compare */}
+          <button className="flex z-10 group relative items-center justify-center w-full p-2 transition dark:border-gray-700 drop-shadow rounded">
             <i className="fas fa-code-compare"></i>
-            {/* <!-- Tooltip --> */}
-            <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-7 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
-              <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
-              مقایسه
-            </span>
           </button>
 
-          {/* <!-- Favorite --> */}
-          <button className="flex z-10 group relative items-center justify-center w-full p-2  transition dark:border-gray-700 drop-shadow rounded">
+          {/* Favorite */}
+          <button className="flex z-10 group relative items-center justify-center w-full p-2 transition dark:border-gray-700 drop-shadow rounded">
             <i className="far fa-heart"></i>
-            {/* <!-- Tooltip --> */}
-            <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-7 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
-              <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
-              افزودن به علاقه مندی ها
-            </span>
           </button>
 
-          {/* <!-- Chart --> */}
+          {/* Chart */}
           <button
-            data-modal-target="chartModal"
-            className="modal-trigger flex z-10 group relative items-center justify-center w-full p-2  transition dark:border-gray-700 drop-shadow rounded"
+            onClick={() => setChartOpen(true)}
+            className="flex z-10 group relative items-center justify-center w-full p-2 transition dark:border-gray-700 drop-shadow rounded"
           >
             <i className="fas fa-chart-line"></i>
-            {/* <!-- Tooltip --> */}
-            <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-7 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
-              <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
-              نمودار قیمت
-            </span>
           </button>
         </div>
+
+        <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} />
+        <ChartModal open={chartOpen} onClose={() => setChartOpen(false)} />
         {/* <!-- Gallery --> */}
         <Swiper
           modules={[Navigation, Pagination, Thumbs, Zoom]}

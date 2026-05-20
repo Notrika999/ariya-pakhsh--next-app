@@ -9,7 +9,7 @@ import TabsNavigation from "../../../modules/TabsNavigation/TabsNavigation";
 import {
   RecentViewItem,
   TabItem,
-} from "@/lib/types/userpanel/activity-history";
+} from "@/src/lib/types/userpanel/activity-history";
 
 export default function ActivityHistory() {
   const [activeTab, setActiveTab] = useState<string>("recent-views");
