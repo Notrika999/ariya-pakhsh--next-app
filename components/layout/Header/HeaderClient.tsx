@@ -32,8 +32,8 @@ export default function HeaderClient() {
   }, []);
 
   return (
-    <header className="py-3 bg-white dark:bg-custom-dark border-b border-gray-200 dark:border-gray-700 shadow-md dark:shadow-none sticky top-0 start-0 end-0 z-20">
-      <div className="container mx-auto">
+    <header className="py-3 px-2 bg-white dark:bg-custom-dark border-b border-gray-200 dark:border-gray-700 shadow-md dark:shadow-none sticky top-0 inset-s-0 inset-e-0 z-50">
+      <div className="max-w-420 mx-auto">
         <HeaderTop />
 
         {showMega && <MegaMenu />}

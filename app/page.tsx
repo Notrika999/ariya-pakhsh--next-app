@@ -15,6 +15,7 @@ import { getPromotedCategories } from "@/src/services/category/category.service"
 import SliderProduct from "@/components/modules/SliderProduct/SliderProduct";
 
 import { Metadata } from "next";
+import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 
 // ساختار متاتگ‌ها به صورت استاندارد و حرفه‌ای
 export const metadata: Metadata = {
@@ -74,8 +75,6 @@ export default async function Home() {
     filter: "recommended",
     maxCount: 12,
   });
-
-  // مپ به شکل مورد نیاز کامپوننت Category (id, title, img)
   const recommendedCategoriesMap = recommendedCategories.map((cat) => ({
     id: cat.id,
     title: cat.name,
@@ -83,12 +82,11 @@ export default async function Home() {
     img: cat.image?.iconUrl ?? "/images/default.png",
   }));
 
-  // --- Featured Categories ---
+  // --- Featured Categories and map ---
   const featuredCategories = await getPromotedCategories({
-    filter: "featured", 
+    filter: "featured",
     maxCount: 12,
   });
-
   const featuredCategoriesMap = featuredCategories.map((cat) => ({
     id: cat.id,
     title: cat.name,
@@ -97,9 +95,7 @@ export default async function Home() {
   }));
 
   // stories, sliders, newProducts, productsLast, lastProductLists, lastBlogLits
-  // همگی مثل قبل، فیک بمانند
-
-  // facke
+  // همگی فیک
   const data = await getProducts();
   const products = data.products;
 
@@ -232,118 +228,6 @@ export default async function Home() {
       slug: "coffee",
     },
   ];
-
-  // const products = [
-  //   {
-  //     id: 1,
-  //     image: "/images/product/laptop-2.png",
-  //     title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-  //     rating: 4,
-  //     colors: [{ bg: "rgb(248, 162, 3)" }, { bg: "rgb(255, 232, 145)" }],
-  //     discountText: "3%",
-  //     oldPrice: "13,900,000",
-  //     price: "13,550,000",
-  //     countdownToISO: "2028-01-01T15:30:00.000Z",
-  //     href: "/product",
-  //   },
-  //   {
-  //     id: 2,
-  //     image: "/images/product/mobile-3.png",
-  //     title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-  //     rating: 4,
-  //     colors: [{ bg: "rgb(248, 162, 3)" }, { bg: "rgb(255, 232, 145)" }],
-  //     discountText: "3%",
-  //     oldPrice: "13,900,000",
-  //     price: "13,550,000",
-  //     countdownToISO: "2028-01-01T15:30:00.000Z",
-  //     href: "/product",
-  //   },
-  //   {
-  //     id: 3,
-  //     image: "/images/product/mobile-2.png",
-  //     title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-  //     rating: 4,
-  //     colors: [{ bg: "rgb(248, 162, 3)" }, { bg: "rgb(255, 232, 145)" }],
-  //     discountText: "3%",
-  //     oldPrice: "13,900,000",
-  //     price: "13,550,000",
-  //     countdownToISO: "2028-01-01T15:30:00.000Z",
-  //     href: "/product",
-  //   },
-  //   {
-  //     id: 4,
-  //     image: "/images/product/laptop-6.png",
-  //     title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-  //     rating: 4,
-  //     colors: [{ bg: "rgb(248, 162, 3)" }, { bg: "rgb(255, 232, 145)" }],
-  //     discountText: "3%",
-  //     oldPrice: "13,900,000",
-  //     price: "13,550,000",
-  //     countdownToISO: "2028-01-01T15:30:00.000Z",
-  //     href: "/product",
-  //   },
-  //   {
-  //     id: 5,
-  //     image: "/images/product/laptop-5.png",
-  //     title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-  //     rating: 4,
-  //     colors: [{ bg: "rgb(248, 162, 3)" }, { bg: "rgb(255, 232, 145)" }],
-  //     discountText: "3%",
-  //     oldPrice: "13,900,000",
-  //     price: "13,550,000",
-  //     countdownToISO: "2028-01-01T15:30:00.000Z",
-  //     href: "/product",
-  //   },
-  //   {
-  //     id: 6,
-  //     image: "/images/product/wach-3.png",
-  //     title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-  //     rating: 4,
-  //     colors: [{ bg: "rgb(248, 162, 3)" }, { bg: "rgb(255, 232, 145)" }],
-  //     discountText: "3%",
-  //     oldPrice: "13,900,000",
-  //     price: "13,550,000",
-  //     countdownToISO: "2028-01-01T15:30:00.000Z",
-  //     href: "/product",
-  //   },
-  //   {
-  //     id: 7,
-  //     image: "/images/product/laptop-3.png",
-  //     title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-  //     rating: 4,
-  //     colors: [{ bg: "rgb(248, 162, 3)" }, { bg: "rgb(255, 232, 145)" }],
-  //     discountText: "3%",
-  //     oldPrice: "13,900,000",
-  //     price: "13,550,000",
-  //     countdownToISO: "2028-01-01T15:30:00.000Z",
-  //     href: "/product",
-  //   },
-  //   // ...
-  // ];
-
-  // const categories = [
-  //   { id: 1, title: "لپتاپ", img: "/images/category/laptop.png" },
-  //   { id: 2, title: "آرایشی", img: "/images/category/araeshi.png" },
-  //   { id: 3, title: "آشپزخانه", img: "/images/category/ashpazkhane.png" },
-  //   {
-  //     id: 4,
-  //     title: "لوازم تحریر",
-  //     img: "/images/category/lavazem-tahrir.png",
-  //   },
-  //   { id: 5, title: "موبایل", img: "/images/category/mobile.png" },
-  //   { id: 6, title: "پوشاک", img: "/images/category/poshak.png" },
-  //   { id: 7, title: "لپتاپ", img: "/images/category/laptop.png" },
-  //   { id: 8, title: "آرایشی", img: "/images/category/araeshi.png" },
-  //   { id: 9, title: "آشپزخانه", img: "/images/category/ashpazkhane.png" },
-  //   {
-  //     id: 10,
-  //     title: "لوازم تحریر",
-  //     img: "/images/category/lavazem-tahrir.png",
-  //   },
-  //   { id: 11, title: "موبایل", img: "/images/category/mobile.png" },
-  //   { id: 12, title: "پوشاک", img: "/images/category/poshak.png" },
-  //   // تکرار موارد برای پر شدن اسلایدر...
-  // ];
 
   const newProducts = [
     {
@@ -720,21 +604,6 @@ export default async function Home() {
     },
   ];
 
-  // const brands = [
-  //   { id: 1, name: "شیائومی", img: "/images/brand/brand1-1.png" },
-  //   { id: 2, name: "سامسونگ", img: "/images/brand/brand1-2.png" },
-  //   { id: 3, name: "آیفون", img: "/images/brand/brand1-3.png" },
-  //   { id: 4, name: "لنوو", img: "/images/brand/brand1-4.png" },
-  //   { id: 5, name: "ال‌جی", img: "/images/brand/brand1-5.png" },
-  //   { id: 6, name: "Canon", img: "/images/brand/brand1-6.png" },
-  //   { id: 7, name: "شیائومی", img: "/images/brand/brand1-1.png" },
-  //   { id: 8, name: "سامسونگ", img: "/images/brand/brand1-2.png" },
-  //   { id: 9, name: "آیفون", img: "/images/brand/brand1-3.png" },
-  //   { id: 10, name: "لنوو", img: "/images/brand/brand1-4.png" },
-  //   { id: 11, name: "ال‌جی", img: "/images/brand/brand1-5.png" },
-  //   { id: 12, name: "Canon", img: "/images/brand/brand1-6.png" },
-  // ];
-
   const lastBlogLits = [
     {
       id: 1,
@@ -780,72 +649,102 @@ export default async function Home() {
     },
   ];
   return (
-    <div className="container mx-auto">
-      <Story stories={stories} />
+    <main>
+      {/* <!-- START STORY SECTION --> */}
+      <SectionContainer>
+        <Story stories={stories} />
+      </SectionContainer>
+      {/* <!-- END STORY SECTION --> */}
+
       {/* <!-- SLIDER SECTION --> */}
-      <Slider sliders={sliders} />
+      <SectionContainer fullWidth>
+        <Slider sliders={sliders} />
+      </SectionContainer>
       {/* <!-- END SLIDER SECTION --> */}
 
-      {/* <!-- START AMAZING SECTION --> */}
-      <AmazingProducts products={amazingProducts} />
-      {/* <!-- END AMAZING SECTION --> */}
+        {/* <!-- START AMAZING SECTION --> */}
+      <SectionContainer>
+        <AmazingProducts products={amazingProducts} />
+      </SectionContainer>
+        {/* <!-- END AMAZING SECTION --> */}
 
-      {/* <!-- START CATEGORY SECTION --> */}
-      <Category categories={featuredCategoriesMap} title="دسته‌بندی‌های ویژه" />
-      {/* <!-- END CATEGORY SECTION --> */}
+        {/* <!-- START Featured CATEGORY SECTION --> */}
+      <SectionContainer>
+        <Category
+          categories={featuredCategoriesMap}
+          title="دسته‌بندی‌های ویژه"
+        />
+      </SectionContainer>
+        {/* <!-- END CATEGORY SECTION --> */}
 
-      {/* <!-- START BANNER SECTION --> */}
-      <Banner />
-      {/* <!-- END BANNER SECTION --> */}
+        {/* <!-- START BANNER SECTION --> */}
+      <SectionContainer>
+        <Banner />
+      </SectionContainer>
+        {/* <!-- END BANNER SECTION --> */}
 
-      {/* <!-- START CATEGORY SECTION --> */}
-      <Category
-        categories={recommendedCategoriesMap}
-        title="دسته‌بندی‌های پیشنهادی"
-      />
-      {/* <!-- END CATEGORY SECTION --> */}
+        {/* <!-- START Recommended CATEGORY SECTION --> */}
+      <SectionContainer>
+        <Category
+          categories={recommendedCategoriesMap}
+          title="دسته‌بندی‌های پیشنهادی"
+        />
+      </SectionContainer>
+        {/* <!-- END CATEGORY SECTION --> */}
 
-      {/* <!-- START PRODUCT SLIDER SECTION -->/ */}
-      <SliderProduct
-        products={newProducts}
-        loop={false}
-        title="جدیدترین محصولات"
-        href="#"
-      />
-      {/* <!-- END PRODUCT SLIDER SECTION --> */}
+        {/* <!-- START PRODUCT SLIDER SECTION -->/ */}
+      <SectionContainer>
+        <SliderProduct
+          products={newProducts}
+          loop={false}
+          title="جدیدترین محصولات"
+          href="#"
+        />
+      </SectionContainer>
+        {/* <!-- END PRODUCT SLIDER SECTION --> */}
 
-      {/* <!-- START LATEST VIEW SECTION --> */}
-      <UserLatestViews
-        productsLast={productsLast}
-        title={"محصولات پیشنهادی"}
-        href={"#"}
-      />
-      {/* <!-- END LATEST VIEW SECTION --> */}
+        {/* <!-- START LATEST VIEW SECTION --> */}
+      <SectionContainer>
+        <UserLatestViews
+          productsLast={productsLast}
+          title={"محصولات پیشنهادی"}
+          href={"#"}
+        />
+      </SectionContainer>
+        {/* <!-- END LATEST VIEW SECTION --> */}
 
-      {/* <!-- START NEW PRODUCT SECTION --> */}
-      <LastProducts
-        lastProductLists={lastProductLists}
-        title={"پرفروش ترین محصولات"}
-        href={"#"}
-      />
-      {/* <!-- END NEW PRODUCT SECTION --> */}
+        {/* <!-- START NEW PRODUCT SECTION --> */}
+      <SectionContainer>
+        <LastProducts
+          lastProductLists={lastProductLists}
+          title={"پرفروش ترین محصولات"}
+          href={"#"}
+        />
+      </SectionContainer>
+        {/* <!-- END NEW PRODUCT SECTION --> */}
 
-      {/* <!-- START PRODUCT SLIDER SECTION -->/ */}
-      <SliderProduct
-        loop={true}
-        products={newProducts}
-        title="جدیدترین محصولات"
-        href="#"
-      />
-      {/* <!-- END PRODUCT SLIDER SECTION --> */}
+        {/* <!-- START PRODUCT SLIDER SECTION -->/ */}
+      <SectionContainer>
+        <SliderProduct
+          loop={true}
+          products={newProducts}
+          title="جدیدترین محصولات"
+          href="#"
+        />
+      </SectionContainer>
+        {/* <!-- END PRODUCT SLIDER SECTION --> */}
 
-      {/* <!-- START BRAND SECTION --> */}
-      <Brand brands={brands.items} title={"برندهای های فروشگاه"} href={"#"} />
-      {/* <!-- END BRAND SECTION --> */}
+        {/* <!-- START BRAND SECTION --> */}
+      <SectionContainer>
+        <Brand brands={brands.items} title={"برندهای های فروشگاه"} href={"#"} />
+      </SectionContainer>
+        {/* <!-- END BRAND SECTION --> */}
 
-      {/* <!-- START BLOG SECTION --> */}
-      {/* <LastBlogs lastBlogLits={lastBlogLits} /> */}
-      {/* <!-- END BLOG SECTION --> */}
-    </div>
+        {/* <!-- START BLOG SECTION --> */}
+      <SectionContainer>
+        <LastBlogs lastBlogLits={lastBlogLits} />
+      </SectionContainer>
+        {/* <!-- END BLOG SECTION --> */}
+    </main>
   );
 }

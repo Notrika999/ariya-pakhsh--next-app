@@ -4,13 +4,6 @@
 
 /* Color */
 @theme {
-  /* --color-primary: #275fe0;
-  --color-primary-400: #4b79e5;
-  --color-secondary: #ffa41b;
-
-  --color-custom-light: #f2f5fc;
-  --color-custom-dark: #161b22; */
-
   --color-red-50: oklch(97.1% 0.013 17.38);
   --color-red-100: oklch(93.6% 0.032 17.717);
   --color-red-200: oklch(88.5% 0.062 18.334);

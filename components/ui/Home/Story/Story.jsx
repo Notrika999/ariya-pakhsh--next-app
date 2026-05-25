@@ -108,11 +108,10 @@ export default function Story({ stories }) {
   };
 
   return (
-    // <!-- STORY SECTION -->
-    <section className="py-5">
+    <>
       <h2 className="sr-only">استوری های فروشگاه</h2>
       {/* <!-- for seo --> */}
-      <div className="container mx-auto">
+      <div>
         <div
           className={`${storyStyle.storiesContainer} mx-auto`}
           role="region"
@@ -204,8 +203,8 @@ export default function Story({ stories }) {
                   />
                 ) : (
                   <Image
-                  width={1027}
-                  height={740}
+                    width={1027}
+                    height={740}
                     src={current.url}
                     alt={current.user}
                     className={storyStyle.storyImage ?? "/images/default.png"}
@@ -231,7 +230,6 @@ export default function Story({ stories }) {
           </div>
         </div>
       )}
-    </section>
-    // <!-- END STORY SECTION -->
+    </>
   );
 }

@@ -10,40 +10,39 @@ import { getBrands } from "@/src/services/brand/brand.service";
 import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
 
 export default function Brand({ brands, title, href }) {
-  console.log(brands)
+  console.log(brands);
   return (
-    <section className="py-5">
+    <>
       {/* <!-- for seo --> */}
       <h2 className="sr-only">برند های فروشگاه</h2>
 
-      <div className="container">
-        {/* <!-- header --> */}
-        <SectionHeader title={title} href={href} />
+      {/* <!-- header --> */}
+      <SectionHeader title={title} href={href} />
 
-        {/* <!-- categories swiper --> */}
-        <div className="pb-4">
-          <Swiper
-            modules={[Autoplay]}
-            loop={true}
-            freeMode={false}
-            autoplay={{
-              delay: 2500,
-              disableOnInteraction: false,
-              pauseOnMouseEnter: true,
-            }}
-            spaceBetween={10}
-            slidesPerView={8}
-            breakpoints={{
-              320: { slidesPerView: 2 },
-              640: { slidesPerView: 4 },
-              1024: { slidesPerView: 8 },
-            }}
-            className="my-swiper"
-          >
-            {/* {brands.map((brand) => ( */}
+      {/* <!-- categories swiper --> */}
+      <div className="pb-4">
+        <Swiper
+          modules={[Autoplay]}
+          loop={true}
+          freeMode={false}
+          autoplay={{
+            delay: 2500,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: true,
+          }}
+          spaceBetween={10}
+          slidesPerView={8}
+          breakpoints={{
+            320: { slidesPerView: 2 },
+            640: { slidesPerView: 4 },
+            1024: { slidesPerView: 8 },
+          }}
+          className="my-swiper"
+        >
+          {/* {brands.map((brand) => ( */}
 
-            {brands.length && (
-              brands.map((brand) => (
+          {brands.length &&
+            brands.map((brand) => (
               <SwiperSlide key={brand.id}>
                 <Link href="#">
                   <div
@@ -55,7 +54,9 @@ export default function Brand({ brands, title, href }) {
                     {/* <!-- thumbnail --> */}
                     <figure>
                       <Image
-                        src={brand.image?.logoMdUrl || "/images/placeholder.png"}
+                        src={
+                          brand.image?.logoMdUrl || "/images/placeholder.png"
+                        }
                         alt={brand.name}
                         width={100}
                         height={100}
@@ -69,11 +70,9 @@ export default function Brand({ brands, title, href }) {
                   </div>
                 </Link>
               </SwiperSlide>
-            ))
-            )}
-          </Swiper>
-        </div>
+            ))}
+        </Swiper>
       </div>
-    </section>
+    </>
   );
 }
