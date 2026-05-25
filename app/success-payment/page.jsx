@@ -98,6 +98,7 @@ function SuccessPayment() {
                       width={100}
                       height={100}
                       src="/images/product/wach-1.png"
+                      // src=?? "/images/default.png"
                       alt=""
                     />
                   </div>

@@ -11,6 +11,7 @@ export default function BlogTopPosts() {
             width={1048}
             height={300}
             src="/images/blog/banner-1.jpg"
+            // src=?? "/images/default.png"
             alt="مقاله ۱"
             className="w-full h-29 object-cover rounded-xl shadow-box"
           />
@@ -23,6 +24,7 @@ export default function BlogTopPosts() {
             width={250}
             height={300}
             src="/images/blog/blog-3.jpg"
+            // src=?? "/images/default.png"
             alt="مقاله ۱"
             className="w-full h-72 object-cover rounded-xl shadow-box"
           />
@@ -47,6 +49,7 @@ export default function BlogTopPosts() {
             width={510}
             height={300}
             src="/images/blog/blog-2.jpg"
+            // src=?? "/images/default.png"
             alt="مقاله ۲"
             className="w-full h-72 object-cover rounded-xl shadow-box"
           />
@@ -70,6 +73,7 @@ export default function BlogTopPosts() {
             width={250}
             height={300}
             src="/images/blog/blog-1.jpg"
+            // src=?? "/images/default.png"
             alt="مقاله ۳"
             className="w-full h-72 object-cover rounded-xl shadow-box"
           />

@@ -5,7 +5,7 @@ export default function StorePage() {
   
   return (
     <>
-      <ProductListPage type={"all"} slug={null} />
+     Cat
     </>
   );
 }

@@ -70,6 +70,7 @@ export default function AcceptPay() {
                         width={64}
                         height={64}
                         src="/images/product/television-2.png"
+                        // src=?? "/images/default.png"
                         alt=""
                       />
                     </div>
@@ -100,6 +101,7 @@ export default function AcceptPay() {
                         width={64}
                         height={64}
                         src="/images/product/television-1.png"
+                        // src=?? "/images/default.png"
                         alt=""
                       />
                     </div>

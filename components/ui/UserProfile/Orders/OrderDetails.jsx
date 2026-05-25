@@ -30,6 +30,7 @@ export default function OrderDetails() {
                     width={80}
                     height={80}
                     src="/images/product/television-2.png"
+                    // src=?? "/images/default.png"
                     className="size-20 rounded-lg"
                     alt="گوشی موبایل سامسونگ گلکسی A73"
                   />
@@ -64,6 +65,7 @@ export default function OrderDetails() {
                     width={80}
                     height={80}
                     src="/images/product/wach-1.png"
+                    // src=?? "/images/default.png"
                     className="size-20 rounded-lg"
                     alt="قاب محافظ گوشی سامسونگ گلکسی A73"
                   />

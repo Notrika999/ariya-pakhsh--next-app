@@ -84,7 +84,7 @@ export default function Review() {
         {/* <!--Tab bar--> */}
         <nav
           id="topBar"
-          className="lg:sticky top-0 border border-gray-200 shadow-sm dark:border-gray-700 z-10 px-5 bg-white dark:bg-zinc-800 lg:top-[75px] rounded-2xl mb-6"
+          className="lg:sticky top-0 border border-gray-200 shadow-sm dark:border-gray-700 z-10 px-5 bg-white dark:bg-zinc-800 lg:top-18.75 rounded-2xl mb-6"
           style={{ zIndex: "39" }}
         >
           <ul

@@ -172,7 +172,7 @@ export default function Action({ product, isOutOfStock }) {
       {/* <!-- Add to cart --> */}
       {!isOutOfStock && (
         <div className="flex items-center justify-center">
-          <button className="bg-primary shadow-primary-500 w-full mt-3 hover:bg-primary-600 text-white font-semibold rounded-xl px-6 py-4 text-sm">
+          <button className="bg-primary shadow-primary-500 ms-auto mt-3 hover:bg-primary-600 text-white font-semibold rounded-xl px-6 py-4 text-sm">
             افزودن به سبد خرید
           </button>
         </div>

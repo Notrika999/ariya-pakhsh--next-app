@@ -6,6 +6,10 @@ import {
 } from "@/src/lib/types/categories/menuType";
 import { apiClient } from "../../lib/http/client-http";
 import { PromotedCategory } from "@/src/lib/types/categories/category";
+import {
+  BreadcrumbResponse,
+  CategoryBreadcrumbItem,
+} from "@/src/lib/types/categories/breadcrumb";
 
 /* -------------------------------------------------------------------------- */
 /*                                   Types                                    */
@@ -74,4 +78,40 @@ export async function getPromotedCategories(
   console.log("category promoted res.data:", res.data);
   console.log("category promoted res.data.data:", res.data?.data);
   return res.data.data;
+}
+
+/**
+ * دریافت لیست Breadcrumb برای یک دسته بندی خاص
+ * @param params { categoryId, slug, includeHome }
+ */
+
+export async function getCategoryBreadcrumb(
+  params: CategoryBreadcrumbParams,
+): Promise<CategoryBreadcrumbItem[] | null> {
+  const response = await apiClient.get<BreadcrumbResponse>(
+    "/Categories/breadcrumb",
+    {
+      params: {
+        categoryId: params.categoryId,
+        slug: params.slug ? decodeURIComponent(params.slug) : undefined, // جلوگیری از double-encoding
+        includeHome: params.includeHome ?? true,
+      },
+      validateStatus: (status) => {
+        return status === 200 || status === 404;
+      },
+    },
+  );
+
+  console.log(response);
+
+  // اگر 404 بود → null برگردان
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (response.data.success) {
+    return response.data.data.items;
+  }
+
+  return null;
 }

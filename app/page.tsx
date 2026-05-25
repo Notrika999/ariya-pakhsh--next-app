@@ -14,17 +14,64 @@ import { getBrands } from "@/src/services/brand/brand.service";
 import { getPromotedCategories } from "@/src/services/category/category.service";
 import SliderProduct from "@/components/modules/SliderProduct/SliderProduct";
 
+import { Metadata } from "next";
+
+// ساختار متاتگ‌ها به صورت استاندارد و حرفه‌ای
+export const metadata: Metadata = {
+  title:
+    "فروشگاه اینترنتی آریاپخش | خرید آنلاین کفپوش، روکش و لوازم لوکس خودرو",
+  description:
+    "مرجع تخصصی خرید آنلاین انواع کالاهای ظاهری خودرو با بهترین قیمت و ضمانت اصالت کالا.",
+  keywords: [
+    "خرید آنلاین",
+    "فروشگاه اینترنتی",
+    "قیمت کفپوش ماشین",
+    "خرید روکش صندلی",
+    "لوازم تزینی",
+  ],
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: "فروشگاه اینترنتی آریاپخش",
+    description:
+      "بهترین پیشنهادهای روزانه و محصولات شگفت‌انگیز را در فروشگاه ما دنبال کنید.",
+    type: "website",
+    locale: "fa_IR",
+    url: "https://yourdomain.com", // آدرس اصلی سایت را اینجا وارد کنید
+    siteName: "آریاپخش",
+    images: [
+      {
+        url: "/images/og-image.jpg", // یک تصویر شاخص برای اشتراک‌گذاری در شبکه‌ها قرار دهید
+        width: 1200,
+        height: 630,
+        alt: "لوگوی فروشگاه",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "فروشگاه اینترنتی آریاپخش",
+    description: "خرید آسان و مطمئن کالای لوکس خودرو",
+    images: ["/images/og-image.jpg"],
+  },
+  alternates: {
+    canonical: "https://yourdomain.com",
+  },
+};
+
 export default async function Home() {
   const brands = await getBrands({
-  // letter: "ه",
-  pageNumber: 1,
-  pageSize: 40,
-  grouped: false,
-});
+    // letter: "ه", // Search Letter
+    pageNumber: 1,
+    pageSize: 40,
+    grouped: false,
+  });
 
-  // --- دسته‌بندی‌های Promoted واقعی ---
+  // --- Recommended Categories ---
   const recommendedCategories = await getPromotedCategories({
-    filter: "recommended", // یا "featured" / "recommended" طبق نیاز UI
+    filter: "recommended",
     maxCount: 12,
   });
 
@@ -33,50 +80,21 @@ export default async function Home() {
     id: cat.id,
     title: cat.name,
     slug: cat.slug,
-    img: cat.image?.iconUrl ?? "/images/category/default.png",
+    img: cat.image?.iconUrl ?? "/images/default.png",
   }));
-  // --- دسته‌بندی‌های Promoted واقعی ---
+
+  // --- Featured Categories ---
   const featuredCategories = await getPromotedCategories({
-    filter: "featured", // یا "featured" / "recommended" طبق نیاز UI
+    filter: "featured", 
     maxCount: 12,
   });
 
-  // مپ به شکل مورد نیاز کامپوننت Category (id, title, img)
   const featuredCategoriesMap = featuredCategories.map((cat) => ({
     id: cat.id,
     title: cat.name,
     slug: cat.slug,
-    img: cat.image?.iconUrl ?? "/images/category/default.png",
+    img: cat.image?.iconUrl ?? "/images/default.png",
   }));
-  const categories = [
-    { id: 1, title: "لپتاپ", img: "/images/category/laptop.png" },
-    { id: 2, title: "آرایشی", img: "/images/category/araeshi.png" },
-    {
-      id: 3,
-      title: "هدفون های نویز کنسلینگ",
-      img: "/images/category/ashpazkhane.png",
-    },
-    {
-      id: 4,
-      title: "لوازم تحریر",
-      img: "/images/category/lavazem-tahrir.png",
-    },
-    { id: 5, title: "موبایل", img: "/images/category/mobile.png" },
-    { id: 6, title: "پوشاک", img: "/images/category/poshak.png" },
-    { id: 7, title: "لپتاپ", img: "/images/category/laptop.png" },
-    { id: 8, title: "آرایشی", img: "/images/category/araeshi.png" },
-    { id: 9, title: "آشپزخانه", img: "/images/category/ashpazkhane.png" },
-    {
-      id: 10,
-      title: "لوازم تحریر",
-      img: "/images/category/lavazem-tahrir.png",
-    },
-    { id: 11, title: "موبایل", img: "/images/category/mobile.png" },
-    { id: 12, title: "پوشاک", img: "/images/category/poshak.png" },
-    // تکرار موارد برای پر شدن اسلایدر...
-  ];
-
-  console.log(categories);
 
   // stories, sliders, newProducts, productsLast, lastProductLists, lastBlogLits
   // همگی مثل قبل، فیک بمانند
@@ -199,16 +217,19 @@ export default async function Home() {
       id: 1,
       image: "/images/slider/landing/laptop-1.webp",
       alt: "تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 1",
+      slug: "coffee",
     },
     {
       id: 2,
       image: "/images/slider/landing/laptop-2.webp",
       alt: "تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 2",
+      slug: "tea",
     },
     {
       id: 3,
       image: "/images/slider/landing/laptop-3.webp",
       alt: "تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 3",
+      slug: "coffee",
     },
   ];
 
@@ -770,7 +791,7 @@ export default async function Home() {
       {/* <!-- END AMAZING SECTION --> */}
 
       {/* <!-- START CATEGORY SECTION --> */}
-      <Category categories={categories} title="دسته‌بندی‌های ویژه" />
+      <Category categories={featuredCategoriesMap} title="دسته‌بندی‌های ویژه" />
       {/* <!-- END CATEGORY SECTION --> */}
 
       {/* <!-- START BANNER SECTION --> */}
@@ -794,11 +815,19 @@ export default async function Home() {
       {/* <!-- END PRODUCT SLIDER SECTION --> */}
 
       {/* <!-- START LATEST VIEW SECTION --> */}
-      <UserLatestViews productsLast={productsLast} />
+      <UserLatestViews
+        productsLast={productsLast}
+        title={"محصولات پیشنهادی"}
+        href={"#"}
+      />
       {/* <!-- END LATEST VIEW SECTION --> */}
 
       {/* <!-- START NEW PRODUCT SECTION --> */}
-      <LastProducts lastProductLists={lastProductLists} />
+      <LastProducts
+        lastProductLists={lastProductLists}
+        title={"پرفروش ترین محصولات"}
+        href={"#"}
+      />
       {/* <!-- END NEW PRODUCT SECTION --> */}
 
       {/* <!-- START PRODUCT SLIDER SECTION -->/ */}
@@ -811,7 +840,7 @@ export default async function Home() {
       {/* <!-- END PRODUCT SLIDER SECTION --> */}
 
       {/* <!-- START BRAND SECTION --> */}
-      <Brand brands={brands.items} />
+      <Brand brands={brands.items} title={"برندهای های فروشگاه"} href={"#"} />
       {/* <!-- END BRAND SECTION --> */}
 
       {/* <!-- START BLOG SECTION --> */}

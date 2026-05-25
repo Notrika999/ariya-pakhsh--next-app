@@ -32,7 +32,7 @@ export default function MegaSubmenu({ sections }: { sections: Category[] }) {
                 </Link>
               ) : (
                 <>
-                  <p className="text-sm font-bold">{sec.name}</p>
+                  <Link href={sec.slug} className="text-sm font-bold">{sec.name}</Link>
 
                   <div className="mt-3 space-y-2">
                     {sec.children?.map((item) => (
@@ -59,7 +59,7 @@ export default function MegaSubmenu({ sections }: { sections: Category[] }) {
             <Image
               width={160}
               height={120}
-              src={thumbItem.src}
+              src={thumbItem.src ?? "/images/default.png"}
               alt="banner"
               className="w-full rounded-lg"
               loading="lazy"

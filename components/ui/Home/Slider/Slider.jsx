@@ -48,7 +48,7 @@ export default function Slider({ sliders }) {
             >
               {sliders.map((slid) => (
                 <SwiperSlide key={slid.id}>
-                  <SliderItem image={slid.image} alt={slid.alt} />
+                  <SliderItem image={slid.image} alt={slid.alt} href={`/landing/${slid.slug}`} />
                 </SwiperSlide>
               ))}
             </Swiper>

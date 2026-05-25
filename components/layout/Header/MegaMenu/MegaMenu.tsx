@@ -5,7 +5,7 @@ import Link from "next/link";
 import MenuClient from "./MenuClient";
 import {
   getMegaMenu,
-  MegaMenuItem,
+  
 } from "@/src/services/category/category.service";
 
 export default function MegaMenu() {
@@ -22,7 +22,7 @@ export default function MegaMenu() {
 
   // if (!menu) return null;
 
-  const [menu, setMenu] = useState<MegaMenuItem[]>([]);
+  const [menu, setMenu] = useState([]);
 
   useEffect(() => {
     async function load() {

@@ -1,22 +1,15 @@
+import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function CategoryProductBox({ productsLast }) {
+export default function CategoryProductBox({ productsLast, title, href }) {
   return (
     <section className="py-5">
       <h2 className="sr-only">آخرین مشاهدات کاربر</h2>
 
       <div className="container">
         {/* <!-- header --> */}
-        <header className="flex flex-wrap mb-2 justify-between items-center">
-          <h2
-            className="font-bold text-lg mb-4 relative pb-4 text-gray-900 dark:text-gray-200
-                before:absolute before:inset-s-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary
-                after:absolute after:w-40 after:h-2 after:bottom-0 after:inset-s-4 after:bg-primary after:rounded-lg"
-          >
-            محصولات پیشنهادی
-          </h2>
-        </header>
+        <SectionHeader title={title} href={href} />
 
         {/* <!--items--> */}
         <div className="grid grid-cols-12 gap-4 place-items-center">
@@ -70,7 +63,7 @@ export default function CategoryProductBox({ productsLast }) {
                         <Image
                           width={120}
                           height={120}
-                          src={product.image}
+                          src={product.image ?? "/images/default.png"}
                           alt={product.title}
                           loading="lazy"
                           className="block h-30 object-contain transition-transform duration-300 group-hover:scale-105"

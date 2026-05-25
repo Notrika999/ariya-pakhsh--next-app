@@ -80,7 +80,7 @@ function getApiBaseUrl(): URL {
   if (_cachedApiUrl) return _cachedApiUrl;
 
   const raw = process.env.API_URL;
-  console.log(raw);
+ 
   if (!raw) {
     throw new ProxyError(
       "API_URL environment variable is not defined",

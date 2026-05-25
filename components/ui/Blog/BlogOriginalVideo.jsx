@@ -12,6 +12,7 @@ export default function BlogOriginalVideo() {
               width={340}
               height={320}
               src="/images/blog/blog-1.jpg"
+              // src=?? "/images/default.png"
               alt="ویدیو ۱"
               className="w-full group-hover:scale-105 transition duration-500 h-80 object-cover rounded-xl grayscale"
             />
@@ -35,6 +36,7 @@ export default function BlogOriginalVideo() {
               width={700}
               height={320}
               src="/images/blog/blog-2.jpg"
+              // src=?? "/images/default.png"
               alt="ویدیو ۲"
               className="w-full group-hover:scale-105 transition duration-500 h-80 object-cover rounded-xl grayscale"
             />
@@ -58,6 +60,7 @@ export default function BlogOriginalVideo() {
               width={340}
               height={320}
               src="/images/blog/blog-3.jpg"
+              // src=?? "/images/default.png"
               alt="ویدیو ۳"
               className="w-full group-hover:scale-105 transition duration-500 h-80 object-cover rounded-xl grayscale"
             />
@@ -81,11 +84,12 @@ export default function BlogOriginalVideo() {
               width={340}
               height={320}
               src="/images/blog/blog-6.jpg"
+              // src=?? "/images/default.png"
               alt="ویدیو ۴"
               className="w-full group-hover:scale-105 transition duration-500 h-80 object-cover rounded-xl grayscale"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-             <i className="far fa-circle-play text-6xl text-secondary-600"></i>
+              <i className="far fa-circle-play text-6xl text-secondary-600"></i>
             </div>
             <div className="absolute bottom-0 start-0 end-0 p-4 bg-gradient-to-t from-black to-transparent rounded-b-xl">
               <h3 className="text-sm font-medium text-white truncate mb-2">
@@ -104,6 +108,7 @@ export default function BlogOriginalVideo() {
               width={340}
               height={320}
               src="/images/blog/blog-4.jpg"
+              // src=?? "/images/default.png"
               alt="ویدیو ۵"
               className="w-full group-hover:scale-105 transition duration-500 h-80 object-cover rounded-xl grayscale"
             />

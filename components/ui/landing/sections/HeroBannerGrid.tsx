@@ -44,7 +44,7 @@ export default function HeroBannerGrid() {
             className="relative overflow-hidden rounded-2xl md:col-span-7 min-h-[220px] sm:min-h-[320px] lg:min-h-[420px]"
           >
             <Image
-              src={banners[0].src}
+              src={banners[0].src ?? "/images/default.png"}
               alt={banners[0].title}
               fill
               className="object-cover"
@@ -60,7 +60,7 @@ export default function HeroBannerGrid() {
                 className="relative overflow-hidden rounded-2xl min-h-[180px] sm:min-h-[200px] lg:min-h-[205px]"
               >
                 <Image
-                  src={banner.src}
+                  src={banner.src ?? "/images/default.png"}
                   alt={banner.title}
                   fill
                   className="object-cover"

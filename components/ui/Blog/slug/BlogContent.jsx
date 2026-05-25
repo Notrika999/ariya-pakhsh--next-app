@@ -15,6 +15,7 @@ export default function BlogContent() {
           width={1052}
           height={384}
           src="/images/blog/cover.jpg"
+          // src=?? "/images/default.png"
           alt="گوشی‌های هوشمند"
           className="w-full h-64 md:h-96 object-cover"
         />
@@ -42,6 +43,7 @@ export default function BlogContent() {
               width={100}
               height={100}
               src="/images/user/profile-Image.jpg"
+              // src=?? "/images/default.png"
               alt="نویسنده"
               className="w-12 h-12 rounded-full object-cover"
             />
@@ -113,6 +115,7 @@ export default function BlogContent() {
               width={100}
               height={100}
               src="/images/blog/blog-5.jpg"
+              // src=?? "/images/default.png"
               alt="سامسونگ گلکسی S23 اولترا"
               className="w-full h-auto my-6 rounded-lg"
             />
@@ -244,6 +247,7 @@ export default function BlogContent() {
                 width={100}
                 height={100}
                 src="/images/user/user.jpg"
+                // src=?? "/images/default.png"
                 alt="نویسنده"
                 className="w-16 h-16 rounded-full object-cover"
               />
@@ -294,6 +298,7 @@ export default function BlogContent() {
                   width={100}
                   height={100}
                   src="/images/blog/blog-5.jpg"
+                  // src=?? "/images/default.png"
                   alt="مقاله مرتبط"
                   className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
                 />
@@ -311,6 +316,7 @@ export default function BlogContent() {
                   width={100}
                   height={100}
                   src="/images/blog/blog-3.jpg"
+                  // src=?? "/images/default.png"
                   alt="مقاله مرتبط"
                   className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
                 />
@@ -353,6 +359,7 @@ export default function BlogContent() {
                   width={100}
                   height={100}
                   src="/images/user/profile-img.jpg"
+                  // src=?? "/images/default.png"
                   alt="کاربر"
                   className="w-10 h-10 rounded-full object-cover flex-shrink-0"
                 />
@@ -388,6 +395,7 @@ export default function BlogContent() {
                   width={100}
                   height={100}
                   src="/images/user/profile-img-2.jpg"
+                  // src=?? "/images/default.png"
                   alt="کاربر"
                   className="w-10 h-10 rounded-full object-cover flex-shrink-0"
                 />
@@ -422,6 +430,7 @@ export default function BlogContent() {
                       width={100}
                       height={100}
                       src="/images/user/user.png"
+                      // src=?? "/images/default.png"
                       alt="نویسنده"
                       className="w-8 h-8 rounded-full object-cover flex-shrink-0"
                     />

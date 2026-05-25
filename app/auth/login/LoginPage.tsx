@@ -20,7 +20,7 @@ function LoginPage() {
                 width={124}
                 height={48}
                 className="h-12 dark:invert"
-                src="/images/logo.png"
+                src="/images/logo.png" 
                 loading="lazy"
                 alt=""
               />

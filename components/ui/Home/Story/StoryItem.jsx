@@ -17,7 +17,7 @@ export default function StoryItem({ image, title, onOpen, index, viewed }) {
         <Image
         width={100}
         height={100}
-          src={image}
+          src={image ?? "/images/default.png"}
           alt={title}
           onError={(e) => {
             e.target.src = "https://picsum.photos/70";

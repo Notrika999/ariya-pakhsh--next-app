@@ -4,7 +4,8 @@ export default function DescriptionSection({
   title,
   text,
 }: DescriptionSectionType) {
-  console.log(title)
+  
+  
   return (
     <section className="py-16 px-4">
       <div className="max-w-4xl mx-auto text-center">

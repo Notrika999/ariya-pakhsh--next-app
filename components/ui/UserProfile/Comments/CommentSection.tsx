@@ -20,7 +20,7 @@ export default function CommentSection({ comments }: Props) {
               <Image
                 width={80}
                 height={80}
-                src={comment.productImage}
+                src={comment.productImage ?? "/images/default.png"}
                 className="size-20 rounded-lg"
                 alt={comment.productTitle}
               />

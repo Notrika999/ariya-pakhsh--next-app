@@ -1,8 +1,6 @@
 "use client";
 
-import React from "react";
-import Breadcrumb from "@/components/modules/Breadcrumb/Breadcrumb";
-import Description from "@/components/ui/ProductDetails/Description/Description";
+import Description from "@/components/ui/ProductPageClient/Description/Description";
 import Gallery from "./Gallery/Gallery";
 import Action from "./Action/Action";
 import Seller from "./Seller/Seller";
@@ -14,7 +12,7 @@ interface Props {
   id: string;
 }
 
-export default function ProductDetails({ id }: Props) {
+export default function ProductPageClient({ id }: Props) {
   const { product, loading, error } = useProductDetails(id);
 
   if (loading) return <p>در حال دریافت اطلاعات...</p>;

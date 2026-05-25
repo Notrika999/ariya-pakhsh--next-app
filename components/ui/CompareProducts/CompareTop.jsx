@@ -24,6 +24,7 @@ export default function CompareTop() {
             width={100}
             height={100}
             src="/images/product/mobile-2.png"
+            // src=?? "/images/default.png"
             alt="گوشی سامسونگ"
             className="h-32 object-contain"
           />
@@ -51,6 +52,7 @@ export default function CompareTop() {
             width={100}
             height={100}
             src="/images/product/mobile-1.png"
+            // src=?? "/images/default.png"
             alt="آیفون"
             className="h-32 object-contain"
           />
@@ -78,6 +80,7 @@ export default function CompareTop() {
             width={100}
             height={100}
             src="/images/product/mobile-3.png"
+            // src=?? "/images/default.png"
             alt="شیائومی"
             className="h-32 object-contain"
           />

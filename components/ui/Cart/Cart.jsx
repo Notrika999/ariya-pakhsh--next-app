@@ -68,7 +68,11 @@ export default function Cart() {
                 {/* <!--Product 1--> */}
                 <div className="flex flex-wrap sm:space-y-0 space-y-5 dark:bg-zinc-800 bg-custom-light cart-item items-start space-x-4 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
                   <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                    <Image width={80} height={80} src="/images/product/mobile-2.png" alt="" />
+                    <Image width={80} height={80} 
+                    src="/images/product/mobile-2.png"
+                    // src=?? "/images/default.png"
+                    
+                    alt="" />
                   </div>
                   <div className="flex-1 space-y-4">
                     <h3 className="font-bold text-gray-800 dark:text-white">
@@ -118,7 +122,10 @@ export default function Cart() {
                 {/* <!--Product 2--> */}
                 <div className="flex flex-wrap sm:space-y-0 space-y-5 dark:bg-zinc-800 bg-custom-light cart-item items-start space-x-4 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
                   <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                    <Image width={80} height={80} src="/images/product/mobile-2.png" alt="" />
+                    <Image width={80} height={80} 
+                    src="/images/product/mobile-2.png" 
+                    // src=?? "/images/default.png"
+                    alt="" />
                   </div>
                   <div className="flex-1 space-y-4">
                     <h3 className="font-bold text-gray-800 dark:text-white">

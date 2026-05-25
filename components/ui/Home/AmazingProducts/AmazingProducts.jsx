@@ -36,6 +36,7 @@ export default function AmazingProductsSlider({ products }) {
                     width={194}
                     height={120}
                     src="/images/amazing/amazing-light.webp"
+                    // src=?? "/images/default.png"
                     className="w-50 xl:inline-block hidden dark:invert"
                     alt=""
                   />
@@ -46,7 +47,7 @@ export default function AmazingProductsSlider({ products }) {
 
                 <div className="text-center">
                   <Link
-                    href="/amazing"
+                    href="/incredible-offers"
                     className="bg-white xl:inline-block hidden dark:bg-zinc-800 dark:text-gray-200 text-gray-900 px-3 py-2 rounded-xl shadow-sm"
                   >
                     مشاهده محصولات
@@ -55,7 +56,7 @@ export default function AmazingProductsSlider({ products }) {
 
                 <div className="flex space-x-3 items-center justify-center">
                   <Link
-                    href="/amazing"
+                    href="/incredible-offers"
                     className="bg-white xl:hidden block dark:bg-zinc-800 dark:text-gray-200 text-gray-900 px-3 py-2 rounded-xl shadow-sm"
                   >
                     مشاهده محصولات

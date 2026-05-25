@@ -1,20 +1,14 @@
 // components/OffcanvasRight.jsx
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import CategoryNode from "./CategoryNode";
 
-export default function OffcanvasRight({
-  isOpen,
-  onClose,
-  leftMenuItems = [],
-  megaContent = {},
-}) {
-  // نقشه باز/بسته هر منو به صورت جداگانه
-  const [openMap, setOpenMap] = useState({});
-
+export default function OffcanvasRight({ isOpen, onClose, menu }) {
   // برای انیمیشن دو مرحله‌ای:Backdrop و Panel
   const [showBackdrop, setShowBackdrop] = useState(false);
   const [showPanel, setShowPanel] = useState(false);
 
+  console.log("Category api: ", menu);
   // هماهنگی با isOpen
   useEffect(() => {
     if (isOpen) {
@@ -40,48 +34,6 @@ export default function OffcanvasRight({
     return () => window.removeEventListener("keydown", onKey);
   }, [isOpen, onClose]);
 
-  //Toggle هر منو به صورت جداگانه
-  const toggleMenu = (menuID) => {
-    setOpenMap((prev) => ({
-      ...prev,
-      [menuID]: !prev[menuID],
-    }));
-  };
-
-  // helper برای render کردن بخش‌های megaContent برای یک منو
-  const renderMegaForMenu = (menuID) => {
-    const sections = (megaContent[String(menuID)] ?? []).filter(
-      (sec) => !sec.src,
-    );
-    if (!sections.length) return null;
-
-    return (
-      <div className="mt-2 pl-2">
-        {sections.map((sec, idx) => (
-          <div key={idx} className="mb-2">
-            {sec.title && (
-              <div className="text-sm font-semibold mb-1">{sec.title}</div>
-            )}
-            {sec.items && sec.items.length > 0 && (
-              <ul className="ml-4 space-y-1">
-                {sec.items.map((item, i) => (
-                  <li
-                    key={i}
-                    className="px-2 py-1 hover:bg-gray-100 dark:hover:bg-[#1f242c] rounded"
-                  >
-                    <Link href={item.href ?? "#"} passHref>
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  };
-
   // Overlay و Panel در کنار هم (با کنترل استایل کلاس‌ها)
   return (
     <>
@@ -97,7 +49,6 @@ export default function OffcanvasRight({
         className={`fixed top-0 right-0 h-full w-[80%] bg-white dark:bg-[#0d1117] text-gray-900 dark:text-gray-100 border-e border-gray-200 dark:border-gray-800 shadow-xl transform transition-transform duration-300 z-50 ${showPanel ? "translate-x-0" : "translate-x-full"}`}
         role="navigation"
         aria-labelledby="store-menu-title"
-        aria-modal="true"
         aria-hidden={!showPanel}
         onClick={(e) => e.stopPropagation()}
       >
@@ -126,40 +77,9 @@ export default function OffcanvasRight({
               <Link href="/">صفحه اصلی</Link>
             </li>
 
-            {/* دیتای منوها: هر کدام با کلیک فقط خودش رو باز می‌کند */}
-            {leftMenuItems.map((m) => {
-              const id = String(m.menuID);
-              const isOpenForThis = !!openMap[id];
-              return (
-                <li
-                  key={id}
-                  className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200"
-                >
-                  <button
-                    className="flex justify-between w-full text-start items-center"
-                    aria-expanded={isOpenForThis}
-                    aria-controls={`mega-${id}`}
-                    id={`menu-${id}-button`}
-                    onClick={() => toggleMenu(id)}
-                  >
-                    <span>{m.title}</span>
-                    <i className={`fas fa-angle-down transition-transform transform text-gray-600 dark:text-gray-300 ${isOpenForThis ? "rotate-180" : ""}`}></i>
-                    
-                  </button>
-
-                  {isOpenForThis && (
-                    <div
-                      id={`mega-${id}`}
-                      role="region"
-                      aria-label={m.title}
-                      className="mt-2 pl-3"
-                    >
-                      {renderMegaForMenu(id)}
-                    </div>
-                  )}
-                </li>
-              );
-            })}
+            {menu.map((cat) => (
+              <CategoryNode key={cat.id} category={cat} />
+            ))}
 
             {/* صفحات یا آیتم‌های ثابت می‌توانید اینجا اضافه کنید اگر نیاز باشد */}
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">

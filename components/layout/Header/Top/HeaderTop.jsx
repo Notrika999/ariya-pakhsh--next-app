@@ -3,16 +3,24 @@ import HeaderLogo from "./HeaderLogo";
 import HeaderSearch from "./HeaderSearch";
 import HeaderSetting from "./HeaderSetting";
 import OffcanvasRight from "../MegaMenu/OffcanvasRight";
-import { useMegaMenu } from "@/src/lib/hooks/useMegaMenu";
+import { getMegaMenu } from "@/src/services/category/category.service";
 
 export default function HeaderTop() {
+  
   const [isOpen, setIsOpen] = useState(false);
 
-  const { leftMenuItems, megaContent, loading, fetchAll } = useMegaMenu();
 
-  useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
+  const [menu, setMenu] = useState([]);
+  
+    useEffect(() => {
+      async function load() {
+        const data = await getMegaMenu();
+  
+        setMenu(data);
+      }
+  
+      load();
+    }, []);
   return (
     <div className="grid place-items-center gap-3 grid-cols-12">
       {/* respnsive menu  */}
@@ -24,8 +32,7 @@ export default function HeaderTop() {
         <OffcanvasRight
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
-          leftMenuItems={leftMenuItems}
-          megaContent={megaContent}
+          menu={menu}
         />
       </div>
 

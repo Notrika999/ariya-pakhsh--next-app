@@ -598,6 +598,7 @@ export default function Checkout() {
                         width={56}
                         height={56}
                         src="/images/product/wach-1.png"
+                        // src=?? "/images/default.png"
                         alt=""
                       />
                     </div>
@@ -622,6 +623,7 @@ export default function Checkout() {
                         width={56}
                         height={56}
                         src="/images/product/wach-3.png"
+                        // src=?? "/images/default.png"
                         alt=""
                       />
                     </div>

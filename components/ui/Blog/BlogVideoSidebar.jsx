@@ -13,6 +13,7 @@ export default function BlogVideoSidebar() {
                 width={96}
                 height={80}
                 src="/images/blog/blog-1.jpg"
+                // src=?? "/images/default.png"
                 className="w-24 h-20 object-cover rounded brightness-50"
                 alt="ویدیو ۱"
               />
@@ -43,6 +44,7 @@ export default function BlogVideoSidebar() {
                 width={96}
                 height={80}
                 src="/images/blog/blog-6.jpg"
+                // src=?? "/images/default.png"
                 className="w-24 h-20 object-cover rounded brightness-50"
                 alt="ویدیو ۳"
               />
@@ -73,6 +75,7 @@ export default function BlogVideoSidebar() {
                 width={96}
                 height={80}
                 src="/images/blog/blog-4.jpg"
+                // src=?? "/images/default.png"
                 className="w-24 h-20 object-cover rounded brightness-50"
                 alt="ویدیو ۳"
               />

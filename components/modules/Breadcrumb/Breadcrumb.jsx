@@ -1,13 +1,13 @@
 import Link from "next/link";
 import React from "react";
 
-export default function Breadcrumb({ title, active, href, items }) {
-  console.log(items)
+export default function Breadcrumb({ items }) {
+  console.log(items);
   return (
     <nav className="w-full py-3" aria-label="Breadcrumb">
       <ol className="flex flex-wrap items-center text-sm font-medium text-gray-700 dark:text-gray-400">
         {/* <!-- Home --> */}
-        <li>
+        {/* <li>
           <Link
             href="/"
             className="flex items-center hover:text-primary transition-colors"
@@ -16,14 +16,14 @@ export default function Breadcrumb({ title, active, href, items }) {
            
             خانه
           </Link>
-        </li>
+        </li> */}
 
         {/* <!-- Divider --> */}
-        {href && (
+        {/* {href && (
           <>
-            {/* <li className="flex items-center mx-2 text-gray-400">
+            <li className="flex items-center mx-2 text-gray-400">
              <i className="fas fa-angle-left"></i>
-            </li> */}
+            </li>
 
             <li>
               <Link
@@ -34,7 +34,7 @@ export default function Breadcrumb({ title, active, href, items }) {
               </Link>
             </li>
           </>
-        )}
+        )} */}
 
         {/* <!-- Divider --> */}
         {/* <li className="flex items-center mx-2 text-gray-400">
@@ -42,28 +42,21 @@ export default function Breadcrumb({ title, active, href, items }) {
         </li> */}
 
         {/* <!-- Active Page --> */}
-        <li
+        {/* <li
           aria-current="page"
           className="truncate max-w-[200px] sm:max-w-[300px] md:max-w-none text-gray-500 dark:text-gray-400"
         >
           {active}
-        </li>
+        </li> */}
 
-        {
-          items.map((item) => (
-           
-
-            <li key={item.id}>
-              <i className="fas fa-angle-left text-gray-400"></i>
-              <span
-                className="hover:text-primary transition-colors"
-              >
-                {item.name}
-              </span>
-            </li>
-      
-          ))
-        }
+        {items.map((item) => (
+          <li key={item.id}>
+            <span className="hover:text-primary transition-colors">
+              {item.name}
+            </span>
+            <i className="fas fa-angle-left text-gray-400"></i>
+          </li>
+        ))}
       </ol>
     </nav>
   );

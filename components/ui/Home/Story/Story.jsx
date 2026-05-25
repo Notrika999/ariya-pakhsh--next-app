@@ -208,7 +208,7 @@ export default function Story({ stories }) {
                   height={740}
                     src={current.url}
                     alt={current.user}
-                    className={storyStyle.storyImage}
+                    className={storyStyle.storyImage ?? "/images/default.png"}
                   />
                 )}
               </div>

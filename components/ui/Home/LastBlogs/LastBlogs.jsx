@@ -51,7 +51,7 @@ export default function LastBlogs({ lastBlogLits }) {
                     <figure className="overflow-hidden rounded-xl">
                       <Image
                         className="h-40 w-full object-cover rounded-xl transition-transform duration-300 group-hover:scale-105"
-                        src={blog.image}
+                        src={blog.image ?? "/images/default.png"}
                         alt={blog.title}
                         width={240}
                         height={160}

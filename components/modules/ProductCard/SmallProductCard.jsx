@@ -20,7 +20,7 @@ export default function SmallProductCard({ product }) {
         {/* image */}
         <div className="flex items-center justify-center overflow-hidden">
           <Image
-            src={product.image}
+            src={product.image ?? "/images/default.png"}
             alt={product.title}
             width={120}
             height={120}

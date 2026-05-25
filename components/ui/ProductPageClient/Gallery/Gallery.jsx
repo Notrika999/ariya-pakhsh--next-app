@@ -14,6 +14,7 @@ import "swiper/css/zoom";
 import Image from "next/image";
 import ShareModal from "./ShareModal";
 import ChartModal from "./ChartModal";
+import Link from "next/link";
 
 // swiper
 
@@ -104,9 +105,9 @@ export default function Gallery({ images, isOutOfStock }) {
           </button>
 
           {/* Compare */}
-          <button className="flex z-10 group relative items-center justify-center w-full p-2 transition dark:border-gray-700 drop-shadow rounded">
+          <Link href={"/compare"} className="flex z-10 group relative items-center justify-center w-full p-2 transition dark:border-gray-700 drop-shadow rounded">
             <i className="fas fa-code-compare"></i>
-          </button>
+          </Link>
 
           {/* Favorite */}
           <button className="flex z-10 group relative items-center justify-center w-full p-2 transition dark:border-gray-700 drop-shadow rounded">
@@ -141,7 +142,7 @@ export default function Gallery({ images, isOutOfStock }) {
                   <Image
                     width={328}
                     height={328}
-                    src={img.imgSrc}
+                    src={img.imgSrc ?? "/images/default.png"}
                     alt={`product-${index}`}
                     className="max-h-70 object-contain"
                   />
@@ -168,7 +169,7 @@ export default function Gallery({ images, isOutOfStock }) {
               <Image
                 width={62}
                 height={62}
-                src={img.imgSrc}
+                src={img.imgSrc ?? "/images/default.png"}
                 alt={`thumb-${index}`}
                 className="h-full object-contain"
               />

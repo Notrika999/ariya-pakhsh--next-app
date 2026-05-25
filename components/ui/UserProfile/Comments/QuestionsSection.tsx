@@ -19,7 +19,7 @@ export default function QuestionsSection({ questions }: Props) {
               <Image
                 width={80}
                 height={80}
-                src={q.productImage}
+                src={q.productImage ?? "/images/default.png"}
                 className="size-20 rounded-lg"
                 alt={q.productTitle}
               />

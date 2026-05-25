@@ -12,6 +12,7 @@ export default function OurStory() {
               width={472}
               height={283}
               src="/images/about/about.jpg"
+              // src=?? "/images/default.png"
               alt="همکاری تیم ما"
               className="w-full h-auto"
             />

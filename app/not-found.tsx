@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
 
-function page404() {
+function notFound() {
   return (
     <section className="py-5">
       <div className="container">
@@ -74,7 +74,7 @@ function page404() {
                 {/* <!--Search form--> */}
                 <div className="mb-8">
                   <label
-                    for="search"
+                    htmlFor="search"
                     className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                   >
                     صفحه مورد نظر خود را جستجو کنید
@@ -158,4 +158,4 @@ function page404() {
   );
 }
 
-export default page404;
+export default notFound;

@@ -14,7 +14,7 @@ export default function ActivityHistoryCard({ product }: Props) {
           <Image
             width={80}
             height={80}
-            src={product.imgSrc}
+            src={product.imgSrc ?? "/images/default.png"}
             className="size-20 rounded-lg"
             alt={product.title}
           />

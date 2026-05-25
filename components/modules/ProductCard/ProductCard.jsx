@@ -86,7 +86,7 @@ export default function ProductCard({ product }) {
         <Image
           width={160}
           height={160}
-          src={product.image}
+          src={product.image ?? "/images/default.png"}
           alt={product.title}
           loading="lazy"
           className="block h-40 object-contain transition-transform duration-300 group-hover:scale-105"

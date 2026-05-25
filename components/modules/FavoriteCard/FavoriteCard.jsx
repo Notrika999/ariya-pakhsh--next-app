@@ -29,7 +29,7 @@ export default function FavoriteCard({
         <Image
         width={160}
         height={160}
-          src={image}
+          src={image ?? "/images/default.png"}
           alt={title}
           loading="lazy"
           className="block h-40 object-contain transition-transform duration-300 group-hover:scale-105"

@@ -24,6 +24,7 @@ export default function OurTeam() {
               width={100}
               height={100}
               src="/images/about/3.jpg"
+              // src=?? "/images/default.png"
               alt="سارا محمدی"
               className="w-full h-64 object-cover group-hover:scale-105 transition duration-500"
             />
@@ -56,6 +57,7 @@ export default function OurTeam() {
               width={100}
               height={100}
               src="/images/about/1.jpg"
+              // src=?? "/images/default.png"
               alt="علی رضایی"
               className="w-full h-64 object-cover group-hover:scale-105 transition duration-500"
             />
@@ -90,6 +92,7 @@ export default function OurTeam() {
               width={100}
               height={100}
               src="/images/about/4.jpg"
+              // src=?? "/images/default.png"
               alt="نرگس حسینی"
               className="w-full h-64 object-cover group-hover:scale-105 transition duration-500"
             />
@@ -122,6 +125,7 @@ export default function OurTeam() {
               width={100}
               height={100}
               src="/images/about/2.jpg"
+              // src=?? "/images/default.png"
               alt="محمد جوادی"
               className="w-full h-64 object-cover group-hover:scale-105 transition duration-500"
             />

@@ -37,6 +37,7 @@ export default function MenuClient({ menu }: { menu: Category[] }) {
                     key={category.id}
                     id={category.id}
                     title={category.name}
+                    slug={category.slug}
                     activeMegaId={activeMegaId}
                     setActiveMegaId={setActiveMegaId}
                   />

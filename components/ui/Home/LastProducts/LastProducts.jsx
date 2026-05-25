@@ -6,32 +6,17 @@ import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, FreeMode } from "swiper/modules";
 import "swiper/css";
+import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
 
-export default function LastProducts({ lastProductLists }) {
+export default function LastProducts({ lastProductLists, title, href }) {
   return (
     <section className="py-5">
       <h2 className="sr-only">جدیدترین محصولات</h2>
 
       <div className="container">
         {/* <!-- header --> */}
-        <header className="flex flex-wrap mb-2 justify-between items-center">
-          <h2
-            className="font-bold text-lg mb-4 relative pb-4 text-gray-900 dark:text-gray-200
-                before:absolute before:start-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary
-                after:absolute after:w-40 after:h-2 after:bottom-0 after:start-4 after:bg-primary after:rounded-lg"
-          >
-            جدیدترین محصولات
-          </h2>
-
-          <a
-            href="#"
-            className="text-xs font-medium bg-primary text-white py-1.5 px-4 rounded-lg
-                hover:bg-primary/90 active:scale-95 transition duration-200 shadow-sm hover:shadow
-                dark:bg-primary/80 dark:hover:bg-primary/60 dark:text-white"
-          >
-            مشاهده همه
-          </a>
-        </header>
+        <SectionHeader title={title} href={href} />
+      
         {/* <!-- product items --> */}
         <Swiper
           modules={[Autoplay]}
@@ -83,7 +68,7 @@ export default function LastProducts({ lastProductLists }) {
                     <figure className="w-2/6">
                       <div className="text-end flex justify-end">
                         <Image
-                          src={subProduct.image}
+                          src={subProduct.image ?? "/images/default.png"}
                           className="size-20"
                           loading="lazy"
                           alt={subProduct.title}
