@@ -7,6 +7,7 @@ import Breadcrumb from "@/components/modules/Breadcrumb/Breadcrumb";
 import { Category } from "@/src/lib/types/categories/category";
 import { BreadcrumbData } from "@/src/lib/types/categories/breadcrumb";
 import ProductListSection from "../ProductListSection/ProductListSection";
+import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 
 interface Props {
   type: "category";
@@ -32,31 +33,29 @@ export default function CategoryProductListPage({
   });
 
   return (
-    <section className="py-6">
-      <div className="container mx-auto">
-        {/* <Breadcrumb title={"دسته بندی"} href={"/category"} active={""} /> */}
+    <SectionContainer>
+      {/* <Breadcrumb title={"دسته بندی"} href={"/category"} active={""} /> */}
 
-        <Breadcrumb items={breadcrumb} />
+      <Breadcrumb items={breadcrumb} />
 
-        {category.children.length > 0 && (
-          <>
-            <SectionTitle title={"دسته بندی ها"} />
-            <div className="pb-10">
-              <CategoriesSlider categories={category.children} />
-            </div>
-          </>
-        )}
+      {category.children.length > 0 && (
+        <>
+          <SectionTitle title={"دسته بندی ها"} />
+          <div className="pb-10">
+            <CategoriesSlider categories={category.children} />
+          </div>
+        </>
+      )}
 
-         <ProductListSection 
-            filters={filters}
-            setFilters={setFilters}
-            minLimit={MIN_LIMIT}
-            maxLimit={MAX_LIMIT}
-            products={[]}
-        />
+      <ProductListSection
+        filters={filters}
+        setFilters={setFilters}
+        minLimit={MIN_LIMIT}
+        maxLimit={MAX_LIMIT}
+        products={[]}
+      />
 
-        <DescriptionCategory />
-      </div>
-    </section>
+      <DescriptionCategory />
+    </SectionContainer>
   );
 }

@@ -1,4 +1,5 @@
 import React from "react";
+import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 import HeroSection from "./HeroSection";
 import OurStory from "./OurStory";
 import MissionVision from "./MissionVision";
@@ -9,29 +10,27 @@ import CTASection from "./CTASection";
 
 export default function About() {
   return (
-    <section className="py-16">
-      <div className="container mx-auto px-4">
-        {/* <!-- Hero Section --> */}
-        <HeroSection />
+    <SectionContainer>
+      {/* <!-- Hero Section --> */}
+      <HeroSection />
 
-        {/* <!-- Our Story --> */}
-        <OurStory />
+      {/* <!-- Our Story --> */}
+      <OurStory />
 
-        {/* <!-- Mission & Vision --> */}
-        <MissionVision />
+      {/* <!-- Mission & Vision --> */}
+      <MissionVision />
 
-        {/* <!-- Statistics --> */}
-        <Statistics />
+      {/* <!-- Statistics --> */}
+      <Statistics />
 
-        {/* <!-- Our Values --> */}
-        <OurValues />
+      {/* <!-- Our Values --> */}
+      <OurValues />
 
-        {/* <!-- Our Team --> */}
-        <OurTeam />
+      {/* <!-- Our Team --> */}
+      <OurTeam />
 
-        {/* <!-- CTA Section --> */}
-        <CTASection />
-      </div>
-    </section>
+      {/* <!-- CTA Section --> */}
+      <CTASection />
+    </SectionContainer>
   );
 }

@@ -21,113 +21,95 @@ export default function AmazingProductsSlider({ products }) {
   // products = [{id, image, title, colors, price, discount, countdownTo}, ...]
   const safeProducts = useMemo(() => products ?? [], [products]);
 
+  const limitedProducts = useMemo(() => {
+    return (products ?? []).slice(0, 11);
+  }, [products]);
+
+  const sliderItems = [
+    ...limitedProducts,
+    {
+      id: "show-all",
+      type: "show-all",
+    },
+  ];
+
   return (
     <>
       <h2 className="sr-only">محصولات شگفت انگیز فروشگاه</h2>
 
-      <div className="bg-gray-200 dark:bg-[#20242b] p-4 rounded-xl transition-colors">
-        <div className="grid grid-cols-12 gap-4">
-          {/* Title Section */}
-          <div className="xl:col-span-2 col-span-12">
-            <div className="xl:space-y-6 [@media(max-width:400px)]:space-y-3 flex-wrap h-full flex items-center xl:justify-center justify-between flex-row xl:flex-col">
-              <div className="flex items-center justify-center">
-                <Image
-                  width={194}
-                  height={120}
-                  src="/images/amazing/amazing-light.webp"
-                  // src=?? "/images/default.png"
-                  className="w-50 xl:inline-block hidden dark:invert"
-                  alt=""
-                />
-                <h2 className="xl:hidden block font-bold">
-                  پیشنهاد شگفت انگیز
-                </h2>
-              </div>
+      <div className="bg-brand-gradient dark:bg-[#20242b] pt-4 rounded-xl transition-colors">
+        {/* Product Swiper */}
 
-              <div className="text-center">
-                <Link
-                  href="/incredible-offers"
-                  className="bg-white xl:inline-block hidden dark:bg-zinc-800 dark:text-gray-200 text-gray-900 px-3 py-2 rounded-xl shadow-sm"
-                >
-                  مشاهده محصولات
-                </Link>
-              </div>
+        <div className="overflow-hidden xl:pb-0 pb-3">
+          {/* MOBILE AMAZING HEADER */}
+          <div className="xl:hidden flex items-center justify-between   rounded-2xl px-4 py-2  text-white">
+            <div className="flex items-center gap-3">
+              <h2 className="font-bold text-sm">پیشنهاد شگفت‌انگیز</h2>
+            </div>
 
-              <div className="flex space-x-3 items-center justify-center">
-                <Link
-                  href="/incredible-offers"
-                  className="bg-white xl:hidden block dark:bg-zinc-800 dark:text-gray-200 text-gray-900 px-3 py-2 rounded-xl shadow-sm"
-                >
-                  مشاهده محصولات
-                </Link>
+            <Link
+              href="/incredible-offers"
+              className="bg-white text-red-600 text-sm px-3 py-2 rounded-xl font-bold"
+            >
+              مشاهده
+            </Link>
+          </div>
+          <Swiper
+            modules={[Navigation]}
+            slidesPerView="auto"
+            spaceBetween={6}
+            loop={false}
+            watchOverflow
+            navigation={{
+              prevEl: prevBtnClass,
+              nextEl: nextBtnClass,
+            }}
+            className="amazing-swiper"
+          >
+            {/* AMAZING SIDE */}
+            <SwiperSlide className="!hidden xl:!block !w-[260px]">
+              <div className=" text-white rounded-2xl h-full min-h-[340px] p-5 flex flex-col justify-between">
+                <div className="space-y-6 flex flex-col items-center justify-center">
+                  <Image
+                    width={194}
+                    height={120}
+                    src="/images/amazing/amazing-light.webp"
+                    className="w-44 object-contain dark:invert"
+                    alt=""
+                  />
 
-                <div className="bg-gray-800 dark:bg-gray-900 flex w-25 rounded-lg p-2 justify-between items-center">
-                  <button className="swiper-button-prev-amazing hover:opacity-80 transition cursor-pointer">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                      className="size-6 text-white"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                      />
-                    </svg>
-                  </button>
+                  <h2 className="font-extrabold text-xl">پیشنهاد شگفت‌انگیز</h2>
 
-                  <div className="lg:inline-block hidden h-5 w-px self-stretch bg-gray-200 dark:bg-gray-700" />
-
-                  <button className="swiper-button-next-amazing hover:opacity-80 transition cursor-pointer">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                      className="size-6 text-white"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M15.75 19.5 8.25 12l7.5-7.5"
-                      />
-                    </svg>
-                  </button>
+                  <Link
+                    href="/incredible-offers"
+                    className="bg-white text-red-600 px-4 py-2 rounded-xl font-bold"
+                  >
+                    مشاهده همه
+                  </Link>
                 </div>
               </div>
-            </div>
-          </div>
+            </SwiperSlide>
 
-          {/* Product Swiper */}
-          <div className="xl:col-span-10 col-span-12">
-            <Swiper
-              modules={[Navigation]}
-              slidesPerView={4}
-              spaceBetween={2}
-              loop={false}
-              navigation={{
-                prevEl: prevBtnClass,
-                nextEl: nextBtnClass,
-              }}
-              breakpoints={{
-                0: { slidesPerView: 1 },
-                480: { slidesPerView: 2 },
-                768: { slidesPerView: 3 },
-                1024: { slidesPerView: 4 },
-              }}
-            >
-              {safeProducts.map((p) => (
-                <SwiperSlide key={p.id} className="w-60!">
-                  {/* <SliderProductCard product={p} /> */}
+            {/* PRODUCTS */}
+            {sliderItems.map((p) => (
+              <SwiperSlide key={p.id} className="w-55!">
+                {p.type === "show-all" ? (
+                  <Link
+                    href="/incredible-offers"
+                    className="bg-white dark:bg-zinc-900 rounded-e min-h-73 flex flex-col items-center justify-center gap-4"
+                  >
+                    <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+                      <i className="fas fa-arrow-left-long"></i>
+                    </div>
+
+                    <span className="font-bold">مشاهده همه</span>
+                  </Link>
+                ) : (
                   <ProductCard product={p} />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </div>
+                )}
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
       </div>
     </>

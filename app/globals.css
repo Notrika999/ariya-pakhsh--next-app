@@ -117,6 +117,7 @@
   --color-neutral-700: oklch(37.1% 0 0);
   --color-black: #000;
   --color-white: #fff;
+
   --spacing: 0.25rem;
   --container-sm: 24rem;
   --container-md: 28rem;
@@ -190,6 +191,13 @@
   /* --color-secondary-500: oklch(79.147% 0.1672 68.927); */
   --color-secondary-600: oklch(70.637% 0.15834 65.116);
   --color-secondary-900: oklch(27.875% 0.05944 72.794);
+
+ --background-image-brand-gradient: linear-gradient(
+    225deg,
+    #d22c4e,
+    #ee384e 41.68%,
+    #ef5662
+  );
   --color-custom-light: #f2f5fc;
   --color-custom-dark: #161b22;
 }

@@ -7,6 +7,7 @@ import Seller from "./Seller/Seller";
 import Review from "./Review/Review";
 import { useProductDetails } from "@/src/lib/hooks/useProductDetails";
 import ConsumerProducts from "./ConsumerProducts/ConsumerProducts";
+import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 
 interface Props {
   id: string;
@@ -26,33 +27,28 @@ export default function ProductPageClient({ id }: Props) {
   return (
     <>
       {/* <!-- START CONTENT --> */}
-      <section className="py-5">
-        <div className="container mx-auto">
-          {/* <!-- Breadcrumb --> */}
-          {/* <Breadcrumb
+      <SectionContainer>
+        {/* <!-- Breadcrumb --> */}
+        {/* <Breadcrumb
             title={"دسته بندی"}
             active={product.title}
             href={"/category"}
           /> */}
 
-          {/* <!-- Main --> */}
-          <div className="bg-white dark:bg-custom-dark dark:text-gray-200 space-y-3 shadow-sm border border-gray-200 dark:border-gray-700 mt-4 rounded-2xl px-6 py-4">
-            <div className="grid grid-cols-12 gap-4 place-items-start">
-              {/* <!-- Gallery --> */}
-              <Gallery
-                images={product.imageSlider}
-                isOutOfStock={isOutOfStock}
-              />
+        {/* <!-- Main --> */}
+        <div className="bg-white dark:bg-custom-dark dark:text-gray-200 space-y-3 shadow-sm border border-gray-200 dark:border-gray-700 mt-4 rounded-2xl px-6 py-4">
+          <div className="grid grid-cols-12 gap-4 place-items-start">
+            {/* <!-- Gallery --> */}
+            <Gallery images={product.imageSlider} isOutOfStock={isOutOfStock} />
 
-              {/* <!-- Description --> */}
-              <Description product={product} isOutOfStock={isOutOfStock} />
+            {/* <!-- Description --> */}
+            <Description product={product} isOutOfStock={isOutOfStock} />
 
-              {/* <!-- Action --> */}
-              <Action product={product} isOutOfStock={isOutOfStock} />
-            </div>
+            {/* <!-- Action --> */}
+            <Action product={product} isOutOfStock={isOutOfStock} />
           </div>
         </div>
-      </section>
+      </SectionContainer>
       {/* <!-- END CONTENT --> */}
 
       {/* <!-- START Consumer Products --> */}
@@ -60,20 +56,17 @@ export default function ProductPageClient({ id }: Props) {
       {/* <!-- END Consumer Products --> */}
 
       {/* <!-- START SELLER CONTENT --> */}
-      <section className="py-5 hidden">
-        <div className="container mx-auto">
-          {/* <!-- Main --> */}
+      {/* <SectionContainer>
+      
           <Seller />
-        </div>
-      </section>
+        
+      </SectionContainer> */}
       {/* <!-- END SELLER CONTENT --> */}
 
       {/* <!-- START PRODUCT REVIEW --> */}
-      <section className="py-5 relative">
-        <div className="container mx-auto">
-          <Review />
-        </div>
-      </section>
+      <SectionContainer>
+        <Review />
+      </SectionContainer>
       {/* <!-- END PRODUCT REVIEW --> */}
     </>
   );

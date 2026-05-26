@@ -4,11 +4,11 @@ import "swiper/css";
 
 export default function IncredibleOffersDay({ products }) {
   return (
-    <section className="bg-red-600 p-6 rounded-2xl">
+    <section className="bg-brand-gradient p-4 rounded-2xl">
       <h2 className="text-white text-2xl font-bold mb-6">
         پیشنهادهای شگفت‌انگیز
       </h2>
-      <Swiper slidesPerView={4} spaceBetween={16}>
+      <Swiper slidesPerView={4} spaceBetween={8}>
         {products.map((p) => (
           <SwiperSlide key={p.id} className="bg-white rounded-xl p-4">
             <div className="h-40 bg-gray-200 mb-4 rounded-lg" />

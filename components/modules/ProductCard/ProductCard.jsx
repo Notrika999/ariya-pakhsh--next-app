@@ -51,7 +51,7 @@ export default function ProductCard({ product }) {
   // const { h, m, s, done } = useCountdown(product?.countdownToISO);
 
   return (
-    <div className="relative dark:border-gray-700 dark:shadow-[0_0_10px_rgba(0,0,0,0.6)] rounded p-3 bg-white dark:bg-custom-dark transition-all duration-200 ease-in-out group">
+    <div className="relative dark:border-gray-700 dark:shadow-[0_0_10px_rgba(0,0,0,0.6)]  p-3 bg-white dark:bg-custom-dark transition-all duration-200 ease-in-out group">
       {/* Product Colors */}
       <ul className="absolute top-4 inset-s-3 space-y-1">
         {product.colors?.map((color, idx) => (

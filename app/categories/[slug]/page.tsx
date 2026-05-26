@@ -3,13 +3,14 @@
 import { notFound } from "next/navigation";
 
 import CategoryProductListPage from "@/components/ui/Categories/ProductListPage";
-import { HttpStatusError } from "@/src/lib/http/client-http";
+import { ApiError } from "@/src/lib/http/client-http";
 import {
   getCategoryBreadcrumb,
   getCategoryBySlug,
 } from "@/src/services/category/category.service";
 
 import type { Category as CategoryType } from "@/src/lib/types/categories/category";
+import { Metadata } from "next";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -28,7 +29,7 @@ export async function generateMetadata({
   try {
     category = await getCategoryBySlug(slug);
   } catch (error) {
-    if (error instanceof HttpStatusError && error.status === 404) {
+    if (error instanceof ApiError && error.status === 404) {
       notFound();
     }
     throw error;
@@ -42,7 +43,7 @@ export async function generateMetadata({
   const description = category?.name
     ? `خرید ${category.name} با بهترین قیمت و تنوع کالا از فروشگاه آنلاین ما.`
     : "خرید آنلاین انواع محصولات در دسته‌بندی‌های مختلف.";
-console.log(category)
+  console.log(category);
   return {
     title,
     description,
@@ -76,7 +77,7 @@ async function CategorayPage({ params, searchParams }: Props) {
 
     console.log("cat: ", category);
   } catch (error) {
-    if (error instanceof HttpStatusError && error.status === 404) {
+    if (error instanceof ApiError && error.status === 404) {
       notFound();
     }
     throw error;

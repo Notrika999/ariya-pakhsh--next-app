@@ -1,4 +1,4 @@
-import ProductDetails from "@/components/ui/ProductDetails/ProductDetails";
+import ProductDetails from "@/components/ui/ProductPageClient/ProductPageClient";
 
 interface PageProps {
   params: Promise<{
@@ -8,7 +8,6 @@ interface PageProps {
 
 async function ProductDetailsPage({ params }: PageProps) {
   const { id } = await params;
-
 
   return <ProductDetails id={id} />;
 }

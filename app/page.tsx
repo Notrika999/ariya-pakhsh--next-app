@@ -104,107 +104,282 @@ export default async function Home() {
   const stories = [
     {
       type: "image",
-      user: "استوری ۱",
+      user: "دیجی‌کالا",
       avatar: "/images/story/1.jpg",
       url: "/images/story/1.jpg",
       duration: 5000,
       link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
+
+      title: "پرفروش‌ترین هندزفری",
+      description: "کیفیت صدای فوق‌العاده با شارژدهی طولانی",
+      likes: 3500,
+      comments: 110,
+
+      product: {
+        image: "/images/products/earbuds.png",
+        title: "هندزفری بلوتوثی شیائومی",
+        price: "۱٬۹۸۰٬۰۰۰ تومان",
+      },
     },
+
     {
       type: "image",
-      user: "استوری 2",
+      user: "دیجی‌کالا",
       avatar: "/images/story/2.jpg",
       url: "/images/story/2.jpg",
       duration: 5000,
       link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
+
+      title: "تخفیف ویژه لپ‌تاپ",
+      description: "قدرت بالا برای برنامه‌نویسی و طراحی",
+      likes: 2800,
+      comments: 86,
+
+      product: {
+        image: "/images/products/laptop.png",
+        title: "لپ‌تاپ ASUS VivoBook",
+        price: "۴۲٬۰۰۰٬۰۰۰ تومان",
+      },
     },
+
     {
       type: "image",
-      user: "استوری 3",
+      user: "دیجی‌کالا",
       avatar: "/images/story/3.jpg",
       url: "/images/story/3.jpg",
       duration: 5000,
       link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
+
+      title: "موس گیمینگ حرفه‌ای",
+      description: "RGB حرفه‌ای با سنسور دقیق",
+      likes: 1900,
+      comments: 52,
+
+      product: {
+        image: "/images/products/mouse.png",
+        title: "موس گیمینگ Logitech",
+        price: "۳٬۴۰۰٬۰۰۰ تومان",
+      },
     },
+
     {
       type: "image",
-      user: "استوری 4",
+      user: "دیجی‌کالا",
       avatar: "/images/story/5.jpg",
       url: "/images/story/5.jpg",
       duration: 5000,
       link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
+
+      title: "اسپیکر قابل حمل",
+      description: "صدای قدرتمند با باتری طولانی",
+      likes: 4200,
+      comments: 143,
+
+      product: {
+        image: "/images/products/speaker.png",
+        title: "اسپیکر JBL Charge",
+        price: "۶٬۹۰۰٬۰۰۰ تومان",
+      },
     },
+
     {
       type: "image",
-      user: "استوری 5",
+      user: "دیجی‌کالا",
       avatar: "/images/story/6.jpg",
       url: "/images/story/6.jpg",
       duration: 5000,
       link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
+
+      title: "ساعت هوشمند جدید",
+      description: "پایش سلامت و تماس بلوتوثی",
+      likes: 5100,
+      comments: 201,
+
+      product: {
+        image: "/images/products/watch.png",
+        title: "ساعت هوشمند Amazfit",
+        price: "۵٬۳۰۰٬۰۰۰ تومان",
+      },
     },
+
     {
       type: "image",
-      user: "استوری 6",
+      user: "دیجی‌کالا",
       avatar: "/images/story/7.jpg",
       url: "/images/story/7.jpg",
       duration: 5000,
       link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
+
+      title: "پاوربانک اقتصادی",
+      description: "شارژ سریع و ظرفیت بالا",
+      likes: 2400,
+      comments: 73,
+
+      product: {
+        image: "/images/products/powerbank.png",
+        title: "پاوربانک Redmi 20000",
+        price: "۲٬۲۰۰٬۰۰۰ تومان",
+      },
     },
-    {
-      type: "image",
-      user: "استوری 7",
-      avatar: "/images/story/8.jpg",
-      url: "/images/story/8.jpg",
-      duration: 5000,
-      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
-    },
+
     {
       type: "video",
-      user: "استوری 8",
+      user: "دیجی‌کالا",
       avatar: "/images/story/4.jpg",
       url: "/images/story/video/1.mp4",
       duration: null,
       link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
+
+      title: "پرفروش‌ترین پاوربانک",
+      description: "شارژ سریع 18 وات با ظرفیت 20000 میلی‌آمپر",
+      likes: 3500,
+      comments: 110,
+
+      product: {
+        image: "/images/products/powerbank.png",
+        title: "پاوربانک 18 وات شیائومی",
+        price: "۲٬۰۰۰٬۰۰۰ تومان",
+      },
     },
+
     {
       type: "image",
-      user: "استوری ۱",
+      user: "دیجی‌کالا",
       avatar: "/images/story/1.jpg",
       url: "/images/story/1.jpg",
       duration: 5000,
       link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
+
+      title: "هدفون نویز کنسلینگ",
+      description: "تجربه صدای حرفه‌ای و شفاف",
+      likes: 4800,
+      comments: 167,
+
+      product: {
+        image: "/images/products/headphone.png",
+        title: "هدفون Sony WH1000XM5",
+        price: "۱۵٬۸۰۰٬۰۰۰ تومان",
+      },
     },
+
     {
       type: "image",
-      user: "استوری 2",
+      user: "دیجی‌کالا",
       avatar: "/images/story/2.jpg",
       url: "/images/story/2.jpg",
       duration: 5000,
       link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
+
+      title: "کیبورد مکانیکی RGB",
+      description: "تجربه تایپ نرم و حرفه‌ای",
+      likes: 2100,
+      comments: 44,
+
+      product: {
+        image: "/images/products/keyboard.png",
+        title: "کیبورد مکانیکی Redragon",
+        price: "۴٬۷۰۰٬۰۰۰ تومان",
+      },
     },
+
     {
       type: "image",
-      user: "استوری 3",
+      user: "دیجی‌کالا",
       avatar: "/images/story/3.jpg",
       url: "/images/story/3.jpg",
       duration: 5000,
       link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
+
+      title: "مانیتور گیمینگ",
+      description: "نرخ تازه‌سازی 165 هرتز",
+      likes: 3300,
+      comments: 92,
+
+      product: {
+        image: "/images/products/monitor.png",
+        title: "مانیتور MSI Curved",
+        price: "۱۲٬۴۰۰٬۰۰۰ تومان",
+      },
     },
+
+    {
+      type: "video",
+      user: "دیجی‌کالا",
+      avatar: "/images/story/4.jpg",
+      url: "/images/story/video/1.mp4",
+      duration: null,
+      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
+
+      title: "پرفروش‌ترین پاوربانک",
+      description: "شارژ سریع 18 وات با ظرفیت 20000 میلی‌آمپر",
+      likes: 3500,
+      comments: 110,
+
+      product: {
+        image: "/images/products/powerbank.png",
+        title: "پاوربانک 18 وات شیائومی",
+        price: "۲٬۰۰۰٬۰۰۰ تومان",
+      },
+    },
+
     {
       type: "image",
-      user: "استوری 4",
-      avatar: "/images/story/5.jpg",
-      url: "/images/story/5.jpg",
+      user: "دیجی‌کالا",
+      avatar: "/images/story/1.jpg",
+      url: "/images/story/1.jpg",
       duration: 5000,
       link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
+
+      title: "هدفون نویز کنسلینگ",
+      description: "تجربه صدای حرفه‌ای و شفاف",
+      likes: 4800,
+      comments: 167,
+
+      product: {
+        image: "/images/products/headphone.png",
+        title: "هدفون Sony WH1000XM5",
+        price: "۱۵٬۸۰۰٬۰۰۰ تومان",
+      },
     },
+
     {
       type: "image",
-      user: "استوری 5",
-      avatar: "/images/story/6.jpg",
-      url: "/images/story/6.jpg",
+      user: "دیجی‌کالا",
+      avatar: "/images/story/2.jpg",
+      url: "/images/story/2.jpg",
       duration: 5000,
       link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
+
+      title: "کیبورد مکانیکی RGB",
+      description: "تجربه تایپ نرم و حرفه‌ای",
+      likes: 2100,
+      comments: 44,
+
+      product: {
+        image: "/images/products/keyboard.png",
+        title: "کیبورد مکانیکی Redragon",
+        price: "۴٬۷۰۰٬۰۰۰ تومان",
+      },
+    },
+
+    {
+      type: "image",
+      user: "دیجی‌کالا",
+      avatar: "/images/story/3.jpg",
+      url: "/images/story/3.jpg",
+      duration: 5000,
+      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
+
+      title: "مانیتور گیمینگ",
+      description: "نرخ تازه‌سازی 165 هرتز",
+      likes: 3300,
+      comments: 92,
+
+      product: {
+        image: "/images/products/monitor.png",
+        title: "مانیتور MSI Curved",
+        price: "۱۲٬۴۰۰٬۰۰۰ تومان",
+      },
     },
   ];
 
@@ -662,37 +837,37 @@ export default async function Home() {
       </SectionContainer>
       {/* <!-- END SLIDER SECTION --> */}
 
-        {/* <!-- START AMAZING SECTION --> */}
+      {/* <!-- START AMAZING SECTION --> */}
       <SectionContainer>
         <AmazingProducts products={amazingProducts} />
       </SectionContainer>
-        {/* <!-- END AMAZING SECTION --> */}
+      {/* <!-- END AMAZING SECTION --> */}
 
-        {/* <!-- START Featured CATEGORY SECTION --> */}
+      {/* <!-- START Featured CATEGORY SECTION --> */}
       <SectionContainer>
         <Category
           categories={featuredCategoriesMap}
           title="دسته‌بندی‌های ویژه"
         />
       </SectionContainer>
-        {/* <!-- END CATEGORY SECTION --> */}
+      {/* <!-- END CATEGORY SECTION --> */}
 
-        {/* <!-- START BANNER SECTION --> */}
+      {/* <!-- START BANNER SECTION --> */}
       <SectionContainer>
         <Banner />
       </SectionContainer>
-        {/* <!-- END BANNER SECTION --> */}
+      {/* <!-- END BANNER SECTION --> */}
 
-        {/* <!-- START Recommended CATEGORY SECTION --> */}
+      {/* <!-- START Recommended CATEGORY SECTION --> */}
       <SectionContainer>
         <Category
           categories={recommendedCategoriesMap}
           title="دسته‌بندی‌های پیشنهادی"
         />
       </SectionContainer>
-        {/* <!-- END CATEGORY SECTION --> */}
+      {/* <!-- END CATEGORY SECTION --> */}
 
-        {/* <!-- START PRODUCT SLIDER SECTION -->/ */}
+      {/* <!-- START PRODUCT SLIDER SECTION -->/ */}
       <SectionContainer>
         <SliderProduct
           products={newProducts}
@@ -701,9 +876,9 @@ export default async function Home() {
           href="#"
         />
       </SectionContainer>
-        {/* <!-- END PRODUCT SLIDER SECTION --> */}
+      {/* <!-- END PRODUCT SLIDER SECTION --> */}
 
-        {/* <!-- START LATEST VIEW SECTION --> */}
+      {/* <!-- START LATEST VIEW SECTION --> */}
       <SectionContainer>
         <UserLatestViews
           productsLast={productsLast}
@@ -711,9 +886,9 @@ export default async function Home() {
           href={"#"}
         />
       </SectionContainer>
-        {/* <!-- END LATEST VIEW SECTION --> */}
+      {/* <!-- END LATEST VIEW SECTION --> */}
 
-        {/* <!-- START NEW PRODUCT SECTION --> */}
+      {/* <!-- START NEW PRODUCT SECTION --> */}
       <SectionContainer>
         <LastProducts
           lastProductLists={lastProductLists}
@@ -721,9 +896,9 @@ export default async function Home() {
           href={"#"}
         />
       </SectionContainer>
-        {/* <!-- END NEW PRODUCT SECTION --> */}
+      {/* <!-- END NEW PRODUCT SECTION --> */}
 
-        {/* <!-- START PRODUCT SLIDER SECTION -->/ */}
+      {/* <!-- START PRODUCT SLIDER SECTION -->/ */}
       <SectionContainer>
         <SliderProduct
           loop={true}
@@ -732,19 +907,19 @@ export default async function Home() {
           href="#"
         />
       </SectionContainer>
-        {/* <!-- END PRODUCT SLIDER SECTION --> */}
+      {/* <!-- END PRODUCT SLIDER SECTION --> */}
 
-        {/* <!-- START BRAND SECTION --> */}
+      {/* <!-- START BRAND SECTION --> */}
       <SectionContainer>
         <Brand brands={brands.items} title={"برندهای های فروشگاه"} href={"#"} />
       </SectionContainer>
-        {/* <!-- END BRAND SECTION --> */}
+      {/* <!-- END BRAND SECTION --> */}
 
-        {/* <!-- START BLOG SECTION --> */}
+      {/* <!-- START BLOG SECTION --> */}
       <SectionContainer>
         <LastBlogs lastBlogLits={lastBlogLits} />
       </SectionContainer>
-        {/* <!-- END BLOG SECTION --> */}
+      {/* <!-- END BLOG SECTION --> */}
     </main>
   );
 }

@@ -108,39 +108,40 @@ export default function Story({ stories }) {
   };
 
   return (
+    // <!-- STORY SECTION -->
     <>
       <h2 className="sr-only">استوری های فروشگاه</h2>
       {/* <!-- for seo --> */}
-      <div>
-        <div
-          className={`${storyStyle.storiesContainer} mx-auto`}
-          role="region"
-          aria-labelledby="stories-title"
+
+      <div
+        className={`${storyStyle.storiesContainer} mx-auto`}
+        role="region"
+        aria-labelledby="stories-title"
+      >
+        <h3 className="sr-only">استوری های فروشگاه</h3>
+        <Swiper
+          className={`my-swiper ${storyStyle.storySwiper}`}
+          modules={[FreeMode]}
+          freeMode={false}
+          centeredSlides={false}
+          slidesPerView="auto"
+          allowTouchMove={true}
+          spaceBetween={24}
         >
-          <h3 className="sr-only">استوری های فروشگاه</h3>
-          <Swiper
-            className={storyStyle.storySwiper}
-            modules={[FreeMode]}
-            freeMode={false}
-            centeredSlides={false}
-            slidesPerView="auto"
-            allowTouchMove={true}
-            spaceBetween={24}
-          >
-            {stories.map((story, idx) => (
-              <SwiperSlide className={storyStyle.storySlide} key={idx}>
-                <StoryItem
-                  image={story.avatar}
-                  title={story.user}
-                  onOpen={() => openStory(idx)}
-                  index={idx}
-                  viewed={seen.has(idx)}
-                />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
+          {stories.map((story, idx) => (
+            <SwiperSlide className={storyStyle.storySlide} key={idx}>
+              <StoryItem
+                image={story.avatar}
+                title={story.user}
+                onOpen={() => openStory(idx)}
+                index={idx}
+                viewed={seen.has(idx)}
+              />
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
+
       {open && (
         <div
           className={storyStyle.overlay}
@@ -175,7 +176,109 @@ export default function Story({ stories }) {
               ›
             </button>
 
-            <div className={storyStyle.imageHolder}>
+            <div className={storyStyle.storyContent}>
+              {/* MEDIA */}
+              <div className={storyStyle.imageHolder}>
+                {current.type === "video" ? (
+                  <video
+                    ref={videoRef}
+                    src={current.url}
+                    className={storyStyle.storyImage}
+                    autoPlay
+                    playsInline
+                    onTimeUpdate={(e) => {
+                      const el = e.target;
+                      if (el.duration > 0) {
+                        setProgress(el.currentTime / el.duration);
+                      }
+                    }}
+                    onEnded={() => {
+                      setSeen((prev) => {
+                        const s = new Set(prev);
+                        s.add(index);
+                        return s;
+                      });
+
+                      const next = (index + 1) % stories.length;
+                      setIndex(next);
+                    }}
+                  />
+                ) : (
+                  <Image
+                    width={1027}
+                    height={740}
+                    src={current.url}
+                    alt={current.user}
+                    className={storyStyle.storyImage}
+                  />
+                )}
+              </div>
+
+              {/* TOP INFO */}
+              <div className={storyStyle.topOverlay}>
+                <div className={storyStyle.storyUser}>
+                  <Image
+                    src={current.avatar}
+                    alt={current.user}
+                    width={44}
+                    height={44}
+                    className={storyStyle.userAvatar}
+                  />
+
+                  <div>
+                    <h3>{current.title}</h3>
+                    <p>{current.user}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* CENTER TEXT */}
+              <div className={storyStyle.centerCaption}>
+                <h2>{current.title}</h2>
+                <p>{current.description}</p>
+              </div>
+
+              {/* ACTIONS */}
+              <div className={storyStyle.actions}>
+                <button>
+                  ❤️
+                  <span>{current.likes}</span>
+                </button>
+
+                <button>
+                  💬
+                  <span>{current.comments}</span>
+                </button>
+              </div>
+
+              {/* VIDEO TIME */}
+              <div className={storyStyle.videoTime}>
+                {videoRef.current
+                  ? Math.floor(videoRef.current.currentTime)
+                  : 0}
+                s
+              </div>
+
+              {/* PRODUCT CARD */}
+              {current.product && (
+                <div className={storyStyle.productCard}>
+                  <div className={storyStyle.productInfo}>
+                    <h4>{current.product.title}</h4>
+                    <span>{current.product.price}</span>
+                  </div>
+
+                  <Image
+                    src={current.product.image}
+                    alt={current.product.title}
+                    width={80}
+                    height={80}
+                    className={storyStyle.productImage}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* <div className={storyStyle.imageHolder}>
               <div className={storyStyle.imageHolder}>
                 {current.type === "video" ? (
                   <video
@@ -226,10 +329,11 @@ export default function Story({ stories }) {
                   }}
                 />
               ))}
-            </div>
+            </div> */}
           </div>
         </div>
       )}
     </>
+    // <!-- END STORY SECTION -->
   );
 }

@@ -58,17 +58,31 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
+
+  background: rgba(0, 0, 0, 0.82);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  padding: 20px;
+
   z-index: 9999;
+
+  backdrop-filter: blur(6px);
 }
 
 .viewport {
   position: relative;
-  width: 100%;
-  height: 100%;
+
+  width: min(420px, 100%);
+  height: min(92vh, 820px);
+
+  border-radius: 28px;
+  overflow: hidden;
+
+  background: #000;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -120,11 +134,15 @@
   align-items: center;
   justify-content: center;
 }
+.imageHolder {
+  width: 100%;
+  height: 100%;
+}
+
 .storyImage {
-  max-width: 92%;
-  max-height: 92%;
-  object-fit: contain;
-  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* نوار پیشرفت برای همه استوری‌ها در بالای تصویر */
@@ -177,4 +195,193 @@
   padding: 0 10px !important; /* فاصله از چپ و راست */
   /* یا اگر margin دوست داری: */
   /* margin: 0 12px; */
+}
+
+.storyContent {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* ========================= */
+/* TOP */
+/* ========================= */
+
+.topOverlay {
+  position: absolute;
+
+  top: 14px;
+  right: 14px;
+  left: 14px;
+
+  z-index: 20;
+}
+
+.storyUser {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+}
+
+.userAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.storyUser h3 {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.storyUser p {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* ========================= */
+/* CENTER */
+/* ========================= */
+
+.centerCaption {
+  position: absolute;
+
+  right: 18px;
+  left: 18px;
+  bottom: 120px;
+
+  z-index: 15;
+  color: white;
+}
+
+.centerCaption h2 {
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.7;
+
+  margin-bottom: 6px;
+}
+
+.centerCaption p {
+  font-size: 13px;
+  line-height: 1.8;
+
+  opacity: 0.92;
+}
+
+/* ========================= */
+/* ACTIONS */
+/* ========================= */
+
+.actions {
+  position: absolute;
+
+  left: 14px;
+  bottom: 140px;
+
+  z-index: 20;
+
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.actions button {
+  background: transparent;
+  border: none;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 22px;
+}
+
+.actions span {
+  font-size: 13px;
+}
+
+/* ========================= */
+/* PRODUCT CARD */
+/* ========================= */
+
+.productCard {
+  position: absolute;
+
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+
+  background: rgba(255, 255, 255, 0.96);
+
+  border-radius: 18px;
+
+  padding: 10px 12px;
+
+  min-height: 72px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  backdrop-filter: blur(10px);
+
+  z-index: 30;
+}
+
+.productInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.productInfo h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+}
+
+.productInfo span {
+  font-size: 14px;
+  color: #555;
+}
+
+.productImage {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+}
+
+/* ========================= */
+/* TIME */
+/* ========================= */
+
+.videoTime {
+  position: absolute;
+  bottom: 130px;
+  right: 22px;
+  color: white;
+  font-size: 13px;
+  z-index: 6;
+}
+
+/* ========================= */
+/* MOBILE */
+/* ========================= */
+
+@media (max-width: 768px) {
+  .centerCaption h2 {
+    font-size: 22px;
+  }
+
+  .centerCaption p {
+    font-size: 14px;
+  }
+
+  .productCard {
+    bottom: 18px;
+  }
 }

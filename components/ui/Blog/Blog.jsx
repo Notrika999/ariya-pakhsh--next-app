@@ -5,6 +5,7 @@ import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
 import BlogVideoSidebar from "./BlogVideoSidebar";
 import BlogOriginalVideo from "./BlogOriginalVideo";
 import LastBlogs from "../Home/LastBlogs/LastBlogs";
+import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 
 export default function Blog() {
   const lastBlogLits = [
@@ -54,25 +55,26 @@ export default function Blog() {
   return (
     <>
       {/* <!-- START CONTENT --> */}
-      <section className="py-5">
-        <div className="container mx-auto">
-          {/* <!-- Breadcrumb --> */}
-          <Breadcrumb active={"وبلاگ"} />
 
-          {/* <!-- Content --> */}
-          <div className="container">
-            {/* <!-- Search and top post --> */}
-            <BlogTop />
-          </div>
+      <SectionContainer>
+        {/* <!-- Breadcrumb --> */}
+        {/* <Breadcrumb active={"وبلاگ"} /> */}
+
+        {/* <!-- Content --> */}
+        <div className="container">
+          {/* <!-- Search and top post --> */}
+          <BlogTop />
         </div>
-      </section>
+      </SectionContainer>
+
       {/* <!-- END CONTENT --> */}
 
       {/* <!-- START VIDEO BLOG --> */}
-      <section className="py-5">
+      <>
         {/* <!-- for seo --> */}
         <h2 className="sr-only">آخرین ویدیو وبلاگ</h2>
-        <div className="container mx-auto">
+
+        <SectionContainer>
           <SectionHeader title={"آخرین ویدیو های وبلاگ"} href={"#"} />
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -84,20 +86,19 @@ export default function Blog() {
             {/* <!--Original video content--> */}
             <BlogOriginalVideo />
           </div>
-        </div>
-      </section>
+        </SectionContainer>
+      </>
       {/* <!-- END VIDEO BLOG --> */}
 
       {/* <!-- START LATEST POST BLOG SECTION --> */}
-      <section className="py-5">
+      <>
         {/* <!-- for seo --> */}
         <h2 className="sr-only">مطالب وبلاگ</h2>
-
-        <div className="container mx-auto">
+        <SectionContainer>
           {/* <!-- blog posts swiper --> */}
           <LastBlogs lastBlogLits={lastBlogLits} />
-        </div>
-      </section>
+        </SectionContainer>
+      </>
     </>
   );
 }

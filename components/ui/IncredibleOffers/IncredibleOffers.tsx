@@ -6,9 +6,10 @@ import IncredibleOffersCategoryies from "./IncredibleOffersCategoryies/Incredibl
 import IncredibleOffersBaner from "./IncredibleOffersBaner/IncredibleOffersBaner";
 import { useState } from "react";
 import ProductListSection from "../ProductListSection/ProductListSection";
+import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 
 export default function IncredibleOffers() {
-      const MIN_LIMIT = 0;
+  const MIN_LIMIT = 0;
   const MAX_LIMIT = 50000000;
 
   const [filters, setFilters] = useState({
@@ -142,7 +143,7 @@ export default function IncredibleOffers() {
   ];
 
   return (
-    <main className="space-y-12 py-8">
+    <SectionContainer>
       {/* 1. اسلایدر محصولات شگفت‌انگیز */}
       <IncredibleOffersDay products={products} />
 
@@ -168,6 +169,6 @@ export default function IncredibleOffers() {
         maxLimit={MAX_LIMIT}
         products={[]}
       />
-    </main>
+    </SectionContainer>
   );
 }
