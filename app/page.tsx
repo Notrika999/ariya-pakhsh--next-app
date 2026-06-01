@@ -104,7 +104,7 @@ export default async function Home() {
   const stories = [
     {
       type: "image",
-      user: "دیجی‌کالا",
+      user: "آریاپخش",
       avatar: "/images/story/1.jpg",
       url: "/images/story/1.jpg",
       duration: 5000,
@@ -116,7 +116,7 @@ export default async function Home() {
       comments: 110,
 
       product: {
-        image: "/images/products/earbuds.png",
+        image: "/images/story/1.jpg",
         title: "هندزفری بلوتوثی شیائومی",
         price: "۱٬۹۸۰٬۰۰۰ تومان",
       },
@@ -124,7 +124,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "دیجی‌کالا",
+      user: "آریاپخش",
       avatar: "/images/story/2.jpg",
       url: "/images/story/2.jpg",
       duration: 5000,
@@ -136,7 +136,7 @@ export default async function Home() {
       comments: 86,
 
       product: {
-        image: "/images/products/laptop.png",
+        image: "/images/story/2.jpgg",
         title: "لپ‌تاپ ASUS VivoBook",
         price: "۴۲٬۰۰۰٬۰۰۰ تومان",
       },
@@ -144,7 +144,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "دیجی‌کالا",
+      user: "آریاپخش",
       avatar: "/images/story/3.jpg",
       url: "/images/story/3.jpg",
       duration: 5000,
@@ -156,7 +156,7 @@ export default async function Home() {
       comments: 52,
 
       product: {
-        image: "/images/products/mouse.png",
+        image: "/images/story/3.jpg",
         title: "موس گیمینگ Logitech",
         price: "۳٬۴۰۰٬۰۰۰ تومان",
       },
@@ -164,7 +164,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "دیجی‌کالا",
+      user: "آریاپخش",
       avatar: "/images/story/5.jpg",
       url: "/images/story/5.jpg",
       duration: 5000,
@@ -184,7 +184,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "دیجی‌کالا",
+      user: "آریاپخش",
       avatar: "/images/story/6.jpg",
       url: "/images/story/6.jpg",
       duration: 5000,
@@ -204,7 +204,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "دیجی‌کالا",
+      user: "آریاپخش",
       avatar: "/images/story/7.jpg",
       url: "/images/story/7.jpg",
       duration: 5000,
@@ -224,7 +224,7 @@ export default async function Home() {
 
     {
       type: "video",
-      user: "دیجی‌کالا",
+      user: "آریاپخش",
       avatar: "/images/story/4.jpg",
       url: "/images/story/video/1.mp4",
       duration: null,
@@ -244,7 +244,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "دیجی‌کالا",
+      user: "آریاپخش",
       avatar: "/images/story/1.jpg",
       url: "/images/story/1.jpg",
       duration: 5000,
@@ -264,7 +264,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "دیجی‌کالا",
+      user: "آریاپخش",
       avatar: "/images/story/2.jpg",
       url: "/images/story/2.jpg",
       duration: 5000,
@@ -284,7 +284,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "دیجی‌کالا",
+      user: "آریاپخش",
       avatar: "/images/story/3.jpg",
       url: "/images/story/3.jpg",
       duration: 5000,
@@ -304,7 +304,7 @@ export default async function Home() {
 
     {
       type: "video",
-      user: "دیجی‌کالا",
+      user: "آریاپخش",
       avatar: "/images/story/4.jpg",
       url: "/images/story/video/1.mp4",
       duration: null,
@@ -324,7 +324,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "دیجی‌کالا",
+      user: "آریاپخش",
       avatar: "/images/story/1.jpg",
       url: "/images/story/1.jpg",
       duration: 5000,
@@ -344,7 +344,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "دیجی‌کالا",
+      user: "آریاپخش",
       avatar: "/images/story/2.jpg",
       url: "/images/story/2.jpg",
       duration: 5000,
@@ -364,7 +364,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "دیجی‌کالا",
+      user: "آریاپخش",
       avatar: "/images/story/3.jpg",
       url: "/images/story/3.jpg",
       duration: 5000,

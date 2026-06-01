@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 import MainContent from "./MainContent";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 
-import { useFaq } from "@/lib/hooks/useFaq";
+import { useFaq } from "@/src/lib/hooks/useFaq";
 export default function Faq() {
   const { fetchAll, loading, faqs, tabs } = useFaq();
   const [activeTab, setActiveTab] = useState("all");

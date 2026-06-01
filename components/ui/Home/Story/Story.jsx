@@ -11,12 +11,14 @@ import "swiper/css/navigation";
 
 import storyStyle from "./Story.module.css";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Story({ stories }) {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [seen, setSeen] = useState(new Set());
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const timerRef = useRef(null);
   const startTs = useRef(0);
   const touchStartX = useRef(0);
@@ -241,12 +243,12 @@ export default function Story({ stories }) {
               {/* ACTIONS */}
               <div className={storyStyle.actions}>
                 <button>
-                  ❤️
+                  <i className="far fa-heart"></i>
                   <span>{current.likes}</span>
                 </button>
 
                 <button>
-                  💬
+                  <i className="far fa-comment"></i>
                   <span>{current.comments}</span>
                 </button>
               </div>
@@ -261,7 +263,10 @@ export default function Story({ stories }) {
 
               {/* PRODUCT CARD */}
               {current.product && (
-                <div className={storyStyle.productCard}>
+                <button
+    type="button"
+    onClick={() => setSelectedProduct(current.product)}
+    className={storyStyle.productCard}>
                   <div className={storyStyle.productInfo}>
                     <h4>{current.product.title}</h4>
                     <span>{current.product.price}</span>
@@ -274,65 +279,84 @@ export default function Story({ stories }) {
                     height={80}
                     className={storyStyle.productImage}
                   />
-                </div>
+                </button>
               )}
             </div>
-
-            {/* <div className={storyStyle.imageHolder}>
-              <div className={storyStyle.imageHolder}>
-                {current.type === "video" ? (
-                  <video
-                    ref={videoRef}
-                    src={current.url}
-                    className={storyStyle.storyImage}
-                    autoPlay
-                    playsInline
-                    onTimeUpdate={(e) => {
-                      const el = e.target;
-                      if (el.duration > 0) {
-                        setProgress(el.currentTime / el.duration);
-                      }
-                    }}
-                    onEnded={() => {
-                      // وقتی ویدیو تمام شد، برو استوری بعدی
-                      setSeen((prev) => {
-                        const s = new Set(prev);
-                        s.add(index);
-                        return s;
-                      });
-                      const next = (index + 1) % stories.length;
-                      setIndex(next);
-                    }}
-                  />
-                ) : (
-                  <Image
-                    width={1027}
-                    height={740}
-                    src={current.url}
-                    alt={current.user}
-                    className={storyStyle.storyImage ?? "/images/default.png"}
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className={storyStyle.progressBar} aria-hidden="true">
-              {stories.map((s, i) => (
-                <div
-                  key={i}
-                  className={`${storyStyle.progressItem} ${i === index ? storyStyle.active : ""} ${
-                    seen.has(i) ? storyStyle.seen : ""
-                  }`}
-                  style={{
-                    width: `${100 / stories.length}%`,
-                    "--progress": i === index ? `${progress * 100}%` : "0%",
-                  }}
-                />
-              ))}
-            </div> */}
           </div>
         </div>
       )}
+
+      {selectedProduct && (
+  <div
+    className={storyStyle.productModalOverlay}
+    onClick={() => setSelectedProduct(null)}
+  >
+    <div
+      className={storyStyle.productModal}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* HEADER */}
+      <div className={storyStyle.modalHeader}>
+        <button
+          onClick={() => setSelectedProduct(null)}
+          className={storyStyle.modalClose}
+        >
+          ×
+        </button>
+      </div>
+
+      {/* IMAGE */}
+      <div className={storyStyle.modalImageWrapper}>
+        <Image
+          src={selectedProduct.image}
+          alt={selectedProduct.title}
+          width={320}
+          height={320}
+          className={storyStyle.modalImage}
+        />
+      </div>
+
+      {/* CONTENT */}
+      <div className={storyStyle.modalContent}>
+        <h3>{selectedProduct.title}</h3>
+
+        <div className={storyStyle.modalMeta}>
+          <span>⭐ 4.5</span>
+          <span>(۴۵ خریدار)</span>
+        </div>
+
+        <div className={storyStyle.modalColor}>
+          <span className={storyStyle.colorDot}></span>
+          رنگ: خاکستری
+        </div>
+
+        <Link
+          href="/product"
+          className={storyStyle.moreBtn}
+        >
+          مشاهده اطلاعات کامل محصول
+        </Link>
+      </div>
+
+      {/* FOOTER */}
+      <div className={storyStyle.modalFooter}>
+        <div>
+          <span className={storyStyle.oldPrice}>
+            ۱۶,۹۰۰,۰۰۰
+          </span>
+
+          <div className={storyStyle.price}>
+            {selectedProduct.price}
+          </div>
+        </div>
+
+        <button className={storyStyle.addToCartBtn}>
+          افزودن به سبد خرید
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </>
     // <!-- END STORY SECTION -->
   );

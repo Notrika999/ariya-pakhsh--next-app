@@ -67,7 +67,7 @@
 
   padding: 20px;
 
-  z-index: 9999;
+  z-index: 2000;
 
   backdrop-filter: blur(6px);
 }
@@ -250,7 +250,7 @@
 
   right: 18px;
   left: 18px;
-  bottom: 120px;
+  bottom: 140px;
 
   z-index: 15;
   color: white;
@@ -361,11 +361,158 @@
 
 .videoTime {
   position: absolute;
-  bottom: 130px;
+  bottom: 115px;
   right: 22px;
   color: white;
   font-size: 13px;
   z-index: 6;
+}
+
+/* ========================= */
+/* PRODUCT MODAL */
+/* ========================= */
+.productModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  z-index: 3000;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  animation: fadeIn 0.2s ease;
+}
+
+.productModal {
+  width: 100%;
+  max-width: 480px;
+  height: 88vh;
+
+  background: white;
+  border-radius: 24px 24px 0 0;
+
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+
+  animation: slideUp 0.25s ease;
+}
+
+.modalHeader {
+  padding: 16px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.modalClose {
+  border: none;
+  background: transparent;
+  font-size: 32px;
+  cursor: pointer;
+}
+
+.modalImageWrapper {
+  display: flex;
+  justify-content: center;
+  padding: 10px 20px;
+}
+
+.modalImage {
+  width: 240px;
+  height: 240px;
+  object-fit: contain;
+}
+
+.modalContent {
+  padding: 0 20px 20px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.modalContent h3 {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.9;
+  margin-bottom: 16px;
+}
+
+.modalMeta {
+  display: flex;
+  gap: 10px;
+  color: #777;
+  margin-bottom: 24px;
+}
+
+.modalColor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin-bottom: 24px;
+
+  font-weight: 600;
+}
+
+.colorDot {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #9ca3af;
+}
+
+.moreBtn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  height: 48px;
+
+  border: 1px solid #ef4444;
+  border-radius: 12px;
+
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.modalFooter {
+  border-top: 1px solid #eee;
+
+  padding: 16px 20px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background: white;
+}
+
+.oldPrice {
+  display: block;
+  color: #999;
+  text-decoration: line-through;
+  font-size: 13px;
+}
+
+.price {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.addToCartBtn {
+  height: 48px;
+  padding: 0 24px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: #ef4444;
+  color: white;
+
+  font-weight: 700;
+  cursor: pointer;
 }
 
 /* ========================= */
@@ -383,5 +530,25 @@
 
   .productCard {
     bottom: 18px;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }

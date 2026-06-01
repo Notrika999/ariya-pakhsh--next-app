@@ -3,6 +3,7 @@ import footerStyles from "../Footer.module.css";
 import MenuItems from "./MenuItems";
 import SocialMediaItem from "./SocialMediaItem";
 import Image from "next/image";
+import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 
 export default function Menus() {
   const footerMenus = [
@@ -56,7 +57,7 @@ export default function Menus() {
   ];
   return (
     <div className="py-8 bg-gray-200/50 dark:bg-[#0d1117] transition-colors duration-300">
-      <div className="container mx-auto">
+      <SectionContainer>
         <div className="w-full px-4">
           <div className="flex flex-wrap gap-y-4">
             {/* <!--Footer Menus Section--> */}
@@ -160,17 +161,17 @@ export default function Menus() {
                 <div className="w-full lg:block hidden lg:w-2/12 relative">
                   <div className="relative w-56">
                     <div
-                      className={`absolute -inset-3 inset-e-0 top-0 h-24 w-64 dark:hidden dark:opacity-70 ${footerStyles.footerLogoShadow}`}
+                      className={`absolute -inset-3 inset-e-0 top-4 h-24 w-64 dark:hidden dark:opacity-70 ${footerStyles.footerLogoShadow}`}
                     ></div>
                     <a
                       href="#"
-                      className="absolute inset-s-0 inset-e-0 text-center dark:mt-0 mt-7 block"
+                      className="absolute inset-s-0 inset-e-0 text-center dark:mt-0 mt-9 block"
                     >
                       <Image
-                      width={60}
-                      height={60}
+                        width={60}
+                        height={60}
                         src="/images/logo/logo.png"
-                        className="size-15 mt-1 inline-block mx-auto dark:invert"
+                        className="size-15 mt-2 inline-block mx-auto dark:invert"
                         alt="لوگو"
                       />
                     </a>
@@ -192,7 +193,7 @@ export default function Menus() {
             </div>
           </div>
         </div>
-      </div>
+      </SectionContainer>
     </div>
   );
 }

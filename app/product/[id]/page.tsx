@@ -8,6 +8,7 @@ interface PageProps {
 
 async function ProductDetailsPage({ params }: PageProps) {
   const { id } = await params;
+  
 
   return <ProductDetails id={id} />;
 }

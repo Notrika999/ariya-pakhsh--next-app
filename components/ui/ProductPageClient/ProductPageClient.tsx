@@ -14,6 +14,10 @@ interface Props {
 }
 
 export default function ProductPageClient({ id }: Props) {
+
+  console.log(id
+    
+  )
   const { product, loading, error } = useProductDetails(id);
 
   if (loading) return <p>در حال دریافت اطلاعات...</p>;

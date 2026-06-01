@@ -1,9 +1,10 @@
+import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 import React from "react";
 
 export default function Services() {
   return (
     <div className="bg-gray-200 dark:bg-gray-900 py-2.5 transition-colors duration-300">
-      <div className="container mx-auto">
+      <SectionContainer>
         <div className="w-full px-4">
           <nav className="flex">
             <ul className="flex justify-between space-y-3 w-full flex-wrap">
@@ -586,7 +587,7 @@ export default function Services() {
             </ul>
           </nav>
         </div>
-      </div>
+      </SectionContainer>
     </div>
   );
 }
