@@ -40,7 +40,7 @@ export default function ProductAction() {
         </div>
       )}
       {shouldShowPanel && (
-        <div className="bg-white xl:sticky fixed xl:top-0 bottom-0 end-0 start-0 xl:z-0 z-40 dark:bg-custom-dark dark:text-gray-200 space-y-3 shadow-sm border border-gray-200 dark:border-gray-700 mt-4 rounded-2xl px-6 py-4">
+        <div className="bg-white xl:sticky fixed xl:top-0 bottom-0 inset-e-0 inset-s-0 xl:z-0 z-40 dark:bg-custom-dark dark:text-gray-200 space-y-3 shadow-sm border border-gray-200 dark:border-gray-700  rounded-2xl px-6 py-4">
           {/* <!-- Close Btn --> */}
           <div className="xl:hidden block">
             <button onClick={() => setIsOpen(false)} className="text-red-600">

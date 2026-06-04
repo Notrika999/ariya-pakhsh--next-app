@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import ProductIntroduction from "./ProductIntroduction";
 import Intro from "./Intro";
 import Specifications from "./Specifications";
@@ -9,9 +9,24 @@ import Question from "./Question";
 import ProductAction from "./ProductAction";
 
 export default function Review() {
+  const navRef = useRef(null);
+
   useEffect(() => {
-    const tabButtons = document.querySelectorAll(".tab-btn");
-    const sections = document.querySelectorAll(".tab-section");
+    const tabButtons = Array.from(document.querySelectorAll(".tab-btn"));
+    const sections = Array.from(document.querySelectorAll(".tab-section"));
+    const nav = navRef.current;
+    if (!tabButtons.length || !sections.length || !nav) return;
+
+    const getHeaderHeight = () =>
+      document.querySelector("body > header")?.getBoundingClientRect().height ??
+      0;
+
+    const getStickyOffset = () =>
+      getHeaderHeight() + nav.getBoundingClientRect().height + 16;
+
+    const updateNavTop = () => {
+      nav.style.setProperty("--review-sticky-top", `${getHeaderHeight() + 8}px`);
+    };
 
     // تابع برای فعال کردن یک تب (مشترک برای کلیک و اسکرول)
     const activateTab = (tabId) => {
@@ -40,10 +55,10 @@ export default function Review() {
       // اکتیو کردن تب
       activateTab(tabId);
 
-      // اسکرول نرم
-      section.scrollIntoView({
+      // اسکرول نرم با در نظر گرفتن هدر و تب‌بار sticky
+      window.scrollTo({
+        top: section.getBoundingClientRect().top + window.scrollY - getStickyOffset(),
         behavior: "smooth",
-        block: "start",
       });
     };
 
@@ -52,29 +67,38 @@ export default function Review() {
     // -------------------------
     // ۲. فعال شدن تب هنگام اسکرول
     // -------------------------
+    const handleScroll = () => {
+      updateNavTop();
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const id = entry.target.id;
-            activateTab(id);
-          }
-        });
-      },
-      {
-        threshold: 0.3, // ۳۰٪ سکشن وارد ویو شود
-      },
-    );
+      const offset = getStickyOffset();
+      const currentSection =
+        [...sections]
+          .reverse()
+          .find((section) => section.getBoundingClientRect().top <= offset) ??
+        sections[0];
 
-    sections.forEach((sec) => observer.observe(sec));
+      if (currentSection) activateTab(currentSection.id);
+    };
+
+    updateNavTop();
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+
+    const header = document.querySelector("body > header");
+    const headerResizeObserver = header
+      ? new ResizeObserver(() => handleScroll())
+      : null;
+    if (header) headerResizeObserver?.observe(header);
 
     // cleanup
     return () => {
       tabButtons.forEach((btn) =>
         btn.removeEventListener("click", handleClick),
       );
-      observer.disconnect();
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+      headerResizeObserver?.disconnect();
     };
   }, []);
   return (
@@ -83,9 +107,10 @@ export default function Review() {
       <section className="xl:col-span-3 col-span-4">
         {/* <!--Tab bar--> */}
         <nav
+          ref={navRef}
           id="topBar"
-          className="lg:sticky top-0 border border-gray-200 shadow-sm dark:border-gray-700 z-10 px-5 bg-white dark:bg-zinc-800 lg:top-18.75 rounded-2xl mb-6"
-          style={{ zIndex: "39" }}
+          className="lg:sticky border border-gray-200 shadow-sm dark:border-gray-700 z-10 px-5 bg-white dark:bg-zinc-800 rounded-2xl mb-6"
+          style={{ zIndex: "39", top: "var(--review-sticky-top, 0px)" }}
         >
           <ul
             className="flex space-x-1 min-w-48 overflow-x-scroll py-4 hide-scrollbar"

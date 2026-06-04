@@ -1,4 +1,5 @@
-import IncredibleOffers from "@/components/ui/IncredibleOffers/IncredibleOffers";
+import DealsClient from "@/components/ui/IncredibleOffers/DealsClient/DealsClient";
+import { MOCK_PRODUCTS } from "@/lib/mock-data";
 import { Metadata } from "next";
 
 // تعریف متادیتای سئو
@@ -26,9 +27,10 @@ export const metadata: Metadata = {
 };
 
 function IncredibleOffersPage() {
+  const products = MOCK_PRODUCTS;
   return (
     <main className="space-y-12 py-8 my-8">
-      <IncredibleOffers />
+      <DealsClient products={products} />
     </main>
   );
 }

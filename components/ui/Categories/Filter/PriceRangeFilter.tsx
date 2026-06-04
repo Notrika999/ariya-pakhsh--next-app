@@ -62,7 +62,7 @@ export default function PriceRangeFilter({ min, max, value, onChange }: Props) {
             <span className="text-gray-500 text-xs block mb-1">از</span>
             <div className="flex items-baseline justify-center border-b border-gray-300 pb-1">
               <span className="font-bold text-lg text-gray-800 dark:text-white">
-                {minValue.toLocaleString("fa-IR")}
+                {minValue?.toLocaleString("fa-IR")}
               </span>
               <span className="mr-1 text-sm text-gray-600 dark:text-gray-300">
                 تومان
@@ -74,7 +74,7 @@ export default function PriceRangeFilter({ min, max, value, onChange }: Props) {
             <span className="text-gray-500 text-xs block mb-1">تا</span>
             <div className="flex items-baseline justify-center border-b border-gray-300 pb-1">
               <span className="font-bold text-lg text-gray-800 dark:text-white">
-                {maxValue.toLocaleString("fa-IR")}
+                {maxValue?.toLocaleString("fa-IR")}
               </span>
               <span className="mr-1 text-sm text-gray-600 dark:text-gray-300">
                 تومان

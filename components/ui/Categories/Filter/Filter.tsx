@@ -27,6 +27,7 @@ export default function Filter({
         : [...prev.brands, id],
     }));
   };
+  console.log(minLimit);
 
   return (
     <section className="space-y-5 sticky top-0">

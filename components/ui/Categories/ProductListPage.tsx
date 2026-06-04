@@ -1,4 +1,7 @@
+// components/ui/Categories/ProductListPage.tsx
+
 "use client";
+
 import React, { useMemo, useState } from "react";
 import DescriptionCategory from "./DescriptionCategory/DescriptionCategory";
 import CategoriesSlider from "@/components/modules/CategoriesSlider/CategoriesSlider";

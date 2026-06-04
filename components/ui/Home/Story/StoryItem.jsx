@@ -15,8 +15,8 @@ export default function StoryItem({ image, title, onOpen, index, viewed }) {
         className={`${storyStyle.storyAvatar} ${viewed ? storyStyle.viewed : ""}`}
       >
         <Image
-        width={100}
-        height={100}
+          width={100}
+          height={100}
           src={image ?? "/images/default.png"}
           alt={title}
           onError={(e) => {

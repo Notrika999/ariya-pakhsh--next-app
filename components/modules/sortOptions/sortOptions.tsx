@@ -1,37 +1,36 @@
 "use client";
 
 import React from "react";
+import { SortOption, SORT_LABELS } from "@/types/product";
 
-const sortOptions = [
-  { label: "همه", value: "all" },
-  { label: "پربازدیدترین", value: "most-visited" },
-  { label: "جدیدترین", value: "newest" },
-  { label: "پرفروش‌ترین", value: "best-selling" },
-  { label: "ارزان‌ترین", value: "cheapest" },
-  { label: "گران‌ترین", value: "most-expensive" },
-  { label: "منتخب", value: "selected" },
+const sortOptions: { label: string; value: SortOption }[] = [
+  { label: SORT_LABELS.default, value: "default" },
+  { label: SORT_LABELS.price_asc, value: "price_asc" },
+  { label: SORT_LABELS.price_desc, value: "price_desc" },
+  { label: SORT_LABELS.discount_desc, value: "discount_desc" },
+  { label: SORT_LABELS.rating_desc, value: "rating_desc" },
+  { label: SORT_LABELS.most_reviewed, value: "most_reviewed" },
 ];
 
-interface SortListProps {
-  currentSort: string;
-  onSortChange: (value: string) => void;
+interface Props {
+  currentSort: SortOption;
+  onSortChange: (value: SortOption) => void;
 }
 
-export default function SortList({ currentSort, onSortChange }: SortListProps) {
+export default function SortList({ currentSort, onSortChange }: Props) {
   return (
-    <div className="flex items-center overflow-x-scroll hide-scrollbar gap-2 text-gray-600 dark:text-gray-300 text-sm py-2">
+    <div className="flex items-center overflow-x-auto  text-sm py-2">
       {sortOptions.map((option) => {
-        // مقایسه مستقیم با props ورودی
         const isActive = currentSort === option.value;
 
         return (
           <button
             key={option.value}
-            onClick={() => onSortChange(option.value)} // فراخوانی تابع والد
-            className={`whitespace-nowrap transition-all duration-200 px-4 py-1 rounded-full ${
+            onClick={() => onSortChange(option.value)}
+            className={`whitespace-nowrap px-2 py-1 rounded-full transition ${
               isActive
-                ? "bg-gray-900 text-white dark:bg-gray-800 dark:text-white"
-                : "hover:text-gray-900 dark:hover:text-white"
+                ? "bg-gray-900 text-white"
+                : "text-gray-600 hover:text-gray-900"
             }`}
           >
             {option.label}

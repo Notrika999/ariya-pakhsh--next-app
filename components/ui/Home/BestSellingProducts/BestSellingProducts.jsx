@@ -8,10 +8,15 @@ import { Autoplay, FreeMode } from "swiper/modules";
 import "swiper/css";
 import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
 
-export default function LastProducts({ lastProductLists, title, href }) {
+export default function BestSellingProducts({
+  bestSellingProducts,
+  title,
+  href,
+}) {
+  let globalIndex = 1;
   return (
     <>
-      <h2 className="sr-only">جدیدترین محصولات</h2>
+      <h2 className="sr-only">پرفروش ترین محصولات</h2>
 
       {/* <!-- header --> */}
       <SectionHeader title={title} href={href} />
@@ -35,7 +40,7 @@ export default function LastProducts({ lastProductLists, title, href }) {
         }}
         className="my-swiper"
       >
-        {lastProductLists.map((product, idx) => (
+        {bestSellingProducts.map((product) => (
           <SwiperSlide key={product.id}>
             {product.products.map((subProduct) => (
               <Link key={subProduct.id} href="#" className="w-full block">
@@ -50,7 +55,7 @@ export default function LastProducts({ lastProductLists, title, href }) {
                   <section className="w-1/6 border-e-2 border-gray-300 dark:border-neutral-600">
                     <div className="text-center">
                       <span className="font-bold text-3xl text-primary">
-                        {subProduct.id}
+                        {globalIndex++}
                       </span>
                     </div>
                   </section>
@@ -67,7 +72,10 @@ export default function LastProducts({ lastProductLists, title, href }) {
                   <figure className="w-2/6">
                     <div className="text-end flex justify-end">
                       <Image
-                        src={subProduct.image ?? "/images/default.png"}
+                        src={
+                          `https://aryapakhsh.shop${subProduct.image}` ??
+                          "/images/default.png"
+                        }
                         className="size-20"
                         loading="lazy"
                         alt={subProduct.title}

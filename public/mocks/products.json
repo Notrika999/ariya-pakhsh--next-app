@@ -2,7 +2,7 @@
   "products": [
     {
       "id": "1",
-      "title": "تبلت سامسونگ مدل Galaxy Tab S8 Ultra",
+      "name": "تبلت سامسونگ مدل Galaxy Tab S8 Ultra",
       "image": "/images/product/laptop-2.png",
       "imageSlider": [
         { "id": 1, "imgSrc": "/images/product/laptop-1.png" },
@@ -14,12 +14,14 @@
       ],
       "count": 1,
       "brandId": 1,
-      "discount": "3",
-      "price": 13550000,
-      "oldPrice": 13900000,
+      "discountPercent": "3",
+      "discountedPrice": 13550000,
+      "originalPrice": 13900000,
       "rating": 4,
       "offer": true,
-      "countdownToISO": "2028-01-01T15:30:00.000Z",
+      "dealEndsAt": "TIME Tue Jun 02 2026 14:24:21 GMT+0330 (Iran Standard Time)",
+      "review": { "rating": 4.8, "count": 214 },
+      "specialSale": false,
       "colors": [
         { "id": 1, "code": "#0000ff", "title": "آبی" },
         { "id": 2, "code": "#ff0000", "title": "قرمز" }
@@ -28,7 +30,7 @@
     },
     {
       "id": "2",
-      "title": "لپ‌تاپ ایسوس Zenbook 14",
+      "name": "لپ‌تاپ ایسوس Zenbook 14",
       "image": "/images/product/laptop-1.png",
       "imageSlider": [
         { "id": 1, "imgSrc": "/images/product/laptop-1.png" },
@@ -40,11 +42,13 @@
       ],
       "count": 2,
       "brandId": 1,
-      "discount": "5",
-      "price": 45000000,
-      "oldPrice": 47500000,
+      "discountPercent": "5",
+      "discountedPrice": 45000000,
+      "originalPrice": 47500000,
       "offer": false,
-      "countdownToISO": "0",
+      "dealEndsAt": "TIME Tue Jun 02 2026 14:24:21 GMT+0330 (Iran Standard Time)",
+      "review": { "rating": 4.6, "count": 214 },
+      "specialSale": true,
       "rating": 5,
       "colors": [
         { "id": 1, "code": "#19df0f", "title": "سبز" },
@@ -54,7 +58,7 @@
     },
     {
       "id": "3",
-      "title": "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
+      "name": "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت تست تست تست تست تست تست",
       "image": "/images/product/laptop-3.png",
       "imageSlider": [
         { "id": 1, "imgSrc": "/images/product/laptop-1.png" },
@@ -65,12 +69,14 @@
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
       "count": 0,
-      "discount": "3",
+      "discountPercent": "3",
       "brandId": 2,
-      "price": 13550000,
-      "oldPrice": 13900000,
+      "discountedPrice": 13550000,
+      "originalPrice": 13900000,
       "offer": true,
-      "countdownToISO": "2028-01-01T15:30:00.000Z",
+      "dealEndsAt": "TIME Tue Jun 02 2026 14:24:21 GMT+0330 (Iran Standard Time)",
+      "review": { "rating": 4.7, "count": 214 },
+      "specialSale": false,
       "rating": 4,
       "colors": [
         { "id": 1, "code": "#19df0f", "title": "سبز" },
@@ -80,7 +86,7 @@
     },
     {
       "id": "4",
-      "title": "تبلت سامسونگ مدل S8",
+      "name": "تبلت سامسونگ مدل S8",
       "image": "/images/product/television-2.png",
       "imageSlider": [
         { "id": 1, "imgSrc": "/images/product/laptop-1.png" },
@@ -92,47 +98,24 @@
       ],
       "count": 0,
       "brandId": 2,
-      "discount": "3",
-      "price": 13550000,
-      "oldPrice": 13900000,
+      "discountPercent": "3",
+      "discountedPrice": 13550000,
+      "originalPrice": 13900000,
       "rating": 4,
       "offer": true,
-      "countdownToISO": "2028-01-01T15:30:00.000Z",
+      "dealEndsAt": "TIME Tue Jun 02 2026 14:24:21 GMT+0330 (Iran Standard Time)",
+      "review": { "rating": 4.8, "count": 214 },
+      "specialSale": true,
       "colors": [
         { "id": 1, "code": "#19df0f", "title": "سبز" },
         { "id": 2, "code": "#dfd10f", "title": "زرد" }
       ],
       "href": "/product"
     },
-    {
-      "id": "5",
-      "title": "سامسونگ مدل S8",
-      "image": "/images/product/laptop-5.png",
-      "imageSlider": [
-        { "id": 1, "imgSrc": "/images/product/laptop-1.png" },
-        { "id": 2, "imgSrc": "/images/product/laptop-2.png" },
-        { "id": 3, "imgSrc": "/images/product/laptop-3.png" },
-        { "id": 4, "imgSrc": "/images/product/laptop-4.png" },
-        { "id": 5, "imgSrc": "/images/product/laptop-5.png" },
-        { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
-      ],
-      "count": 0,
-      "discount": "3",
-      "brandId": 3,
-      "price": 13550000,
-      "oldPrice": 13900000,
-      "rating": 4,
-      "offer": true,
-      "countdownToISO": "2028-01-01T15:30:00.000Z",
-      "colors": [
-        { "id": 1, "code": "#19df0f", "title": "سبز" },
-        { "id": 2, "code": "#dfd10f", "title": "زرد" }
-      ],
-      "href": "/product"
-    },
+
     {
       "id": "6",
-      "title": "تبلت مدل S8",
+      "name": "تبلت مدل S8",
       "image": "/images/product/laptop-1.png",
       "imageSlider": [
         { "id": 1, "imgSrc": "/images/product/laptop-1.png" },
@@ -143,12 +126,14 @@
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
       "count": 2,
-      "discount": "3",
+      "discountPercent": "3",
       "brandId": 3,
-      "price": 13550000,
-      "oldPrice": 13900000,
+      "discountedPrice": 13550000,
+      "originalPrice": 13900000,
       "offer": false,
-      "countdownToISO": "0",
+      "dealEndsAt": "TIME Tue Jun 02 2026 14:24:21 GMT+0330 (Iran Standard Time)",
+      "review": { "rating": 4.5, "count": 214 },
+      "specialSale": false,
       "rating": 4,
       "colors": [
         { "id": 1, "code": "#19df0f", "title": "سبز" },
@@ -158,7 +143,7 @@
     },
     {
       "id": "7",
-      "title": "تبلت سامسونگ مدل S8",
+      "name": "تبلت سامسونگ مدل S8",
       "image": "/images/product/wach-2.png",
       "imageSlider": [
         { "id": 1, "imgSrc": "/images/product/laptop-1.png" },
@@ -169,13 +154,15 @@
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
       "count": 0,
-      "discount": "3",
+      "discountPercent": "3",
       "brandId": 3,
-      "price": 13550000,
-      "oldPrice": 13900000,
+      "discountedPrice": 13550000,
+      "originalPrice": 13900000,
       "rating": 4,
       "offer": true,
-      "countdownToISO": "2028-01-01T15:30:00.000Z",
+      "dealEndsAt": "TIME Tue Jun 02 2026 14:24:21 GMT+0330 (Iran Standard Time)",
+      "review": { "rating": 4.8, "count": 214 },
+      "specialSale": true,
       "colors": [
         { "id": 1, "code": "#19df0f", "title": "سبز" },
         { "id": 2, "code": "#dfd10f", "title": "زرد" }
@@ -184,7 +171,7 @@
     },
     {
       "id": "8",
-      "title": "تبلت سامسونگ مدل S8",
+      "name": "تبلت سامسونگ مدل S8",
       "image": "/images/product/laptop-1.png",
       "imageSlider": [
         { "id": 1, "imgSrc": "/images/product/laptop-1.png" },
@@ -195,12 +182,14 @@
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
       "count": 1,
-      "discount": "3",
+      "discountPercent": "3",
       "brandId": 2,
-      "price": 13550000,
-      "oldPrice": 13900000,
+      "discountedPrice": 13550000,
+      "originalPrice": 13900000,
       "offer": true,
-      "countdownToISO": "2028-01-01T15:30:00.000Z",
+      "dealEndsAt": "TIME Tue Jun 02 2026 14:24:21 GMT+0330 (Iran Standard Time)",
+      "review": { "rating": 4.8, "count": 214 },
+      "specialSale": false,
       "rating": 4,
       "colors": [
         { "id": 1, "code": "#19df0f", "title": "سبز" },
@@ -210,7 +199,7 @@
     },
     {
       "id": "9",
-      "title": "تبلت سامسونگ مدل S8",
+      "name": "تبلت سامسونگ مدل S8",
       "image": "/images/product/wach-2.png",
       "imageSlider": [
         { "id": 1, "imgSrc": "/images/product/laptop-1.png" },
@@ -221,13 +210,15 @@
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
       "count": 0,
-      "discount": "3",
+      "discountPercent": "3",
       "brandId": 3,
-      "price": 13550000,
-      "oldPrice": 13900000,
+      "discountedPrice": 13550000,
+      "originalPrice": 13900000,
       "rating": 4,
       "offer": true,
-      "countdownToISO": "2028-01-01T15:30:00.000Z",
+      "dealEndsAt": "TIME Tue Jun 02 2026 14:24:21 GMT+0330 (Iran Standard Time)",
+      "review": { "rating": 4.8, "count": 214 },
+      "specialSale": false,
       "colors": [
         { "id": 1, "code": "#19df0f", "title": "سبز" },
         { "id": 2, "code": "#dfd10f", "title": "زرد" }
@@ -236,7 +227,7 @@
     },
     {
       "id": "10",
-      "title": "تبلت سامسونگ مدل S8",
+      "name": "تبلت سامسونگ مدل S8",
       "image": "/images/product/laptop-1.png",
       "imageSlider": [
         { "id": 1, "imgSrc": "/images/product/laptop-1.png" },
@@ -247,12 +238,14 @@
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
       "count": 1,
-      "discount": "3",
+      "discountPercent": "3",
       "brandId": 2,
-      "price": 13550000,
-      "oldPrice": 13900000,
+      "discountedPrice": 13550000,
+      "originalPrice": 13900000,
       "offer": true,
-      "countdownToISO": "2028-01-01T15:30:00.000Z",
+      "dealEndsAt": "TIME Tue Jun 02 2026 14:24:21 GMT+0330 (Iran Standard Time)",
+      "review": { "rating": 4.9, "count": 214 },
+      "specialSale": true,
       "rating": 4,
       "colors": [
         { "id": 1, "code": "#19df0f", "title": "سبز" },
@@ -262,7 +255,7 @@
     },
     {
       "id": "11",
-      "title": "تبلت سامسونگ مدل S8",
+      "name": "تبلت سامسونگ مدل S8",
       "image": "/images/product/wach-2.png",
       "imageSlider": [
         { "id": 1, "imgSrc": "/images/product/laptop-1.png" },
@@ -273,13 +266,15 @@
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
       "count": 0,
-      "discount": "3",
+      "discountPercent": "3",
       "brandId": 3,
-      "price": 13550000,
-      "oldPrice": 13900000,
+      "discountedPrice": 13550000,
+      "originalPrice": 13900000,
       "rating": 4,
       "offer": true,
-      "countdownToISO": "2028-01-01T15:30:00.000Z",
+      "dealEndsAt": "TIME Tue Jun 02 2026 14:24:21 GMT+0330 (Iran Standard Time)",
+      "review": { "rating": 4.8, "count": 214 },
+      "specialSale": false,
       "colors": [
         { "id": 1, "code": "#19df0f", "title": "سبز" },
         { "id": 2, "code": "#dfd10f", "title": "زرد" }
@@ -288,7 +283,7 @@
     },
     {
       "id": "12",
-      "title": "تبلت سامسونگ مدل S8",
+      "name": "تبلت سامسونگ مدل S8",
       "image": "/images/product/laptop-1.png",
       "imageSlider": [
         { "id": 1, "imgSrc": "/images/product/laptop-1.png" },
@@ -299,12 +294,14 @@
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
       "count": 1,
-      "discount": "3",
+      "discountPercent": "3",
       "brandId": 2,
-      "price": 13550000,
-      "oldPrice": 13900000,
+      "discountedPrice": 13550000,
+      "originalPrice": 13900000,
       "offer": true,
-      "countdownToISO": "2028-01-01T15:30:00.000Z",
+      "dealEndsAt": "TIME Tue Jun 02 2026 14:24:21 GMT+0330 (Iran Standard Time)",
+      "review": { "rating": 4.8, "count": 214 },
+      "specialSale": false,
       "rating": 4,
       "colors": [
         { "id": 1, "code": "#19df0f", "title": "سبز" },
@@ -314,7 +311,7 @@
     },
     {
       "id": "14",
-      "title": "تبلت سامسونگ مدل S8",
+      "name": "تبلت سامسونگ مدل S8",
       "image": "/images/product/wach-2.png",
       "imageSlider": [
         { "id": 1, "imgSrc": "/images/product/laptop-1.png" },
@@ -325,13 +322,15 @@
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
       "count": 0,
-      "discount": "3",
+      "discountPercent": "3",
       "brandId": 3,
-      "price": 13550000,
-      "oldPrice": 13900000,
+      "discountedPrice": 13550000,
+      "originalPrice": 13900000,
       "rating": 4,
       "offer": true,
-      "countdownToISO": "2028-01-01T15:30:00.000Z",
+      "dealEndsAt": "TIME Tue Jun 08 2026 14:30:00 GMT+0330 (Iran Standard Time)",
+      "review": { "rating": 4.8, "count": 214 },
+      "specialSale": false,
       "colors": [
         { "id": 1, "code": "#19df0f", "title": "سبز" },
         { "id": 2, "code": "#dfd10f", "title": "زرد" }
@@ -340,7 +339,7 @@
     },
     {
       "id": "13",
-      "title": "تبلت سامسونگ مدل S8",
+      "name": "تبلت سامسونگ مدل S8",
       "image": "/images/product/laptop-1.png",
       "imageSlider": [
         { "id": 1, "imgSrc": "/images/product/laptop-1.png" },
@@ -351,12 +350,14 @@
         { "id": 6, "imgSrc": "/images/product/laptop-6.png" }
       ],
       "count": 1,
-      "discount": "3",
+      "discountPercent": "3",
       "brandId": 2,
-      "price": 13550000,
-      "oldPrice": 13900000,
+      "discountedPrice": 13550000,
+      "originalPrice": 13900000,
       "offer": true,
-      "countdownToISO": "2028-01-01T15:30:00.000Z",
+      "dealEndsAt": "TIME Tue Jun 02 2026 14:24:21 GMT+0330 (Iran Standard Time)",
+      "review": { "rating": 4.8, "count": 214 },
+      "specialSale": false,
       "rating": 4,
       "colors": [
         { "id": 1, "code": "#19df0f", "title": "سبز" },

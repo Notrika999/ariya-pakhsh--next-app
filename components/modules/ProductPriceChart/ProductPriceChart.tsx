@@ -11,7 +11,7 @@ export type PriceChartItem = {
 
 type Props = { data: PriceChartItem[] };
 
-const MARGIN = { top: 20, right: 50, bottom: 40, left: 10 };
+const MARGIN = { top: 20, right: 10, bottom: 40, left: 20 };
 const AVAILABLE_COLOR = "#2563eb";
 const UNAVAILABLE_COLOR = "#9ca3af";
 const ORIGINAL_COLOR = "#9ca3af";
@@ -157,15 +157,15 @@ export default function ProductPriceChart({ data }: Props) {
                 />
               ))}
 
-              {/* ─── Y Axis labels (سمت راست) ─── */}
+              {/* ─── Y Axis labels (سمت چپ) ─── */}
               {yTicks.map((t, i) => (
                 <text
                   key={i}
-                  x={innerW + 8}
+                  x={-20}
                   y={t.y + 4}
                   fontSize={11}
                   fill="#9ca3af"
-                  textAnchor="start"
+                  textAnchor="end"
                 >
                   {formatM(t.v)}
                 </text>
@@ -332,11 +332,11 @@ export default function ProductPriceChart({ data }: Props) {
           <span>قیمت (ناموجود)</span>
         </div>
         <div className="flex items-center gap-2">
-          <svg width="32" height="4" style={{ overflow: "visible" }}>
+          <svg width="30" height="4" style={{ overflow: "visible" }}>
             <line
               x1="0"
               y1="2"
-              x2="32"
+              x2="30"
               y2="2"
               stroke={ORIGINAL_COLOR}
               strokeWidth="2"

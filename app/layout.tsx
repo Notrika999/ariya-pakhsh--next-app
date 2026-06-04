@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header/Header";
 import NavMobile from "@/components/layout/NavMobile/NavMobile";
 import "./globals.css";
 import { BackToTopButton } from "@/components/modules/BackToTopButton/BackToTopButton";
+import ToastProvider from "@/components/modules/providers/ToastProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +39,7 @@ export default function RootLayout({
         <Footer />
         <NavMobile />
         <BackToTopButton />
+        <ToastProvider />
       </body>
     </html>
   );

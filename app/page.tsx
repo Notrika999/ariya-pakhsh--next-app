@@ -3,10 +3,10 @@ import { getProducts } from "@/src/services/product/product.service";
 import Story from "@/components/ui/Home/Story/Story";
 import Slider from "@/components/ui/Home/Slider/Slider";
 import AmazingProducts from "@/components/ui/Home/AmazingProducts/AmazingProducts";
+import BestSellingProducts from "@/components/ui/Home/BestSellingProducts/BestSellingProducts";
 import Category from "@/components/ui/Home/Category/Category";
 import Banner from "@/components/ui/Home/Banner/Banner";
 import UserLatestViews from "@/components/ui/Home/CategoryProductBox/CategoryProductBox";
-import LastProducts from "@/components/ui/Home/LastProducts/LastProducts";
 import Brand from "@/components/ui/Home/Brand/Brand";
 import LastBlogs from "@/components/ui/Home/LastBlogs/LastBlogs";
 
@@ -16,6 +16,8 @@ import SliderProduct from "@/components/modules/SliderProduct/SliderProduct";
 
 import { Metadata } from "next";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
+import HeroSection from "@/components/ui/IncredibleOffers/HeroSection/HeroSection";
+import { mapToBestSellingProducts } from "@/src/lib/mappers/best-selling-products.mapper";
 
 // ساختار متاتگ‌ها به صورت استاندارد و حرفه‌ای
 export const metadata: Metadata = {
@@ -96,10 +98,15 @@ export default async function Home() {
 
   // stories, sliders, newProducts, productsLast, lastProductLists, lastBlogLits
   // همگی فیک
-  const data = await getProducts();
-  const products = data.products;
+  const homeData = await getProducts();
+  console.log("Home GET API => ", homeData);
 
-  const amazingProducts = products?.filter((p) => p.offer === true) ?? [];
+  const bestSellingProducts = mapToBestSellingProducts(
+    homeData.bestSellingProducts,
+    3,
+  );
+
+  // const amazingProducts = products?.filter((p) => p.offer === true) ?? [];
 
   const stories = [
     {
@@ -110,7 +117,7 @@ export default async function Home() {
       duration: 5000,
       link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
 
-      title: "پرفروش‌ترین هندزفری",
+      title: "هندزفری",
       description: "کیفیت صدای فوق‌العاده با شارژدهی طولانی",
       likes: 3500,
       comments: 110,
@@ -407,89 +414,97 @@ export default async function Home() {
   const newProducts = [
     {
       id: 1,
-      title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
+      name: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
       image: "/images/product/laptop-2.png",
-      discount: "3",
-      price: "13,550,000",
-      oldPrice: "13,900,000",
+      discountPercent: "3",
+      discountedPrice: 13550000,
+      originalPrice: 13900000,
       rating: 4,
+      review: { rating: 4.8, count: 214 },
       colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
       href: "/product",
     },
     {
       id: 2,
-      title: "تبلت سامسونگ مدل S8",
+      name: "تبلت سامسونگ مدل S8",
       image: "/images/product/laptop-1.png",
-      discount: "3",
-      price: "13,550,000",
-      oldPrice: "13,900,000",
+      discountPercent: "3",
+      discountedPrice: 13550000,
+      originalPrice: 13900000,
       rating: 4,
+      review: { rating: 4.8, count: 214 },
       colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
       href: "/product",
     },
     {
       id: 3,
-      title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
+      name: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
       image: "/images/product/laptop-3.png",
-      discount: "3",
-      price: "13,550,000",
-      oldPrice: "13,900,000",
+      discountPercent: "3",
+      discountedPrice: 13550000,
+      originalPrice: 13900000,
       rating: 4,
+      review: { rating: 4.8, count: 214 },
       colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
       href: "/product",
     },
     {
       id: 4,
-      title: "تبلت سامسونگ مدل S8",
+      name: "تبلت سامسونگ مدل S8",
       image: "/images/product/television-2.png",
-      discount: "3",
-      price: "13,550,000",
-      oldPrice: "13,900,000",
+      discountPercent: "3",
+      discountedPrice: 13550000,
+      originalPrice: 13900000,
       rating: 4,
+      review: { rating: 4.8, count: 214 },
       colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
       href: "/product",
     },
     {
       id: 5,
-      title: "تبلت سامسونگ مدل S8",
+      name: "تبلت سامسونگ مدل S8",
       image: "/images/product/laptop-5.png",
-      discount: "3",
-      price: "13,550,000",
-      oldPrice: "13,900,000",
+      discountPercent: "3",
+      discountedPrice: 13550000,
+      originalPrice: 13900000,
       rating: 4,
+      review: { rating: 4.8, count: 214 },
       colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
       href: "/product",
     },
     {
       id: 6,
-      title: "تبلت سامسونگ مدل S8",
+      name: "تبلت سامسونگ مدل S8",
       image: "/images/product/laptop-1.png",
-      discount: "3",
-      price: "13,550,000",
-      oldPrice: "13,900,000",
+      discountPercent: "3",
+      discountedPrice: 13550000,
+      originalPrice: 13900000,
       rating: 4,
+      review: { rating: 4.8, count: 214 },
       colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
       href: "/product",
     },
     {
       id: 7,
-      title: "تبلت سامسونگ مدل S8",
+      name: "تبلت سامسونگ مدل S8",
       image: "/images/product/wach-2.png",
-      discount: "3",
-      price: "13,550,000",
-      oldPrice: "13,900,000",
+      discountPercent: "3",
+      discountedPrice: 13550000,
+      originalPrice: 13900000,
       rating: 4,
+      review: { rating: 4.8, count: 214 },
       colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
       href: "/product",
     },
     {
       id: 8,
-      title: "تبلت سامسونگ مدل S8",
+      name: "تبلت سامسونگ مدل S8",
       image: "/images/product/laptop-1.png",
-      discount: "3",
-      price: "13,550,000",
-      oldPrice: "13,900,000",
+      discountPercent: "3",
+      discountedPrice: 13550000,
+      originalPrice: 13900000,
       rating: 4,
+      review: { rating: 4.8, count: 214 },
       colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
       href: "/product",
     },
@@ -839,7 +854,8 @@ export default async function Home() {
 
       {/* <!-- START AMAZING SECTION --> */}
       <SectionContainer>
-        <AmazingProducts products={amazingProducts} />
+        <h5></h5>
+        {/* <AmazingProducts products={amazingProducts} /> */}
       </SectionContainer>
       {/* <!-- END AMAZING SECTION --> */}
 
@@ -851,6 +867,10 @@ export default async function Home() {
         />
       </SectionContainer>
       {/* <!-- END CATEGORY SECTION --> */}
+
+      <SectionContainer>
+        <HeroSection />
+      </SectionContainer>
 
       {/* <!-- START BANNER SECTION --> */}
       <SectionContainer>
@@ -867,16 +887,16 @@ export default async function Home() {
       </SectionContainer>
       {/* <!-- END CATEGORY SECTION --> */}
 
-      {/* <!-- START PRODUCT SLIDER SECTION -->/ */}
+      {/* <!-- START NEW PRODUCT SLIDER SECTION -->/ */}
       <SectionContainer>
         <SliderProduct
-          products={newProducts}
+          products={homeData.newestProducts}
           loop={false}
           title="جدیدترین محصولات"
           href="#"
         />
       </SectionContainer>
-      {/* <!-- END PRODUCT SLIDER SECTION --> */}
+      {/* <!-- END NEW PRODUCT SLIDER SECTION --> */}
 
       {/* <!-- START LATEST VIEW SECTION --> */}
       <SectionContainer>
@@ -890,8 +910,8 @@ export default async function Home() {
 
       {/* <!-- START NEW PRODUCT SECTION --> */}
       <SectionContainer>
-        <LastProducts
-          lastProductLists={lastProductLists}
+        <BestSellingProducts
+          bestSellingProducts={bestSellingProducts}
           title={"پرفروش ترین محصولات"}
           href={"#"}
         />
@@ -902,8 +922,8 @@ export default async function Home() {
       <SectionContainer>
         <SliderProduct
           loop={true}
-          products={newProducts}
-          title="جدیدترین محصولات"
+          products={homeData.featuredProducts}
+          title="محصولات ویژه"
           href="#"
         />
       </SectionContainer>

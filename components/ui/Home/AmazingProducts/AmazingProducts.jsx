@@ -12,6 +12,7 @@ import "swiper/css/navigation";
 import ProductCard from "@/components/modules/ProductCard/ProductCard";
 import Image from "next/image";
 import Link from "next/link";
+import ProductCardTest from "@/components/modules/ProductCard/ProductCardTest";
 
 // اگر CSS/دکمه‌ها را با کلاس‌های سفارشی داری، این کلاس‌ها را همان نگه می‌داریم:
 const prevBtnClass = ".swiper-button-prev-amazing";
@@ -22,22 +23,21 @@ export default function AmazingProductsSlider({ products }) {
   const safeProducts = useMemo(() => products ?? [], [products]);
 
   const limitedProducts = useMemo(() => {
-    return (products ?? []).slice(0, 11);
-  }, [products]);
+    const now = Date.now();
 
-  const sliderItems = [
-    ...limitedProducts,
-    {
-      id: "show-all",
-      type: "show-all",
-    },
-  ];
+    return (products ?? [])
+      .filter((product) => {
+        const endTime = new Date(product.dealEndsAt).getTime();
+        return !Number.isNaN(endTime) && endTime > now;
+      })
+      .slice(0, 11);
+  }, [products]);
 
   return (
     <>
       <h2 className="sr-only">محصولات شگفت انگیز فروشگاه</h2>
 
-      <div className="bg-brand-gradient dark:bg-[#20242b] pt-4 rounded-xl transition-colors">
+      <div className="bg-brand-gradient dark:bg-[#20242b] py-3 rounded-xl transition-colors">
         {/* Product Swiper */}
 
         <div className="overflow-hidden xl:pb-0 pb-3">
@@ -56,13 +56,30 @@ export default function AmazingProductsSlider({ products }) {
           </div>
           <Swiper
             modules={[Navigation]}
-            slidesPerView="auto"
-            spaceBetween={6}
+            slidesPerView={1}
+            // spaceBetween={10}
             loop={false}
             watchOverflow
             navigation={{
               prevEl: prevBtnClass,
               nextEl: nextBtnClass,
+            }}
+            breakpoints={{
+              640: {
+                slidesPerView: 2,
+              },
+              768: {
+                slidesPerView: 3,
+              },
+              992: {
+                slidesPerView: 4,
+              },
+              1160: {
+                slidesPerView: 5,
+              },
+              1280: {
+                slidesPerView: 6,
+              },
             }}
             className="amazing-swiper"
           >
@@ -91,22 +108,11 @@ export default function AmazingProductsSlider({ products }) {
             </SwiperSlide>
 
             {/* PRODUCTS */}
-            {sliderItems.map((p) => (
-              <SwiperSlide key={p.id} className="w-55!">
-                {p.type === "show-all" ? (
-                  <Link
-                    href="/incredible-offers"
-                    className="bg-white dark:bg-zinc-900 rounded-e min-h-73 flex flex-col items-center justify-center gap-4"
-                  >
-                    <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
-                      <i className="fas fa-arrow-left-long"></i>
-                    </div>
-
-                    <span className="font-bold">مشاهده همه</span>
-                  </Link>
-                ) : (
-                  <ProductCard product={p} />
-                )}
+            {limitedProducts.map((p) => (
+              <SwiperSlide key={p.id}>
+                <div className="mx-1">
+                  <ProductCardTest product={p} />
+                </div>
               </SwiperSlide>
             ))}
           </Swiper>

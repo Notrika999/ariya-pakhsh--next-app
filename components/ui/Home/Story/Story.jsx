@@ -17,75 +17,33 @@ export default function Story({ stories }) {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [videoCurrentTime, setVideoCurrentTime] = useState(0);
   const [seen, setSeen] = useState(new Set());
   const [selectedProduct, setSelectedProduct] = useState(null);
+
   const timerRef = useRef(null);
   const startTs = useRef(0);
   const touchStartX = useRef(0);
   const videoRef = useRef(null);
 
-  // باز کردن استوری از روی آیتم
+  const current = stories[index];
+  const isVideo = current?.type === "video";
+  const duration = current?.duration ?? 5000;
+
+   // باز کردن استوری از روی آیتم
   const openStory = (idx) => {
     setIndex(idx);
     setOpen(true);
     setProgress(0);
+    setVideoCurrentTime(0);
   };
 
-  const current = stories[index];
-  const duration = current?.duration ?? 0;
-
-  // تایمر و پیشرفت هر استوری
-  useEffect(() => {
-    if (!open) return;
-
-    setProgress(0);
-    startTs.current = performance.now();
-
-    let rafId = null;
-    const step = () => {
-      if (!open) return;
-      if (duration > 0) {
-        const elapsed = performance.now() - startTs.current;
-        const p = Math.min(1, elapsed / duration);
-        setProgress(p);
-        if (p >= 1) {
-          // استوری فعلی دیده شد
-          setSeen((prev) => {
-            const s = new Set(prev);
-            s.add(index);
-            return s;
-          });
-          // برو به استوری بعدی با دور زدن (wrap)
-          const next = (index + 1) % stories.length;
-          setIndex(next);
-          return; // توقف تا استوری بعدی با رندر جدید آغاز شود
-        } else {
-          RafLoop();
-        }
-      }
-    };
-
-    const RafLoop = () => {
-      rafId = requestAnimationFrame(step);
-      timerRef.current = rafId;
-    };
-
-    RafLoop();
-    return () => cancelAnimationFrame(rafId);
-  }, [open, index]);
-
-  // به کار افتادن دوباره تایمر وقتی index یا open تغییر می‌کند
-  useEffect(() => {
-    if (!open) return;
-    setProgress(0);
-    startTs.current = performance.now();
-  }, [index, open]);
-
-  // ناوبري با دکمه‌ها
+    // ناوبري با دکمه‌ها
   const goPrev = () => {
-    const prev = (index - 1 + stories.length) % stories.length;
+      const prev = (index - 1 + stories.length) % stories.length;
     setIndex(prev);
     setProgress(0);
+    setVideoCurrentTime(0);
   };
   const goNext = () => {
     const next = (index + 1) % stories.length;
@@ -95,7 +53,41 @@ export default function Story({ stories }) {
 
   const close = () => {
     setOpen(false);
+    setProgress(0);
   };
+
+  // تایمر و پیشرفت هر استوری
+   // تایمر برای تصاویر (در صورتی که ویدیو نباشد)
+  useEffect(() => {
+    if (!open || isVideo) return;
+
+    setProgress(0);
+    startTs.current = performance.now();
+
+    let rafId = null;
+    const step = () => {
+      const elapsed = performance.now() - startTs.current;
+      const p = Math.min(1, elapsed / duration);
+      setProgress(p);
+
+      if (p >= 1) {
+        setSeen((prev) => new Set(prev).add(index));
+        goNext();
+      } else {
+        rafId = requestAnimationFrame(step);
+      }
+    };
+
+    rafId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(rafId);
+  }, [open, index, isVideo]);
+
+  // به کار افتادن دوباره تایمر وقتی index یا open تغییر می‌کند
+  useEffect(() => {
+    if (!open) return;
+    setProgress(0);
+    startTs.current = performance.now();
+  }, [index, open]);
 
   // swipe با تاچ
   const onTouchStart = (e) => {
@@ -134,7 +126,7 @@ export default function Story({ stories }) {
             <SwiperSlide className={storyStyle.storySlide} key={idx}>
               <StoryItem
                 image={story.avatar}
-                title={story.user}
+                title={story.title}
                 onOpen={() => openStory(idx)}
                 index={idx}
                 viewed={seen.has(idx)}
@@ -217,7 +209,7 @@ export default function Story({ stories }) {
               </div>
 
               {/* TOP INFO */}
-              <div className={storyStyle.topOverlay}>
+              {/* <div className={storyStyle.topOverlay}>
                 <div className={storyStyle.storyUser}>
                   <Image
                     src={current.avatar}
@@ -232,25 +224,12 @@ export default function Story({ stories }) {
                     <p>{current.user}</p>
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* CENTER TEXT */}
               <div className={storyStyle.centerCaption}>
                 <h2>{current.title}</h2>
                 <p>{current.description}</p>
-              </div>
-
-              {/* ACTIONS */}
-              <div className={storyStyle.actions}>
-                <button>
-                  <i className="far fa-heart"></i>
-                  <span>{current.likes}</span>
-                </button>
-
-                <button>
-                  <i className="far fa-comment"></i>
-                  <span>{current.comments}</span>
-                </button>
               </div>
 
               {/* VIDEO TIME */}
@@ -264,9 +243,10 @@ export default function Story({ stories }) {
               {/* PRODUCT CARD */}
               {current.product && (
                 <button
-    type="button"
-    onClick={() => setSelectedProduct(current.product)}
-    className={storyStyle.productCard}>
+                  type="button"
+                  onClick={() => setSelectedProduct(current.product)}
+                  className={storyStyle.productCard}
+                >
                   <div className={storyStyle.productInfo}>
                     <h4>{current.product.title}</h4>
                     <span>{current.product.price}</span>
@@ -287,76 +267,69 @@ export default function Story({ stories }) {
       )}
 
       {selectedProduct && (
-  <div
-    className={storyStyle.productModalOverlay}
-    onClick={() => setSelectedProduct(null)}
-  >
-    <div
-      className={storyStyle.productModal}
-      onClick={(e) => e.stopPropagation()}
-    >
-      {/* HEADER */}
-      <div className={storyStyle.modalHeader}>
-        <button
+        <div
+          className={storyStyle.productModalOverlay}
           onClick={() => setSelectedProduct(null)}
-          className={storyStyle.modalClose}
         >
-          ×
-        </button>
-      </div>
+          <div
+            className={storyStyle.productModal}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* HEADER */}
+            <div className={storyStyle.modalHeader}>
+              <button
+                onClick={() => setSelectedProduct(null)}
+                className={storyStyle.modalClose}
+              >
+                ×
+              </button>
+            </div>
 
-      {/* IMAGE */}
-      <div className={storyStyle.modalImageWrapper}>
-        <Image
-          src={selectedProduct.image}
-          alt={selectedProduct.title}
-          width={320}
-          height={320}
-          className={storyStyle.modalImage}
-        />
-      </div>
+            {/* IMAGE */}
+            <div className={storyStyle.modalImageWrapper}>
+              <Image
+                src={selectedProduct.image}
+                alt={selectedProduct.title}
+                width={320}
+                height={320}
+                className={storyStyle.modalImage}
+              />
+            </div>
 
-      {/* CONTENT */}
-      <div className={storyStyle.modalContent}>
-        <h3>{selectedProduct.title}</h3>
+            {/* CONTENT */}
+            <div className={storyStyle.modalContent}>
+              <h3>{selectedProduct.title}</h3>
 
-        <div className={storyStyle.modalMeta}>
-          <span>⭐ 4.5</span>
-          <span>(۴۵ خریدار)</span>
-        </div>
+              <div className={storyStyle.modalMeta}>
+                <span>⭐ 4.5</span>
+                <span>(۴۵ خریدار)</span>
+              </div>
 
-        <div className={storyStyle.modalColor}>
-          <span className={storyStyle.colorDot}></span>
-          رنگ: خاکستری
-        </div>
+              <div className={storyStyle.modalColor}>
+                <span className={storyStyle.colorDot}></span>
+                رنگ: خاکستری
+              </div>
 
-        <Link
-          href="/product"
-          className={storyStyle.moreBtn}
-        >
-          مشاهده اطلاعات کامل محصول
-        </Link>
-      </div>
+              <Link href="/product" className={storyStyle.moreBtn}>
+                مشاهده اطلاعات کامل محصول
+              </Link>
+            </div>
 
-      {/* FOOTER */}
-      <div className={storyStyle.modalFooter}>
-        <div>
-          <span className={storyStyle.oldPrice}>
-            ۱۶,۹۰۰,۰۰۰
-          </span>
+            {/* FOOTER */}
+            <div className={storyStyle.modalFooter}>
+              <div>
+                <span className={storyStyle.oldPrice}>۱۶,۹۰۰,۰۰۰</span>
 
-          <div className={storyStyle.price}>
-            {selectedProduct.price}
+                <div className={storyStyle.price}>{selectedProduct.price}</div>
+              </div>
+
+              <button className={storyStyle.addToCartBtn}>
+                افزودن به سبد خرید
+              </button>
+            </div>
           </div>
         </div>
-
-        <button className={storyStyle.addToCartBtn}>
-          افزودن به سبد خرید
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      )}
     </>
     // <!-- END STORY SECTION -->
   );
