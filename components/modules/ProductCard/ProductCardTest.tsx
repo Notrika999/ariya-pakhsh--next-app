@@ -1,15 +1,16 @@
+// components/amazing-deals/ProductCard.tsx
+
 "use client";
 
-// components/amazing-deals/ProductCard.tsx
 import Image from "next/image";
 import { useState, useCallback } from "react";
-import { Product } from "@/src/lib/types/productTypes";
+import { ProductCardModel } from "@/src/lib/types/productTypes";
 import { formatPrice } from "@/lib/mock-data";
 import CountdownTimer from "../CountdownTimer/CountdownTimer";
 import Link from "next/link";
 
 interface ProductCardProps {
-  product: Product;
+  product: ProductCardModel;
 }
 
 function StarRating({ rating, count }: { rating: number; count: number }) {
@@ -53,18 +54,30 @@ export default function ProductCardTest({ product }: ProductCardProps) {
     setTimeout(() => setAddedToCart(false), 2000);
   }, []);
 
-  const review = product?.review ?? { rating: 0, count: 0 };
-  const image = product.image?.trim();
-  const imageSrc = image
-    ? image.startsWith("http")
-      ? image
-      : `https://aryapakhsh.shop/${image.replace(/^\/+/, "")}`
-    : undefined;
+  const review = {
+    rating: product.rating,
+    count: product.reviewCount,
+  };
+
+  // const image = product.image?.trim();
+
+  // let imageSrc = "/images/default.png";
+
+  // if (image) {
+  //   if (image.startsWith("http")) {
+  //     imageSrc = image;
+  //   } else if (image.startsWith("/images/")) {
+  //     imageSrc = image;
+  //   } else {
+  //     imageSrc = `https://aryapakhsh.shop/${image.replace(/^\/+/, "")}`;
+  //   }
+  // }
+
   const original = Number(product.originalPrice ?? 0);
   const discounted = Number(product.discountedPrice ?? 0);
 
   const savings = original - discounted;
-
+  console.log(product.title, product.image);
   return (
     <article
       className={`group relative bg-white rounded-2xl overflow-hidden border transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
@@ -123,33 +136,23 @@ export default function ProductCardTest({ product }: ProductCardProps) {
 
       {/* Image */}
       <div className="relative w-full h-48 bg-gradient-to-br from-stone-50 to-stone-100 overflow-hidden">
-        {imageSrc ? (
-          <Image
-            src={imageSrc}
-            alt={product.title}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <Image
-            src="/images/default.png"
-            alt="تصویر پیش‌فرض محصول"
-            fill
-            className="object-cover"
-          />
-        )}
+        <Image
+          src={product.image}
+          alt={product.title}
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+        />
       </div>
 
       {/* Content */}
       <div className="p-4 flex flex-col gap-3">
         {/* Name */}
         <Link
-          href={`/product/${product.id}`}
+          href={product.href}
           className="text-sm font-bold text-stone-800 leading-relaxed line-clamp-2 min-h-10"
         >
           <span
-            title={product.title ?? product.name}
+            title={product.title}
             className="text-sm font-medium text-gray-900 dark:text-gray-200 text-s block"
           >
             {product.title}
@@ -177,14 +180,14 @@ export default function ProductCardTest({ product }: ProductCardProps) {
         <div className="flex flex-col gap-1 pt-1 border-t border-stone-100">
           <div className="flex items-center gap-2">
             {product.oldPrice !== product.price && (
-              <span className="text-[10px] text-stone-400 line-through">
-                {formatPrice(product.oldPrice)} تومان
+              <span className="text-[10px] font-bold text-stone-400 line-through text-nowrap">
+                {formatPrice(product?.oldPrice)}
               </span>
             )}
 
-            <span className=" font-black text-stone-900 tracking-tight">
+            <span className=" font-black text-stone-900 tracking-tight text-lg text-nowrap text-left inline-block mr-auto">
               {formatPrice(product.price)}
-              <span className="text-xs font-normal text-stone-500 mr-1">
+              <span className="inline-block text-[11px] font-bold -rotate-90 text-stone-500 border-b   dark:text-zinc-300">
                 تومان
               </span>
             </span>
@@ -195,9 +198,9 @@ export default function ProductCardTest({ product }: ProductCardProps) {
         <div className="flex">
           <button
             onClick={handleCart}
-            disabled={expired}
+            disabled={!product.inStock}
             className={`w-full  py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
-              expired
+              expired && !product.inStock
                 ? "bg-stone-100 text-stone-400 cursor-not-allowed"
                 : addedToCart
                   ? "bg-emerald-500 text-white scale-95"
@@ -212,7 +215,7 @@ export default function ProductCardTest({ product }: ProductCardProps) {
           </button>
 
           <Link
-            href={`/product/${product.id}`}
+            href={product.href}
             className="w-full py-2 rounded-xl text-sm text-center font-bold transition-all duration-200 bg-primary-500 hover:bg-primary-400 text-white scale-95"
           >
             جزییات

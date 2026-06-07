@@ -4,44 +4,77 @@ import ProductCard from "@/components/modules/ProductCard/ProductCard";
 import FilterResponsive from "../Categories/FilterResponsive/FilterResponsive";
 import Filter from "../Categories/Filter/Filter";
 import SortList from "@/components/modules/sortOptions/sortOptions";
+import ProductCardTest from "@/components/modules/ProductCard/ProductCardTest";
+import ProductCardSkeleton from "@/components/modules/ProductCard/ProductCardSkeleton";
+import { normalizeProduct } from "@/src/lib/mappers/product.mapper";
+
+// interface Props {
+//   filters: any;
+//   setFilters: (f: any) => void;
+//   minLimit: number;
+//   maxLimit: number;
+//   products: any[]; // اینجا لیست محصولاتت رو بفرست
+// }
 
 interface Props {
   filters: any;
-  setFilters: (f: any) => void;
+
+  pagination: {
+    page: number;
+    totalPages: number;
+    totalCount: number;
+  };
+
+  filterOptions: any;
+
   minLimit: number;
   maxLimit: number;
-  products: any[]; // اینجا لیست محصولاتت رو بفرست
+
+  products: any[];
+
+  isLoading?: boolean;
 }
 
+const SKELETON_COUNT = 8;
 
 export default function ProductListSection({
   filters,
-  setFilters,
+  // setFilters,
   minLimit,
   maxLimit,
   products,
+  filterOptions,
+  isLoading = false,
 }: Props) {
 
-   // تابعی برای تغییر فقط سورت
+  // تابعی برای تغییر فقط سورت
   const handleSortChange = (newSort: string) => {
-    setFilters({ ...filters, sort: newSort });
+    console.log(newSort);
   };
+
   return (
     <>
-      <FilterResponsive
+      {/* <FilterResponsive
         filters={filters}
         setFilters={setFilters}
         minLimit={minLimit}
         maxLimit={maxLimit}
-      />
+      /> */}
 
       <div className="grid grid-cols-12 gap-5 mt-6">
         {/* Sidebar */}
         <aside className="lg:col-span-3 hidden lg:block">
           <div className="sticky top-6">
-            <Filter
+            {/* <Filter
               filters={filters}
               setFilters={setFilters}
+              minLimit={minLimit}
+              maxLimit={maxLimit}
+            /> */}
+
+            <Filter
+              filters={filters}
+              availableBrands={filterOptions.brands}
               minLimit={minLimit}
               maxLimit={maxLimit}
             />
@@ -58,20 +91,38 @@ export default function ProductListSection({
                 مرتب سازی:
               </span>
             </div>
-            
-            <SortList currentSort={filters.sort} 
-              onSortChange={handleSortChange}  />
+
+            <SortList
+              currentSort={filters.sort}
+              onSortChange={handleSortChange}
+            />
           </div>
 
           <div className="grid grid-cols-12 gap-4 mt-4">
-            {products.map((product) => (
-              <div
-                key={product.id}
-                className="xl:col-span-3 md:col-span-4 sm:col-span-6 col-span-12"
-              >
-                <ProductCard product={product} />
-              </div>
-            ))}
+             {isLoading
+              ? // حالت لودینگ — skeleton ها
+                Array.from({ length: SKELETON_COUNT }, (_, i) => (
+                  <div
+                    key={`skeleton-${i}`}
+                    className="xl:col-span-3 md:col-span-4 sm:col-span-6 col-span-12"
+                  >
+                    <ProductCardSkeleton />
+                  </div>
+                ))
+              : products.length === 0
+                ? // حالت خالی
+                  <div className="col-span-12 text-center py-16 text-gray-400">
+                    <p className="text-lg">محصولی یافت نشد</p>
+                  </div>
+                : // حالت عادی
+                  products.map((product) => (
+                    <div
+                      key={product.productId}
+                      className="xl:col-span-3 md:col-span-4 sm:col-span-6 col-span-12"
+                    >
+                      <ProductCardTest product={normalizeProduct(product)} />
+                    </div>
+                  ))}
           </div>
         </section>
       </div>

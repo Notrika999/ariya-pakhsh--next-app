@@ -7,6 +7,7 @@ import ProductCard from "@/components/modules/ProductCard/ProductCard";
 import "swiper/css";
 import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
 import ProductCardTest from "../ProductCard/ProductCardTest";
+import { normalizeProduct } from "@/src/lib/mappers/product.mapper";
 
 export default function SliderProduct({ loop, products, title, href }) {
   return (
@@ -36,7 +37,7 @@ export default function SliderProduct({ loop, products, title, href }) {
           {products.map((product) => (
             <SwiperSlide key={product.id}>
               {/* <ProductCard product={product} /> */}
-              <ProductCardTest product={product} />
+              <ProductCardTest product={normalizeProduct(product)} />
             </SwiperSlide>
           ))}
         </Swiper>

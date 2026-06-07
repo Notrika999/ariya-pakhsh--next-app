@@ -4,8 +4,8 @@ import React, { useState } from "react";
 
 type Brand = {
   id: string | number;
-  nameFa: string;
-  nameEn: string;
+  brandId: string;
+  name: string;
 };
 
 type Props = {
@@ -21,11 +21,13 @@ export default function FilterBrand({
 }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  // فیلتر کردن برندها بر اساس جستجو (فارسی یا انگلیسی)
-  const filteredBrands = brands.filter(
+  const safeBrands = brands ?? [];
+  const safeSelected = selectedBrands ?? [];
+
+  const filteredBrands = safeBrands.filter(
     (brand) =>
-      brand.nameFa.includes(searchTerm) ||
-      brand.nameEn.toLowerCase().includes(searchTerm.toLowerCase()),
+      (brand.name ?? "").includes(searchTerm) ||
+      (brand.name ?? "").toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -48,52 +50,28 @@ export default function FilterBrand({
       {/* لیست برندها با قابلیت اسکرول اگر تعداد زیاد بود */}
       <div className="space-y-3 max-h-60 overflow-y-auto custom-scrollbar">
         {filteredBrands.length > 0 ? (
-          filteredBrands.map((brand) => (
-            <div key={brand.id} className="flex items-center w-full">
-              <label className="inline-flex items-center w-full cursor-pointer group">
+          <div className="flex items-center">
+            {filteredBrands.map((brand) => (
+              <label
+                key={brand.brandId}
+                className="inline-flex items-center w-full cursor-pointer group"
+              >
                 <input
                   type="checkbox"
                   className="hidden peer"
-                  checked={selectedBrands.includes(brand.id)}
-                  onChange={() => onToggle(brand.id)}
+                  checked={safeSelected.includes(brand.brandId)}
+                  onChange={() => onToggle(brand.brandId)}
                 />
 
-                {/* Checkbox UI */}
-                <div className="w-5 h-5 border rounded bg-white border-gray-300 peer-checked:bg-cyan-500 peer-checked:border-cyan-500 flex items-center justify-center transition-all shadow-sm group-hover:border-cyan-400">
-                  <svg
-                    className={`w-3.5 h-3.5 text-white transition-opacity ${
-                      selectedBrands.includes(brand.id)
-                        ? "opacity-100"
-                        : "opacity-0"
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-
-                {/* Brand Name */}
-                <div className="flex justify-between items-center w-full ms-3">
-                  <span className="text-gray-700 dark:text-gray-200 text-sm font-medium">
-                    {brand.nameFa}
-                  </span>
-                  <span className="text-gray-400 text-xs uppercase font-light">
-                    {brand.nameEn}
-                  </span>
-                </div>
+                <span className="text-gray-700 dark:text-gray-200 text-sm font-medium">
+                  {brand.name}
+                </span>
               </label>
-            </div>
-          ))
+            ))}
+          </div>
         ) : (
           <p className="text-center text-xs text-gray-400 py-2">
-            برندی یافت نشد.
+            برندی یافت نشد
           </p>
         )}
       </div>

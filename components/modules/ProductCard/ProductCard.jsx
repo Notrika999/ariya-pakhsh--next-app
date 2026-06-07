@@ -79,6 +79,7 @@ export default function ProductCard({ product }) {
             {done && <span className="text-red-500 ms-2 text-xs">پایان</span>}
           </div>
         </div>
+        
       )} */}
 
       {/* Thumbnail */}
@@ -86,7 +87,10 @@ export default function ProductCard({ product }) {
         <Image
           width={160}
           height={160}
-          src={product.image ?? "/images/default.png"}
+          src={
+            `https://aryapakhsh.shop/${product.thumbnailPath}` ??
+            `https://aryapakhsh.shop/${product.mediumPath} ?? "/images/default.png"`
+          }
           alt={product.title}
           loading="lazy"
           className="block h-40 object-contain transition-transform duration-300 group-hover:scale-105"
@@ -101,8 +105,8 @@ export default function ProductCard({ product }) {
       {/* Product Body */}
       <div className="mt-3">
         <h3 className="font-normal text-sm leading-6 max-h-12 min-h-12 mt-2 px-1 overflow-hidden group-hover:text-primary-600 dark:group-hover:text-primary-400 dark:text-gray-200 text-gray-900 transition-colors duration-200">
-          <Link href={product.href} className="font-bold">
-            {product.title}
+          <Link href={`/product/${product.productId}`} className="font-bold">
+            {product.name}
           </Link>
         </h3>
       </div>
@@ -111,13 +115,14 @@ export default function ProductCard({ product }) {
       <div className="mt-2 flex justify-between items-end">
         <div className="flex flex-row items-end mt-2">
           <span className="font-bold flex items-center text-xs text-gray-900 dark:text-gray-200 ms-1 mb-1">
+            {/* امتیاز نداره */}
             {product.rating}
             <span className="text-amber-400 text-xs ms-1">★</span>
           </span>
         </div>
         <div className="flex flex-col justify-end min-h-10 h-10">
           <span className="text-xs text-gray-400 dark:text-gray-500 line-through tracking-wider text-left">
-            {product.oldPrice}
+            {product.compareAtPrice}
           </span>
           <span className="font-bold text-sm text-gray-900 dark:text-gray-200 tracking-wider text-left">
             {product.price}

@@ -1,4 +1,10 @@
-import React from "react";
+// components/ui/Categories/Filter/Filter.tsx
+import React, { useCallback, useRef } from "react";
+import {
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 
 import FilterColor from "./FilterColor";
 import PriceRangeFilter from "./PriceRangeFilter";
@@ -6,62 +12,100 @@ import FilterBrand from "./FilterBrand";
 
 type Props = {
   filters: any;
-  setFilters: React.Dispatch<React.SetStateAction<any>>;
-  // availableBrands: any[];
+  // setFilters: React.Dispatch<React.SetStateAction<any>>;
+  availableBrands: any[];
   minLimit: number;
   maxLimit: number;
 };
 
 export default function Filter({
   filters,
-  setFilters,
-  // availableBrands,
+  // setFilters,
+  availableBrands,
   minLimit,
   maxLimit,
 }: Props) {
-  const handleToggleBrand = (id: string | number) => {
-    setFilters((prev) => ({
-      ...prev,
-      brands: prev.brands.includes(id)
-        ? prev.brands.filter((item) => item !== id)
-        : [...prev.brands, id],
-    }));
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  
+// const handleToggleBrand = (
+//   id: string
+// ) => {
+//   const params =
+//     new URLSearchParams(
+//       searchParams.toString()
+//     );
+
+//   const current =
+//     params.getAll("brandId");
+
+//   if (current.includes(id)) {
+//     const next = current.filter(
+//       (x) => x !== id
+//     );
+
+//     params.delete("brandId");
+
+//     next.forEach((value) =>
+//       params.append(
+//         "brandId",
+//         value
+//       )
+//     );
+//   } else {
+//     params.append("brandId", id);
+//   }
+
+//   params.set("page", "1");
+
+//   router.push(
+//     `${pathname}?${params.toString()}`
+//   );
+// };
+
+const handleSearchChange = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set("search", value);
+    params.set("page", "1");
+
+  router.replace(`${pathname}?${params.toString()}`, {
+  scroll: false,
+});
   };
-  console.log(minLimit);
+
+  const priceDebounce = useRef<ReturnType<typeof setTimeout> | null>(null);
+const handlePriceChange = useCallback((range: { min: number; max: number }) => {
+  if (priceDebounce.current) clearTimeout(priceDebounce.current);
+  priceDebounce.current = setTimeout(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("minPrice", String(range.min));
+    params.set("maxPrice", String(range.max));
+    params.set("page", "1");
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, 400);
+}, [searchParams, pathname, router]);
+
 
   return (
     <section className="space-y-5 sticky top-0">
-      {/* <!-- Search --> */}
+       {/* Search */}
       <section>
-        <div className="dark:bg-custom-dark dark:border-gray-700 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border p-4">
-          <h2 className="font-bold text-base mb-4 relative pb-4 before:absolute before:inset-s-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:inset-s-4 after:bg-primary after:rounded-lg">
-            جستجوی محصولات
-          </h2>
-          <div className="relative flex items-center w-full">
-            <input
-              type="text"
-              value={filters.search}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  search: e.target.value,
-                }))
-              }
-              className="w-full appearance-none rounded-xl border border-gray-300 dark:border-gray-700 py-3 ps-4 pe-10 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-custom-dark text-gray-900 dark:text-gray-100 transition-colors duration-300"
-              placeholder="جستجوی محصولات ...."
-            />
-
-            <button className="p-2 rounded-3xl absolute inset-e-1 hover:opacity-90 transition-opacity">
-              <i className="fa fa-search"></i>
-            </button>
-          </div>
+        <div className="dark:bg-custom-dark bg-white rounded-lg border p-4">
+          <input
+            type="text"
+            value={filters.search}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            placeholder="جستجوی محصولات ...."
+          />
         </div>
       </section>
 
       {/* <!-- Color --> */}
       <FilterColor />
 
-      {/* <!-- Range --> */}
+      {/* Price */}
       <PriceRangeFilter
         min={minLimit}
         max={maxLimit}
@@ -69,21 +113,32 @@ export default function Filter({
           min: filters.minPrice,
           max: filters.maxPrice,
         }}
-        onChange={(range) =>
-          setFilters((prev) => ({
-            ...prev,
-            minPrice: range.min,
-            maxPrice: range.max,
-          }))
-        }
+        onChange={handlePriceChange}
       />
 
-      {/* <!-- Brand --> */}
-      {/* <FilterBrand
+       {/* Brand */}
+      <FilterBrand
         brands={availableBrands}
         selectedBrands={filters.brands}
-        onToggle={handleToggleBrand}
-      /> */}
+        onToggle={(id) => {
+          const params = new URLSearchParams(searchParams.toString());
+
+          const current = params.getAll("brandId");
+
+          if (current.includes(id)) {
+            const next = current.filter((x) => x !== id);
+
+            params.delete("brandId");
+            next.forEach((v) => params.append("brandId", v));
+          } else {
+            params.append("brandId", id);
+          }
+
+          params.set("page", "1");
+
+          router.push(`${pathname}?${params.toString()}`);
+        }}
+      />
     </section>
   );
 }

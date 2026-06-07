@@ -328,24 +328,32 @@ html {
 
 /* Filter Categoray */
 .range-thumb {
-  @apply absolute w-full appearance-none pointer-events-none bg-transparent h-5; /* Increased height for better interaction */
-}
-
-/* Base styles for the thumb (common to both Webkit and Mozilla) */
-.range-thumb::-webkit-slider-thumb,
-.range-thumb::-moz-range-thumb {
-  @apply appearance-none size-5 rounded-full bg-blue-500 cursor-pointer pointer-events-auto shadow-md; /* Changed to blue-500 and added shadow */
+  /* @apply absolute w-full appearance-none pointer-events-none bg-transparent h-5; Increased height for better interaction */
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
 }
 
 /* Specific adjustments for Webkit (Chrome, Safari) */
 .range-thumb::-webkit-slider-thumb {
-  /* Add any webkit-specific styles here if needed */
+ -webkit-appearance: none;
+  appearance: none;
+  pointer-events: all;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  background: transparent;
 }
 
 /* Specific adjustments for Mozilla (Firefox) */
 .range-thumb::-moz-range-thumb {
-  /* Add any moz-specific styles here if needed */
-  border: none; /* Firefox requires border: none to remove default border */
+  pointer-events: all;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
 }
 
 .hide-scrollbar::-webkit-scrollbar {

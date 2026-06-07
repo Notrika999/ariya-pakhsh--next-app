@@ -11,10 +11,21 @@ import {
 
 import type { Category as CategoryType } from "@/src/lib/types/categories/category";
 import { Metadata } from "next";
+import { getProductList } from "@/src/services/product/product.service";
 
 type Props = {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ categoryId?: string }>;
+  params: Promise<{
+    slug: string;
+  }>;
+
+  searchParams: Promise<{
+    page?: string;
+    brandId?: string | string[];
+    minPrice?: string;
+    maxPrice?: string;
+    sort?: string;
+    inStock?: string;
+  }>;
 };
 
 export async function generateMetadata({
@@ -66,7 +77,15 @@ export async function generateMetadata({
 
 async function CategorayPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const { categoryId } = await searchParams;
+
+  const {
+    page = "1",
+    brandId,
+    minPrice,
+    maxPrice,
+    sort,
+    inStock,
+  } = await searchParams;
 
   // const category = await getCategoryBySlug(slug);
 
@@ -91,8 +110,36 @@ async function CategorayPage({ params, searchParams }: Props) {
 
   const breadcrumb = breadcrumbRaw ?? [];
 
+  const productLists = await getProductList({
+    CategoryId: category.id,
+
+    Page: Number(page),
+
+    BrandId: Array.isArray(brandId) ? brandId[0] : brandId,
+
+    MinPrice: minPrice ? Number(minPrice) : undefined,
+
+    MaxPrice: maxPrice ? Number(maxPrice) : undefined,
+
+    Sort: sort,
+
+    InStock: inStock === "true" ? true : undefined,
+  });
+
+  console.log("Category Product List = > ", productLists);
+
   return (
-    <CategoryProductListPage category={category} breadcrumb={breadcrumb} />
+    <CategoryProductListPage
+      category={category}
+      breadcrumb={breadcrumb}
+      products={productLists.items}
+      pagination={{
+        page: productLists.page,
+        totalPages: productLists.totalPages,
+        totalCount: productLists.totalCount,
+      }}
+      filterOptions={productLists.filterOptions}
+    />
   );
 }
 

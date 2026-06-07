@@ -4,7 +4,7 @@ import SectionTitle from "../SectionTitle/SectionTitle";
 
 export default function SectionHeader({ title, href }) {
   return (
-    <header className="flex flex-wrap mb-2 justify-between items-center">
+    <header className="flex flex-wrap  justify-between items-center">
       {/* <!-- title --> */}
       <SectionTitle title={title} />
 

@@ -1,10 +1,14 @@
 // src/services/product/product.service.ts
 
+import buildProductListParams from "@/src/lib/helper/buildProductListParams";
 import { apiClient } from "@/src/lib/http/client-http";
 import { mapProductIndex } from "@/src/lib/mappers/product.mapper";
+import { ApiResponse } from "@/src/lib/types/common/api-response.types";
 import {
   Product,
   ProductIndexApiResponse,
+  ProductListParams,
+  ProductListResponse,
   ProductResponse,
 } from "@/src/lib/types/productTypes";
 
@@ -44,6 +48,7 @@ function mergeProductGroups(groups: Product[][]): Product[] {
   return products;
 }
 
+// GET INDEX DATA
 export async function getProducts(
   params?: GetProductsParams,
 ): Promise<ProductResponse> {
@@ -71,4 +76,23 @@ export async function getProducts(
       productCount: b.productCount,
     })),
   };
+}
+
+// GET CATEGORAY PRODUCT lIST
+export async function getProductList(
+  params: ProductListParams,
+): Promise<ProductListResponse> {
+  const query = buildProductListParams(params);
+
+  const res = await apiClient.get<ApiResponse<ProductListResponse>>(
+    `/Products/list?${query.toString()}`
+  );
+
+  if (!res.data.success) {
+    throw new Error(res.data.message);
+  }
+
+  console.log("Get Product List", res)
+
+  return res.data.data;
 }

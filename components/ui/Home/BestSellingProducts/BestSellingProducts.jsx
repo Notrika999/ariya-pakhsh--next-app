@@ -72,10 +72,7 @@ export default function BestSellingProducts({
                   <figure className="w-2/6">
                     <div className="text-end flex justify-end">
                       <Image
-                        src={
-                          `https://aryapakhsh.shop${subProduct.image}` ??
-                          "/images/default.png"
-                        }
+                        src={subProduct.image}
                         className="size-20"
                         loading="lazy"
                         alt={subProduct.title}

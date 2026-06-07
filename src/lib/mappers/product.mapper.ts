@@ -1,14 +1,20 @@
-import { Product } from "@/src/lib/types/productTypes";
+import {
+  HomeProduct,
+  Product,
+  ProductCardModel,
+  ProductListItem,
+} from "@/src/lib/types/productTypes";
 import { ProductIndexData } from "@/src/lib/types/productTypes";
+import { getProductImage } from "@/src/utils/product-image";
 
 function toProduct(item: any): Product {
   return {
     id: item.productId,
     title: item.name,
-    image:
-      item.mediumPath ||
-      item.thumbnailPath ||
-      "/images/default.png",
+
+    image: getProductImage(
+      item.thumbnailPath ?? item.mediumPath,
+    ),
 
     imageSlider: [],
 
@@ -21,7 +27,9 @@ function toProduct(item: any): Product {
       item.compareAtPrice && item.price
         ? String(
             Math.round(
-              ((item.compareAtPrice - item.price) / item.compareAtPrice) * 100,
+              ((item.compareAtPrice - item.price) /
+                item.compareAtPrice) *
+                100,
             ),
           )
         : "0",
@@ -43,15 +51,86 @@ export function mapProductIndex(data: ProductIndexData) {
   const bestSellingProducts = data.bestSellingProducts.map(toProduct);
   const onSaleProducts = data.onSaleProducts.map(toProduct);
 
-  const merge = [...featuredProducts, ...newestProducts, ...bestSellingProducts];
+  const merge = [
+    ...featuredProducts,
+    ...newestProducts,
+    ...bestSellingProducts,
+  ];
 
   return {
     featuredProducts,
     newestProducts,
     bestSellingProducts,
     onSaleProducts,
-    products: Array.from(
-      new Map(merge.map((p) => [p.id, p])).values(),
-    ),
+    products: Array.from(new Map(merge.map((p) => [p.id, p])).values()),
+  };
+}
+
+export function normalizeProduct(
+  product: HomeProduct | Product,
+): ProductCardModel {
+  if ("productId" in product) {
+    const discountPercent =
+      product.compareAtPrice > product.price
+        ? Math.round(
+            ((product.compareAtPrice - product.price) /
+              product.compareAtPrice) *
+              100,
+          )
+        : 0;
+
+    return {
+      id: product.productId,
+      title: product.name,
+
+      image: getProductImage(product.thumbnailPath ?? product.mediumPath),
+      imageSlider: [],
+
+      brandId: "",
+
+      price: product.price,
+      oldPrice: product.compareAtPrice,
+
+      discount: String(discountPercent),
+      discountPercent,
+
+      rating: product.averageRating ?? 0,
+      reviewCount: product.reviewCount ?? 0,
+      count: product.reviewCount ?? 0,
+
+      colors: [],
+
+      href: `/product/${product.slug}`,
+
+      inStock: product.inStock,
+      offer: false,
+    };
+  }
+
+  return {
+    id: product.id,
+    title: product.title,
+
+    image: product.image,
+    imageSlider: product.imageSlider ?? [],
+
+    brandId: product.brandId ?? "",
+
+    price: product.price,
+    oldPrice: product.oldPrice,
+
+    discount: product.discount ?? "0",
+    discountPercent: Number(product.discount ?? 0),
+
+    rating: product.rating ?? 0,
+    reviewCount: product.count ?? 0,
+    count: product.count ?? 0,
+
+    colors: product.colors ?? [],
+
+    href: product.href,
+
+    inStock: true,
+    offer: product.offer ?? false,
   };
 }
