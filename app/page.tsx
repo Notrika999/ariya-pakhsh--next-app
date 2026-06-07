@@ -99,7 +99,7 @@ export default async function Home() {
   // stories, sliders, newProducts, productsLast, lastProductLists, lastBlogLits
   // همگی فیک
   const homeData = await getProducts();
-  console.log("Home GET API => ", homeData);
+
 
   const bestSellingProducts = mapToBestSellingProducts(
     homeData.bestSellingProducts,
@@ -936,9 +936,9 @@ export default async function Home() {
       {/* <!-- END BRAND SECTION --> */}
 
       {/* <!-- START BLOG SECTION --> */}
-      <SectionContainer>
+      {/* <SectionContainer>
         <LastBlogs lastBlogLits={lastBlogLits} />
-      </SectionContainer>
+      </SectionContainer> */}
       {/* <!-- END BLOG SECTION --> */}
     </main>
   );

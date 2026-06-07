@@ -8,7 +8,6 @@ export default function OffcanvasRight({ isOpen, onClose, menu }) {
   const [showBackdrop, setShowBackdrop] = useState(false);
   const [showPanel, setShowPanel] = useState(false);
 
-  console.log("Category api: ", menu);
   // هماهنگی با isOpen
   useEffect(() => {
     if (isOpen) {

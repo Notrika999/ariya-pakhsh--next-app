@@ -12,9 +12,7 @@ function toProduct(item: any): Product {
     id: item.productId,
     title: item.name,
 
-    image: getProductImage(
-      item.thumbnailPath ?? item.mediumPath,
-    ),
+    image: getProductImage(item.thumbnailPath ?? item.mediumPath),
 
     imageSlider: [],
 
@@ -27,9 +25,7 @@ function toProduct(item: any): Product {
       item.compareAtPrice && item.price
         ? String(
             Math.round(
-              ((item.compareAtPrice - item.price) /
-                item.compareAtPrice) *
-                100,
+              ((item.compareAtPrice - item.price) / item.compareAtPrice) * 100,
             ),
           )
         : "0",
@@ -70,15 +66,6 @@ export function normalizeProduct(
   product: HomeProduct | Product,
 ): ProductCardModel {
   if ("productId" in product) {
-    const discountPercent =
-      product.compareAtPrice > product.price
-        ? Math.round(
-            ((product.compareAtPrice - product.price) /
-              product.compareAtPrice) *
-              100,
-          )
-        : 0;
-
     return {
       id: product.productId,
       title: product.name,
@@ -89,10 +76,9 @@ export function normalizeProduct(
       brandId: "",
 
       price: product.price,
-      oldPrice: product.compareAtPrice,
+      oldPrice: product.compareAtPrice ?? product.price,
 
-      discount: String(discountPercent),
-      discountPercent,
+      discount: product?.discountPercent,
 
       rating: product.averageRating ?? 0,
       reviewCount: product.reviewCount ?? 0,

@@ -13,7 +13,7 @@ import { Category } from "@/src/lib/types/categories/category";
 import { truncateTitle } from "@/src/utils/truncateTitle";
 
 export default function CategoriesSlider({ categories }: Category) {
-  console.log("CategoriesSlider: ", categories);
+
   return (
     <Swiper
       modules={[FreeMode]}

@@ -20,13 +20,12 @@ export type ProductCategory =
 
 export type SortOption =
   | "default"
-  | "price_asc"
-  | "price_desc"
-  | "discount_desc"
-  | "rating_desc"
-  | "most_reviewed"
   | "newest"
-  | "best_selling";
+  | "priceAsc"
+  | "priceDesc"
+  | "bestSelling"
+  | "mostRated"
+  | "discountDesc";
 
 export interface ProductReview {
   rating: number; // 1-5

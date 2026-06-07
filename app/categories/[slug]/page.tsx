@@ -87,8 +87,6 @@ async function CategorayPage({ params, searchParams }: Props) {
     inStock,
   } = await searchParams;
 
-  // const category = await getCategoryBySlug(slug);
-
   let category: CategoryType;
 
   try {
@@ -121,7 +119,7 @@ async function CategorayPage({ params, searchParams }: Props) {
 
     MaxPrice: maxPrice ? Number(maxPrice) : undefined,
 
-    Sort: sort,
+     SortOrder: sort && sort !== "default" ? sort : undefined,
 
     InStock: inStock === "true" ? true : undefined,
   });

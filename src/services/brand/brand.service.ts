@@ -17,10 +17,7 @@ export async function getBrands(
     { params },
   );
   
-  console.log("brands params:", params);
-  console.log("brands raw response:", res);
-  console.log("brands res.data:", res.data);
-  console.log("brands res.data.data:", res.data?.data);
+  // console.log("brands raw response:", res);
   
   return res.data.data;
 }

@@ -4,8 +4,8 @@ import Filter from "../Filter/Filter";
 
 export default function FilterResponsive({
   filters,
-  setFilters,
-  // brands,
+  startTransition,
+  brands,
   minLimit,
   maxLimit,
 }) {
@@ -51,8 +51,8 @@ export default function FilterResponsive({
 
             <Filter
               filters={filters}
-              setFilters={setFilters}
-              // availableBrands={brands}
+              startTransition={startTransition}
+              availableBrands={brands}
               minLimit={minLimit}
               maxLimit={maxLimit}
             />

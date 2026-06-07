@@ -36,9 +36,7 @@ export interface PromotedParams {
 export async function getMegaMenu(): Promise<Category[]> {
   const res = await apiClient.get<MegaMenuResponse>("/Categories/mega-menu");
 
-  console.log("categories mega-menu raw response:", res);
-  console.log("categories mega-menu res.data:", res.data);
-  console.log("categories mega-menu res.data.data:", res.data?.data);
+  // console.log("categories mega-menu raw response:", res);
 
   return res.data.data.rootCategories;
 }
@@ -46,10 +44,7 @@ export async function getMegaMenu(): Promise<Category[]> {
 export async function getCategoryBySlug(slug: string): Promise<Category> {
   const res = await apiClient.get<ApiResponse<Category>>(`/Categories/${slug}`);
 
-  console.log("categories slug:", slug);
-  console.log("categories raw response:", res);
-  console.log("categories res.data:", res.data);
-  console.log("categories res.data.data:", res.data?.data);
+  // console.log("categories slug:", slug);
 
   return res.data.data;
 }
@@ -73,10 +68,8 @@ export async function getPromotedCategories(
       },
     },
   );
-  console.log("category promoted params:", params);
-  console.log("category promoted raw response:", res);
-  console.log("category promoted res.data:", res.data);
-  console.log("category promoted res.data.data:", res.data?.data);
+  
+  // console.log("category promoted raw response:", res);
   return res.data.data;
 }
 
@@ -102,7 +95,7 @@ export async function getCategoryBreadcrumb(
     },
   );
 
-  console.log(response);
+  // console.log(response);
 
   // اگر 404 بود → null برگردان
   if (response.status === 404) {

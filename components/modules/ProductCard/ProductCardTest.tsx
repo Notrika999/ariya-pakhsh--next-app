@@ -44,7 +44,7 @@ function StarRating({ rating, count }: { rating: number; count: number }) {
 }
 
 export default function ProductCardTest({ product }: ProductCardProps) {
-  console.log("Product Cart Test => ", product);
+
   const [wishlist, setWishlist] = useState(false);
   const [expired, setExpired] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
@@ -77,7 +77,7 @@ export default function ProductCardTest({ product }: ProductCardProps) {
   const discounted = Number(product.discountedPrice ?? 0);
 
   const savings = original - discounted;
-  console.log(product.title, product.image);
+ 
   return (
     <article
       className={`group relative bg-white rounded-2xl overflow-hidden border transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${

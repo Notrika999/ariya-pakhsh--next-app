@@ -143,14 +143,14 @@ export default function PriceRangeFilter({ min, max, value, onChange }: Props) {
 
           {/* thumb بصری برای ارزان‌ترین (سمت راست) */}
           <div
-            className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-2 border-blue-500 rounded-full pointer-events-none shadow"
-            style={{ left: `calc(${minPercentFromLeft}% - 8px)` }}
+            className="absolute top-1/1 -translate-y-1/2 w-4 h-4 bg-white border-2 border-blue-500 rounded-full pointer-events-none shadow"
+            style={{ left: `calc(${minPercentFromLeft}% - 10px)` }}
           />
 
           {/* thumb بصری برای گران‌ترین (سمت چپ) */}
           <div
-            className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-blue-500 rounded-full pointer-events-none shadow"
-            style={{ left: `calc(${maxPercentFromLeft}% - 8px)` }}
+            className="absolute top-1/1 -translate-y-1/2 w-4 h-4 bg-blue-500 rounded-full pointer-events-none shadow"
+            style={{ left: `calc(${maxPercentFromLeft}% - 6px)` }}
           />
         </div>
 

@@ -10,7 +10,6 @@ import { getBrands } from "@/src/services/brand/brand.service";
 import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
 
 export default function Brand({ brands, title, href }) {
-  console.log(brands);
   return (
     <>
       {/* <!-- for seo --> */}
