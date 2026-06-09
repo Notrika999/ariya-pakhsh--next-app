@@ -36,7 +36,6 @@ export default function SliderProduct({ loop, products, title, href }) {
         >
           {products.map((product) => (
             <SwiperSlide key={product.id}>
-              {/* <ProductCard product={product} /> */}
               <ProductCardTest product={normalizeProduct(product)} />
             </SwiperSlide>
           ))}

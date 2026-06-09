@@ -34,7 +34,7 @@ function toProduct(item: any): Product {
     count: item.reviewCount ?? 0,
 
     colors: [],
-    href: `/product/${item.slug}`,
+    href: `/product/${item.publicCode}/${item.slug}/${item.productId}`,
 
     offer: item.isOnSale,
     dealEndsAt: undefined,
@@ -86,7 +86,7 @@ export function normalizeProduct(
 
       colors: [],
 
-      href: `/product/${product.slug}`,
+      href: `/product/${product.publicCode}/${product.slug}/${product.productId}`,
 
       inStock: product.inStock,
       offer: false,

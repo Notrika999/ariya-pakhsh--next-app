@@ -61,18 +61,28 @@ export interface ProductListParams {
   CategoryId?: string;
   BrandId?: string;
 
+  CategorySlug?: string;
+  BrandSlug?: string;
+
   MinPrice?: number;
   MaxPrice?: number;
 
   InStock?: boolean;
   OnSaleOnly?: boolean;
 
-  AttributeFilters?: Record<string, string[]>;
+  AttributeFilters?: ProductAttributeFilter[];
 
   SortOrder?: SortOrder;
 
   Page?: number;
   PageSize?: number;
+}
+
+export interface ProductAttributeFilter {
+  attributeId: string;
+  optionIds?: string[];
+  value?: string;
+  boolValue?: boolean;
 }
 
 export interface ProductListItem {
@@ -83,8 +93,10 @@ export interface ProductListItem {
 
   price: number;
   compareAtPrice?: number;
+  salePrice?: number;
 
   isOnSale: boolean;
+  discountPercent?: number;
 
   currencyCode: string;
 
@@ -131,27 +143,6 @@ export interface HomeProduct {
   count: number;
   href: string;
   offer: boolean;
-}
-
-export interface ProductListItem {
-  productId: string;
-  name: string;
-  slug: string;
-  publicCode: string;
-  price: number;
-  compareAtPrice: number;
-  isOnSale: boolean;
-  currencyCode: string;
-  inStock: boolean;
-  availableQuantity: number;
-  thumbnailPath: string;
-  mediumPath: string;
-  soldCount: number;
-  averageRating: number;
-  reviewCount: number;
-  primaryBrandName: string;
-  primaryBrandSlug: string;
-  primaryCategoryName: string;
 }
 
 export interface ProductCardModel {

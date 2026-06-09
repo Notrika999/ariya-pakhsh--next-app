@@ -3,27 +3,35 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useTransition } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import DescriptionCategory from "./DescriptionCategory/DescriptionCategory";
 import CategoriesSlider from "@/components/modules/CategoriesSlider/CategoriesSlider";
 import SectionTitle from "@/components/modules/SectionTitle/SectionTitle";
 import Breadcrumb from "@/components/modules/Breadcrumb/Breadcrumb";
-import { Category } from "@/src/lib/types/categories/category";
-import { BreadcrumbData } from "@/src/lib/types/categories/breadcrumb";
 import ProductListSection from "../ProductListSection/ProductListSection";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 import Pagination from "@/components/modules/Pagination/Pagination";
+import type { Category as MenuCategory } from "@/src/lib/types/categories/menuType";
+import type { CategoryBreadcrumbItem } from "@/src/lib/types/categories/breadcrumb";
+import type {
+  ProductListItem,
+  ProductListResponse,
+} from "@/src/lib/types/productTypes";
+
+type BreadcrumbItem = CategoryBreadcrumbItem & {
+  link?: string;
+};
 
 interface Props {
-  category: Category;
-  breadcrumb: BreadcrumbData;
-  products: any[];
+  category: MenuCategory | null;
+  breadcrumb: BreadcrumbItem[];
+  products: ProductListItem[];
   pagination: {
     page: number;
     totalPages: number;
     totalCount: number;
   };
-  filterOptions: any;
+  filterOptions: ProductListResponse["filterOptions"];
 }
 
 export default function CategoryProductListPage({
@@ -67,7 +75,7 @@ export default function CategoryProductListPage({
     <SectionContainer>
       <Breadcrumb items={breadcrumb} />
 
-      {category.children.length > 0 && (
+      {category && category.children.length > 0 && (
         <>
           <SectionTitle title={"دسته بندی ها"} />
           <div className="pb-10">
@@ -89,7 +97,7 @@ export default function CategoryProductListPage({
 
       <Pagination page={pagination.page} totalPages={pagination.totalPages} />
 
-      <DescriptionCategory />
+      {category && <DescriptionCategory />}
     </SectionContainer>
   );
 }

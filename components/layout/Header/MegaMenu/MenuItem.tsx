@@ -25,7 +25,7 @@ export default function MenuItem({
       }`}
     >
       <Link
-        href={`/categories/${slug}`}
+        href={`/products/${slug}`}
         className="flex items-center justify-between py-3"
       >
         <div className="flex items-center">

@@ -73,6 +73,7 @@ export default function ProductListSection({
               minLimit={minLimit}
               maxLimit={maxLimit}
               startTransition={startTransition}
+              filterOptions={filterOptions}
             />
           </div>
         </aside>

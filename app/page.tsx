@@ -79,7 +79,7 @@ export default async function Home() {
   });
   const recommendedCategoriesMap = recommendedCategories.map((cat) => ({
     id: cat.id,
-    title: cat.name,
+    name: cat.name,
     slug: cat.slug,
     img: cat.image?.iconUrl ?? "/images/default.png",
   }));
@@ -91,7 +91,7 @@ export default async function Home() {
   });
   const featuredCategoriesMap = featuredCategories.map((cat) => ({
     id: cat.id,
-    title: cat.name,
+    name: cat.name,
     slug: cat.slug,
     img: cat.image?.iconUrl ?? "/images/default.png",
   }));
@@ -99,7 +99,6 @@ export default async function Home() {
   // stories, sliders, newProducts, productsLast, lastProductLists, lastBlogLits
   // همگی فیک
   const homeData = await getProducts();
-
 
   const bestSellingProducts = mapToBestSellingProducts(
     homeData.bestSellingProducts,

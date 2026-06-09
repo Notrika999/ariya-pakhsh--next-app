@@ -68,8 +68,8 @@ export async function getPromotedCategories(
       },
     },
   );
-  
-  // console.log("category promoted raw response:", res);
+
+  console.log("category promoted raw response:", res);
   return res.data.data;
 }
 
@@ -95,7 +95,7 @@ export async function getCategoryBreadcrumb(
     },
   );
 
-  // console.log(response);
+  console.log("getCategoryBreadcrumb => ", response);
 
   // اگر 404 بود → null برگردان
   if (response.status === 404) {
