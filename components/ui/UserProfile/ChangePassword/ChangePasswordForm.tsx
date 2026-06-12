@@ -1,5 +1,5 @@
 "use client";
-
+// components/ui/UserProfile/ChangePassword/ChangePasswordForm.tsx
 import React, { useState } from "react";
 import TitleAfter from "../../../modules/TitleAfter/TitleAfter";
 
@@ -132,7 +132,7 @@ export default function ChangePasswordForm() {
 
     // درخواست به سرور
     try {
-      console.log(payload)
+      
       // const res = await fetch("/api/change-password", {
       //   method: "POST",
       //   headers: { "Content-Type": "application/json" },

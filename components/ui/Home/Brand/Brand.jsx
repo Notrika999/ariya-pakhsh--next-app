@@ -43,7 +43,7 @@ export default function Brand({ brands, title, href }) {
           {brands.length &&
             brands.map((brand) => (
               <SwiperSlide key={brand.id}>
-                <Link href="#">
+                <Link href={`/products/${brand.slug}`}>
                   <div
                     className="bg-white dark:bg-custom-dark border border-gray-200 dark:border-neutral-700
                                     space-y-4 p-4 rounded-2xl flex flex-col items-center justify-center

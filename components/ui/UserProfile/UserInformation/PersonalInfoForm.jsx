@@ -1,5 +1,5 @@
 "use client";
-
+// components/ui/UserProfile/UserInformation/PersonalInfoForm.jsx
 import { useState } from "react";
 
 export default function PersonalInfoForm() {
@@ -26,7 +26,7 @@ export default function PersonalInfoForm() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(form);
+   
   };
 
   return (

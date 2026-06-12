@@ -7,7 +7,17 @@ import {
 import { ProductIndexData } from "@/src/lib/types/productTypes";
 import { getProductImage } from "@/src/utils/product-image";
 
-function toProduct(item: any): Product {
+function isProductListItem(
+  product: Product | ProductListItem | HomeProduct,
+): product is ProductListItem {
+  return "productId" in product;
+}
+
+function toProduct(item: Product | ProductListItem): Product {
+  if (!isProductListItem(item)) {
+    return item;
+  }
+
   return {
     id: item.productId,
     title: item.name,
@@ -28,14 +38,15 @@ function toProduct(item: any): Product {
               ((item.compareAtPrice - item.price) / item.compareAtPrice) * 100,
             ),
           )
-        : "0",
+        : null,
 
     rating: item.averageRating ?? 0,
     count: item.reviewCount ?? 0,
 
     colors: [],
-    href: `/product/${item.publicCode}/${item.slug}/${item.productId}`,
+    href: `/product/${item.publicCode}/${item.slug}`,
 
+    inStock: item.inStock,
     offer: item.isOnSale,
     dealEndsAt: undefined,
   };
@@ -63,9 +74,10 @@ export function mapProductIndex(data: ProductIndexData) {
 }
 
 export function normalizeProduct(
-  product: HomeProduct | Product,
+  product: HomeProduct | Product | ProductListItem,
 ): ProductCardModel {
-  if ("productId" in product) {
+  console.log("Product Mapper normalizeProduct => ", product);
+  if (isProductListItem(product)) {
     return {
       id: product.productId,
       title: product.name,
@@ -74,49 +86,52 @@ export function normalizeProduct(
       imageSlider: [],
 
       brandId: "",
+      primaryBrandName: product.primaryBrandName,
+      primaryBrandSlug: product.primaryBrandSlug,
 
-      price: product.price,
+      categoryName: product.primaryCategoryName ?? "",
+
+      currency: product.currencyCode,
       oldPrice: product.compareAtPrice ?? product.price,
-
-      discount: product?.discountPercent,
+      price: product.price,
 
       rating: product.averageRating ?? 0,
       reviewCount: product.reviewCount ?? 0,
-      count: product.reviewCount ?? 0,
 
       colors: [],
 
-      href: `/product/${product.publicCode}/${product.slug}/${product.productId}`,
+      href: `/product/${product.publicCode}/${product.slug}`,
 
       inStock: product.inStock,
+      isOnSale: product.isOnSale,
       offer: false,
+      quantity: product.availableQuantity,
+      soldCount: product.soldCount,
     };
   }
 
   return {
-    id: product.id,
+    id: String(product.id),
     title: product.title,
 
     image: product.image,
-    imageSlider: product.imageSlider ?? [],
+    imageSlider: "imageSlider" in product ? product.imageSlider : [],
 
-    brandId: product.brandId ?? "",
+    brandId: "brandId" in product ? product.brandId : "",
 
     price: product.price,
     oldPrice: product.oldPrice,
 
-    discount: product.discount ?? "0",
     discountPercent: Number(product.discount ?? 0),
 
     rating: product.rating ?? 0,
-    reviewCount: product.count ?? 0,
     count: product.count ?? 0,
 
-    colors: product.colors ?? [],
+    colors: "colors" in product ? product.colors : [],
 
     href: product.href,
 
-    inStock: true,
+    inStock: product.inStock ?? false,
     offer: product.offer ?? false,
   };
 }

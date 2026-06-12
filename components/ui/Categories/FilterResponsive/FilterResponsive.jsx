@@ -8,8 +8,11 @@ export default function FilterResponsive({
   brands,
   minLimit,
   maxLimit,
+  filterOptions,
+  ...filterProps
 }) {
   const [open, setOpen] = useState(false);
+  const resolvedBrands = brands ?? availableBrands ?? [];
 
   return (
     <div className="lg:hidden block">
@@ -52,9 +55,11 @@ export default function FilterResponsive({
             <Filter
               filters={filters}
               startTransition={startTransition}
-              availableBrands={brands}
+              availableBrands={resolvedBrands}
               minLimit={minLimit}
               maxLimit={maxLimit}
+              filterOptions={filterOptions}
+              {...filterProps}
             />
           </div>
         </>

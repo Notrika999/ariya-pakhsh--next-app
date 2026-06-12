@@ -1,27 +1,109 @@
+"use client";
+
 // components/ui/Categories/Filter/Filter.tsx
-import React, { useCallback, useRef, TransitionStartFunction } from "react";
+import React, {
+  ReactNode,
+  TransitionStartFunction,
+  useCallback,
+  useRef,
+  useState,
+} from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import FilterColor from "./FilterColor";
 import PriceRangeFilter from "./PriceRangeFilter";
 import FilterBrand from "./FilterBrand";
 
+type FilterState = {
+  search?: string;
+  minPrice: number;
+  maxPrice: number;
+  brands?: (string | number)[];
+};
+
+type BrandOption = {
+  id?: string | number;
+  brandId: string | number;
+  name: string;
+};
+
+type RawBrandOption = BrandOption | string;
+
+type ColorOption = {
+  optionId: string;
+  value: string;
+  count: number;
+};
+
+type FilterAttribute = {
+  attributeId: string;
+  attributeName: string;
+  options?: ColorOption[];
+};
+
+type FilterOptions = {
+  attributes?: FilterAttribute[];
+  brands?: BrandOption[];
+};
+
 type Props = {
-  filters: any;
-  availableBrands: any[];
+  filters: FilterState;
+  availableBrands?: RawBrandOption[];
   minLimit: number;
   maxLimit: number;
-  startTransition: TransitionStartFunction;
-    filterOptions: any;
+  startTransition?: TransitionStartFunction;
+  filterOptions?: FilterOptions;
+  setFilters?: unknown;
+  availableCategories?: unknown[];
+  availableBadges?: unknown[];
 };
+
+type FilterDropdownProps = {
+  title: string;
+  children: ReactNode;
+  defaultOpen?: boolean;
+};
+
+function FilterDropdown({
+  title,
+  children,
+  defaultOpen = false,
+}: FilterDropdownProps) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <section className="dark:bg-custom-dark dark:border-gray-700 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border overflow-hidden">
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={() => setOpen((prev) => !prev)}
+        className="w-full flex items-center justify-between gap-3 p-4 text-start"
+      >
+        <span className="font-bold text-base">{title}</span>
+        <i
+          className={`far fa-chevron-down text-sm text-gray-500 transition-transform duration-200 ${
+            open ? "rotate-180" : ""
+          }`}
+          aria-hidden="true"
+        />
+      </button>
+
+      {open && (
+        <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+          {children}
+        </div>
+      )}
+    </section>
+  );
+}
 
 export default function Filter({
   filters,
-  availableBrands,
+  availableBrands = [],
   minLimit,
   maxLimit,
   startTransition,
-  filterOptions
+  filterOptions,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
@@ -29,10 +111,16 @@ export default function Filter({
 
   const navigate = useCallback(
     (params: URLSearchParams) => {
-      // تمام navigation ها داخل startTransition → isPending=true میشه → skeleton نمایش داده میشه
-      startTransition(() => {
+      const replaceUrl = () => {
         router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-      });
+      };
+
+      if (startTransition) {
+        startTransition(replaceUrl);
+        return;
+      }
+
+      replaceUrl();
     },
     [pathname, router, startTransition],
   );
@@ -60,16 +148,17 @@ export default function Filter({
   );
 
   const handleBrandToggle = useCallback(
-    (id: string) => {
+    (id: string | number) => {
+      const idString = String(id);
       const params = new URLSearchParams(searchParams.toString());
       const current = params.getAll("brandId");
 
-      if (current.includes(id)) {
-        const next = current.filter((x) => x !== id);
+      if (current.includes(idString)) {
+        const next = current.filter((x) => x !== idString);
         params.delete("brandId");
         next.forEach((v) => params.append("brandId", v));
       } else {
-        params.append("brandId", id);
+        params.append("brandId", idString);
       }
 
       params.set("page", "1");
@@ -77,16 +166,64 @@ export default function Filter({
     },
     [searchParams, navigate],
   );
-  
-  
-  const colorAttribute = filterOptions?.attributes?.find(
-  (attr) => attr.attributeName === "رنگ"
-);
 
-  console.log("FILTER OPTIONS:", filters);
-  console.log("ATTRIBUTES:", filters?.attributes);
+  const colorAttribute = filterOptions?.attributes?.find(
+    (attr) => attr.attributeName === "رنگ",
+  );
+
+  const selectedBrands = Array.isArray(filters.brands) ? filters.brands : [];
+  const normalizedBrands: BrandOption[] = availableBrands.map((brand) =>
+    typeof brand === "string" ? { brandId: brand, name: brand } : brand,
+  );
+
+  const hasAttributeFilters = Array.from(searchParams.keys()).some((key) =>
+    key.startsWith("attr_"),
+  );
+
+  const hasActiveFilters =
+    selectedBrands.length > 0 ||
+    filters.minPrice > minLimit ||
+    filters.maxPrice < maxLimit ||
+    hasAttributeFilters ||
+    (filters.search && filters.search.trim() !== "");
+
+  const handleClearFilters = useCallback(() => {
+    const params = new URLSearchParams();
+    params.set("page", "1");
+    navigate(params);
+  }, [navigate]);
+
   return (
     <section className="space-y-5 sticky top-0">
+      {/* دکمه حذف فیلترها */}
+      {hasActiveFilters && (
+        <div
+          className="dark:bg-custom-dark bg-white rounded-lg border p-4"
+          dir="rtl"
+        >
+          <button
+            type="button"
+            onClick={handleClearFilters}
+            className="flex items-center gap-1.5 text-sm text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-medium transition-colors group"
+          >
+            <span>حذف فیلترها</span>
+            <svg
+              className="w-4 h-4 transition-transform group-hover:rotate-90"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 4L4 12M4 4L12 12"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        </div>
+      )}
+
       {/* Search */}
       <section className="hidden">
         <div className="dark:bg-custom-dark bg-white rounded-lg border p-4">
@@ -100,25 +237,36 @@ export default function Filter({
       </section>
 
       {/* Color */}
-      <FilterColor options={colorAttribute?.options ?? []} />
+      {colorAttribute?.options && (
+        <FilterDropdown title="رنگ ها">
+          <FilterColor
+            attributeId={colorAttribute.attributeId} // ← این اضافه بشه
+            options={colorAttribute.options}
+          />
+        </FilterDropdown>
+      )}
 
       {/* Price */}
-      <PriceRangeFilter
-        min={minLimit}
-        max={maxLimit}
-        value={{
-          min: filters.minPrice,
-          max: filters.maxPrice,
-        }}
-        onChange={handlePriceChange}
-      />
+      <FilterDropdown title="محدوده قیمت" defaultOpen>
+        <PriceRangeFilter
+          min={minLimit}
+          max={maxLimit}
+          value={{
+            min: filters.minPrice,
+            max: filters.maxPrice,
+          }}
+          onChange={handlePriceChange}
+        />
+      </FilterDropdown>
 
       {/* Brand */}
-      <FilterBrand
-        brands={availableBrands}
-        selectedBrands={filters.brands}
-        onToggle={handleBrandToggle}
-      />
+      <FilterDropdown title="برندها">
+        <FilterBrand
+          brands={normalizedBrands}
+          selectedBrands={selectedBrands}
+          onToggle={handleBrandToggle}
+        />
+      </FilterDropdown>
     </section>
   );
 }

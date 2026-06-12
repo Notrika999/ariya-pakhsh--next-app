@@ -1,5 +1,5 @@
 "use client";
-
+// components/ui/UserProfile/UserInformation/UserInformationAccountPreferences.jsx
 import { useState } from "react";
 import TitleAfter from "../../../modules/TitleAfter/TitleAfter";
 export default function UserInformationAccountPreferences() {
@@ -23,8 +23,6 @@ export default function UserInformationAccountPreferences() {
   const handleSubmit = (e) => {
     e.preventDefault();
     e.stopPropagation();
-
-    console.log("Saved settings:", settings);
 
     // اگر ذخیره سرور داری اینجا بگو تا برات اضافه کنم
   };

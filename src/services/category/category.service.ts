@@ -69,7 +69,7 @@ export async function getPromotedCategories(
     },
   );
 
-  console.log("category promoted raw response:", res);
+  // console.log("category promoted raw response:", res);
   return res.data.data;
 }
 
@@ -79,7 +79,7 @@ export async function getPromotedCategories(
  */
 
 export async function getCategoryBreadcrumb(
-  params: CategoryBreadcrumbParams,
+  params: CategoryBreadcrumbItem,
 ): Promise<CategoryBreadcrumbItem[] | null> {
   const response = await apiClient.get<BreadcrumbResponse>(
     "/Categories/breadcrumb",
@@ -95,7 +95,7 @@ export async function getCategoryBreadcrumb(
     },
   );
 
-  console.log("getCategoryBreadcrumb => ", response);
+  // console.log("getCategoryBreadcrumb => ", response);
 
   // اگر 404 بود → null برگردان
   if (response.status === 404) {

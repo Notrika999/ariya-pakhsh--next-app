@@ -9,12 +9,12 @@ import StepReset from "./StepReset";
 import LoginWithPass from "./LoginWithPass";
 
 export default function LoginModal({ open, onClose }) {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(2);
   const [mobile, setMobile] = useState("");
   const [flow, setFlow] = useState(""); // 'otp-login', 'password-login', 'forgot-password
   const [otpCode, setOtpCode] = useState("");
 
- const handleOtpVerify = async (code) => {
+  const handleOtpVerify = async (code) => {
     if (!code || code.length !== 4) {
       return;
     }
@@ -100,9 +100,15 @@ export default function LoginModal({ open, onClose }) {
           {/* <!-- Step 1: Login Method Selection --> */}
           {step === 1 && (
             <StepMethod
-              onOtp={() => { setFlow('otp-login'); setStep(2); }}
+              onOtp={() => {
+                setFlow("otp-login");
+                setStep(2);
+              }}
               onPassword={() => setStep(7)}
-              onForgot={() => { setFlow('forgot-password'); setStep(2); }}
+              onForgot={() => {
+                setFlow("forgot-password");
+                setStep(2);
+              }}
             />
           )}
 

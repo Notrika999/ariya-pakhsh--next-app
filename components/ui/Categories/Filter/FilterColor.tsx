@@ -1,49 +1,4 @@
-// import React from "react";
-
-// export default function FilterColor() {
-//   return (
-//     <section>
-//       <div className="dark:bg-custom-dark dark:border-gray-700 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border p-4">
-//         <h2 className="font-bold text-base mb-4 relative pb-4 before:absolute before:inset-s-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-2 after:bottom-0 after:inset-s-4 after:bg-primary after:rounded-lg">
-//           رنگ ها
-//         </h2>
-//         <div className="relative space-x-2 flex-wrap flex items-center w-full">
-//           <div className="flex items-center">
-//             <input
-//               type="radio"
-//               name="color"
-//               id="greenColor"
-//               className="hidden peer"
-//             />
-//             <label
-//               htmlFor="greenColor"
-//               className="select-none dark:text-white! cursor-pointer flex items-center justify-center rounded-full border-2 border-gray-200 py-1 px-3 text-gray-700 transition-colors duration-200 ease-in-out peer-checked:text-gray-900 peer-checked:border-primary-500"
-//             >
-//               <span className="size-4 bg-green-600 rounded-full"></span>
-//               <span className="dir-ltr ms-2 text-sm">سبز</span>
-//             </label>
-//           </div>
-//           <div className="flex items-center">
-//             <input
-//               type="radio"
-//               name="color"
-//               id="blueColor"
-//               className="hidden peer"
-//             />
-//             <label
-//               htmlFor="blueColor"
-//               className="select-none dark:text-white! cursor-pointer flex items-center justify-center rounded-full border-2 border-gray-200 py-1 px-3 text-gray-700 transition-colors duration-200 ease-in-out peer-checked:text-gray-900 peer-checked:border-primary-500"
-//             >
-//               <span className="size-4 bg-blue-600 rounded-full"></span>
-//               <span className="dir-ltr ms-2 text-sm">ابی</span>
-//             </label>
-//           </div>
-//         </div>
-//       </div>
-//     </section>
-//   );
-// }
-
+// components/Categories/FilterFilterColor.tsx
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -52,54 +7,114 @@ type ColorOption = {
   optionId: string;
   value: string;
   count: number;
+  colorCodes?: string; // comma-separated: "#000000" or "#000000,#FF0000"
+  hex?: string;        // legacy single hex support
 };
 
 type Props = {
+  attributeId: string;
   options: ColorOption[];
 };
 
-export default function FilterColor({ options }: Props) {
-  console.log("OPTIONS IN COMPONENT:", options);
+/** Parse colorCodes string into array of hex values */
+function parseColorCodes(option: ColorOption): string[] {
+  if (option.colorCodes) {
+    return option.colorCodes.split(",").map((c) => c.trim()).filter(Boolean);
+  }
+  if (option.hex) return [option.hex];
+  return [];
+}
 
+/** Returns true if a hex color is visually light */
+function isLightHex(hex: string): boolean {
+  const clean = hex.replace("#", "");
+  const r = parseInt(clean.substring(0, 2), 16);
+  const g = parseInt(clean.substring(2, 4), 16);
+  const b = parseInt(clean.substring(4, 6), 16);
+  // Perceived luminance
+  return r * 0.299 + g * 0.587 + b * 0.114 > 200;
+}
+
+/** Build the inline background style for the swatch */
+function swatchStyle(colors: string[]): React.CSSProperties {
+  if (colors.length === 0) {
+    return { backgroundColor: "#e5e7eb" };
+  }
+  if (colors.length === 1) {
+    return { backgroundColor: colors[0] };
+  }
+  // Two colors: hard split diagonal gradient (no fade)
+  return {
+    background: `linear-gradient(135deg, ${colors[0]} 50%, ${colors[1]} 50%)`,
+  };
+}
+
+export default function FilterColor({ attributeId, options }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const selectedColor = searchParams.get("color");
+  const selectedColors = searchParams.getAll(`attr_${attributeId}`);
 
-  const handleChange = (optionId: string) => {
-    const params = new URLSearchParams(searchParams.toString());
+  const handleToggle = (optionId: string) => {
+  const params = new URLSearchParams(searchParams.toString());
+  const paramKey = `attr_${attributeId}`;          // key یونیک per attribute
+  const current = params.getAll(paramKey);
 
-    params.set("color", optionId);
-    params.set("page", "1");
+  params.delete(paramKey);
 
-    router.push(`${pathname}?${params.toString()}`);
-  };
+  if (current.includes(optionId)) {
+    current.filter((c) => c !== optionId).forEach((c) => params.append(paramKey, c));
+  } else {
+    [...current, optionId].forEach((c) => params.append(paramKey, c));
+  }
+
+  params.set("page", "1");
+  router.push(`${pathname}?${params.toString()}`);
+};
+
+  if (!options || options.length === 0) {
+    return <p className="text-xs text-gray-400 text-center py-2">رنگی موجود نیست</p>;
+  }
 
   return (
-    <section>
-      <div className="bg-white rounded-lg border p-4">
-        <h2>رنگ ها</h2>
+    <div className="flex flex-wrap gap-3 justify-end" dir="rtl">
+      {options.map((option) => {
+        const colors = parseColorCodes(option);
+        const selected = selectedColors.includes(option.optionId);
+        const needsBorder = colors.length > 0 && colors.every(isLightHex);
 
-        <div className="flex flex-wrap gap-2">
-          {options.map((option) => (
-            <div key={option.optionId}>
-              <input
-                type="radio"
-                id={option.optionId}
-                name="color"
-                checked={selectedColor === option.optionId}
-                onChange={() => handleChange(option.optionId)}
-              />
-
-              <label htmlFor={option.optionId}>
-                <span>{option.value}</span>
-                <span>({option.count})</span>
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
+        return (
+          <button
+            key={option.optionId}
+            type="button"
+            onClick={() => !selected && handleToggle(option.optionId)}
+            disabled={selected}
+            className={`flex flex-col items-center gap-1.5 group ${selected ? "cursor-default" : "cursor-pointer"}`}
+            title={option.value}
+          >
+            {/* سواچ رنگ */}
+            <div
+              className={`w-14 h-14 rounded-2xl transition-all duration-200 ${
+                selected
+                  ? "ring-2 ring-offset-2 ring-indigo-500 scale-105"
+                  : "hover:scale-105"
+              } ${needsBorder ? "border border-gray-200 dark:border-gray-600" : ""}`}
+              style={swatchStyle(colors)}
+            />
+            {/* نام رنگ */}
+            <span
+              className={`text-xs font-medium transition-colors ${
+                selected
+                  ? "text-indigo-600 dark:text-indigo-400"
+                  : "text-gray-600 dark:text-gray-300"
+              }`}
+            >
+              {option.value}
+            </span>
+          </button>
+        );
+      })}
+    </div>
   );
 }

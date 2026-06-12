@@ -57,7 +57,7 @@ export async function getProducts(
     throw new Error("Failed to fetch products");
   }
 
-  console.log("Products response:", res);
+  // console.log("Products response:", res);
 
   const mapped = mapProductIndex(res.data.data);
 
@@ -71,25 +71,6 @@ export async function getProducts(
     })),
   };
 }
-
-// GET CATEGORAY PRODUCT lIST
-// export async function getProductList(
-//   params: ProductListParams,
-// ): Promise<ProductListResponse> {
-//   const query = buildProductListParams(params);
-
-//   const res = await apiClient.get<ApiResponse<ProductListResponse>>(
-//     `/Products/list?${query.toString()}`,
-//   );
-
-//   if (!res.data.isSuccess) {
-//     throw new Error(res.data.message);
-//   }
-
-//   console.log("Get Product List", res);
-
-//   return res.data.data;
-// }
 
 // GET CATEGORY PRODUCT LIST (POST /Products/filter)
 export async function getProductList(
@@ -106,18 +87,22 @@ export async function getProductList(
 
     minPrice: params.MinPrice,
     maxPrice: params.MaxPrice,
+    color: params.Color,
     inStock: params.InStock,
     onSaleOnly: params.OnSaleOnly,
     attributeFilters: params.AttributeFilters,
     sortOrder: params.SortOrder,
   });
 
+  console.log("Params => ", params);
+  console.log("Body => ", body);
+
   const res = await apiClient.post<ApiResponse<ProductListResponse>>(
     "/Products/filter",
     body,
   );
   console.log("Products Data => ", res);
-  console.log("Category Slug => ", params.CategorySlug);
+
   const isSuccess = res.data.success ?? res.data.isSuccess;
 
   if (!isSuccess) {
@@ -129,12 +114,15 @@ export async function getProductList(
 
 // GET PRODUCT BY ID
 export async function getProductById(
-  productId: string,
+  // productId: string,
+  slug: string,
 ): Promise<ProductDetail> {
-  const url = `Products/${productId}`;
+  const url = await `Products/${slug}`;
   const res = await apiClient.get<ApiResponse<ProductDetail>>(url);
 
-  console.log("getProductById => ", res);
+  // console.log("getProductById slug => ", slug);
+  // console.log("getProductById productId => ", productId);
+  // console.log("getProductById => ", res);
 
   if (!res.data.isSuccess) {
     throw new Error(res.data.message ?? "Failed to fetch product");

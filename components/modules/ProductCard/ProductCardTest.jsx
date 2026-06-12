@@ -47,7 +47,7 @@ import Link from "next/link";
 //   };
 // }
 
-export default function ProductCard({ product }) {
+export default function ProductCardTest({ product }) {
   // const { h, m, s, done } = useCountdown(product?.countdownToISO);
 
   return (

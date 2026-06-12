@@ -10,7 +10,7 @@ export interface Product {
   image: string;
   imageSlider: [];
   brandId: number | string;
-  discount: string;
+  discount: string | null;
   price: number;
   oldPrice: number;
   rating: number;
@@ -66,6 +66,7 @@ export interface ProductListParams {
 
   MinPrice?: number;
   MaxPrice?: number;
+  Color?: string;
 
   InStock?: boolean;
   OnSaleOnly?: boolean;
@@ -96,7 +97,7 @@ export interface ProductListItem {
   salePrice?: number;
 
   isOnSale: boolean;
-  discountPercent?: number;
+  discountPercent?: number | null;
 
   currencyCode: string;
 
@@ -120,10 +121,10 @@ export interface ProductListItem {
 export type SortOrder =
   | "newest"
   | "oldest"
-  | "price_asc"
-  | "price_desc"
-  | "best_selling"
-  | "popular";
+  | "priceAsc"
+  | "priceDesc"
+  | "bestSelling"
+  | "mostRated";
 
 export interface Brand {
   id: number | string;
@@ -143,6 +144,7 @@ export interface HomeProduct {
   count: number;
   href: string;
   offer: boolean;
+  inStock: boolean;
 }
 
 export interface ProductCardModel {
@@ -150,13 +152,31 @@ export interface ProductCardModel {
   title: string;
   slug?: string;
   image: string;
+  imageSlider?: unknown[];
+  brandId?: number | string;
+  primaryBrandName?: number | string;
+  primaryBrandSlug?: number | string;
+  categoryName: string;
+  currency: string;
   price: number;
   oldPrice: number;
+  originalPrice?: number;
+  discountedPrice?: number | null;
   rating: number;
   reviewCount: number;
-  inStock: boolean;
+  count?: number;
+  colors?: string[];
+  quantity: number;
+  soldCount: number;
+  inStock?: boolean;
+  isOnSale: boolean;
   href: string;
+  discount?: string | number;
   discountPercent?: number;
+  isFeatured?: boolean;
+  specialSale?: boolean;
+  dealEndsAt?: string | Date;
+  offer?: boolean;
 }
 
 export interface ProductIndexApiResponse {

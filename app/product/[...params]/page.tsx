@@ -10,23 +10,19 @@ interface PageProps {
   }>;
 }
 
-export async function generateMetadata({ params: pageParams }: PageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params: pageParams,
+}: PageProps): Promise<Metadata> {
   const { params } = await pageParams;
-  const [publicCode, slug, id] = params;
 
-  const product = await getProductById(id);
+  const [, slug] = params;
+
+  const product = await getProductById(decodeURIComponent(slug));
 
   return {
-    title: product.metaTitle ?? product.name,
-    description: product.metaDescription ?? product.shortDescription,
-    keywords: product.metaKeywords,
-    openGraph: {
-      title: product.metaTitle ?? product.name,
-      description: product.metaDescription ?? product.shortDescription,
-      images: product.variants?.[0]?.images?.[0]?.largePath
-        ? [`https://aryapakhsh.shop${product.variants[0].images[0].largePath}`]
-        : [],
-    },
+    title: product?.metaTitle ?? product.name,
+    description: product?.metaDescription ?? product.shortDescription,
+    keywords: product?.metaKeywords,
   };
 }
 
@@ -34,7 +30,9 @@ export default async function ProductDetailsPage({ params: pageParams }: PagePro
   const { params } = await pageParams;
   const [publicCode, slug, id] = params;
 
-  const product = await getProductById(id);
+  const title = await decodeURIComponent(slug);
+
+  const product = await getProductById(title);
 
   return <ProductDetails product={product} />;
 }

@@ -6,7 +6,7 @@ export default function CategoryNode({ category }) {
   const hasChildren = category.children && category.children.length > 0;
 
   // برای مسیر دهی یکپارچه
-  const href = `/categories/${category.slug}`;
+  const href = `/products/${category.slug}`;
 
   // اگر عمق 0 باشد -> دراپ‌دان
   if (category.depth === 0) {
@@ -14,7 +14,11 @@ export default function CategoryNode({ category }) {
       <li className="list-none my-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-custom-dark p-2 ">
         {/* لینک جدا از دکمه باز و بسته کننده */}
         <div className="flex justify-between">
-          <Link href={href} className="flex-1">
+          <Link
+            href={href}
+            className="flex-1"
+            onClick={() => setIsOpen(!isOpen)}
+          >
             {category.name}
           </Link>
 
@@ -30,7 +34,11 @@ export default function CategoryNode({ category }) {
         {isOpen && hasChildren && (
           <ul className="mt-2 space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
             {category.children.map((child) => (
-              <CategoryNode key={child.id} category={child} />
+              <CategoryNode
+                key={child.id}
+                category={child}
+                onClick={() => setIsOpen(!isOpen)}
+              />
             ))}
           </ul>
         )}
@@ -51,7 +59,12 @@ export default function CategoryNode({ category }) {
               key={child.id}
               className="pr-4 text-sm text-gray-600 dark:text-gray-400"
             >
-              <Link href={`/categories/${child.slug}`}>{child.name}</Link>
+              <Link
+                href={`/products/${child.slug}`}
+                onClick={() => setIsOpen(!isOpen)}
+              >
+                {child.name}
+              </Link>
             </li>
           ))}
         </ul>

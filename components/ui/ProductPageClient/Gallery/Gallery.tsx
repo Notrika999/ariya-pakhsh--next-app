@@ -53,7 +53,7 @@ function useCountdown(targetISO) {
   return { h, m, s, done: diff === 0 };
 }
 
-export default function Gallery({ images, isOutOfStock }) {
+export default function Gallery({ images, isOutOfStock, productName }) {
   const [shareOpen, setShareOpen] = useState(false);
   const [chartOpen, setChartOpen] = useState(false);
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
@@ -342,7 +342,7 @@ export default function Gallery({ images, isOutOfStock }) {
           </button>
         </div>
 
-        <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} />
+        <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} title={productName}   />
 
         <ChartModal
           open={chartOpen}

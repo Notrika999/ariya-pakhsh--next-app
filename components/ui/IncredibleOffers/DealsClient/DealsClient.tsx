@@ -5,7 +5,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Product, FilterState, SortOption } from "@/types/product";
 import FilterSort from "@/components/modules/FilterBar/FilterSort";
 import EmptyState from "../../ProductListSection/EmptyState";
-import ProductCardTest from "@/components/modules/ProductCard/ProductCardTest";
+import ProductCardTest from "@/components/modules/ProductCard/ProductCard";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 import FilterResponsive from "../../Categories/FilterResponsive/FilterResponsive";
 import Filter from "../../Categories/Filter/Filter";

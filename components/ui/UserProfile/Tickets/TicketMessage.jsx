@@ -1,5 +1,5 @@
 "use client";
-
+// components/ui/UserProfile/Tickets/TicketMessage.jsx
 import { useState } from "react";
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
 
@@ -89,7 +89,6 @@ export default function TicketMessage({ ticketId, onBack }) {
     setReplyText("");
     setReplyFile(null);
 
-    console.log("پیام ارسال شد:", newMessage);
   };
 
   // Status icon function

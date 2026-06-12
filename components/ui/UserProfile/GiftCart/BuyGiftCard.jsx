@@ -1,3 +1,5 @@
+// components/ui/UserProfile/GiftCart/BuyGiftCard.jsx
+
 import React, { useState } from "react";
 import TitleAfter from "../../../modules/TitleAfter/TitleAfter";
 import GiftCardRules from "./GiftCardRules";
@@ -29,7 +31,7 @@ export default function BuyGiftCard() {
       message,
     };
 
-    console.log("Submit Data:", payload);
+
 
     // اینجا بعداً API صدا می‌زنی
   };

@@ -22,7 +22,7 @@ import { mapToBestSellingProducts } from "@/src/lib/mappers/best-selling-product
 // ساختار متاتگ‌ها به صورت استاندارد و حرفه‌ای
 export const metadata: Metadata = {
   title:
-    "فروشگاه اینترنتی آریاپخش | خرید آنلاین کفپوش، روکش و لوازم لوکس خودرو",
+    "فروشگاه اینترنتی کارآپ 24 | خرید آنلاین کفپوش، روکش و لوازم لوکس خودرو",
   description:
     "مرجع تخصصی خرید آنلاین انواع کالاهای ظاهری خودرو با بهترین قیمت و ضمانت اصالت کالا.",
   keywords: [
@@ -31,19 +31,20 @@ export const metadata: Metadata = {
     "قیمت کفپوش ماشین",
     "خرید روکش صندلی",
     "لوازم تزینی",
+    "کارآپ 24",
   ],
   robots: {
     index: true,
     follow: true,
   },
   openGraph: {
-    title: "فروشگاه اینترنتی آریاپخش",
+    title: "فروشگاه اینترنتی کارآپ 24",
     description:
       "بهترین پیشنهادهای روزانه و محصولات شگفت‌انگیز را در فروشگاه ما دنبال کنید.",
     type: "website",
     locale: "fa_IR",
-    url: "https://yourdomain.com", // آدرس اصلی سایت را اینجا وارد کنید
-    siteName: "آریاپخش",
+    url: "https://carup24.com", // آدرس اصلی سایت را اینجا وارد کنید
+    siteName: "کارآپ 24",
     images: [
       {
         url: "/images/og-image.jpg", // یک تصویر شاخص برای اشتراک‌گذاری در شبکه‌ها قرار دهید
@@ -60,7 +61,7 @@ export const metadata: Metadata = {
     images: ["/images/og-image.jpg"],
   },
   alternates: {
-    canonical: "https://yourdomain.com",
+    canonical: "https://carup24.com",
   },
 };
 

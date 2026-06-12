@@ -43,7 +43,11 @@ export default function BestSellingProducts({
         {bestSellingProducts.map((product) => (
           <SwiperSlide key={product.id}>
             {product.products.map((subProduct) => (
-              <Link key={subProduct.id} href="#" className="w-full block">
+              <Link
+                key={subProduct.id}
+                href={subProduct.href}
+                className="w-full block"
+              >
                 <article
                   className="flex py-2 px-3 my-3 rounded-xl
                             bg-white dark:bg-custom-dark

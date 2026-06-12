@@ -12,7 +12,7 @@ import "swiper/css/navigation";
 import ProductCard from "@/components/modules/ProductCard/ProductCard";
 import Image from "next/image";
 import Link from "next/link";
-import ProductCardTest from "@/components/modules/ProductCard/ProductCardTest";
+import ProductCardTest from "@/components/modules/ProductCard/ProductCard";
 
 // اگر CSS/دکمه‌ها را با کلاس‌های سفارشی داری، این کلاس‌ها را همان نگه می‌داریم:
 const prevBtnClass = ".swiper-button-prev-amazing";

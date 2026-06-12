@@ -1,6 +1,6 @@
 import { MetadataRoute } from "next";
 
-const BASE_URL = "https://example.com";
+const BASE_URL = "https://carup24.com";
 
 /**
  * ⚠️ این توابع باید از بک‌اند .NET دیتا بگیرند
@@ -35,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
-      url: `${BASE_URL}/category`,
+      url: `${BASE_URL}/products`,
       priority: 0.9,
     },
     {

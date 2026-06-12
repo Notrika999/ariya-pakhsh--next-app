@@ -10,6 +10,9 @@ export type Category = {
   isLeaf: boolean;
   children: Category[];
   src?: string;
+  seoTitle: string;
+  seoDescription: string;
+  seoKeywords: string;
 };
 
 export type MegaMenu = {

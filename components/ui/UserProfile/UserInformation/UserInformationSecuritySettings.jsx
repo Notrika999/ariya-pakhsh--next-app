@@ -1,5 +1,5 @@
 "use client";
-
+// components/ui/UserProfile/UserInformation/UserInformationSecuritySettings.jsx
 import { useState } from "react";
 import TitleAfter from "../../../modules/TitleAfter/TitleAfter";
 
@@ -24,14 +24,14 @@ export default function UserInformationSecuritySettings() {
       device: "iPhone 13",
       location: "تهران، ایران • فعلاً فعال",
       iconColor: "blue",
-      iconClass: "far fa-mobile"
+      iconClass: "far fa-mobile",
     },
     {
       id: 2,
       device: "Windows Chrome",
       location: "تهران، ایران • ۲ روز پیش",
       iconColor: "green",
-      iconClass: "far fa-tv"
+      iconClass: "far fa-tv",
     },
   ]);
 
@@ -43,7 +43,6 @@ export default function UserInformationSecuritySettings() {
   // Handle password updates
   const handlePasswordChange = (e) => {
     e.preventDefault();
-    console.log("Password form submitted:", passwordData);
 
     // If you want validation/API, tell me
   };
@@ -91,7 +90,10 @@ export default function UserInformationSecuritySettings() {
                     id="frmCurrentPassword"
                     value={passwordData.current}
                     onChange={(e) =>
-                      setPasswordData({ ...passwordData, current: e.target.value })
+                      setPasswordData({
+                        ...passwordData,
+                        current: e.target.value,
+                      })
                     }
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white"
                   />
@@ -109,7 +111,10 @@ export default function UserInformationSecuritySettings() {
                     id="frmNewPassword"
                     value={passwordData.newPassword}
                     onChange={(e) =>
-                      setPasswordData({ ...passwordData, newPassword: e.target.value })
+                      setPasswordData({
+                        ...passwordData,
+                        newPassword: e.target.value,
+                      })
                     }
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white"
                   />
@@ -127,7 +132,10 @@ export default function UserInformationSecuritySettings() {
                     id="frmConfirmPassword"
                     value={passwordData.confirm}
                     onChange={(e) =>
-                      setPasswordData({ ...passwordData, confirm: e.target.value })
+                      setPasswordData({
+                        ...passwordData,
+                        confirm: e.target.value,
+                      })
                     }
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-800 dark:border-gray-600 dark:text-white"
                   />
@@ -211,10 +219,13 @@ export default function UserInformationSecuritySettings() {
                         : "bg-green-100 dark:bg-green-900"
                     }`}
                   >
-                    <i className={`${s.iconClass} ${s.iconColor === "blue"
+                    <i
+                      className={`${s.iconClass} ${
+                        s.iconColor === "blue"
                           ? "text-blue-600 dark:text-blue-400"
-                          : "text-green-600 dark:text-green-400"} text-sm`}></i>
-                    
+                          : "text-green-600 dark:text-green-400"
+                      } text-sm`}
+                    ></i>
                   </div>
 
                   <div>

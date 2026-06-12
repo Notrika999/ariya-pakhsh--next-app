@@ -1,28 +1,40 @@
-// components/templates/ProductListSection.tsx
-
 "use client";
 
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
-
 import { TransitionStartFunction } from "react";
-import ProductCardTest from "@/components/modules/ProductCard/ProductCardTest";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import ProductCardTest from "@/components/modules/ProductCard/ProductCard";
 import ProductCardSkeleton from "@/components/modules/ProductCard/ProductCardSkeleton";
 import FilterResponsive from "../Categories/FilterResponsive/FilterResponsive";
 import Filter from "../Categories/Filter/Filter";
 import SortList from "@/components/modules/sortOptions/sortOptions";
 import { normalizeProduct } from "@/src/lib/mappers/product.mapper";
+import type {
+  ProductListItem,
+  ProductListResponse,
+} from "@/src/lib/types/productTypes";
+import type { SortOption } from "@/types/product";
+
+type ProductListFilters = {
+  search: string;
+  // color: string;
+  brands: string[];
+  minPrice: number;
+  maxPrice: number;
+  sort: SortOption;
+};
 
 interface Props {
-  filters: any;
+  filters: ProductListFilters;
   pagination: {
     page: number;
     totalPages: number;
     totalCount: number;
   };
-  filterOptions: any;
+  filterOptions: ProductListResponse["filterOptions"];
   minLimit: number;
   maxLimit: number;
-  products: any[];
+  products: ProductListItem[];
   isLoading?: boolean;
   startTransition: TransitionStartFunction;
 }
@@ -42,15 +54,13 @@ export default function ProductListSection({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const handleSortChange = (newSort: string) => {
+  const handleSortChange = (newSort: SortOption) => {
     const params = new URLSearchParams(searchParams.toString());
-
     params.set("sort", newSort);
+    params.delete("page");
 
     startTransition(() => {
-      router.replace(`${pathname}?${params.toString()}`, {
-        scroll: false,
-      });
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     });
   };
 
@@ -61,10 +71,11 @@ export default function ProductListSection({
         brands={filterOptions.brands}
         minLimit={minLimit}
         maxLimit={maxLimit}
+        filterOptions={filterOptions}
         startTransition={startTransition}
       />
+
       <div className="grid grid-cols-12 gap-5 mt-6">
-        {/* Sidebar */}
         <aside className="lg:col-span-3 hidden lg:block">
           <div className="sticky top-6">
             <Filter
@@ -78,16 +89,14 @@ export default function ProductListSection({
           </div>
         </aside>
 
-        {/* Products */}
         <section className="lg:col-span-9 col-span-12">
           <div className="flex flex-wrap items-center sm:space-y-0 space-y-3 space-x-3">
             <div className="flex items-center gap-2">
-              <i className="fa-solid fa-sliders w-5 h-5 dark:text-white text-gray-700"></i>
+              <i className="fa-solid fa-sliders w-5 h-5 dark:text-white text-gray-700" />
               <span className="text-gray-700 dark:text-gray-200">
                 مرتب سازی:
               </span>
             </div>
-
             <SortList
               currentSort={filters.sort}
               onSortChange={handleSortChange}

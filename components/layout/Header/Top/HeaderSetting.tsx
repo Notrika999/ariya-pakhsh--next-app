@@ -2,6 +2,7 @@ import LoginModal from "@/components/modules/auth/LoginModal";
 import HeaderCart from "@/components/modules/HeaderCart/HeaderCart";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
+import { useCart } from "@/src/context/CartContext";
 
 export default function HeaderSetting() {
   const [darkMode, setDarkMode] = useState(() => {
@@ -11,7 +12,8 @@ export default function HeaderSetting() {
     return false;
   });
   const [cartOpen, setCartOpen] = useState(false);
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(true);
+  const { totalItems } = useCart();
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
@@ -37,9 +39,11 @@ export default function HeaderSetting() {
           >
             <i className="fa-regular fa-bag-shopping"></i>
 
-            <span className="size-4 text-sm -top-2 -inset-s-2 absolute bg-secondary dark:bg-primary-400 text-white dark:text-gray-100 rounded-lg text-center shadow-sm dark:shadow-[0_0_4px_rgba(255,255,255,0.2)] transition-colors duration-300">
-              2
-            </span>
+            {totalItems > 0 && (
+              <span className="size-4 text-sm -top-2 -inset-s-2 absolute bg-secondary dark:bg-primary-400 text-white dark:text-gray-100 rounded-lg text-center shadow-sm dark:shadow-[0_0_4px_rgba(255,255,255,0.2)] transition-colors duration-300">
+                {totalItems > 99 ? "99+" : totalItems}
+              </span>
+            )}
           </div>
           {/* dark mode  */}
           <div className="md:ms-5 ">
@@ -77,7 +81,10 @@ export default function HeaderSetting() {
         </div>
         <div className="lg:inline-block hidden me-3 h-10 w-px self-stretch bg-gray-200 dark:bg-gray-700"></div>
         {/* login  */}
-        <button onClick={() => setOpen(true)} className="flex items-center bg-white dark:bg-custom-dark text-gray-900 dark:text-gray-100 modal-trigger flex lg:py-2 lg:px-3 lg:border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1f242c] transition-colors duration-200">
+        <button
+          onClick={() => setOpen(true)}
+          className="flex items-center bg-white dark:bg-custom-dark text-gray-900 dark:text-gray-100 modal-trigger flex lg:py-2 lg:px-3 lg:border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1f242c] transition-colors duration-200"
+        >
           <i className="fa-regular fa-user-circle me-1"></i>
           <span className="lg:inline-block hidden">ورود / ثبت نام</span>
         </button>

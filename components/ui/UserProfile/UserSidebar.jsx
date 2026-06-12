@@ -1,5 +1,5 @@
 "use client";
-
+// components/ui/UserProfile/UserSidebar.jsx
 import React from "react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
@@ -11,7 +11,7 @@ export default function UserSidebar() {
     return pathname === href;
   };
 
-  console.log(pathname);
+
 
   const userPanelMenu = [
     {

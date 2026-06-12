@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import MenuClient from "./MenuClient";
-import {
-  getMegaMenu,
-  
-} from "@/src/services/category/category.service";
+import { getMegaMenu } from "@/src/services/category/category.service";
 
 export default function MegaMenu() {
   // const [menu, setMenu] = useState(null);
@@ -66,7 +63,7 @@ export default function MegaMenu() {
 
             <li className="">
               <Link
-                href="/categories"
+                href="/products"
                 className="flex space-x-3 hover:text-primary transition"
               >
                 <svg

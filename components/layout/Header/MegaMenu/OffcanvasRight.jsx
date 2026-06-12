@@ -73,7 +73,7 @@ export default function OffcanvasRight({ isOpen, onClose, menu }) {
         >
           <ul className="space-y-2 text-sm">
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="/">صفحه اصلی</Link>
+              <Link href="/" onClick={() => setIsOpen(false)}>صفحه اصلی</Link>
             </li>
 
             {menu.map((cat) => (
@@ -82,23 +82,23 @@ export default function OffcanvasRight({ isOpen, onClose, menu }) {
 
             {/* صفحات یا آیتم‌های ثابت می‌توانید اینجا اضافه کنید اگر نیاز باشد */}
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="/categories">لیست کالا ها</Link>
+              <Link href="/products" onClick={() => setIsOpen(false)}>لیست کالا ها</Link>
             </li>
 
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="#">پیگیری سفارش</Link>
+              <Link href="#" onClick={() => setIsOpen(false)}>پیگیری سفارش</Link>
             </li>
 
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="/faq">سوالی دارید</Link>
+              <Link href="/faq" onClick={() => setIsOpen(false)}>سوالی دارید</Link>
             </li>
 
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="/blog">بلاگ</Link>
+              <Link href="/blog" onClick={() => setIsOpen(false)}>بلاگ</Link>
             </li>
 
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="/contact">تماس با ما</Link>
+              <Link href="/contact" onClick={() => setIsOpen(false)}>تماس با ما</Link>
             </li>
           </ul>
         </nav>

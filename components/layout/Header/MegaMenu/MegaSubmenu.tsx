@@ -5,8 +5,6 @@ import Link from "next/link";
 import React from "react";
 
 export default function MegaSubmenu({ sections }: { sections: Category[] }) {
-
-  console.log(sections)
   const thumbItem = sections.find((s) => s?.src);
   const list = sections.filter((s) => !s?.src);
 
@@ -32,7 +30,9 @@ export default function MegaSubmenu({ sections }: { sections: Category[] }) {
                 </Link>
               ) : (
                 <>
-                  <Link href={sec.slug} className="text-sm font-bold">{sec.name}</Link>
+                  <Link href={sec.slug} className="text-sm font-bold">
+                    {sec.name}
+                  </Link>
 
                   <div className="mt-3 space-y-2">
                     {sec.children?.map((item) => (

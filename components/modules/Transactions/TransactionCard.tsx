@@ -15,7 +15,7 @@ export default function TransactionCard({ item }) {
   const amountColor = isIncome
     ? "text-green-600 dark:text-green-400"
     : "text-red-600 dark:text-red-400";
-console.log(item)
+
   return (
     <div
       className="border border-gray-200 dark:border-gray-700 rounded-2xl p-4"

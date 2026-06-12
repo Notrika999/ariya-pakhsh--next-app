@@ -19,8 +19,6 @@ export default function Faq() {
     fetchAll();
   }, []);
 
-  console.log(tabs);
-
   if (loading) return <div>در حال بارگذاری...</div>;
 
   return (

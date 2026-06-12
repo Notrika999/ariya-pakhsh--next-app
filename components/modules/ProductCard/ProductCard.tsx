@@ -5,9 +5,10 @@
 import Image from "next/image";
 import { useState, useCallback } from "react";
 import { ProductCardModel } from "@/src/lib/types/productTypes";
-import { formatPrice } from "@/lib/mock-data";
+import { formatPrice } from "@/src/utils/formatPrice";
 import CountdownTimer from "../CountdownTimer/CountdownTimer";
 import Link from "next/link";
+import { useCart } from "@/src/context/CartContext";
 
 interface ProductCardProps {
   product: ProductCardModel;
@@ -27,7 +28,7 @@ function StarRating({ rating, count }: { rating: number; count: number }) {
                 ? "text-amber-400"
                 : i === full && half
                   ? "text-amber-300"
-                  : "text-stone-200"
+                  : "text-stone-300 dark:text-stone-600"
             }`}
             fill="currentColor"
             viewBox="0 0 20 20"
@@ -36,74 +37,63 @@ function StarRating({ rating, count }: { rating: number; count: number }) {
           </svg>
         ))}
       </div>
-      <span className="text-xs text-stone-500">
+      <span className="text-xs text-stone-500 dark:text-stone-400">
         {rating.toFixed(1)} ({new Intl.NumberFormat("fa-IR").format(count)} نظر)
       </span>
     </div>
   );
 }
 
-export default function ProductCardTest({ product }: ProductCardProps) {
-
+export default function ProductCard({ product }: ProductCardProps) {
   const [wishlist, setWishlist] = useState(false);
   const [expired, setExpired] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
 
+  const { addItem } = useCart();
+
   const handleCart = useCallback(() => {
+    addItem({
+      id: product.id,
+      title: product.title,
+      image: product.image,
+      price: product.price,
+      oldPrice: product.oldPrice,
+      href: product.href,
+    });
     setAddedToCart(true);
     setTimeout(() => setAddedToCart(false), 2000);
-  }, []);
+  }, [addItem, product]);
 
   const review = {
     rating: product.rating,
     count: product.reviewCount,
   };
 
-  // const image = product.image?.trim();
+  console.log("Product Card => ", product);
 
-  // let imageSrc = "/images/default.png";
-
-  // if (image) {
-  //   if (image.startsWith("http")) {
-  //     imageSrc = image;
-  //   } else if (image.startsWith("/images/")) {
-  //     imageSrc = image;
-  //   } else {
-  //     imageSrc = `https://aryapakhsh.shop/${image.replace(/^\/+/, "")}`;
-  //   }
-  // }
-
-  const original = Number(product.originalPrice ?? 0);
-  const discounted = Number(product.discountedPrice ?? 0);
-
-  const savings = original - discounted;
- 
   return (
     <article
-      className={`group relative bg-white rounded-2xl overflow-hidden border transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
+      className={`group relative bg-white dark:bg-gray-900 rounded-2xl overflow-hidden border transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
         expired
-          ? "opacity-60 border-stone-200"
+          ? "opacity-60 border-stone-200 dark:border-stone-700"
           : product.isFeatured
-            ? "border-amber-200 shadow-lg shadow-amber-50"
-            : "border-stone-100 shadow-sm"
+            ? "border-amber-200 dark:border-amber-800 shadow-lg shadow-amber-50 dark:shadow-amber-950/30"
+            : "border-stone-100 dark:border-stone-800 shadow-sm"
       }`}
     >
-      {/* Featured glow */}
-      {/* {product.isFeatured && !expired && (
-        <div className="absolute inset-0 rounded-2xl ring-2 ring-amber-300/40 pointer-events-none z-10" />
-      )} */}
-
       {/* Wishlist */}
       <button
         onClick={() => setWishlist((w) => !w)}
         aria-label={
           wishlist ? "حذف از علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها"
         }
-        className="absolute top-3 left-3 z-20 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm shadow-sm flex items-center justify-center transition-all hover:scale-110 hover:bg-white"
+        className="absolute top-3 left-3 z-20 w-8 h-8 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-sm flex items-center justify-center transition-all hover:scale-110 hover:bg-white dark:hover:bg-gray-800"
       >
         <svg
           className={`w-4 h-4 transition-colors ${
-            wishlist ? "text-red-500 fill-red-500" : "text-stone-400"
+            wishlist
+              ? "text-red-500 fill-red-500"
+              : "text-stone-400 dark:text-stone-500"
           }`}
           fill={wishlist ? "currentColor" : "none"}
           stroke="currentColor"
@@ -119,23 +109,23 @@ export default function ProductCardTest({ product }: ProductCardProps) {
       </button>
 
       {/* Discount badge */}
-      <div className="absolute top-3 right-3 z-20">
-        {product.discountPercent && (
+      <div className="absolute top-3 right-3 z-20 flex flex-col gap-1">
+        {product?.discountPercent ? (
           <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-sm">
             {product.discountPercent}٪
           </div>
+        ) : (
+          ""
         )}
         {product.specialSale && (
-          <span
-            className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200`}
-          >
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
             ویژه
           </span>
         )}
       </div>
 
       {/* Image */}
-      <div className="relative w-full h-48 bg-gradient-to-br from-stone-50 to-stone-100 overflow-hidden">
+      <div className="relative w-full h-48 bg-stone-50 dark:bg-stone-800 overflow-hidden">
         <Image
           src={product.image}
           alt={product.title}
@@ -149,11 +139,11 @@ export default function ProductCardTest({ product }: ProductCardProps) {
         {/* Name */}
         <Link
           href={product.href}
-          className="text-sm font-bold text-stone-800 leading-relaxed line-clamp-2 min-h-10"
+          className="leading-relaxed line-clamp-2 min-h-10"
         >
           <span
             title={product.title}
-            className="text-sm font-medium text-gray-900 dark:text-gray-200 text-s block"
+            className="text-sm font-medium text-gray-900 dark:text-gray-100 block"
           >
             {product.title}
           </span>
@@ -166,8 +156,10 @@ export default function ProductCardTest({ product }: ProductCardProps) {
 
         {/* Countdown */}
         {product.dealEndsAt && !expired && (
-          <div className="flex items-center justify-between bg-stone-50 rounded-xl px-3 py-2">
-            <span className="text-[11px] text-stone-500">پایان پیشنهاد:</span>
+          <div className="flex items-center justify-between bg-stone-50 dark:bg-stone-800 rounded-xl px-3 py-2">
+            <span className="text-[11px] text-stone-500 dark:text-stone-400">
+              پایان پیشنهاد:
+            </span>
             <CountdownTimer
               targetDate={new Date(product.dealEndsAt)}
               variant="card"
@@ -177,17 +169,16 @@ export default function ProductCardTest({ product }: ProductCardProps) {
         )}
 
         {/* Prices */}
-        <div className="flex flex-col gap-1 pt-1 border-t border-stone-100">
+        <div className="flex flex-col gap-1 pt-1 border-t border-stone-100 dark:border-stone-800">
           <div className="flex items-center gap-2">
             {product.oldPrice !== product.price && (
-              <span className="text-[10px] font-bold text-stone-400 line-through text-nowrap">
+              <span className="text-[10px] font-bold text-stone-400 dark:text-stone-500 line-through text-nowrap">
                 {formatPrice(product?.oldPrice)}
               </span>
             )}
-
-            <span className=" font-black text-stone-900 tracking-tight text-lg text-nowrap text-left inline-block mr-auto">
+            <span className="font-black text-stone-900 dark:text-stone-100 tracking-tight text-lg text-nowrap text-left inline-block mr-auto">
               {formatPrice(product.price)}
-              <span className="inline-block text-[11px] font-bold -rotate-90 text-stone-500 border-b   dark:text-zinc-300">
+              <span className="inline-block text-[11px] font-bold -rotate-90 text-stone-500 dark:text-stone-400 border-b border-stone-300 dark:border-stone-600">
                 تومان
               </span>
             </span>
@@ -195,28 +186,30 @@ export default function ProductCardTest({ product }: ProductCardProps) {
         </div>
 
         {/* CTA */}
-        <div className="flex">
+        <div className="flex gap-2">
           <button
             onClick={handleCart}
             disabled={!product.inStock}
-            className={`w-full  py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
-              expired && !product.inStock
-                ? "bg-stone-100 text-stone-400 cursor-not-allowed"
+            className={`w-full py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
+              expired || !product.inStock
+                ? "bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-600 cursor-not-allowed"
                 : addedToCart
                   ? "bg-emerald-500 text-white scale-95"
-                  : "bg-stone-900 text-white hover:bg-amber-500 hover:shadow-lg hover:shadow-amber-200 active:scale-95"
+                  : "bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 hover:bg-amber-500 dark:hover:bg-amber-400 hover:shadow-lg hover:shadow-amber-200 dark:hover:shadow-amber-900/30 active:scale-95"
             }`}
           >
             {expired
               ? "پیشنهاد تمام شد"
-              : addedToCart
-                ? "✓ افزوده شد"
-                : "افزودن به سبد"}
+              : !product.inStock
+                ? "ناموجود"
+                : addedToCart
+                  ? "✓ افزوده شد"
+                  : "افزودن به سبد"}
           </button>
 
           <Link
             href={product.href}
-            className="w-full py-2 rounded-xl text-sm text-center font-bold transition-all duration-200 bg-primary-500 hover:bg-primary-400 text-white scale-95"
+            className="w-full py-2 rounded-xl text-sm text-center font-bold transition-all duration-200 bg-primary hover:bg-primary-400 text-white"
           >
             جزییات
           </Link>

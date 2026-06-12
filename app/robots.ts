@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: [
           "/",
           "/product/",
-          "/category",
+          "/products",
           "/blog/",
           "/about",
           "/contact",
@@ -28,6 +28,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: "https://example.com/sitemap.xml",
+    sitemap: "https://carup24.com/sitemap.xml",
   };
 }

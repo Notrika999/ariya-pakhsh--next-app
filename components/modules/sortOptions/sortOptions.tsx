@@ -1,7 +1,7 @@
 "use client";
-
+// components/modules/sortOptions/sortOptions.tsx
+import { SortOption } from "@/src/lib/types/filters/filters";
 import React from "react";
-import { SortOption, SORT_LABELS } from "@/types/product";
 
 const sortOptions: { label: string; value: SortOption }[] = [
   { label: "پیش‌فرض", value: "default" },
@@ -19,8 +19,6 @@ interface Props {
 }
 
 export default function SortList({ currentSort, onSortChange }: Props) {
-
-  console.log("Sort => ", currentSort)
   return (
     <div className="flex items-center overflow-x-auto  text-sm py-2">
       {sortOptions.map((option) => {

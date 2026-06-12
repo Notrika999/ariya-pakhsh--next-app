@@ -1,6 +1,6 @@
 import { SortOrder } from "../productTypes";
 
-// 
+//
 export interface DealsFilters {
   search: string;
 
@@ -18,7 +18,7 @@ export interface DealsFilters {
   badges: string[];
 }
 
-// 
+//
 export interface BrandFilterOption {
   brandId: string;
   name: string;
@@ -62,3 +62,13 @@ export interface AttributeFilter {
   attributeName: string;
   options: AttributeOption[];
 }
+
+export type SortOption =
+  | "default"
+  | "newest"
+  | "priceAsc"
+  | "priceDesc"
+  | "bestSelling"
+  | "mostRated"
+  | "discountDesc";
+

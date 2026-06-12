@@ -17,8 +17,6 @@ type Props = {
 };
 
 export default function CategoriesSlider({ categories }: Props) {
-  console.log("Category Slider => ", categories);
-
   return (
     <Swiper
       modules={[FreeMode]}

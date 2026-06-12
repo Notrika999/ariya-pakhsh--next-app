@@ -6,6 +6,7 @@ import NavMobile from "@/components/layout/NavMobile/NavMobile";
 import "./globals.css";
 import { BackToTopButton } from "@/components/modules/BackToTopButton/BackToTopButton";
 import ToastProvider from "@/components/modules/providers/ToastProvider";
+import { CartProvider } from "@/src/context/CartContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,12 +35,14 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="relative bg-custom-light dark:bg-[#0d1117] text-gray-900 dark:text-gray-100 transition-colors duration-300">
-        <Header />
-        {children}
-        <Footer />
-        <NavMobile />
-        <BackToTopButton />
-        <ToastProvider />
+        <CartProvider>
+          <Header />
+          {children}
+          <Footer />
+          <NavMobile />
+          <BackToTopButton />
+          <ToastProvider />
+        </CartProvider>
       </body>
     </html>
   );
