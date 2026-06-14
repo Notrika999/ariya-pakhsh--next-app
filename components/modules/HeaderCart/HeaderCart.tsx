@@ -16,8 +16,7 @@ interface HeaderCartProps {
 export default function HeaderCart({ open, onClose }: HeaderCartProps) {
   const { items, totalPrice, removeItem, updateQty } = useCart();
 
-
-  console.log(items)
+  // console.log(items);
 
   return (
     <div
@@ -61,15 +60,22 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
               <div className="flex flex-wrap items-center">
                 {/* Product Image */}
                 <div className="text-start w-1/3">
-                  <Link href={item.href} onClick={onClose}>
-                    <Image
-                      width={120}
-                      height={120}
-                      className="max-w-full rounded-lg shadow-sm dark:shadow-[0_0_10px_rgba(0,0,0,0.5)]"
-                      src={item.image}
-                      alt={item.title}
-                      loading="lazy"
-                    />
+                  <Link
+                    href={
+                      item.href 
+                    }
+                    onClick={onClose}
+                  >
+                    {item.image && (
+  <Image
+    width={120}
+    height={120}
+    className="max-w-full rounded-lg shadow-sm"
+    src={item.image}
+    alt={item.title}
+    loading="lazy"
+  />
+)}
                   </Link>
                 </div>
 

@@ -34,5 +34,7 @@ export default async function ProductDetailsPage({ params: pageParams }: PagePro
 
   const product = await getProductById(title);
 
+  console.log(product)
+
   return <ProductDetails product={product} />;
 }

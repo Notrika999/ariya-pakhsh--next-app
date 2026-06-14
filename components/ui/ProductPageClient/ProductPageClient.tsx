@@ -82,7 +82,9 @@ export default function ProductPageClient({ product }: Props) {
       <ConsumerProducts />
 
       <SectionContainer>
-        <Review />
+        <Review product={product}
+              variant={defaultVariant}
+              isOutOfStock={isOutOfStock} />
       </SectionContainer>
     </>
   );

@@ -69,7 +69,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     count: product.reviewCount,
   };
 
-  console.log("Product Card => ", product);
+  // console.log("Product Card => ", product);
 
   return (
     <article

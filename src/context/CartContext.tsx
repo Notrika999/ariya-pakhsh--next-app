@@ -12,7 +12,6 @@ import React, {
 import { CartItem, CartState } from "../lib/types/cart/cartTypes";
 import { cartStorage } from "../utils/cartStorage";
 
-
 // ─── Actions ──────────────────────────────────────────────────────────────────
 
 type CartAction =
@@ -33,9 +32,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
       const exists = state.items.find((i) => i.id === action.payload.id);
       const items = exists
         ? state.items.map((i) =>
-            i.id === action.payload.id
-              ? { ...i, quantity: i.quantity + 1 }
-              : i
+            i.id === action.payload.id ? { ...i, quantity: i.quantity + 1 } : i,
           )
         : [...state.items, { ...action.payload, quantity: 1 }];
       return { items };
@@ -56,7 +53,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         items: state.items.map((i) =>
           i.id === action.payload.id
             ? { ...i, quantity: action.payload.quantity }
-            : i
+            : i,
         ),
       };
     }
@@ -150,13 +147,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         // Network error — cart stays in localStorage, will be retried next login
       }
     },
-    []
+    [],
   );
 
-  const totalItems = state.items.reduce((sum, i) => sum + i.quantity, 0);
+  const totalItems = state.items.length;
+  // const totalItems = state.items.reduce((sum, i) => sum + i.quantity, 0);
   const totalPrice = state.items.reduce(
     (sum, i) => sum + i.price * i.quantity,
-    0
+    0,
   );
 
   return (

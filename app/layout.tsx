@@ -7,6 +7,7 @@ import "./globals.css";
 import { BackToTopButton } from "@/components/modules/BackToTopButton/BackToTopButton";
 import ToastProvider from "@/components/modules/providers/ToastProvider";
 import { CartProvider } from "@/src/context/CartContext";
+import AuthInitializer from "@/components/modules/AuthInitializer/AuthInitializer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({
     >
       <body className="relative bg-custom-light dark:bg-[#0d1117] text-gray-900 dark:text-gray-100 transition-colors duration-300">
         <CartProvider>
+          <AuthInitializer />
           <Header />
           {children}
           <Footer />

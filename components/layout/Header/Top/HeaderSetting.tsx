@@ -12,7 +12,7 @@ export default function HeaderSetting() {
     return false;
   });
   const [cartOpen, setCartOpen] = useState(false);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const { totalItems } = useCart();
 
   useEffect(() => {

@@ -76,7 +76,7 @@ export function mapProductIndex(data: ProductIndexData) {
 export function normalizeProduct(
   product: HomeProduct | Product | ProductListItem,
 ): ProductCardModel {
-  console.log("Product Mapper normalizeProduct => ", product);
+  // console.log("Product Mapper normalizeProduct => ", product);
   if (isProductListItem(product)) {
     return {
       id: product.productId,

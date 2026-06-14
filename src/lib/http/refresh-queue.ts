@@ -16,21 +16,26 @@ export function setIsRefreshing(value: boolean): void {
   isRefreshing = value
 }
 
-export function enqueueRefreshSubscriber(): Promise<unknown> {
+export function enqueueRefreshSubscriber(): Promise<void> {
   return new Promise((resolve, reject) => {
-    refreshSubscribers.push({ resolve, reject })
-  })
+    refreshSubscribers.push({
+      resolve: () => resolve(),
+      reject,
+    });
+  });
 }
 
 export function processRefreshQueue(success: boolean, error?: unknown): void {
-  refreshSubscribers.forEach(subscriber => {
+  const queue = [...refreshSubscribers];
+  refreshSubscribers = [];
+
+  queue.forEach((subscriber) => {
     if (success) {
-      subscriber.resolve()
+      subscriber.resolve();
     } else {
-      subscriber.reject(error)
+      subscriber.reject(error);
     }
-  })
-  refreshSubscribers = []
+  });
 }
 
 export function clearRefreshQueue(): void {

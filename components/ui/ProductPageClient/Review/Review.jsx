@@ -1,4 +1,5 @@
-"use client"
+// components/ui/ProductPageClient/Review/Review.jsx
+"use client";
 
 import React, { useEffect, useRef } from "react";
 import ProductIntroduction from "./ProductIntroduction";
@@ -7,8 +8,17 @@ import Specifications from "./Specifications";
 import Comments from "./Comments";
 import Question from "./Question";
 import ProductAction from "./ProductAction";
+import TabBar from "@/components/modules/TabBar/TabBar";
 
-export default function Review() {
+const TABS = [
+  { id: "desc", label: "معرفی اجمالی" },
+  { id: "intro", label: "معرفی تکمیلی" },
+  { id: "specs", label: "مشخصات فنی" },
+  { id: "comments", label: "نظرات" },
+  { id: "question", label: "پرسش و پاسخ" },
+];
+
+export default function Review({ product, variant, isOutOfStock }) {
   const navRef = useRef(null);
 
   useEffect(() => {
@@ -25,7 +35,10 @@ export default function Review() {
       getHeaderHeight() + nav.getBoundingClientRect().height + 16;
 
     const updateNavTop = () => {
-      nav.style.setProperty("--review-sticky-top", `${getHeaderHeight() + 8}px`);
+      nav.style.setProperty(
+        "--review-sticky-top",
+        `${getHeaderHeight() + 8}px`,
+      );
     };
 
     // تابع برای فعال کردن یک تب (مشترک برای کلیک و اسکرول)
@@ -57,7 +70,10 @@ export default function Review() {
 
       // اسکرول نرم با در نظر گرفتن هدر و تب‌بار sticky
       window.scrollTo({
-        top: section.getBoundingClientRect().top + window.scrollY - getStickyOffset(),
+        top:
+          section.getBoundingClientRect().top +
+          window.scrollY -
+          getStickyOffset(),
         behavior: "smooth",
       });
     };
@@ -106,7 +122,9 @@ export default function Review() {
       {/* <!-- Review --> */}
       <section className="xl:col-span-3 col-span-4">
         {/* <!--Tab bar--> */}
-        <nav
+        <TabBar navRef={navRef} tabs={TABS} />
+
+        {/* <nav
           ref={navRef}
           id="topBar"
           className="lg:sticky border border-gray-200 shadow-sm dark:border-gray-700 z-10 px-5 bg-white dark:bg-zinc-800 rounded-2xl mb-6"
@@ -157,7 +175,7 @@ export default function Review() {
               </button>
             </li>
           </ul>
-        </nav>
+        </nav> */}
 
         {/* <!--The content of the tabs--> */}
         <div className="space-y-8">
@@ -182,7 +200,7 @@ export default function Review() {
             id="specs"
             className="tab-section p-8 bg-white dark:bg-custom-dark dark:border-gray-700 rounded-2xl shadow-md border border-gray-200"
           >
-           <Specifications />
+            <Specifications />
           </div>
 
           {/* <!--Tab 4 - Comments--> */}
@@ -206,7 +224,11 @@ export default function Review() {
 
       {/* <!-- Product Action --> */}
       <section id="proAction" className="xl:col-span-1 col-span-4">
-        <ProductAction />
+        <ProductAction
+          product={product}
+          variant={variant}
+          isOutOfStock={isOutOfStock}
+        />
       </section>
     </div>
   );

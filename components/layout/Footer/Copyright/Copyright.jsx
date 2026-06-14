@@ -13,7 +13,7 @@ export default function Copyright() {
             href="#"
             className="text-xs text-gray-700 hover:text-primary dark:text-gray-300 dark:hover:text-primary/80 transition-colors duration-200"
           >
-            طراحی و توسعه : امید حقی
+            توسعه : امید حقی
           </a>
         </div>
       </div>
