@@ -1,13 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  FilterState,
-  ProductCategory,
-  SortOption,
-  CATEGORY_LABELS,
-} from "@/types/product";
+import { SortOption } from "@/src/lib/types/filters/filters";
 import SortList from "../sortOptions/sortOptions";
+
+interface FilterState {
+  search?: string;
+  category?: string;
+  sort: SortOption;
+  minPrice?: number;
+  maxPrice?: number;
+}
 
 interface FilterSortProps {
   filter: FilterState;
@@ -15,8 +18,6 @@ interface FilterSortProps {
   totalCount: number;
   filteredCount: number;
 }
-
-const CATEGORIES = Object.keys(CATEGORY_LABELS) as ProductCategory[];
 
 export default function FilterSort({
   filter,

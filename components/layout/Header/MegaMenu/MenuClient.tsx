@@ -1,5 +1,5 @@
 "use client";
-
+// components/layout/Header/MegaMenu/MenuClient.tsx
 import React, { useState } from "react";
 import MenuItem from "./MenuItem";
 import MegaSubmenu from "./MegaSubmenu";
@@ -7,16 +7,21 @@ import { Category } from "@/src/lib/types/categories/menuType";
 
 export default function MenuClient({ menu }: { menu: Category[] }) {
   const [megaOpen, setMegaOpen] = useState(false);
+  const [activeMegaId, setActiveMegaId] = useState<string | null>(null);
 
-  const [activeMegaId, setActiveMegaId] = useState<string | null>(
-    menu?.[0]?.id ?? null,
-  );
+  const activeCategory =
+    menu.find((cat) => cat.id === activeMegaId) ?? menu[0] ?? null;
 
-  const activeCategory = menu.find((cat) => cat.id === activeMegaId);
+  const handleMegaEnter = () => {
+    setMegaOpen(true);
+    if (menu[0]?.id) {
+      setActiveMegaId(menu[0].id);
+    }
+  };
 
   return (
     <li
-      onMouseEnter={() => setMegaOpen(true)}
+      onMouseEnter={handleMegaEnter}
       onMouseLeave={() => setMegaOpen(false)}
       className="border-e-2 pe-3 border-e-gray-300"
     >

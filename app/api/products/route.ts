@@ -2,7 +2,7 @@
 // این API route برای infinite scroll توسط client استفاده میشه
 
 import { NextRequest, NextResponse } from "next/server";
-import { getProductList } from "@/src/services/product/product.service";
+import { getProductList } from "@/src/services/product/product.server";
 import type { SortOrder } from "@/src/lib/types/productTypes";
 
 const SORT_ORDERS: SortOrder[] = [

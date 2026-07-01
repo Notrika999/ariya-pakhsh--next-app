@@ -22,7 +22,8 @@ export async function apiFetch<T>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const token = cookies().get("accessToken")?.value;
+  const cookieStore = await cookies();
+  const token = cookieStore.get("accessToken")?.value;
 
   const { headers, params, ...rest } = options;
   const url = buildUrl(endpoint, params);

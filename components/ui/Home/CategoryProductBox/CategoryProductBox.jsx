@@ -2,7 +2,7 @@ import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function CategoryProductBox({ productsLast, title, href }) {
+export default function CategoryProductBox({ suggestedProducts, title, href }) {
   return (
     <>
       <h2 className="sr-only">آخرین مشاهدات کاربر</h2>
@@ -13,7 +13,7 @@ export default function CategoryProductBox({ productsLast, title, href }) {
       {/* <!--items--> */}
       <div className="grid grid-cols-12 gap-4 place-items-center">
         {/* <!-- CATEGORY BOX 2 --> */}
-        {productsLast.map((products) => (
+        {suggestedProducts.map((products) => (
           <section
             key={products.id}
             className="lg:col-span-6 xl:col-span-4 col-span-12 w-full bg-white dark:bg-custom-dark rounded-2xl p-1 drop-shadow dark:shadow-[0_0_15px_rgba(0,0,0,0.6)]"

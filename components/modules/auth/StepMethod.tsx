@@ -1,6 +1,14 @@
-import React from 'react'
+interface StepMethodProps {
+  onOtp: () => void;
+  onPassword: () => void;
+  onForgot: () => void;
+}
 
-export default function StepMethod({ onOtp, onPassword, onForgot }) {
+export default function StepMethod({
+  onOtp,
+  onPassword,
+  onForgot,
+}: StepMethodProps) {
   return (
     <div className="space-y-4">
 
@@ -27,5 +35,5 @@ export default function StepMethod({ onOtp, onPassword, onForgot }) {
 
 
     </div>
-  )
+  );
 }

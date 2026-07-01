@@ -1,0 +1,249 @@
+// src/lib/auth/auth-route-utils.ts
+
+import "server-only";
+
+import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+import {
+  buildBackendUrl,
+  extractSetCookieHeaders,
+  ProxyError,
+  proxyToBackend,
+} from "@/src/lib/http/server-http";
+import { AUTH_COOKIE_NAMES } from "./constants";
+import {
+  clearAllAuthCookies,
+  extractExpiresIn,
+  rehostBackendCookies,
+  setAuthCookiesFromBody,
+  setAuthIndicator,
+  setDeviceIdFromBody,
+} from "./cookie-utils";
+
+async function buildDeviceCookieHeader(): Promise<Record<string, string>> {
+  const cookieStore = await cookies();
+  const deviceId = cookieStore.get(AUTH_COOKIE_NAMES.DEVICE_ID)?.value;
+  if (!deviceId) return {};
+  return {
+    Cookie: `${AUTH_COOKIE_NAMES.DEVICE_ID}=${deviceId}`,
+  };
+}
+
+export async function handleCustomerAuthPost(
+  request: NextRequest,
+  backendPath: string,
+  options?: {
+    withAuth?: boolean;
+    setAuthIndicator?: boolean;
+  },
+): Promise<NextResponse> {
+  console.log(
+    "[auth-route] handleCustomerAuthPost =>",
+    buildBackendUrl(backendPath),
+  );
+  try {
+    const body = await request.json();
+    const extraHeaders = await buildDeviceCookieHeader();
+
+    console.log("[auth-route] body =>", body);
+    const response = await proxyToBackend({
+      method: "POST",
+      path: backendPath,
+      body,
+      headers: extraHeaders,
+      withAuth: options?.withAuth ?? false,
+      retries: 0,
+    });
+
+    console.log("[auth-route] status =>", response.status, "ok =>", response.ok);
+
+    if (!response.ok) {
+      console.warn("[auth-route] backend error =>", response.data);
+      return NextResponse.json(response.data, { status: response.status });
+    }
+
+    const nextResponse = NextResponse.json(response.data, {
+      status: response.status,
+    });
+
+    // 1) بکندهای cookie-based: Set-Cookie را rehost کن
+    rehostBackendCookies(nextResponse, extractSetCookieHeaders(response.headers));
+
+    // 2) بکندهای Bearer-based: توکن‌ها را از body بخوان و کوکی کن
+    const tokensSet = setAuthCookiesFromBody(nextResponse, response.data);
+    const deviceSet = setDeviceIdFromBody(nextResponse, response.data);
+
+    if (options?.setAuthIndicator) {
+      const expiresIn = extractExpiresIn(response.data);
+      setAuthIndicator(nextResponse, expiresIn);
+    }
+
+    console.log(
+      "[auth-route] cookies set =>",
+      nextResponse.cookies.getAll().map((c) => c.name),
+      "fromBody =>",
+      tokensSet,
+      "deviceFromBody =>",
+      deviceSet,
+    );
+
+    return nextResponse;
+  } catch (error) {
+    console.error("[auth-route] handleCustomerAuthPost error =>", error);
+    if (error instanceof ProxyError) {
+      return NextResponse.json(
+        {
+          error:
+            error.code === "TIMEOUT"
+              ? "زمان درخواست به پایان رسید."
+              : "سرویس در دسترس نیست.",
+        },
+        { status: error.code === "TIMEOUT" ? 504 : 502 },
+      );
+    }
+
+    return NextResponse.json({ error: "خطای داخلی سرور" }, { status: 500 });
+  }
+}
+
+export async function handleCustomerAuthGet(
+  backendPath: string,
+  withAuth = true,
+): Promise<NextResponse> {
+  try {
+    const response = await proxyToBackend({
+      method: "GET",
+      path: backendPath,
+      withAuth,
+    });
+
+    console.log("[auth-route] GET backend raw response before client store =>", {
+      backendPath,
+      status: response.status,
+      ok: response.ok,
+      data: response.data,
+    });
+
+    return NextResponse.json(response.data, { status: response.status });
+  } catch (error) {
+    if (error instanceof ProxyError) {
+      return NextResponse.json(
+        {
+          error:
+            error.code === "TIMEOUT"
+              ? "زمان درخواست به پایان رسید."
+              : "سرویس در دسترس نیست.",
+        },
+        { status: error.code === "TIMEOUT" ? 504 : 502 },
+      );
+    }
+
+    return NextResponse.json({ error: "خطای داخلی سرور" }, { status: 500 });
+  }
+}
+
+export async function handleCustomerAuthLogout(
+  backendPath: string,
+): Promise<NextResponse> {
+  try {
+    const cookieStore = await cookies();
+    const refreshToken = cookieStore.get(AUTH_COOKIE_NAMES.REFRESH_TOKEN)?.value;
+    const extraHeaders: Record<string, string> = {};
+
+    if (refreshToken) {
+      extraHeaders.Cookie = `${AUTH_COOKIE_NAMES.REFRESH_TOKEN}=${refreshToken}`;
+    }
+
+    await proxyToBackend({
+      method: "POST",
+      path: backendPath,
+      withAuth: true,
+      timeout: 5_000,
+      retries: 0,
+      headers: extraHeaders,
+    });
+  } catch {
+    // always clear local cookies even if backend logout fails
+  }
+
+  const nextResponse = NextResponse.json({
+    success: true,
+    message: "خروج با موفقیت انجام شد.",
+  });
+
+  clearAllAuthCookies(nextResponse);
+  return nextResponse;
+}
+
+export async function handleCustomerAuthRefresh(
+  backendPath: string,
+): Promise<NextResponse> {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get(AUTH_COOKIE_NAMES.ACCESS_TOKEN)?.value;
+    const refreshToken = cookieStore.get(AUTH_COOKIE_NAMES.REFRESH_TOKEN)?.value;
+    const deviceId = cookieStore.get(AUTH_COOKIE_NAMES.DEVICE_ID)?.value;
+
+    if (!refreshToken) {
+      const res = NextResponse.json(
+        { error: "هیچ رفرش توکنی پیدا نشد.", success: false },
+        { status: 401 },
+      );
+      clearAllAuthCookies(res);
+      return res;
+    }
+
+    const cookieParts: string[] = [];
+    if (accessToken) {
+      cookieParts.push(`${AUTH_COOKIE_NAMES.ACCESS_TOKEN}=${accessToken}`);
+    }
+    cookieParts.push(`${AUTH_COOKIE_NAMES.REFRESH_TOKEN}=${refreshToken}`);
+    if (deviceId) {
+      cookieParts.push(`${AUTH_COOKIE_NAMES.DEVICE_ID}=${deviceId}`);
+    }
+
+    const backendUrl = buildBackendUrl(backendPath);
+    const backendResponse = await fetch(backendUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: cookieParts.join("; "),
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+      // بکند Bearer-based ممکن است refreshToken را در body بخواهد
+      body: JSON.stringify({ refreshToken, deviceId }),
+      signal: AbortSignal.timeout(15_000),
+    });
+
+    const setCookies = backendResponse.headers.getSetCookie?.() ?? [];
+
+    if (!backendResponse.ok) {
+      const res = NextResponse.json(
+        { error: "عملیات نوسازی توکن با شکست مواجه شد.", success: false },
+        { status: 401 },
+      );
+      rehostBackendCookies(res, setCookies);
+      clearAllAuthCookies(res);
+      return res;
+    }
+
+    const responseData = await backendResponse.json().catch(() => ({}));
+    const nextResponse = NextResponse.json(
+      { success: true, ...responseData },
+      { status: 200 },
+    );
+
+    rehostBackendCookies(nextResponse, setCookies);
+    setAuthCookiesFromBody(nextResponse, responseData);
+    setAuthIndicator(nextResponse, extractExpiresIn(responseData));
+
+    return nextResponse;
+  } catch {
+    const res = NextResponse.json(
+      { error: "عملیات نوسازی رفرش توکن با شکست مواجه شد.", success: false },
+      { status: 500 },
+    );
+    clearAllAuthCookies(res);
+    return res;
+  }
+}

@@ -9,13 +9,11 @@
  */
 
 import { FormEvent, useRef, useState } from "react";
-// import { Captcha } from "./index";
+import { Captcha as CaptchaWidget } from "./index";
 import type { CaptchaHandle } from "./index";
 
 export default function Captcha() {
   const captchaRef = useRef<CaptchaHandle | null>(null);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [captchaValid, setCaptchaValid] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -39,7 +37,7 @@ export default function Captcha() {
           role="status"
           className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-emerald-700"
         >
-          <p className="font-medium">Thanks {name || "friend"}! 🎉</p>
+          <p className="font-medium">Thanks!</p>
           <p className="text-sm">Your message has been queued for review.</p>
         </div>
       ) : (
@@ -49,7 +47,7 @@ export default function Captcha() {
             <label className="mb-1 block text-sm font-medium text-slate-700">
               CAPTCHA
             </label>
-            <Captcha
+            <CaptchaWidget
               ref={captchaRef}
               length={6}
               width={220}

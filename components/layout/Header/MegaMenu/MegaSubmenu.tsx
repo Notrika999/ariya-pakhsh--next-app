@@ -23,7 +23,7 @@ export default function MegaSubmenu({ sections }: { sections: Category[] }) {
             <div className="mb-2">
               {sec.isLeaf ? (
                 <Link
-                  href={`/categories/${sec.slug}`}
+                  href={`/products/${sec.slug}`}
                   className="text-sm font-bold hover:text-primary"
                 >
                   {sec.name}
@@ -38,7 +38,7 @@ export default function MegaSubmenu({ sections }: { sections: Category[] }) {
                     {sec.children?.map((item) => (
                       <Link
                         key={item.id}
-                        href={`/category/${item.slug}`}
+                        href={`/products/${item.slug}`}
                         className="text-[.7rem] text-gray-600 block hover:text-primary dark:text-gray-300"
                       >
                         {item.name}

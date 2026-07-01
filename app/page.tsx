@@ -1,4 +1,6 @@
-import { getProducts } from "@/src/services/product/product.service";
+// app/page.tsx
+import { getProducts } from "@/src/services/product/product.server";
+import { getAmazingProducts } from "@/src/services/promotion/promotion.server";
 
 import Story from "@/components/ui/Home/Story/Story";
 import Slider from "@/components/ui/Home/Slider/Slider";
@@ -8,16 +10,18 @@ import Category from "@/components/ui/Home/Category/Category";
 import Banner from "@/components/ui/Home/Banner/Banner";
 import UserLatestViews from "@/components/ui/Home/CategoryProductBox/CategoryProductBox";
 import Brand from "@/components/ui/Home/Brand/Brand";
-import LastBlogs from "@/components/ui/Home/LastBlogs/LastBlogs";
 
-import { getBrands } from "@/src/services/brand/brand.service";
-import { getPromotedCategories } from "@/src/services/category/category.service";
+import { getBrands } from "@/src/services/brand/brand.server";
+import { getPromotedCategories } from "@/src/services/category/category.server";
 import SliderProduct from "@/components/modules/SliderProduct/SliderProduct";
 
 import { Metadata } from "next";
+import { absoluteUrl } from "@/src/lib/seo/site";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 import HeroSection from "@/components/ui/IncredibleOffers/HeroSection/HeroSection";
 import { mapToBestSellingProducts } from "@/src/lib/mappers/best-selling-products.mapper";
+
+export const dynamic = "force-dynamic";
 
 // ساختار متاتگ‌ها به صورت استاندارد و حرفه‌ای
 export const metadata: Metadata = {
@@ -43,7 +47,7 @@ export const metadata: Metadata = {
       "بهترین پیشنهادهای روزانه و محصولات شگفت‌انگیز را در فروشگاه ما دنبال کنید.",
     type: "website",
     locale: "fa_IR",
-    url: "https://carup24.com", // آدرس اصلی سایت را اینجا وارد کنید
+    url: absoluteUrl(),
     siteName: "کارآپ 24",
     images: [
       {
@@ -61,7 +65,7 @@ export const metadata: Metadata = {
     images: ["/images/og-image.jpg"],
   },
   alternates: {
-    canonical: "https://carup24.com",
+    canonical: absoluteUrl(),
   },
 };
 
@@ -97,16 +101,25 @@ export default async function Home() {
     img: cat.image?.iconUrl ?? "/images/default.png",
   }));
 
-  // stories, sliders, newProducts, productsLast, lastProductLists, lastBlogLits
-  // همگی فیک
-  const homeData = await getProducts();
+  const homeData = await getProducts({
+    TopCategoriesCount: 10,
+  });
+  const amazingProducts = await getAmazingProducts({
+    includeDealTimer: false,
+  });
+  const newestProducts = homeData.newestProducts ?? [];
+  const featuredProducts = homeData.featuredProducts ?? [];
+  const topCategoriesMap = (homeData.topCategories ?? []).map((cat) => ({
+    id: cat.categoryId,
+    name: cat.name,
+    slug: cat.slug,
+    src: "/images/default.png",
+  }));
 
   const bestSellingProducts = mapToBestSellingProducts(
-    homeData.bestSellingProducts,
+    homeData.bestSellingProducts ?? [],
     3,
   );
-
-  // const amazingProducts = products?.filter((p) => p.offer === true) ?? [];
 
   const stories = [
     {
@@ -411,107 +424,7 @@ export default async function Home() {
     },
   ];
 
-  const newProducts = [
-    {
-      id: 1,
-      name: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-      image: "/images/product/laptop-2.png",
-      discountPercent: "3",
-      discountedPrice: 13550000,
-      originalPrice: 13900000,
-      rating: 4,
-      review: { rating: 4.8, count: 214 },
-      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
-      href: "/product",
-    },
-    {
-      id: 2,
-      name: "تبلت سامسونگ مدل S8",
-      image: "/images/product/laptop-1.png",
-      discountPercent: "3",
-      discountedPrice: 13550000,
-      originalPrice: 13900000,
-      rating: 4,
-      review: { rating: 4.8, count: 214 },
-      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
-      href: "/product",
-    },
-    {
-      id: 3,
-      name: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-      image: "/images/product/laptop-3.png",
-      discountPercent: "3",
-      discountedPrice: 13550000,
-      originalPrice: 13900000,
-      rating: 4,
-      review: { rating: 4.8, count: 214 },
-      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
-      href: "/product",
-    },
-    {
-      id: 4,
-      name: "تبلت سامسونگ مدل S8",
-      image: "/images/product/television-2.png",
-      discountPercent: "3",
-      discountedPrice: 13550000,
-      originalPrice: 13900000,
-      rating: 4,
-      review: { rating: 4.8, count: 214 },
-      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
-      href: "/product",
-    },
-    {
-      id: 5,
-      name: "تبلت سامسونگ مدل S8",
-      image: "/images/product/laptop-5.png",
-      discountPercent: "3",
-      discountedPrice: 13550000,
-      originalPrice: 13900000,
-      rating: 4,
-      review: { rating: 4.8, count: 214 },
-      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
-      href: "/product",
-    },
-    {
-      id: 6,
-      name: "تبلت سامسونگ مدل S8",
-      image: "/images/product/laptop-1.png",
-      discountPercent: "3",
-      discountedPrice: 13550000,
-      originalPrice: 13900000,
-      rating: 4,
-      review: { rating: 4.8, count: 214 },
-      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
-      href: "/product",
-    },
-    {
-      id: 7,
-      name: "تبلت سامسونگ مدل S8",
-      image: "/images/product/wach-2.png",
-      discountPercent: "3",
-      discountedPrice: 13550000,
-      originalPrice: 13900000,
-      rating: 4,
-      review: { rating: 4.8, count: 214 },
-      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
-      href: "/product",
-    },
-    {
-      id: 8,
-      name: "تبلت سامسونگ مدل S8",
-      image: "/images/product/laptop-1.png",
-      discountPercent: "3",
-      discountedPrice: 13550000,
-      originalPrice: 13900000,
-      rating: 4,
-      review: { rating: 4.8, count: 214 },
-      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
-      href: "/product",
-    },
-    // سایر محصولات را اینجا اضافه کنید...
-  ];
-
-  const productsLast = [
+  const suggestedProducts = [
     {
       id: 1,
       title: "لپتاپ",
@@ -676,172 +589,10 @@ export default async function Home() {
     },
   ];
 
-  const lastProductLists = [
-    {
-      id: 1,
-      products: [
-        {
-          id: 1,
-          title: "گوشی موبایل اپل مدل iPhone 13 Pro Max دو سیم کارت",
-          image: "/images/product/mobile-1.png",
-          href: "/product",
-        },
-        {
-          id: 2,
-          title: "گوشی موبایل اپل مدل iPhone 13 Pro Max",
-          image: "/images/product/television-2.png",
-          href: "/product",
-        },
-        {
-          id: 3,
-          title: "گوشی موبایل اپل مدل iPhone 13 Pro Max",
-          image: "/images/product/television-1.png",
-          href: "/product",
-        },
-      ],
-    },
-    {
-      id: 2,
-      products: [
-        {
-          id: 1,
-          title: "گوشی موبایل اپل مدل iPhone 13 Pro Max دو سیم کارت",
-          image: "/images/product/mobile-4.png",
-          href: "/product",
-        },
-        {
-          id: 2,
-          title: "گوشی موبایل اپل مدل iPhone 13 Pro Max",
-          image: "/images/product/mobile-6.png",
-          href: "/product",
-        },
-        {
-          id: 3,
-          title: "گوشی موبایل اپل مدل iPhone 13 Pro Max",
-          image: "/images/product/wach-4.png",
-          href: "/product",
-        },
-      ],
-    },
-    {
-      id: 3,
-      products: [
-        {
-          id: 1,
-          title: "گوشی موبایل اپل مدل iPhone 13 Pro Max دو سیم کارت",
-          image: "/images/product/mobile-5.png",
-          href: "/product",
-        },
-        {
-          id: 2,
-          title: "گوشی موبایل اپل مدل iPhone 13 Pro Max",
-          image: "/images/product/television-2.png",
-          href: "/product",
-        },
-        {
-          id: 3,
-          title: "گوشی موبایل اپل مدل iPhone 13 Pro Max",
-          image: "/images/product/wach-3.png",
-          href: "/product",
-        },
-      ],
-    },
-    {
-      id: 4,
-      products: [
-        {
-          id: 1,
-          title: "گوشی موبایل اپل مدل iPhone 13 Pro Max دو سیم کارت",
-          image: "/images/product/mobile-6.png",
-          href: "/product",
-        },
-        {
-          id: 2,
-          title: "گوشی موبایل اپل مدل iPhone 13 Pro Max",
-          image: "/images/product/mobile-4.png",
-          href: "/product",
-        },
-        {
-          id: 3,
-          title: "گوشی موبایل اپل مدل iPhone 13 Pro Max",
-          image: "/images/product/wach-2.png",
-          href: "/product",
-        },
-      ],
-    },
-    {
-      id: 5,
-      products: [
-        {
-          id: 1,
-          title: "گوشی موبایل اپل مدل iPhone 13 Pro Max دو سیم کارت",
-          image: "/images/product/mobile-1.png",
-          href: "/product",
-        },
-        {
-          id: 2,
-          title: "گوشی موبایل اپل مدل iPhone 13 Pro Max",
-          image: "/images/product/television-2.png",
-          href: "/product",
-        },
-        {
-          id: 3,
-          title: "گوشی موبایل اپل مدل iPhone 13 Pro Max",
-          image: "/images/product/television-1.png",
-          href: "/product",
-        },
-      ],
-    },
-  ];
-
-  const lastBlogLits = [
-    {
-      id: 1,
-      image: "/images/blog/blog-1.jpg",
-      title: "آخرین پرچمدار شیائومی",
-      date: "۲۱ آبان ۱۴۰۴",
-      href: "#",
-    },
-    {
-      id: 2,
-      image: "/images/blog/blog-2.jpg",
-      title: "آخرین پرچمدار شیائومی",
-      date: "۲2 آبان ۱۴۰۴",
-      href: "#",
-    },
-    {
-      id: 3,
-      image: "/images/blog/blog-3.jpg",
-      title: "آخرین پرچمدار شیائومی",
-      date: "۲2 آبان ۱۴۰۴",
-      href: "#",
-    },
-    {
-      id: 4,
-      image: "/images/blog/blog-4.jpg",
-      title: "آخرین پرچمدار شیائومی",
-      date: "۲3 آبان ۱۴۰۴",
-      href: "#",
-    },
-    {
-      id: 5,
-      image: "/images/blog/blog-5.jpg",
-      title: "آخرین پرچمدار شیائومی",
-      date: "۲3 آبان ۱۴۰۴",
-      href: "#",
-    },
-    {
-      id: 6,
-      image: "/images/blog/blog-6.jpg",
-      title: "آخرین پرچمدار شیائومی",
-      date: "۲3 آبان ۱۴۰۴",
-      href: "#",
-    },
-  ];
   return (
     <main>
       {/* <!-- START STORY SECTION --> */}
-      <SectionContainer>
+      <SectionContainer className="hidden">
         <Story stories={stories} />
       </SectionContainer>
       {/* <!-- END STORY SECTION --> */}
@@ -853,22 +604,36 @@ export default async function Home() {
       {/* <!-- END SLIDER SECTION --> */}
 
       {/* <!-- START AMAZING SECTION --> */}
-      <SectionContainer>
-        <h5></h5>
-        {/* <AmazingProducts products={amazingProducts} /> */}
-      </SectionContainer>
+      {amazingProducts.length > 0 && (
+        <SectionContainer>
+          <AmazingProducts products={amazingProducts} />
+        </SectionContainer>
+      )}
       {/* <!-- END AMAZING SECTION --> */}
 
+      {/* <!-- START TOP CATEGORIES SECTION --> */}
+      {topCategoriesMap.length > 0 && (
+        <SectionContainer>
+          <Category
+            categories={topCategoriesMap}
+            title="دسته‌بندی‌های برتر"
+          />
+        </SectionContainer>
+      )}
+      {/* <!-- END TOP CATEGORIES SECTION --> */}
+
       {/* <!-- START Featured CATEGORY SECTION --> */}
-      <SectionContainer>
-        <Category
-          categories={featuredCategoriesMap}
-          title="دسته‌بندی‌های ویژه"
-        />
-      </SectionContainer>
+      {featuredCategoriesMap.length > 0 && (
+        <SectionContainer>
+          <Category
+            categories={featuredCategoriesMap}
+            title="دسته‌بندی‌های ویژه"
+          />
+        </SectionContainer>
+      )}
       {/* <!-- END CATEGORY SECTION --> */}
 
-      <SectionContainer>
+      <SectionContainer className="hidden">
         <HeroSection />
       </SectionContainer>
 
@@ -879,60 +644,78 @@ export default async function Home() {
       {/* <!-- END BANNER SECTION --> */}
 
       {/* <!-- START Recommended CATEGORY SECTION --> */}
-      <SectionContainer>
-        <Category
-          categories={recommendedCategoriesMap}
-          title="دسته‌بندی‌های پیشنهادی"
-        />
-      </SectionContainer>
+      {recommendedCategoriesMap.length > 0 ? (
+        <SectionContainer>
+          <Category
+            categories={recommendedCategoriesMap}
+            title="دسته‌بندی‌های پیشنهادی"
+          />
+        </SectionContainer>
+      ) : null}
       {/* <!-- END CATEGORY SECTION --> */}
 
       {/* <!-- START NEW PRODUCT SLIDER SECTION -->/ */}
-      <SectionContainer>
-        <SliderProduct
-          products={homeData.newestProducts}
-          loop={false}
-          title="جدیدترین محصولات"
-          href="#"
-        />
-      </SectionContainer>
+      {newestProducts.length > 0 ? (
+        <SectionContainer>
+          <SliderProduct
+            products={newestProducts}
+            loop={false}
+            title="جدیدترین محصولات"
+            href="#"
+          />
+        </SectionContainer>
+      ) : null}
       {/* <!-- END NEW PRODUCT SLIDER SECTION --> */}
 
       {/* <!-- START LATEST VIEW SECTION --> */}
-      <SectionContainer>
-        <UserLatestViews
-          productsLast={productsLast}
-          title={"محصولات پیشنهادی"}
-          href={"#"}
-        />
-      </SectionContainer>
+      {suggestedProducts.length > 0 ? (
+        <SectionContainer className="hidden">
+          <UserLatestViews
+            suggestedProducts={suggestedProducts}
+            title={"محصولات پیشنهادی"}
+            href={"#"}
+          />
+        </SectionContainer>
+      ) : null}
       {/* <!-- END LATEST VIEW SECTION --> */}
 
       {/* <!-- START NEW PRODUCT SECTION --> */}
-      <SectionContainer>
-        <BestSellingProducts
-          bestSellingProducts={bestSellingProducts}
-          title={"پرفروش ترین محصولات"}
-          href={"#"}
-        />
-      </SectionContainer>
+      {bestSellingProducts.length > 0 ? (
+        <SectionContainer>
+          <BestSellingProducts
+            bestSellingProducts={bestSellingProducts}
+            title={"پرفروش ترین محصولات"}
+            href={"#"}
+          />
+        </SectionContainer>
+      ) : null}
       {/* <!-- END NEW PRODUCT SECTION --> */}
 
       {/* <!-- START PRODUCT SLIDER SECTION -->/ */}
-      <SectionContainer>
-        <SliderProduct
-          loop={true}
-          products={homeData.featuredProducts}
-          title="محصولات ویژه"
-          href="#"
-        />
-      </SectionContainer>
+      {featuredProducts.length > 0 ? (
+        <SectionContainer>
+          <SliderProduct
+            products={featuredProducts}
+            loop={true}
+            title="محصولات ویژه"
+            href="#"
+          />
+        </SectionContainer>
+      ) : null}
+
       {/* <!-- END PRODUCT SLIDER SECTION --> */}
 
       {/* <!-- START BRAND SECTION --> */}
-      <SectionContainer>
-        <Brand brands={brands.items} title={"برندهای های فروشگاه"} href={"#"} />
-      </SectionContainer>
+      {brands.items.length > 0 ? (
+        <SectionContainer>
+          <Brand
+            brands={brands.items}
+            title={"برندهای های فروشگاه"}
+            href={"#"}
+          />
+        </SectionContainer>
+      ) : null}
+
       {/* <!-- END BRAND SECTION --> */}
 
       {/* <!-- START BLOG SECTION --> */}

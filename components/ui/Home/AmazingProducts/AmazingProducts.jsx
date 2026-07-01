@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 
@@ -12,26 +12,62 @@ import "swiper/css/navigation";
 import ProductCard from "@/components/modules/ProductCard/ProductCard";
 import Image from "next/image";
 import Link from "next/link";
-import ProductCardTest from "@/components/modules/ProductCard/ProductCard";
 
 // اگر CSS/دکمه‌ها را با کلاس‌های سفارشی داری، این کلاس‌ها را همان نگه می‌داریم:
 const prevBtnClass = ".swiper-button-prev-amazing";
 const nextBtnClass = ".swiper-button-next-amazing";
+
+function pad(value) {
+  return String(value).padStart(2, "0");
+}
+
+const AmazingHeaderTimer = memo(function AmazingHeaderTimer({ enabled }) {
+  const [remainingSeconds, setRemainingSeconds] = useState(() => {
+    if (!enabled) return 0;
+    return Math.floor(Math.random() * (24 * 60 * 60 - 60 * 60 + 1)) + 60 * 60;
+  });
+
+  useEffect(() => {
+    if (!enabled) return;
+
+    const id = window.setInterval(() => {
+      setRemainingSeconds((seconds) => {
+        if (seconds <= 1) return 24 * 60 * 60;
+        return seconds - 1;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(id);
+  }, [enabled]);
+
+  if (!enabled) return null;
+
+  const hours = Math.floor(remainingSeconds / 3600);
+  const minutes = Math.floor((remainingSeconds % 3600) / 60);
+  const seconds = remainingSeconds % 60;
+
+  return (
+    <div
+      className="flex items-center gap-1 rounded-xl bg-white/15 px-3 py-2 font-mono text-sm font-black text-white"
+      dir="ltr"
+      aria-label="زمان باقی‌مانده پیشنهاد شگفت‌انگیز"
+    >
+      <span>{pad(hours)}</span>
+      <span>:</span>
+      <span>{pad(minutes)}</span>
+      <span>:</span>
+      <span>{pad(seconds)}</span>
+    </div>
+  );
+});
 
 export default function AmazingProductsSlider({ products }) {
   // products = [{id, image, title, colors, price, discount, countdownTo}, ...]
   const safeProducts = useMemo(() => products ?? [], [products]);
 
   const limitedProducts = useMemo(() => {
-    const now = Date.now();
-
-    return (products ?? [])
-      .filter((product) => {
-        const endTime = new Date(product.dealEndsAt).getTime();
-        return !Number.isNaN(endTime) && endTime > now;
-      })
-      .slice(0, 11);
-  }, [products]);
+    return safeProducts.slice(0, 11);
+  }, [safeProducts]);
 
   return (
     <>
@@ -84,7 +120,7 @@ export default function AmazingProductsSlider({ products }) {
             className="amazing-swiper"
           >
             {/* AMAZING SIDE */}
-            <SwiperSlide className="!hidden xl:!block !w-[260px]">
+            <SwiperSlide className="hidden! xl:block! w-[260px]!">
               <div className=" text-white rounded-2xl h-full min-h-[340px] p-5 flex flex-col justify-between">
                 <div className="space-y-6 flex flex-col items-center justify-center">
                   <Image
@@ -95,7 +131,10 @@ export default function AmazingProductsSlider({ products }) {
                     alt=""
                   />
 
-                  <h2 className="font-extrabold text-xl">پیشنهاد شگفت‌انگیز</h2>
+                  <h2 className="font-extrabold text-xl">
+                    پیشنهاد شگفت‌انگیز
+                  </h2>
+                  <AmazingHeaderTimer enabled={safeProducts.length > 0} />
 
                   <Link
                     href="/incredible-offers"
@@ -111,7 +150,7 @@ export default function AmazingProductsSlider({ products }) {
             {limitedProducts.map((p) => (
               <SwiperSlide key={p.id}>
                 <div className="mx-1">
-                  <ProductCardTest product={p} />
+                  <ProductCard product={p} />
                 </div>
               </SwiperSlide>
             ))}

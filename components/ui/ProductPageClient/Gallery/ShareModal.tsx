@@ -5,7 +5,7 @@ import { notify } from "@/src/utils/toast";
 type ShareModalProps = {
   open: boolean;
   onClose: () => void;
-  title;
+  title: string;
 };
 
 const SHARE_APPS = [

@@ -4,12 +4,12 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import CategoryProductListPage from "@/components/ui/Categories/ProductListPage";
-import { ApiError } from "@/src/lib/http/client-http";
+import { ApiError } from "@/src/lib/http/api-client";
 import {
   getCategoryBreadcrumb,
   getCategoryBySlug,
-} from "@/src/services/category/category.service";
-import { getProductList } from "@/src/services/product/product.service";
+} from "@/src/services/category/category.server";
+import { getProductList } from "@/src/services/product/product.server";
 
 import type { Category as CategoryType } from "@/src/lib/types/categories/menuType";
 import type { ProductListResponse } from "@/src/lib/types/productTypes";
@@ -20,6 +20,7 @@ import {
   parseNumber,
   parseSortOrder,
 } from "@/src/lib/helper/productListHelpers";
+import { absoluteUrl } from "@/src/lib/seo/site";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -151,7 +152,7 @@ export async function generateMetadata({
     description,
     ...(keywords && { keywords }),
     alternates: {
-      canonical: `https://carup24.com/products/${encodeURIComponent(slug)}`,
+      canonical: absoluteUrl(`/products/${encodeURIComponent(slug)}`),
     },
     openGraph: { title, description, type: "website" },
     twitter: { card: "summary_large_image", title, description },

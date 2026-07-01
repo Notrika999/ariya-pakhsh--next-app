@@ -10,25 +10,30 @@ import StepReset from "./StepReset";
 import LoginWithPass from "./LoginWithPass";
 import { useAuthStore } from "@/src/lib/stores/auth/auth.store";
 
-export default function LoginModal({ open, onClose }) {
+interface LoginModalProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export default function LoginModal({ open, onClose }: LoginModalProps) {
   const [step, setStep] = useState(1);
   const [mobile, setMobile] = useState("");
-  const [flow, setFlow] = useState(""); // 'otp-login' | 'forgot-password'
 
   const user = useAuthStore((s) => s.user);
+  const authOtpMode = useAuthStore((s) => s.authOtpMode);
+  const clearLoginTwoFactorFlow = useAuthStore((s) => s.clearLoginTwoFactorFlow);
 
-  console.log(user)
-
-  const { clearAuthFlow, isNewUser } = useAuthStore();
+  const { clearAuthFlow } = useAuthStore();
 
   useEffect(() => {
     if (open) {
-      setStep(1);
-      setMobile("");
-      setFlow("");
-      clearAuthFlow();
+      queueMicrotask(() => {
+        setStep(1);
+        setMobile("");
+        clearAuthFlow();
+      });
     }
-  }, [open]);
+  }, [open, clearAuthFlow]);
 
   if (!open) return null;
 
@@ -42,7 +47,7 @@ export default function LoginModal({ open, onClose }) {
       <div className="relative p-4 w-full max-w-lg m-auto flex items-center min-h-screen">
         <div className="bg-white relative w-full dark:bg-custom-dark rounded-2xl shadow-soft p-8 border border-gray-100 dark:border-gray-700 fade-in">
           {/* close button */}
-          <button onClick={onClose} className="absolute p-4 top-0 end-0">
+          <button onClick={onClose} className="absolute p-4 top-0 inset-e-0">
             <i className="far fa-x"></i>
           </button>
 
@@ -76,7 +81,7 @@ export default function LoginModal({ open, onClose }) {
               id="LoginModalTitle"
             >
               {user
-                ? `سلام ${user.fullName}`
+                ? `سلام ${user.displayName || [user.firstName, user.lastName].filter(Boolean).join(" ")}`
                 : step === 4
                   ? "تکمیل ثبت‌نام"
                   : "ورود / ثبت‌نام"}
@@ -84,7 +89,10 @@ export default function LoginModal({ open, onClose }) {
             <p className="text-gray-500 dark:text-gray-400 text-sm">
               {step === 1 && "روش ورود را انتخاب کنید"}
               {step === 2 && "شماره موبایل خود را وارد کنید"}
-              {step === 3 && "کد تأیید ارسال‌شده را وارد کنید"}
+              {step === 3 &&
+                (authOtpMode === "login-2fa"
+                  ? "کد احراز دومرحله‌ای ارسال‌شده را وارد کنید"
+                  : "کد تأیید ارسال‌شده را وارد کنید")}
               {step === 4 && "اطلاعات خود را تکمیل کنید"}
             </p>
           </div>
@@ -93,12 +101,10 @@ export default function LoginModal({ open, onClose }) {
           {step === 1 && (
             <StepMethod
               onOtp={() => {
-                setFlow("otp-login");
                 setStep(2);
               }}
               onPassword={() => setStep(7)}
               onForgot={() => {
-                setFlow("forgot-password");
                 setStep(2);
               }}
             />
@@ -125,7 +131,14 @@ export default function LoginModal({ open, onClose }) {
                   onClose();
                 }
               }}
-              onBack={() => setStep(2)}
+              onBack={() => {
+                if (authOtpMode === "login-2fa") {
+                  clearLoginTwoFactorFlow();
+                  setStep(7);
+                  return;
+                }
+                setStep(2);
+              }}
             />
           )}
 
@@ -145,7 +158,12 @@ export default function LoginModal({ open, onClose }) {
           {step === 6 && <StepReset />}
 
           {/* Step 7: Login With Pass */}
-          {step === 7 && <LoginWithPass />}
+          {step === 7 && (
+            <LoginWithPass
+              onSuccess={onClose}
+              onRequiresTwoFactor={() => setStep(3)}
+            />
+          )}
         </div>
       </div>
     </div>

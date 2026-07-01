@@ -1,4 +1,5 @@
 import { MetadataRoute } from "next";
+import { absoluteUrl } from "@/src/lib/seo/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -10,6 +11,7 @@ export default function robots(): MetadataRoute.Robots {
           "/product/",
           "/products",
           "/blog/",
+          "/incredible-offers",
           "/about",
           "/contact",
           "/faq",
@@ -28,6 +30,6 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: "https://carup24.com/sitemap.xml",
+    sitemap: absoluteUrl("/sitemap.xml"),
   };
 }

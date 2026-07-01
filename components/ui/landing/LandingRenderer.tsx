@@ -6,10 +6,10 @@ import DescriptionSection from "./sections/DescriptionSection";
 import HeroBannerGrid from "./sections/HeroBannerGrid";
 import ProductSlider from "./sections/ProductSlider";
 
-export default function LandingRenderer({ sections }) {
+export default function LandingRenderer({ sections }: { sections: any }) {
   return (
     <>
-      {sections.map((section, index) => {
+      {sections.map((section: any, index: number) => {
         switch (section.type) {
           case "heroBannerGrid":
             return <HeroBannerGrid key={index} {...section} />;

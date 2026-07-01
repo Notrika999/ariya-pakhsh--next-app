@@ -2,7 +2,7 @@
 
 import { Metadata } from "next";
 import ProductDetails from "@/components/ui/ProductPageClient/ProductPageClient";
-import { getProductById } from "@/src/services/product/product.service";
+import { getProductById } from "@/src/services/product/product.server";
 
 interface PageProps {
   params: Promise<{

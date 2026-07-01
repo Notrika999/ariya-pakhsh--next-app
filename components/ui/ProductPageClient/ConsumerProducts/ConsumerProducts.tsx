@@ -3,9 +3,49 @@ import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import ProductCard from "@/components/modules/ProductCard/ProductCard";
 import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
+import { ProductCardModel } from "@/src/lib/types/productTypes";
+
+type ConsumerProductMock = {
+  id: number;
+  title: string;
+  image: string;
+  discount: string;
+  price: string;
+  oldPrice: string;
+  rating: number;
+  colors: string[];
+  href: string;
+};
+
+function parsePrice(value: string): number {
+  return Number(value.replace(/[^\d]/g, "")) || 0;
+}
+
+function toProductCardModel(product: ConsumerProductMock): ProductCardModel {
+  return {
+    id: String(product.id),
+    title: product.title,
+    image: product.image,
+    imageSlider: [],
+    categoryName: "",
+    currency: "IRR",
+    price: parsePrice(product.price),
+    oldPrice: parsePrice(product.oldPrice),
+    rating: product.rating,
+    reviewCount: 0,
+    colors: product.colors,
+    quantity: 1,
+    soldCount: 0,
+    inStock: true,
+    isOnSale: Number(product.discount) > 0,
+    href: product.href,
+    discount: product.discount,
+    discountPercent: Number(product.discount) || 0,
+  };
+}
 
 export default function ConsumerProducts() {
-  const consumerProducts = [
+  const consumerProducts: ConsumerProductMock[] = [
     {
       id: 1,
       title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
@@ -130,7 +170,7 @@ export default function ConsumerProducts() {
             >
               {consumerProducts.map((product) => (
                 <SwiperSlide key={product.id}>
-                  <ProductCard product={product} />
+                  <ProductCard product={toProductCardModel(product)} />
                 </SwiperSlide>
               ))}
             </Swiper>

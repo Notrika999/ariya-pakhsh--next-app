@@ -1,8 +1,16 @@
+// components/layout/Header/Top/HeaderSetting.tsx
+
+"use client";
+
 import LoginModal from "@/components/modules/auth/LoginModal";
+import UserMenu from "@/components/modules/auth/UserMenu";
 import HeaderCart from "@/components/modules/HeaderCart/HeaderCart";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useCart } from "@/src/context/CartContext";
+import {
+  useCurrentUser,
+  useIsAuthenticated,
+} from "@/src/lib/stores/auth/auth.store";
 
 export default function HeaderSetting() {
   const [darkMode, setDarkMode] = useState(() => {
@@ -13,7 +21,23 @@ export default function HeaderSetting() {
   });
   const [cartOpen, setCartOpen] = useState(false);
   const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const { totalItems } = useCart();
+
+  const user = useCurrentUser();
+  const isAuthenticated = useIsAuthenticated();
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
@@ -32,6 +56,7 @@ export default function HeaderSetting() {
           <a href="" className="lg:block hidden">
             <i className="fa-regular fa-heart"></i>
           </a>
+
           {/* basket  */}
           <div
             onClick={() => setCartOpen(true)}
@@ -45,6 +70,7 @@ export default function HeaderSetting() {
               </span>
             )}
           </div>
+          
           {/* dark mode  */}
           <div className="md:ms-5 ">
             <button onClick={toggleDarkMode} className="cursor-pointer">
@@ -79,15 +105,41 @@ export default function HeaderSetting() {
             </button>
           </div>
         </div>
+
         <div className="lg:inline-block hidden me-3 h-10 w-px self-stretch bg-gray-200 dark:bg-gray-700"></div>
         {/* login  */}
-        <button
-          onClick={() => setOpen(true)}
-          className="flex items-center bg-white dark:bg-custom-dark text-gray-900 dark:text-gray-100 modal-trigger flex lg:py-2 lg:px-3 lg:border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1f242c] transition-colors duration-200"
-        >
-          <i className="fa-regular fa-user-circle me-1"></i>
-          <span className="lg:inline-block hidden">ورود / ثبت نام</span>
-        </button>
+        {isAuthenticated && user ? (
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              className="flex items-center bg-white dark:bg-custom-dark text-gray-900 dark:text-gray-100 lg:py-2 lg:px-3 lg:border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1f242c] transition-colors duration-200"
+            >
+              <i className="fa-regular fa-user-circle me-1"></i>
+              <span className="lg:inline-block hidden max-w-[120px] truncate">
+                {user.displayName ||
+                  [user.firstName, user.lastName]
+                    .filter(Boolean)
+                    .join(" ") ||
+                  "حساب کاربری"}
+              </span>
+              <i
+                className={`fa-solid fa-chevron-down ms-1 text-xs transition-transform ${
+                  menuOpen ? "rotate-180" : ""
+                }`}
+              ></i>
+            </button>
+            {menuOpen && <UserMenu onClose={() => setMenuOpen(false)} />}
+          </div>
+        ) : (
+          <button
+            onClick={() => setOpen(true)}
+            className="flex items-center bg-white dark:bg-custom-dark text-gray-900 dark:text-gray-100 modal-trigger lg:py-2 lg:px-3 lg:border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1f242c] transition-colors duration-200"
+          >
+            <i className="fa-regular fa-user-circle me-1"></i>
+            <span className="lg:inline-block hidden">ورود / ثبت نام</span>
+          </button>
+        )}
+        {/* login  */}
       </div>
 
       <HeaderCart open={cartOpen} onClose={() => setCartOpen(false)} />

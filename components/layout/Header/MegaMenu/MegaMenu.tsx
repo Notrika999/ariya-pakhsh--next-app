@@ -1,9 +1,11 @@
+// components/layout/Header/MegaMenu/MegaMenu.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import MenuClient from "./MenuClient";
-import { getMegaMenu } from "@/src/services/category/category.service";
+import { getMegaMenu } from "@/src/services/category/category.client";
+import { Category } from "@/src/lib/types/categories/menuType";
 
 export default function MegaMenu() {
   // const [menu, setMenu] = useState(null);
@@ -19,13 +21,18 @@ export default function MegaMenu() {
 
   // if (!menu) return null;
 
-  const [menu, setMenu] = useState([]);
+  const [menu, setMenu] = useState<Category[]>([]);
 
   useEffect(() => {
     async function load() {
-      const data = await getMegaMenu();
+      try {
+        const data = await getMegaMenu();
 
-      setMenu(data);
+        setMenu(data);
+      } catch (error) {
+        console.error("[MegaMenu] failed to load menu:", error);
+        setMenu([]);
+      }
     }
 
     load();
@@ -84,7 +91,7 @@ export default function MegaMenu() {
               </Link>
             </li>
 
-            <li className="">
+            <li className="hidden">
               <Link
                 href="/faq"
                 className="flex space-x-3 hover:text-primary transition"
@@ -107,7 +114,7 @@ export default function MegaMenu() {
               </Link>
             </li>
 
-            <li className="">
+            <li className="hidden">
               <Link
                 href="#"
                 className="flex space-x-3 hover:text-primary transition"
@@ -130,7 +137,7 @@ export default function MegaMenu() {
               </Link>
             </li>
 
-            <li className="">
+            <li className="hidden">
               <Link
                 href="/blog"
                 className="flex space-x-3 hover:text-primary transition"
@@ -153,7 +160,7 @@ export default function MegaMenu() {
               </Link>
             </li>
 
-            <li className="">
+            <li className="hidden">
               <Link
                 href="/contact"
                 className="flex space-x-3 hover:text-primary transition"
@@ -184,7 +191,7 @@ export default function MegaMenu() {
             href=""
             className="flex hover:bg-primary-600 transition item-center text-white bg-primary p-3 rounded-3xl text-sm space-x-3"
           >
-            <span>091212345678</span>
+            <span>90007824</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

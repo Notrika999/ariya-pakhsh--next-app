@@ -1,3 +1,4 @@
+// components/ui/ProductListSection/ProductListSection.tsx
 "use client";
 
 import { TransitionStartFunction } from "react";
@@ -10,10 +11,11 @@ import Filter from "../Categories/Filter/Filter";
 import SortList from "@/components/modules/sortOptions/sortOptions";
 import { normalizeProduct } from "@/src/lib/mappers/product.mapper";
 import type {
+  ProductCardModel,
   ProductListItem,
   ProductListResponse,
 } from "@/src/lib/types/productTypes";
-import type { SortOption } from "@/types/product";
+import type { SortOption } from "@/src/lib/types/filters/filters";
 
 type ProductListFilters = {
   search: string;
@@ -34,12 +36,26 @@ interface Props {
   filterOptions: ProductListResponse["filterOptions"];
   minLimit: number;
   maxLimit: number;
-  products: ProductListItem[];
+  products: Array<ProductListItem | ProductCardModel>;
   isLoading?: boolean;
   startTransition: TransitionStartFunction;
 }
 
 const SKELETON_COUNT = 8;
+
+function toCardProduct(
+  product: ProductListItem | ProductCardModel,
+): ProductCardModel {
+  if ("categoryName" in product && "currency" in product) {
+    return product as ProductCardModel;
+  }
+
+  return normalizeProduct(product);
+}
+
+function getProductKey(product: ProductListItem | ProductCardModel): string {
+  return "productId" in product ? product.productId : product.id;
+}
 
 export default function ProductListSection({
   filters,
@@ -120,10 +136,10 @@ export default function ProductListSection({
             ) : (
               products.map((product) => (
                 <div
-                  key={product.productId}
+                  key={getProductKey(product)}
                   className="xl:col-span-3 md:col-span-4 sm:col-span-6 col-span-12"
                 >
-                  <ProductCardTest product={normalizeProduct(product)} />
+                  <ProductCardTest product={toCardProduct(product)} />
                 </div>
               ))
             )}

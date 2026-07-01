@@ -1,7 +1,19 @@
 import Link from "next/link";
 import { useState } from "react";
 
-export default function CategoryNode({ category }) {
+type MegaMenuCategory = {
+  id: string | number;
+  name: string;
+  slug: string;
+  depth: number;
+  children?: MegaMenuCategory[];
+};
+
+export default function CategoryNode({
+  category,
+}: {
+  category: MegaMenuCategory;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const hasChildren = category.children && category.children.length > 0;
 
@@ -33,12 +45,8 @@ export default function CategoryNode({ category }) {
 
         {isOpen && hasChildren && (
           <ul className="mt-2 space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
-            {category.children.map((child) => (
-              <CategoryNode
-                key={child.id}
-                category={child}
-                onClick={() => setIsOpen(!isOpen)}
-              />
+            {category.children?.map((child) => (
+              <CategoryNode key={child.id} category={child} />
             ))}
           </ul>
         )}
@@ -54,7 +62,7 @@ export default function CategoryNode({ category }) {
       </div>
       {hasChildren && (
         <ul className="space-y-1 mb-2">
-          {category.children.map((child) => (
+          {category.children?.map((child) => (
             <li
               key={child.id}
               className="pr-4 text-sm text-gray-600 dark:text-gray-400"

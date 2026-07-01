@@ -1,8 +1,15 @@
 "use client";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
+import { ProductCardModel } from "@/src/lib/types/productTypes";
 
-export default function IncredibleOffersDay({ products }) {
+interface IncredibleOffersDayProps {
+  products: ProductCardModel[];
+}
+
+export default function IncredibleOffersDay({
+  products,
+}: IncredibleOffersDayProps) {
   return (
     <section className="bg-brand-gradient p-4 rounded-2xl">
       <h2 className="text-white text-2xl font-bold mb-6">

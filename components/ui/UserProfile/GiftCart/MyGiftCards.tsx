@@ -3,7 +3,11 @@ import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
 
 import { GiftCard } from "@/src/lib/types/userpanel/GiftCard";
 
-export default function MyGiftCards({ data }) {
+interface MyGiftCardsProps {
+  data: GiftCard[];
+}
+
+export default function MyGiftCards({ data }: MyGiftCardsProps) {
   const activeCards = data.filter((c) => c.type === "active");
   const usedCards = data.filter(
     (c) => c.type === "used" || c.type === "expired",

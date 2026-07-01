@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { fetchProductById } from "@/src/lib/api/product/getProductById";
-import { Product } from "@/src/lib/types/productTypes";
+import { ApiError, Product } from "@/src/lib/types/productTypes";
 
 interface ProductDetailsState {
   product: Product | null;
@@ -20,8 +20,9 @@ export const useProductDetailsStore = create<ProductDetailsState>((set) => ({
     const result = await fetchProductById(id);
 
     if ("error" in result) {
+      const apiError = result as ApiError;
       set({
-        error: result.message,
+        error: apiError.message,
         loading: false,
       });
       return;

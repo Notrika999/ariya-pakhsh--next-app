@@ -1,7 +1,11 @@
+// components/ui/userProfile/userAddress/UserAddressTop.tsx
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
-import React from "react";
 
-export default function UserAddressTop({ addressLength }) {
+interface UserAddressTopProps {
+  addressLength: number;
+}
+
+export default function UserAddressTop({ addressLength }: UserAddressTopProps) {
   return (
     <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">

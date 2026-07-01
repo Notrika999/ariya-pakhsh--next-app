@@ -118,20 +118,28 @@ export function normalizeProduct(
     imageSlider: "imageSlider" in product ? product.imageSlider : [],
 
     brandId: "brandId" in product ? product.brandId : "",
+    categoryName: "",
+    currency: "IRR",
 
     price: product.price,
     oldPrice: product.oldPrice,
+    originalPrice: product.oldPrice,
+    discountedPrice: product.price,
 
     discountPercent: Number(product.discount ?? 0),
 
     rating: product.rating ?? 0,
     count: product.count ?? 0,
+    reviewCount: product.count ?? 0,
 
     colors: "colors" in product ? product.colors : [],
+    quantity: 1,
+    soldCount: 0,
 
     href: product.href,
 
-    inStock: product.inStock ?? false,
+    inStock: Boolean(product.inStock),
+    isOnSale: Number(product.discount ?? 0) > 0,
     offer: product.offer ?? false,
   };
 }

@@ -1,3 +1,5 @@
+// components/ui/Categories/ProductListPage.tsx
+
 "use client";
 
 import React, {
@@ -23,7 +25,7 @@ import type {
   ProductListItem,
   ProductListResponse,
 } from "@/src/lib/types/productTypes";
-import type { SortOption } from "@/types/product";
+import type { SortOption } from "@/src/lib/types/filters/filters";
 
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 

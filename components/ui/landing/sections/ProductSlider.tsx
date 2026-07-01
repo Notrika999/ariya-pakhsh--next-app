@@ -270,12 +270,12 @@ const products = [
 export default function ProductSlider() {
   return (
     <section className="mx-2 my-4">
-      <SliderProduct
+      {/* <SliderProduct
         title="محصولات پیشنهادی"
         products={products}
         loop={false}
         href={""}
-      />
+      /> */}
     </section>
   );
 }

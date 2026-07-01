@@ -3,7 +3,19 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
 
-export default function IncredibleOffersCategoryies({categories}) {
+interface IncredibleOffersCategory {
+  id: string | number;
+  name: string;
+  icon: string;
+}
+
+interface IncredibleOffersCategoryiesProps {
+  categories: IncredibleOffersCategory[];
+}
+
+export default function IncredibleOffersCategoryies({
+  categories,
+}: IncredibleOffersCategoryiesProps) {
   return (
     <section className="px-4">
       <SectionHeader title={"دسته‌بندی‌های پیشنهادی"} href={false} />
@@ -19,5 +31,5 @@ export default function IncredibleOffersCategoryies({categories}) {
           ))}
         </Swiper>
       </section>
-  )
+  );
 }

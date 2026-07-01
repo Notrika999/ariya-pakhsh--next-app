@@ -9,15 +9,16 @@ import {
   parseSortOrder,
   ProductPageSearchParams,
 } from "@/src/lib/helper/productListHelpers";
-import { getProductList } from "@/src/services/product/product.service";
+import { getProductList } from "@/src/services/product/product.server";
 
 import type { Metadata } from "next";
+import { absoluteUrl } from "@/src/lib/seo/site";
 
 export const metadata: Metadata = {
   title: "همه محصولات | خرید آنلاین",
   description: "خرید آنلاین انواع محصولات با بهترین قیمت از فروشگاه ما.",
   alternates: {
-    canonical: "https://carup24.com/products",
+    canonical: absoluteUrl("/products"),
   },
   openGraph: {
     title: "همه محصولات | خرید آنلاین",

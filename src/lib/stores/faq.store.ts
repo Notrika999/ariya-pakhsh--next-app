@@ -9,11 +9,11 @@ interface FaqStore {
   faqs: Faq[];
   loading: boolean;
 
-  fetchAll: () => Promise<any>;
+  fetchAll: () => Promise<unknown>;
   filterByTab: (tabId: string) => Faq[];
 }
 
-export const useFaqStore = create((set, get) => ({
+export const useFaqStore = create<FaqStore>((set, get) => ({
   tabs: [],
   faqs: [],
   loading: false,
@@ -43,6 +43,6 @@ export const useFaqStore = create((set, get) => ({
 
     if (tabId === "all") return faqs;
 
-    return faqs.filter((f) => f.category === tabId);
+    return faqs.filter((f: Faq) => f.category === tabId);
   },
 }));

@@ -1,6 +1,8 @@
 // src/lib/http/server-http.ts
+import "server-only";
 
 import { cookies } from "next/headers";
+import { getBackendBaseUrl } from "@/src/lib/api/backend-base";
 import { AUTH_COOKIE_NAMES } from "@/src/lib/auth/constants";
 
 /* -------------------------------------------------------------------------- */
@@ -76,30 +78,66 @@ export class ProxyError extends Error {
 /** Lazy validation — فقط هنگام اولین درخواست اجرا می‌شود */
 let _cachedApiUrl: URL | null = null;
 
-function getApiBaseUrl(): URL {
-  if (_cachedApiUrl) return _cachedApiUrl;
+function resolveBackendBaseUrl(): string {
+  const apiUrl = process.env.API_URL?.trim();
 
-  const raw = process.env.API_URL;
- 
-  if (!raw) {
+  if (process.env.BACKEND_ORIGIN?.trim()) {
+    return getBackendBaseUrl();
+  }
+
+  if (!apiUrl) {
     throw new ProxyError(
-      "API_URL environment variable is not defined",
+      "BACKEND_ORIGIN is not defined. Set BACKEND_ORIGIN=https://aryapakhsh.shop/swagger-api in .env.local",
       undefined,
       "CONFIG_ERROR",
     );
   }
 
+  if (apiUrl.startsWith("http://") || apiUrl.startsWith("https://")) {
+    return apiUrl.replace(/\/$/, "");
+  }
+
+  if (apiUrl.startsWith("/")) {
+    console.warn(
+      `[server-http] API_URL="${apiUrl}" is a relative path, not a backend base. ` +
+        `Using BACKEND_ORIGIN fallback: ${getBackendBaseUrl()}.`,
+    );
+    return getBackendBaseUrl();
+  }
+
+  throw new ProxyError(
+    `API_URL must be an absolute backend URL, got: "${apiUrl}"`,
+    undefined,
+    "CONFIG_ERROR",
+  );
+}
+
+function joinBackendUrl(base: URL, path: string): URL {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  const basePath = base.pathname.replace(/\/$/, "");
+  return new URL(`${base.origin}${basePath}${normalizedPath}`);
+}
+
+function getApiBaseUrl(): URL {
+  if (_cachedApiUrl) return _cachedApiUrl;
+
   try {
-    _cachedApiUrl = new URL(raw);
+    const base = resolveBackendBaseUrl();
+    _cachedApiUrl = new URL(`${base}/`);
   } catch {
     throw new ProxyError(
-      `API_URL is not a valid URL: "${raw}"`,
+      `BACKEND_ORIGIN is not a valid URL: "${process.env.BACKEND_ORIGIN ?? process.env.API_URL}"`,
       undefined,
       "CONFIG_ERROR",
     );
   }
 
   return _cachedApiUrl;
+}
+
+/** Build absolute backend URL for route handlers (refresh-token, etc.). */
+export function buildBackendUrl(path: string): string {
+  return joinBackendUrl(getApiBaseUrl(), path).toString();
 }
 
 function buildUrl(
@@ -113,12 +151,7 @@ function buildUrl(
     throw new ProxyError("Path must not contain a protocol");
   }
 
-  const base = getApiBaseUrl();
-  const url = new URL(basePath, base);
-
-  if (url.origin !== base.origin) {
-    throw new ProxyError("Resolved origin does not match API_URL");
-  }
+  const url = joinBackendUrl(getApiBaseUrl(), basePath);
 
   if (params) {
     for (const [key, value] of Object.entries(params)) {
@@ -277,7 +310,6 @@ export async function proxyToBackend<T = unknown>(
     )?.value;
     const deviceId = cookieStore.get(AUTH_COOKIE_NAMES.DEVICE_ID)?.value;
 
-    const allCookies = cookieStore.getAll();
     const cookieParts: string[] = [];
 
     if (headers["Cookie"]) {
@@ -288,11 +320,22 @@ export async function proxyToBackend<T = unknown>(
       const safeName = AUTH_COOKIE_NAMES.ACCESS_TOKEN;
       const safeValue = sanitizeCookieValue(accessToken);
       cookieParts.push(`${safeName}=${safeValue}`);
+
+      // بکند Bearer-based است → Authorization header هم لازم است
+      if (!headers["Authorization"]) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
+      }
     }
 
     if (deviceId) {
       const safeName = AUTH_COOKIE_NAMES.DEVICE_ID;
       const safeValue = sanitizeCookieValue(deviceId);
+      cookieParts.push(`${safeName}=${safeValue}`);
+    }
+
+    if (refreshToken) {
+      const safeName = AUTH_COOKIE_NAMES.REFRESH_TOKEN;
+      const safeValue = sanitizeCookieValue(refreshToken);
       cookieParts.push(`${safeName}=${safeValue}`);
     }
 

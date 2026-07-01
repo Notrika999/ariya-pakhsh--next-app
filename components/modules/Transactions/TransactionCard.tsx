@@ -1,4 +1,20 @@
-export default function TransactionCard({ item }) {
+interface TransactionItem {
+  transactionId: string | number;
+  type: "income" | "bonus" | "expense" | string;
+  status: "success" | "pending" | "failed" | string;
+  icon: string;
+  title: string;
+  orderId?: string | number;
+  amount: number;
+  date: string;
+  time: string;
+}
+
+interface TransactionCardProps {
+  item: TransactionItem;
+}
+
+export default function TransactionCard({ item }: TransactionCardProps) {
   const isIncome = item.type === "income" || item.type === "bonus";
   const isExpense = item.type === "expense";
   const isSuccess = item.status === "success";

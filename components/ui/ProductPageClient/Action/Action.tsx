@@ -43,8 +43,10 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
   useEffect(() => {
     const inCart = items.find((i) => i.id === variant?.variantId);
     if (inCart) {
-      setQuantity(inCart.quantity);
-      setAdded(true);
+      queueMicrotask(() => {
+        setQuantity(inCart.quantity);
+        setAdded(true);
+      });
     }
   }, [items, variant?.variantId]);
 
@@ -57,9 +59,8 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
         `https://aryapakhsh.shop${product.variants[0]?.images[0]?.thumbnailPath}` ||
         "",
       price: product.variants[0]?.price,
-      oldPrice: product.variants[0]?.compareAtPrice,
+      oldPrice: product.variants[0]?.price,
       href: `/product/${product.publicCode}/${product.slug}`,
-      count: 1,
     });
     setAdded(true);
   };

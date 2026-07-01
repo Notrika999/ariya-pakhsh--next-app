@@ -1,5 +1,6 @@
 // lib/helper/fingerprint.ts
 import FingerprintJS from '@fingerprintjs/fingerprintjs'
+import { json } from 'stream/consumers'
 
 // Cache در Memory
 let fpPromise: Promise<any> | null = null

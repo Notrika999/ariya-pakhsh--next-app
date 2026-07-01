@@ -1,7 +1,12 @@
 import DiscountCard from "@/components/modules/DiscountCard/DiscountCard";
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
+import { DiscountCode } from "@/src/lib/types/userpanel/Discount";
 
-export default function DiscountCodes({ data }) {
+interface DiscountCodesProps {
+  data: DiscountCode[];
+}
+
+export default function DiscountCodes({ data }: DiscountCodesProps) {
   const active = data.filter((d) => d.status === "active");
   const expired = data.filter((d) => d.status === "expired");
 

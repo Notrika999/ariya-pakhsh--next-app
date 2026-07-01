@@ -1,3 +1,4 @@
+// components/ui/Home/Brand/Brand.jsx
 "use client";
 
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -6,7 +7,6 @@ import "swiper/css";
 
 import Image from "next/image";
 import Link from "next/link";
-import { getBrands } from "@/src/services/brand/brand.service";
 import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
 
 export default function Brand({ brands, title, href }) {

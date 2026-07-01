@@ -8,8 +8,33 @@ import "swiper/css";
 import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
 import ProductCardTest from "../ProductCard/ProductCard";
 import { normalizeProduct } from "@/src/lib/mappers/product.mapper";
+import { ProductCardModel } from "@/src/lib/types/productTypes";
 
-export default function SliderProduct({ loop, products, title, href }) {
+type NormalizableProduct = Parameters<typeof normalizeProduct>[0];
+
+interface SliderProductProps {
+  loop?: boolean;
+  products: Array<NormalizableProduct | ProductCardModel>;
+  title: string;
+  href?: string | false;
+}
+
+function toCardProduct(
+  product: NormalizableProduct | ProductCardModel,
+): ProductCardModel {
+  if ("categoryName" in product && "currency" in product) {
+    return product as ProductCardModel;
+  }
+
+  return normalizeProduct(product);
+}
+
+export default function SliderProduct({
+  loop,
+  products,
+  title,
+  href,
+}: SliderProductProps) {
   return (
     <>
       <SectionHeader title={title} href={href} />
@@ -34,11 +59,15 @@ export default function SliderProduct({ loop, products, title, href }) {
             1024: { slidesPerView: 5 },
           }}
         >
-          {products.map((product) => (
-            <SwiperSlide key={product.id}>
-              <ProductCardTest product={normalizeProduct(product)} />
-            </SwiperSlide>
-          ))}
+          {products.map((product) => {
+            const cardProduct = toCardProduct(product);
+
+            return (
+              <SwiperSlide key={cardProduct.id}>
+                <ProductCardTest product={cardProduct} />
+              </SwiperSlide>
+            );
+          })}
         </Swiper>
       </div>
     </>

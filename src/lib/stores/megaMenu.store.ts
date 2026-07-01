@@ -3,7 +3,14 @@
 import { create } from "zustand";
 import { fetchMegaMenu } from "@/src/lib/api/megaMenuApi";
 
-export const useMegaMenuStore = create((set) => ({
+interface MegaMenuStore {
+  leftMenuItems: unknown[];
+  megaContent: Record<string, unknown>;
+  loading: boolean;
+  fetchAll: () => Promise<unknown>;
+}
+
+export const useMegaMenuStore = create<MegaMenuStore>((set) => ({
   leftMenuItems: [],
   megaContent: {},
   loading: false,

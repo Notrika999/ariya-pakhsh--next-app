@@ -1,17 +1,25 @@
 "use client";
 // components/ui/UserProfile/UserSidebar.jsx
 import React from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { useAuthStore } from "@/src/lib/stores/auth/auth.store";
+import { logout } from "@/src/services/auth/auth.client";
 
 export default function UserSidebar() {
   const pathname = usePathname();
-  const isActive = (href) => {
-    return pathname === href;
-  };
+  const router = useRouter();
+  const user = useAuthStore((s) => s.user);
+  const clearUser = useAuthStore((s) => s.clearUser);
 
+  const isActive = (href) => pathname === href;
 
+  const displayName =
+    user?.displayName ||
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+    user?.phoneNumber ||
+    "کاربر";
 
   const userPanelMenu = [
     {
@@ -100,16 +108,26 @@ export default function UserSidebar() {
     },
   ];
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } finally {
+      clearUser();
+      router.replace("/");
+      router.refresh();
+    }
+  };
+
   return (
     <div className="relative p-4 pt-24 mb-8 bg-white dark:bg-custom-dark rounded-2xl shadow-[0_4px_30px_#edf0f5] dark:shadow-lg">
       {/* <!--The upper part has a wavy shape.--> */}
-      <div className="absolute top-[-10px] start-0 end-0 mx-auto w-[230px] h-[75px] z-0 ">
+      <div className="absolute top-[-10px] inset-s-0 inset-e-0 mx-auto w-[230px] h-[75px] z-0">
         <svg
           width="230"
           height="75"
           viewBox="0 0 230 75"
           fill="none"
-          className="absolute  top-0 start-0 end-0 bottom-0 z-[-1] fill-custom-light dark:fill-[#0d1117]"
+              className="absolute top-0 inset-s-0 inset-e-0 bottom-0 z-[-1] fill-custom-light dark:fill-[#0d1117]"
         >
           <path d="M230 0H0V10C26.2258 10.6605 43.6909 20.4901 52.0499 27.9356C60.4088 35.3811 84.5186 61.9259 84.5186 61.9259C101.038 79.219 128.627 79.219 145.146 61.9259C145.146 61.9259 169.146 35.4578 177.549 28.0042C185.953 20.5506 203.675 10.6625 230 10V0Z"></path>
           <defs>
@@ -129,17 +147,21 @@ export default function UserSidebar() {
         <Image
           width={100}
           height={100}
-          className="absolute  top-[-10px] start-0 end-0 mx-auto w-[73px] h-[73px] rounded-full object-cover"
-          src="/images/user/profile-img.jpg"
-          alt=""
+          className="absolute top-[-10px] inset-s-0 inset-e-0 mx-auto w-[73px] h-[73px] rounded-full object-cover"
+          src={user?.avatar || "/images/user/profile-img.jpg"}
+          alt={displayName}
         />
       </div>
 
       {/* <!--User information--> */}
       <div className="relative z-0 mx-6 mb-5 after:content-[''] after:absolute after:top-[60%] after:right-1 after:left-1 after:bottom-0 after:h-2.5 after:z-[-1] after:shadow-[0_4px_30px_rgba(0,0,0,0.1)]">
         <div className="relative z-10 bg-white dark:bg-custom-dark">
-          <div className="text-lg font-bold">امیر رضایی</div>
-          <div className="text-primary-light py-1 pb-2.5">09001234567</div>
+          <div className="text-lg font-bold truncate">{displayName}</div>
+          {user?.phoneNumber && (
+            <div className="text-primary-light py-1 pb-2.5 truncate">
+              {user.phoneNumber}
+            </div>
+          )}
         </div>
       </div>
 
@@ -163,20 +185,20 @@ export default function UserSidebar() {
                     active ? "text-primary" : "text-[#BCC1C8]"
                   }`}
                 ></i>
-
                 {menu.title}
               </Link>
             </li>
           );
         })}
+
         <li className="py-2.5 px-1">
-          <a
-            href="#"
+          <button
+            onClick={handleLogout}
             className="relative flex justify-start items-center pt-6 px-5 text-red-500 border-t border-gray-300 dark:border-t-gray-700 before:hidden hover:text-red-500"
           >
             <i className="far fa-right-from-bracket text-[#DC3545] w-[17px] h-[17px] me-2.5"></i>
             خروج
-          </a>
+          </button>
         </li>
       </ul>
     </div>

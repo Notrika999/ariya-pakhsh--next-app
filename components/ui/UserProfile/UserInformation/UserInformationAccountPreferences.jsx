@@ -2,11 +2,12 @@
 // components/ui/UserProfile/UserInformation/UserInformationAccountPreferences.jsx
 import { useState } from "react";
 import TitleAfter from "../../../modules/TitleAfter/TitleAfter";
-export default function UserInformationAccountPreferences() {
+
+export default function UserInformationAccountPreferences({ user }) {
   const initialState = {
-    emailNotifications: true,
-    smsNotifications: true,
-    offersNotifications: true,
+    emailNotifications: Boolean(user?.notificationsEnabled),
+    smsNotifications: Boolean(user?.notificationsEnabled),
+    offersNotifications: Boolean(user?.notificationsEnabled),
     privateAccount: true,
     showInSearch: true,
   };
@@ -36,6 +37,11 @@ export default function UserInformationAccountPreferences() {
             <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-4">
               تنظیمات اطلاع‌رسانی
             </h3>
+            {user?.notificationPreferences && (
+              <p className="mb-4 text-xs text-gray-500 dark:text-gray-400">
+                ترجیحات فعلی: {user.notificationPreferences}
+              </p>
+            )}
 
             <div className="space-y-4">
               {/* Email */}
@@ -56,7 +62,7 @@ export default function UserInformationAccountPreferences() {
                     onChange={() => toggleSetting("emailNotifications")}
                   />
                   <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 dark:peer-focus:ring-blue-400 rounded-full peer dark:bg-gray-600 peer-checked:bg-blue-600 transition-all duration-300"></div>
-                  <span className="absolute end-0.5 top-0.5 w-5 h-5 bg-white dark:bg-gray-200 rounded-full transition-transform duration-300 peer-checked:translate-x-full"></span>
+                  <span className="absolute inset-e-0.5 top-0.5 w-5 h-5 bg-white dark:bg-gray-200 rounded-full transition-transform duration-300 peer-checked:translate-x-full"></span>
                 </label>
               </div>
 
@@ -78,7 +84,7 @@ export default function UserInformationAccountPreferences() {
                     onChange={() => toggleSetting("smsNotifications")}
                   />
                   <div className="w-11 h-6 bg-gray-300 rounded-full peer dark:bg-gray-600 peer-checked:bg-blue-600 transition-all duration-300"></div>
-                  <span className="absolute end-0.5 top-0.5 w-5 h-5 bg-white dark:bg-gray-200 rounded-full transition-transform duration-300 peer-checked:translate-x-full"></span>
+                  <span className="absolute inset-e-0.5 top-0.5 w-5 h-5 bg-white dark:bg-gray-200 rounded-full transition-transform duration-300 peer-checked:translate-x-full"></span>
                 </label>
               </div>
 
@@ -100,7 +106,7 @@ export default function UserInformationAccountPreferences() {
                     onChange={() => toggleSetting("offersNotifications")}
                   />
                   <div className="w-11 h-6 bg-gray-300 rounded-full peer dark:bg-gray-600 peer-checked:bg-blue-600 transition-all duration-300"></div>
-                  <span className="absolute end-0.5 top-0.5 w-5 h-5 bg-white dark:bg-gray-200 rounded-full transition-transform duration-300 peer-checked:translate-x-full"></span>
+                  <span className="absolute inset-e-0.5 top-0.5 w-5 h-5 bg-white dark:bg-gray-200 rounded-full transition-transform duration-300 peer-checked:translate-x-full"></span>
                 </label>
               </div>
             </div>
@@ -131,7 +137,7 @@ export default function UserInformationAccountPreferences() {
                     onChange={() => toggleSetting("privateAccount")}
                   />
                   <div className="w-11 h-6 bg-gray-300 rounded-full peer dark:bg-gray-600 peer-checked:bg-blue-600 transition-all duration-300"></div>
-                  <span className="absolute end-0.5 top-0.5 w-5 h-5 bg-white dark:bg-gray-200 rounded-full transition-transform duration-300 peer-checked:translate-x-full"></span>
+                  <span className="absolute inset-e-0.5 top-0.5 w-5 h-5 bg-white dark:bg-gray-200 rounded-full transition-transform duration-300 peer-checked:translate-x-full"></span>
                 </label>
               </div>
 
@@ -153,7 +159,7 @@ export default function UserInformationAccountPreferences() {
                     onChange={() => toggleSetting("showInSearch")}
                   />
                   <div className="w-11 h-6 bg-gray-300 rounded-full peer dark:bg-gray-600 peer-checked:bg-blue-600 transition-all duration-300"></div>
-                  <span className="absolute end-0.5 top-0.5 w-5 h-5 bg-white dark:bg-gray-200 rounded-full transition-transform duration-300 peer-checked:translate-x-full"></span>
+                  <span className="absolute inset-e-0.5 top-0.5 w-5 h-5 bg-white dark:bg-gray-200 rounded-full transition-transform duration-300 peer-checked:translate-x-full"></span>
                 </label>
               </div>
             </div>

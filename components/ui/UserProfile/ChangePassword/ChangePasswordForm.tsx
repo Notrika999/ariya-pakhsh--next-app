@@ -12,7 +12,7 @@ export default function ChangePasswordForm() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const [rulesState, setRulesState] = useState({});
+  const [rulesState, setRulesState] = useState<Record<string, boolean>>({});
   const [progressColor, setProgressColor] = useState("bg-red-500");
   const [progressPercent, setProgressPercent] = useState("25%");
   const [matchMessage, setMatchMessage] = useState("");

@@ -158,7 +158,7 @@ export default function Services() {
                       </strong>
                     </p>
                     <small className="text-gray-500 dark:text-gray-400 text-xs">
-                      تماس با 021123456
+                      تماس با 90007824
                     </small>
                   </div>
                 </div>

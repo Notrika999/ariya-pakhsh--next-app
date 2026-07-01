@@ -1,76 +1,128 @@
+// app/sitemap.ts
 import { MetadataRoute } from "next";
+import { buildBackendApiUrl } from "@/src/lib/api/backend-base";
+import { absoluteUrl, SITE_URL } from "@/src/lib/seo/site";
 
-const BASE_URL = "https://carup24.com";
+type SitemapProduct = {
+  publicCode?: string;
+  slug?: string;
+  id?: string;
+};
 
-/**
- * ⚠️ این توابع باید از بک‌اند .NET دیتا بگیرند
- * فقط slug / id برگردانند
- */
+type SitemapBlog = {
+  slug?: string;
+};
 
-async function getProducts() {
-  const res = await fetch(`${process.env.API_URL}/products/sitemap`, {
-    cache: "no-store",
-  });
-  return res.json(); // [{ id: "1" }, ...]
+function unwrapList(payload: unknown): unknown[] {
+  if (Array.isArray(payload)) return payload;
+
+  if (!payload || typeof payload !== "object") return [];
+
+  const record = payload as Record<string, unknown>;
+
+  if (Array.isArray(record.data)) return record.data;
+
+  if (record.data && typeof record.data === "object") {
+    const inner = record.data as Record<string, unknown>;
+    if (Array.isArray(inner.items)) return inner.items;
+    if (Array.isArray(inner.data)) return inner.data;
+  }
+
+  return [];
 }
 
-async function getBlogs() {
-  const res = await fetch(`${process.env.API_URL}/blogs/sitemap`, {
-    cache: "no-store",
-  });
-  return res.json(); // [{ slug: "post-title" }, ...]
+async function fetchSitemapList(path: string): Promise<unknown[]> {
+  try {
+    const res = await fetch(buildBackendApiUrl(path), {
+      next: { revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    const payload = await res.json();
+    return unwrapList(payload);
+  } catch {
+    return [];
+  }
+}
+
+function mapProducts(items: unknown[]): MetadataRoute.Sitemap {
+  return items
+    .filter((item): item is SitemapProduct => Boolean(item && typeof item === "object"))
+    .map((product) => {
+      if (product.publicCode && product.slug) {
+        return {
+          url: absoluteUrl(`/product/${product.publicCode}/${product.slug}`),
+          lastModified: new Date(),
+          priority: 0.9,
+        };
+      }
+      if (product.id) {
+        return {
+          url: absoluteUrl(`/product/${product.id}`),
+          lastModified: new Date(),
+          priority: 0.9,
+        };
+      }
+      return null;
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
+}
+
+function mapBlogs(items: unknown[]): MetadataRoute.Sitemap {
+  return items
+    .filter((item): item is SitemapBlog => Boolean(item && typeof item === "object"))
+    .filter((blog) => typeof blog.slug === "string" && blog.slug.length > 0)
+    .map((blog) => ({
+      url: absoluteUrl(`/blog/${blog.slug}`),
+      lastModified: new Date(),
+      priority: 0.7,
+    }));
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [products, blogs] = await Promise.all([
-    getProducts(),
-    getBlogs(),
+    fetchSitemapList("/api/v1/products/sitemap"),
+    fetchSitemapList("/api/v1/blogs/sitemap"),
   ]);
 
   return [
-    // ✅ صفحات ثابت و مهم
     {
-      url: `${BASE_URL}`,
+      url: SITE_URL,
       lastModified: new Date(),
       priority: 1,
     },
     {
-      url: `${BASE_URL}/products`,
+      url: absoluteUrl("/products"),
       priority: 0.9,
     },
     {
-      url: `${BASE_URL}/about`,
-      priority: 0.4,
+      url: absoluteUrl("/incredible-offers"),
+      priority: 0.8,
     },
     {
-      url: `${BASE_URL}/contact`,
-      priority: 0.4,
-    },
-    {
-      url: `${BASE_URL}/faq`,
-      priority: 0.4,
-    },
-    {
-      url: `${BASE_URL}/privacy-policy`,
-      priority: 0.2,
-    },
-    {
-      url: `${BASE_URL}/rules`,
-      priority: 0.2,
-    },
-
-    // ✅ صفحات محصول
-    ...products.map((product: { id: string }) => ({
-      url: `${BASE_URL}/product/${product.id}`,
-      lastModified: new Date(),
-      priority: 0.9,
-    })),
-
-    // ✅ بلاگ
-    ...blogs.map((blog: { slug: string }) => ({
-      url: `${BASE_URL}/blog/${blog.slug}`,
-      lastModified: new Date(),
+      url: absoluteUrl("/blog"),
       priority: 0.7,
-    })),
+    },
+    {
+      url: absoluteUrl("/about"),
+      priority: 0.4,
+    },
+    {
+      url: absoluteUrl("/contact"),
+      priority: 0.4,
+    },
+    {
+      url: absoluteUrl("/faq"),
+      priority: 0.4,
+    },
+    {
+      url: absoluteUrl("/privacy-policy"),
+      priority: 0.2,
+    },
+    {
+      url: absoluteUrl("/rules"),
+      priority: 0.2,
+    },
+    ...mapProducts(products),
+    ...mapBlogs(blogs),
   ];
 }

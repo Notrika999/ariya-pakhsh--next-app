@@ -1,9 +1,12 @@
+// components/layout/Header/Top/HeaderTop.jsx
+"use client";
+
 import React, { useEffect, useState } from "react";
 import HeaderLogo from "./HeaderLogo";
 import HeaderSearch from "./HeaderSearch";
 import HeaderSetting from "./HeaderSetting";
 import OffcanvasRight from "../MegaMenu/OffcanvasRight";
-import { getMegaMenu } from "@/src/services/category/category.service";
+import { getMegaMenu } from "@/src/services/category/category.client";
 
 export default function HeaderTop() {
   

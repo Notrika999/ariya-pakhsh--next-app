@@ -1,8 +1,13 @@
+// components/modules/auth/StepRegister.tsx
 "use client";
 import React, { useState } from "react";
 
 import { useAuthStore } from "@/src/lib/stores/auth/auth.store";
-import { register } from "@/src/services/auth/auth.service";
+import {
+  attachSessionToUser,
+  completeUserFromMe,
+  register,
+} from "@/src/services/auth/auth.client";
 
 interface StepRegisterProps {
   onSuccess: () => void;
@@ -57,7 +62,8 @@ interface FieldProps {
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function StepRegister({ onSuccess }: StepRegisterProps) {
-  const { registrationToken, setSession, clearAuthFlow } = useAuthStore();
+  const { registrationToken, deviceFingerPrint, setUser, clearAuthFlow } =
+    useAuthStore();
 
   const [form, setForm] = useState<FormState>({
     firstName: "",
@@ -125,23 +131,37 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
         email: form.email.trim(),
         password: form.password,
         confirmPassword: form.confirmPassword,
-        deviceFingerPrint: "device-id",
+        deviceFingerPrint: deviceFingerPrint ?? "device-id",
       });
+
+      console.log("Result Register => ", result);
 
       if (!result.success) {
         setErrors({ general: result.errorMessage ?? "خطایی رخ داد" });
         return;
       }
 
-      // ذخیره session در store
-      setSession(result.accessToken, result.refreshToken, result.userInfoDto);
+      if (!result.userInfoDto) {
+        setErrors({ general: "اطلاعات کاربر از سرور دریافت نشد" });
+        return;
+      }
+
+      const freshUser = await completeUserFromMe(result.userInfoDto);
+      setUser(attachSessionToUser(freshUser, result.sessionInfoDto));
       clearAuthFlow();
       onSuccess();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorResponse = err as {
+        response?: {
+          data?: {
+            data?: { errorMessage?: string };
+            errors?: { field: string; message: string }[];
+            message?: string;
+          };
+        };
+      };
       // خطاهای field-level از server
-      const serverErrors = err?.response?.data?.errors as
-        | { field: string; message: string }[]
-        | undefined;
+      const serverErrors = errorResponse.response?.data?.errors;
       if (serverErrors?.length) {
         const mapped: FormErrors = {};
         serverErrors.forEach(({ field, message }) => {
@@ -151,8 +171,8 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
         setErrors(mapped);
       } else {
         const msg =
-          err?.response?.data?.data?.errorMessage ??
-          err?.response?.data?.message ??
+          errorResponse.response?.data?.data?.errorMessage ??
+          errorResponse.response?.data?.message ??
           "ارتباط با سرور برقرار نشد";
         setErrors({ general: msg });
       }
@@ -262,6 +282,7 @@ function Field({
   return (
     <div className="flex flex-col gap-1">
       <div className="relative">
+        <label htmlFor={field} className="text-sm text-gray-500">{label}</label>
         <input
           type={type}
           value={value}

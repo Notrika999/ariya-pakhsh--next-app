@@ -1,6 +1,14 @@
-import React from 'react'
+interface StepForgotProps {
+  mobile: string;
+  onNext: () => void;
+  onBack: () => void;
+}
 
-export default function StepForgot({ mobile, onNext, onBack }) {
+export default function StepForgot({
+  mobile,
+  onNext,
+  onBack,
+}: StepForgotProps) {
   return (
     <>
       <p className="text-sm text-gray-500 mb-4 text-center">
@@ -18,5 +26,5 @@ export default function StepForgot({ mobile, onNext, onBack }) {
         بازگشت
       </button>
     </>
-  )
+  );
 }

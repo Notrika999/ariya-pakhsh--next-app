@@ -1,9 +1,14 @@
+// components/modules/auth/StepMobile.tsx
 "use client";
 import React, { useRef, useState } from "react";
 import Captcha from "../Captcha";
 import type { CaptchaHandle } from "../Captcha";
 import { validateMobile } from "@/src/utils/auth.validation";
-import { startPhoneAuth } from "@/src/services/auth/auth.service";
+import {
+  getAuthErrorMessage,
+  startPhoneAuth,
+} from "@/src/services/auth/auth.client";
+import { getBrowserFingerprint } from "@/src/lib/helper/fingerprint";
 import { useAuthStore } from "@/src/lib/stores/auth/auth.store";
 
 interface StepMobileProps {
@@ -25,26 +30,57 @@ export default function StepMobile({ mobile, setMobile, onNext }: StepMobileProp
     if (!captchaRef.current) return;
 
     const isValid = captchaRef.current.validate(captchaInput);
-    if (!isValid) return;
+    if (!isValid) {
+      setError("کد امنیتی صحیح نیست");
+      return;
+    }
+
+    if (!validateMobile(mobile)) {
+      setError("شماره موبایل معتبر نیست");
+      return;
+    }
 
     setLoading(true);
     setError(null);
 
     try {
+      const fingerprint = await getBrowserFingerprint();
+      const deviceFingerPrint = fingerprint?.visitorId ?? "device-id";
+
+      console.log("Finger Print => ", fingerprint)
+      console.log("Device Finger Print => ", deviceFingerPrint)
+
       const response = await startPhoneAuth({
         phoneNumber: mobile,
-        deviceFingerPrint: "device-id",
+        deviceFingerPrint,
+        
       });
+
+      console.log(response)
 
       if (!response.success) {
         setError(response.errorMessage ?? "خطایی رخ داد");
         return;
       }
 
-      setAuthFlow(response.flowToken, mobile, response.maskedPhone);
+      const flowToken = response.flowToken ?? response.token;
+
+      if (!flowToken) {
+        setError("توکن احراز هویت از سرور دریافت نشد");
+        return;
+      }
+
+      setAuthFlow(
+        flowToken,
+        mobile,
+        response.maskedPhone,
+        deviceFingerPrint,
+        response.resendCooldownSeconds,
+      );
       onNext();
     } catch (err) {
-      setError("ارتباط با سرور برقرار نشد");
+      console.error("[StepMobile] start failed =>", err);
+      setError(getAuthErrorMessage(err));
     } finally {
       setLoading(false);
     }

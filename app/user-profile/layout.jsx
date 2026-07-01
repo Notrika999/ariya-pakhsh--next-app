@@ -1,7 +1,19 @@
+// app/user-profile/layout.jsx
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import SidebarResponsive from "../../components/ui/UserProfile/SidebarResponsive";
 import UserSidebar from "../../components/ui/UserProfile/UserSidebar";
+import { AUTH_COOKIE_NAMES } from "@/src/lib/auth/constants";
 
-export default function PanelLayout({ children }) {
+export default async function PanelLayout({ children }) {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get(AUTH_COOKIE_NAMES.ACCESS_TOKEN)?.value;
+  const refreshToken = cookieStore.get(AUTH_COOKIE_NAMES.REFRESH_TOKEN)?.value;
+
+  if (!accessToken && !refreshToken) {
+    redirect("/");
+  }
+
   return (
     <section className="py-5">
       <div className="container mx-auto px-4">

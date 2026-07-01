@@ -24,8 +24,6 @@ export function buildCharset(options: CaptchaCharsetOptions | undefined): string
   const opts = { ...DEFAULT_CHARSET_OPTIONS, ...(options ?? {}) };
   let pool = "";
 
-  if (opts.uppercase) pool += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  if (opts.lowercase) pool += "abcdefghijklmnopqrstuvwxyz";
   if (opts.numbers) pool += "0123456789";
   if (opts.extras) pool += opts.extras;
 
@@ -38,7 +36,7 @@ export function buildCharset(options: CaptchaCharsetOptions | undefined): string
   }
 
   // Safety net — never hand back an empty pool.
-  if (pool.length === 0) pool = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  if (pool.length === 0) pool = "0123456789";
   return pool;
 }
 

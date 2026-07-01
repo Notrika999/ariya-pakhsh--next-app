@@ -5,6 +5,7 @@ import React, { useEffect, useMemo, useState } from "react";
 // swiper
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Thumbs, Zoom } from "swiper/modules";
+import type { Swiper as SwiperInstance } from "swiper";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -23,11 +24,21 @@ export type PriceChartItem = {
   isAvailable: boolean; // موجود/ناموجود
 };
 
-function pad2(n) {
+type GalleryImage = {
+  imgSrc?: string;
+};
+
+interface GalleryProps {
+  images: GalleryImage[];
+  isOutOfStock: boolean;
+  productName: string;
+}
+
+function pad2(n: number) {
   return String(n).padStart(2, "0");
 }
 
-function useCountdown(targetISO) {
+function useCountdown(targetISO: string | null) {
   const targetTime = useMemo(() => {
     // targetISO باید مثل: "2028-01-01T18:30:00.000Z" یا تاریخ قابل parse باشد
     return targetISO ? new Date(targetISO).getTime() : null;
@@ -53,10 +64,14 @@ function useCountdown(targetISO) {
   return { h, m, s, done: diff === 0 };
 }
 
-export default function Gallery({ images, isOutOfStock, productName }) {
+export default function Gallery({
+  images,
+  isOutOfStock,
+  productName,
+}: GalleryProps) {
   const [shareOpen, setShareOpen] = useState(false);
   const [chartOpen, setChartOpen] = useState(false);
-  const [thumbsSwiper, setThumbsSwiper] = useState(null);
+  const [thumbsSwiper, setThumbsSwiper] = useState<SwiperInstance | null>(null);
   const { h, m, s, done } = useCountdown("2028-01-01T15:30:00.000Z");
 
   const variants = [
@@ -358,7 +373,7 @@ export default function Gallery({ images, isOutOfStock, productName }) {
           pagination={{ clickable: true }}
           zoom
           spaceBetween={10}
-          thumbs={{ swiper: thumbsSwiper }}
+          thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
           className="h-full"
         >
           {images.map((img, index) => (

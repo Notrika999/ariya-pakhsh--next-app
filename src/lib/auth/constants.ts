@@ -1,6 +1,6 @@
 // src/lib/auth/constants.ts
 
-import { ROLES } from "@/src/lib/types/auth";
+import { ROLES } from "../types/auth";
 
 export const AUTH_COOKIE_NAMES = {
   ACCESS_TOKEN: "CUP_Access_Token",
@@ -9,6 +9,8 @@ export const AUTH_COOKIE_NAMES = {
   DEVICE_ID: "CUP_Device_Id",
 } as const;
 
+/** Admin panel — used only by management BFF routes under app/api/v1/auth/* */
+// note for me
 export const BACKEND_AUTH_PATHS = {
   LOGIN: "/api/v1/management/ManagementAuth/login",
   VERIFY_2FA: "/api/v1/management/ManagementAuth/verify-2fa",
@@ -18,16 +20,45 @@ export const BACKEND_AUTH_PATHS = {
   SECURITY_STAMP: "/api/v1/management/ManagementAuth/security-stamp",
   RESEND_OTP: "/api/v1/management/ManagementAuth/resend-otp",
 } as const;
+// note for me
 
+/** Browser → Next.js BFF (same-origin cookies on localhost) */
 export const FRONT_AUTH_PATHS = {
-  LOGIN: "/auth/login",
-  VERIFY_2FA: "/auth/verify-2fa",
-  REFRESH: "/auth/refresh-token",
-  LOGOUT: "/auth/logout",
-  ME: "/auth/me",
-  SECURITY_STAMP: "/auth/security-stamp",
-  RESEND_OTP: "/auth/resend-otp",
+  ME: "/api/auth/me",
+  LOGOUT: "/api/auth/logout",
+  REFRESH: "/api/auth/refresh-token",
+  LOGIN: "/api/auth/login",
+  LOGIN_VERIFY_2FA: "/api/auth/login/verify-2fa",
+  REGISTER: "/api/auth/register",
+  PHONE_VERIFY: "/api/auth/phone/verify",
+  PHONE_START: "/api/auth/phone/start",
+  /** @deprecated use PHONE_VERIFY */
+  VERIFY_2FA: "/api/auth/phone/verify",
+  SECURITY_STAMP: "/api/auth/security-stamp",
+  RESEND_OTP: "/api/auth/resend-otp",
 } as const;
+
+/** BFF → Backend CustomerAuth */
+export const CUSTOMER_BACKEND_AUTH_PATHS = {
+  ME: "/api/v1/CustomerAuth/me",
+  LOGOUT: "/api/v1/CustomerAuth/logout",
+  REFRESH: "/api/v1/CustomerAuth/refresh-token",
+  LOGIN: "/api/v1/CustomerAuth/login",
+  LOGIN_VERIFY_2FA: "/api/v1/CustomerAuth/login/verify-2fa",
+  REGISTER: "/api/v1/CustomerAuth/register",
+  PHONE_VERIFY: "/api/v1/CustomerAuth/phone/verify",
+  PHONE_START: "/api/v1/CustomerAuth/phone/start",
+  RESEND_OTP: "/api/v1/CustomerAuth/otp/resend",
+} as const;
+
+/** Browser → api/v1 proxy → Backend CustomerAuth */
+export const CUSTOMER_AUTH_CLIENT_PATHS = {
+  LOGIN_VERIFY_2FA: "/CustomerAuth/login/verify-2fa",
+  OTP_RESEND: "/CustomerAuth/otp/resend",
+} as const;
+
+/** Browser → Next.js data proxy */
+export const FRONT_API_PREFIX = "/api/v1" as const;
 
 export const AUTH_INDICATOR_BUFFER = 24 * 60 * 60; // 1 day
 
@@ -40,10 +71,6 @@ export const AUTH_ROUTES = {
   DASHBOARD: "/management/dashboards/ecommerce",
 } as const;
 
-/**
- * مسیرهای عمومی — بدون نیاز به لاگین
- * verify-2fa هم عمومیه چون کاربر هنوز لاگین کامل نکرده
- */
 export const PUBLIC_ROUTES = [
   "/login",
   "/verify-2fa",
@@ -51,10 +78,6 @@ export const PUBLIC_ROUTES = [
   "/reset-password",
 ] as const;
 
-/**
- * مسیرهایی که کاربر لاگین‌شده نباید ببینه
- * verify-2fa اینجا نیست چون ممکنه هنوز 2FA رو نزده باشه
- */
 export const AUTH_ONLY_ROUTES = ["/login"] as const;
 
 export const CSRF_HEADER = "x-csrf-protection" as const;
