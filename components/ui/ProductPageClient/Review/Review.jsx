@@ -124,59 +124,6 @@ export default function Review({ product, variant, isOutOfStock }) {
         {/* <!--Tab bar--> */}
         <TabBar navRef={navRef} tabs={TABS} />
 
-        {/* <nav
-          ref={navRef}
-          id="topBar"
-          className="lg:sticky border border-gray-200 shadow-sm dark:border-gray-700 z-10 px-5 bg-white dark:bg-zinc-800 rounded-2xl mb-6"
-          style={{ zIndex: "39", top: "var(--review-sticky-top, 0px)" }}
-        >
-          <ul
-            className="flex space-x-1 min-w-48 overflow-x-scroll py-4 hide-scrollbar"
-            id="tabContainer"
-          >
-            <li>
-              <button
-                className="tab-btn whitespace-nowrap px-6 py-3 rounded-xl transition-all bg-primary text-white dark:bg-blue-800/30 dark:text-gray-200"
-                data-tab="desc"
-              >
-                معرفی اجمالی
-              </button>
-            </li>
-            <li>
-              <button
-                className="tab-btn whitespace-nowrap px-6 py-3 rounded-xl transition-all bg-blue-100 text-primary-800 dark:bg-blue-800/30 dark:text-gray-200"
-                data-tab="intro"
-              >
-                معرفی تکمیلی
-              </button>
-            </li>
-            <li>
-              <button
-                className="tab-btn whitespace-nowrap px-6 py-3 rounded-xl transition-all bg-blue-100 text-primary-800 dark:bg-blue-800/30 dark:text-gray-200"
-                data-tab="specs"
-              >
-                مشخصات فنی
-              </button>
-            </li>
-            <li>
-              <button
-                className="tab-btn whitespace-nowrap px-6 py-3 rounded-xl transition-all bg-blue-100 text-primary-800 dark:bg-blue-800/30 dark:text-gray-200"
-                data-tab="comments"
-              >
-                نظرات
-              </button>
-            </li>
-            <li>
-              <button
-                className="tab-btn whitespace-nowrap px-6 py-3 rounded-xl transition-all bg-blue-100 text-primary-800 dark:bg-blue-800/30 dark:text-gray-200"
-                data-tab="question"
-              >
-                پرسش و پاسخ
-              </button>
-            </li>
-          </ul>
-        </nav> */}
-
         {/* <!--The content of the tabs--> */}
         <div className="space-y-8">
           {/* <!--Tab 1 - Brief Introduction--> */}
@@ -208,7 +155,11 @@ export default function Review({ product, variant, isOutOfStock }) {
             id="comments"
             className="tab-section p-8 bg-white dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-2xl shadow-md"
           >
-            <Comments />
+            <Comments
+              productId={product.productId}
+              averageRating={product.averageRating}
+              reviewCount={product.reviewCount}
+            />
           </div>
 
           {/* <!--Tab 5 - Question--> */}
@@ -217,7 +168,7 @@ export default function Review({ product, variant, isOutOfStock }) {
             className="tab-section p-8 bg-white dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg"
             data-content="5"
           >
-            <Question />
+            <Question productId={product.productId} />
           </div>
         </div>
       </section>

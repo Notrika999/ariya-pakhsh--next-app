@@ -2,7 +2,8 @@
 "use client";
 
 import { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { FRONT_AUTH_PATHS } from "@/src/lib/auth/constants";
+import { CUSTOMER_AUTH_CLIENT_PATHS } from "@/src/lib/auth/constants";
+import { handleSessionExpired } from "@/src/lib/auth/session-client";
 import { apiClient } from "./api-client";
 import {
   getIsRefreshing,
@@ -17,17 +18,16 @@ type RetryRequest = InternalAxiosRequestConfig & {
 };
 
 function isAuthRequest(url: string): boolean {
-  return url.includes("/api/auth/");
+  return url.includes("/api/auth/") || url.includes("/CustomerAuth/");
 }
 
 function isRefreshRequest(url: string): boolean {
-  return url.includes(FRONT_AUTH_PATHS.REFRESH);
+  return url.includes(CUSTOMER_AUTH_CLIENT_PATHS.REFRESH);
 }
 
 async function clearClientAuthState(): Promise<void> {
   clearRefreshQueue();
-  const { useAuthStore } = await import("@/src/lib/stores/auth/auth.store");
-  useAuthStore.getState().clearUser();
+  await handleSessionExpired();
 }
 
 export function setupApiInterceptors(): void {
@@ -71,7 +71,7 @@ export function setupApiInterceptors(): void {
 
       try {
         const refreshResponse = await apiClient.post(
-          FRONT_AUTH_PATHS.REFRESH,
+          CUSTOMER_AUTH_CLIENT_PATHS.REFRESH,
           {},
           { timeout: 15_000 },
         );
@@ -84,11 +84,6 @@ export function setupApiInterceptors(): void {
         return apiClient(originalRequest);
       } catch (refreshError) {
         processRefreshQueue(false, refreshError);
-        try {
-          await apiClient.post(FRONT_AUTH_PATHS.LOGOUT, {});
-        } catch {
-          // ignore logout errors during forced session clear
-        }
         await clearClientAuthState();
         return Promise.reject(refreshError);
       } finally {

@@ -54,7 +54,7 @@ export default function OffcanvasRight({ isOpen, onClose, menu }) {
         {/* header */}
         <div className="border-b border-gray-200 dark:border-gray-700 p-3 flex items-center justify-between ">
           <h2 id="store-menu-title" className="font-bold text-base">
-            فروشگاه آریاپخش
+            فروشگاه کارآپ 24
           </h2>
           <button
             onClick={onClose}

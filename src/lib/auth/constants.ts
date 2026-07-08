@@ -9,6 +9,8 @@ export const AUTH_COOKIE_NAMES = {
   DEVICE_ID: "CUP_Device_Id",
 } as const;
 
+export const AUTH_USER_STORAGE_KEY = "CUP_User";
+
 /** Admin panel — used only by management BFF routes under app/api/v1/auth/* */
 // note for me
 export const BACKEND_AUTH_PATHS = {
@@ -53,8 +55,20 @@ export const CUSTOMER_BACKEND_AUTH_PATHS = {
 
 /** Browser → api/v1 proxy → Backend CustomerAuth */
 export const CUSTOMER_AUTH_CLIENT_PATHS = {
+  PHONE_START: "/CustomerAuth/phone/start",
+  PHONE_VERIFY: "/CustomerAuth/phone/verify",
+  LOGIN: "/CustomerAuth/login",
+  REGISTER: "/CustomerAuth/register",
+  LOGOUT: "/CustomerAuth/logout",
+  REFRESH: "/CustomerAuth/refresh-token",
+  ME: "/CustomerAuth/me",
   LOGIN_VERIFY_2FA: "/CustomerAuth/login/verify-2fa",
   OTP_RESEND: "/CustomerAuth/otp/resend",
+  PASSWORD_FORGOT: "/CustomerAuth/password/forgot",
+  PASSWORD_RESET: "/CustomerAuth/password/reset",
+  ME_PASSWORD_OTP_START: "/CustomerAuth/me/password/otp/start",
+  ME_PASSWORD_CHANGE: "/CustomerAuth/me/password",
+  ME_AVATAR: "/CustomerAuth/me/avatar",
 } as const;
 
 /** Browser → Next.js data proxy */

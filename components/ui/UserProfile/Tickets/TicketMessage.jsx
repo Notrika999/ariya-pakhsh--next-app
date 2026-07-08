@@ -1,338 +1,353 @@
 "use client";
 // components/ui/UserProfile/Tickets/TicketMessage.jsx
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
+import { FieldError, fieldClass } from "@/src/utils/form.validation";
+import {
+  closeTicket,
+  getTicketById,
+  sendTicketMessage,
+} from "@/src/services/ticket/ticket.client";
+import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
+import {
+  formatTicketDate,
+  getCategoryLabel,
+  getPriorityMeta,
+  getStatusMeta,
+  isTicketClosed,
+} from "@/src/lib/tickets/ticket-labels";
+import { notify } from "@/src/utils/toast";
 
 export default function TicketMessage({ ticketId, onBack }) {
-  // Ticket Status
-  const [ticketStatus, setTicketStatus] = useState("در حال بررسی");
+  const [ticket, setTicket] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [replyText, setReplyText] = useState("");
+  const [replyError, setReplyError] = useState("");
+  const [sending, setSending] = useState(false);
+  const [closing, setClosing] = useState(false);
 
-  // Timeline steps (dynamic)
-  const [timeline, setTimeline] = useState([
+  const loadTicket = useCallback(async () => {
+    if (!ticketId) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await getTicketById(ticketId);
+      setTicket(result);
+    } catch (err) {
+      console.error("[TicketMessage] loadTicket failed =>", err);
+      setError(getAuthErrorMessage(err));
+      setTicket(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [ticketId]);
+
+  useEffect(() => {
+    void loadTicket();
+  }, [loadTicket]);
+
+  const handleReplySubmit = async (event) => {
+    event.preventDefault();
+    if (!ticketId) return;
+
+    if (!replyText.trim()) {
+      setReplyError("متن پاسخ الزامی است");
+      return;
+    }
+
+    setReplyError("");
+    setSending(true);
+    try {
+      await sendTicketMessage(ticketId, { body: replyText.trim() });
+      notify.success("پیام ارسال شد");
+      setReplyText("");
+      await loadTicket();
+    } catch (err) {
+      console.error("[TicketMessage] send message failed =>", err);
+      notify.error(getAuthErrorMessage(err));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleCloseTicket = async () => {
+    if (!ticketId || closing) return;
+
+    setClosing(true);
+    try {
+      await closeTicket(ticketId);
+      notify.success("تیکت بسته شد");
+      await loadTicket();
+    } catch (err) {
+      console.error("[TicketMessage] close ticket failed =>", err);
+      notify.error(getAuthErrorMessage(err));
+    } finally {
+      setClosing(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-8 lg:col-span-3">
+        <div className="rounded-2xl bg-white p-8 text-center text-gray-500 drop-shadow-lg dark:bg-custom-dark">
+          در حال بارگذاری تیکت...
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !ticket) {
+    return (
+      <div className="space-y-8 lg:col-span-3">
+        <div className="rounded-2xl bg-white p-8 text-center drop-shadow-lg dark:bg-custom-dark">
+          <p className="mb-4 text-red-500">{error || "تیکت پیدا نشد"}</p>
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="rounded-lg bg-gray-200 px-4 py-2 dark:bg-gray-700 dark:text-gray-200"
+            >
+              بازگشت
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  const statusMeta = getStatusMeta(ticket.status);
+  const priorityMeta = getPriorityMeta(ticket.priority);
+  const closed = isTicketClosed(ticket.status);
+
+  const timeline = [
     {
       id: 1,
       title: "تیکت ایجاد شد",
-      date: "۱۴۰۲/۱۱/۰۵ - ۱۰:۱۵",
-      desc: "تیکت شما با موفقیت ثبت و تأیید شد",
+      date: formatTicketDate(ticket.createdAt),
+      desc: "تیکت شما با موفقیت ثبت شد",
       status: "done",
     },
     {
       id: 2,
-      title: "ارسال به واحد فنی",
-      date: "۱۴۰۲/۱۱/۰۵ - ۱۰:۴۵",
-      desc: "تیکت شما برای بررسی به واحد فنی ارسال شد",
-      status: "done",
+      title: "در حال بررسی",
+      date: formatTicketDate(ticket.lastMessageAt || ticket.createdAt),
+      desc: ticket.assignedToDisplayName
+        ? `ارجاع به ${ticket.assignedToDisplayName}`
+        : "تیکت در صف پشتیبانی است",
+      status: closed ? "done" : "current",
     },
     {
       id: 3,
-      title: "در حال بررسی",
-      date: "۱۴۰۲/۱۱/۰۵ - ۱۱:۳۰",
-      desc: "کارشناسان ما در حال بررسی تیکت شما هستند",
-      status: "current",
-    },
-    {
-      id: 4,
-      title: "ارسال پاسخ",
-      date: "در انتظار",
-      desc: "پاسخ کارشناسان برای شما ارسال خواهد شد",
-      status: "pending",
-    },
-    {
-      id: 5,
       title: "بسته شدن تیکت",
-      date: "در انتظار",
-      desc: "تیکت پس از حل مشکل بسته خواهد شد",
-      status: "pending",
+      date: ticket.closedAt ? formatTicketDate(ticket.closedAt) : "در انتظار",
+      desc: closed ? "تیکت بسته شده است" : "پس از حل مشکل تیکت بسته خواهد شد",
+      status: closed ? "done" : "pending",
     },
-  ]);
-
-  // Messages list
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: "شما",
-      type: "user",
-      date: "۱۴۰۲/۱۱/۰۵ - ۱۰:۱۵",
-      message: `با سلام،
-من دو روز پیش محصول گوشی سامسونگ A73 را خریداری کردم اما متأسفانه صفحه نمایش آن مشکل دارد...`,
-    },
-    {
-      id: 2,
-      sender: "پشتیبانی فنی",
-      type: "support",
-      date: "۱۴۰۲/۱۱/۰۵ - ۱۱:۳۰",
-      message: `با درود،
-از اینکه مشکل را اطلاع دادید سپاس‌گزاریم...`,
-    },
-  ]);
-
-  // Reply Form State
-  const [replyText, setReplyText] = useState("");
-  const [replyFile, setReplyFile] = useState(null);
-
-  // Handle Reply Submit
-  const handleReplySubmit = (e) => {
-    e.preventDefault();
-
-    if (!replyText.trim()) return;
-
-    const newMessage = {
-      id: Date.now(),
-      sender: "شما",
-      type: "user",
-      date: "همین الان",
-      message: replyText,
-      file: replyFile ? replyFile.name : null,
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
-    setReplyText("");
-    setReplyFile(null);
-
-  };
-
-  // Status icon function
-  const getStatusIcon = (item) => {
-    if (item.status === "done") return "bg-green-500";
-    if (item.status === "current") return "bg-yellow-500";
-    return "bg-gray-300";
-  };
+  ];
 
   return (
-    <div className="lg:col-span-3 space-y-8">
-      {/* Header */}
-
-      <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
+    <div className="space-y-8 lg:col-span-3">
+      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center space-x-4 ">
-            <div>
-              <TitleAfter title={"تیکت پشتیبانی #TKT-4591"} />
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                مشاهده اطلاعات کامل تیکت پشتیبانی
-              </p>
-            </div>
+          <div>
+            <TitleAfter
+              title={`تیکت پشتیبانی #${ticket.ticketNumber || ticket.id.slice(0, 8)}`}
+            />
+            <p className="mt-1 text-gray-600 dark:text-gray-400">
+              {ticket.subject}
+            </p>
           </div>
 
-          <div className="mt-4 md:mt-0">
-            <div className="flex items-center space-x-3 ">
-              <div className="text-right">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  وضعیت تیکت
-                </p>
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300">
-                  {ticketStatus}
-                </span>
-              </div>
-              <div className="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-full flex items-center justify-center">
-                <i className="far fa-clock text-yellow-600 dark:text-yellow-400 text-xl"></i>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-2 md:mt-0">
-            <button
-              onClick={onBack}
-              className="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition mb-4"
+          <div className="mt-4 flex flex-wrap items-center gap-3 md:mt-0">
+            <span
+              className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusMeta.color}`}
             >
-              بازگشت به لیست تیکت‌ها
-            </button>
+              {statusMeta.label}
+            </span>
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="rounded-lg bg-gray-200 px-4 py-2 text-gray-900 transition hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+              >
+                بازگشت به لیست تیکت‌ها
+              </button>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Timeline */}
-      <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
-        <TitleAfter title={"روند تیکت"} />
-
-        <div className="relative">
-          <div className="space-y-8">
-            {timeline.map((step) => (
-              <div key={step.id} className="flex items-start space-x-4 ">
-                <div
-                  className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${getStatusIcon(step)}`}
-                >
-                  {step.status === "done" && (
-                    <i className="far fa-check text-white"></i>
-                  )}
-                  {step.status === "current" && (
-                    <i className="far fa-clock text-white"></i>
-                  )}
-                  {step.status === "pending" && (
-                    <i className="far fa-hourglass text-white"></i>
-                  )}
-                </div>
-
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <h3
-                      className={`font-medium ${
-                        step.status === "pending"
-                          ? "text-gray-500 dark:text-gray-400"
-                          : "text-gray-800 dark:text-gray-200"
-                      }`}
-                    >
-                      {step.title}
-                    </h3>
-                    <span
-                      className={`text-sm ${
-                        step.status === "pending"
-                          ? "text-gray-400 dark:text-gray-500"
-                          : "text-gray-500 dark:text-gray-400"
-                      }`}
-                    >
-                      {step.date}
-                    </span>
-                  </div>
-                  <p
-                    className={`text-sm mt-1 ${
-                      step.status === "pending"
-                        ? "text-gray-400 dark:text-gray-500"
-                        : "text-gray-500 dark:text-gray-400"
-                    }`}
-                  >
-                    {step.desc}
-                  </p>
-                </div>
+      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+        <TitleAfter title="روند تیکت" />
+        <div className="space-y-8">
+          {timeline.map((step) => (
+            <div key={step.id} className="flex items-start space-x-4">
+              <div
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                  step.status === "done"
+                    ? "bg-green-500"
+                    : step.status === "current"
+                      ? "bg-yellow-500"
+                      : "bg-gray-300"
+                }`}
+              >
+                {step.status === "done" && (
+                  <i className="far fa-check text-white"></i>
+                )}
+                {step.status === "current" && (
+                  <i className="far fa-clock text-white"></i>
+                )}
+                {step.status === "pending" && (
+                  <i className="far fa-hourglass text-white"></i>
+                )}
               </div>
-            ))}
-          </div>
+              <div className="flex-1">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="font-medium text-gray-800 dark:text-gray-200">
+                    {step.title}
+                  </h3>
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {step.date}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  {step.desc}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Ticket details */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Messages */}
-        <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
-            <TitleAfter title={"مکالمات تیکت"} />
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="space-y-8 lg:col-span-2">
+          <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+            <TitleAfter title="مکالمات تیکت" />
 
             <div className="space-y-6">
-              {messages.map((msg) => (
-                <div key={msg.id} className="flex items-start space-x-4 ">
-                  {/* Avatar */}
-                  <div
-                    className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
-                      msg.type === "user"
-                        ? "bg-blue-100 dark:bg-blue-900"
-                        : "bg-green-100 dark:bg-green-900"
-                    }`}
-                  >
-                    <i
-                      className={`${
-                        msg.type === "user"
-                          ? "far fa-user text-blue-600 dark:text-blue-400"
-                          : "far fa-headset text-green-600 dark:text-green-400"
-                      }`}
-                    ></i>
-                  </div>
+              {ticket.messages.length === 0 && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  هنوز پیامی ثبت نشده است.
+                </p>
+              )}
 
-                  {/* Message body */}
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-gray-800 dark:text-gray-200">
-                        {msg.sender}
-                      </h3>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {msg.date}
-                      </span>
-                    </div>
-
+              {ticket.messages.map((msg) => {
+                const isCustomer = msg.senderType === "customer";
+                return (
+                  <div key={msg.id} className="flex items-start space-x-4">
                     <div
-                      className={`rounded-lg p-4 mt-2 ${
-                        msg.type === "support"
-                          ? "bg-blue-50 dark:bg-blue-900/20"
-                          : "bg-gray-50 dark:bg-zinc-800"
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                        isCustomer
+                          ? "bg-blue-100 dark:bg-blue-900"
+                          : "bg-green-100 dark:bg-green-900"
                       }`}
                     >
-                      <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-line">
-                        {msg.message}
-                      </p>
-                      {msg.file && (
-                        <p className="text-xs mt-2 text-primary">
-                          فایل: {msg.file}
+                      <i
+                        className={`${
+                          isCustomer
+                            ? "far fa-user text-blue-600 dark:text-blue-400"
+                            : "far fa-headset text-green-600 dark:text-green-400"
+                        }`}
+                      ></i>
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between gap-3">
+                        <h3 className="font-medium text-gray-800 dark:text-gray-200">
+                          {msg.senderDisplayName ||
+                            (isCustomer ? "شما" : "پشتیبانی")}
+                        </h3>
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          {formatTicketDate(msg.createdAt)}
+                        </span>
+                      </div>
+                      <div
+                        className={`mt-2 rounded-lg p-4 ${
+                          isCustomer
+                            ? "bg-gray-50 dark:bg-zinc-800"
+                            : "bg-blue-50 dark:bg-blue-900/20"
+                        }`}
+                      >
+                        <p className="whitespace-pre-line text-sm text-gray-800 dark:text-gray-200">
+                          {msg.body}
                         </p>
-                      )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            {/* Reply Form */}
-            <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <h3 className="font-medium text-gray-800 dark:text-gray-200 mb-4">
-                پاسخ جدید
-              </h3>
-
-              <form onSubmit={handleReplySubmit}>
-                <div className="mb-4">
+            {!closed && (
+              <div className="mt-8 border-t border-gray-200 pt-6 dark:border-gray-700">
+                <h3 className="mb-4 font-medium text-gray-800 dark:text-gray-200">
+                  پاسخ جدید
+                </h3>
+                <form onSubmit={handleReplySubmit} noValidate>
+                  <label className="mb-1 block text-sm text-gray-600 dark:text-gray-400">
+                    متن پاسخ <span className="text-red-500">*</span>
+                  </label>
                   <textarea
                     rows="4"
                     value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary dark:bg-zinc-800 dark:border-gray-600 dark:text-gray-200"
+                    onChange={(e) => {
+                      setReplyText(e.target.value);
+                      if (replyError) setReplyError("");
+                    }}
+                    disabled={sending}
+                    className={[fieldClass(Boolean(replyError)), "mb-1 p-3"].join(
+                      " ",
+                    )}
                     placeholder="پیام خود را اینجا بنویسید..."
-                  ></textarea>
-                </div>
-
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-                  <div className="flex items-center space-x-4">
-                    <label className="cursor-pointer flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
-                      <i className="far fa-paperclip me-1"></i>
-                      افزودن فایل
-                      <input
-                        type="file"
-                        className="hidden"
-                        onChange={(e) => setReplyFile(e.target.files[0])}
-                      />
-                    </label>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      (حداکثر 5MB)
-                    </span>
+                  />
+                  <FieldError message={replyError} />
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      type="submit"
+                      disabled={sending}
+                      className="rounded-lg bg-primary px-6 py-2 text-sm font-medium text-white transition duration-200 hover:bg-primary/90 active:scale-95 disabled:opacity-60"
+                    >
+                      {sending ? "در حال ارسال..." : "ارسال پاسخ"}
+                    </button>
                   </div>
-
-                  <button
-                    type="submit"
-                    className="bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary/90 active:scale-95 transition duration-200 text-sm font-medium"
-                  >
-                    ارسال پاسخ
-                  </button>
-                </div>
-              </form>
-            </div>
+                </form>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Ticket Info & Actions */}
         <div className="space-y-8">
-          {/* Ticket Info */}
-          {/* (این بخش فقط نمایش اطلاعات است، state نیاز ندارد) */}
-          {/* UI بدون تغییر */}
-          {/* دقت کن فقط JSX شده نه HTML */}
-
-          <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
-            <TitleAfter title={"اطلاعات تیکت"} />
+          <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+            <TitleAfter title="اطلاعات تیکت" />
             <div className="space-y-4">
               {[
-                ["شماره تیکت", "#TKT-4591"],
-                ["دسته‌بندی", "پشتیبانی فنی"],
-                ["اولویت", "متوسط", "yellow"],
-                ["تاریخ ایجاد", "۱۴۰۲/۱۱/۰۵ - ۱۰:۱۵"],
-                ["آخرین بروزرسانی", "۱۴۰۲/۱۱/۰۵ - ۱۱:۳۰"],
-                ["کارشناس پاسخگو", "امین کریمی"],
-              ].map(([label, value], i) => (
+                [
+                  "شماره تیکت",
+                  `#${ticket.ticketNumber || ticket.id.slice(0, 8)}`,
+                ],
+                ["دسته‌بندی", getCategoryLabel(ticket.category)],
+                ["اولویت", priorityMeta.label],
+                ["تاریخ ایجاد", formatTicketDate(ticket.createdAt)],
+                [
+                  "آخرین بروزرسانی",
+                  formatTicketDate(ticket.lastMessageAt || ticket.createdAt),
+                ],
+                [
+                  "کارشناس پاسخگو",
+                  ticket.assignedToDisplayName || "هنوز تخصیص داده نشده",
+                ],
+              ].map(([label, value], index) => (
                 <div
-                  key={i}
-                  className={`flex justify-between items-center ${
-                    i === 5
-                      ? "pt-4 border-t border-gray-200 dark:border-gray-700"
+                  key={label}
+                  className={`flex items-center justify-between gap-3 ${
+                    index === 5
+                      ? "border-t border-gray-200 pt-4 dark:border-gray-700"
                       : ""
                   }`}
                 >
                   <span className="text-gray-600 dark:text-gray-400">
                     {label}
                   </span>
-                  <span className="font-medium text-gray-800 dark:text-gray-200">
+                  <span className="text-end font-medium text-gray-800 dark:text-gray-200">
                     {value}
                   </span>
                 </div>
@@ -340,54 +355,37 @@ export default function TicketMessage({ ticketId, onBack }) {
             </div>
           </div>
 
-          {/* Related Order */}
-          <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
-            <TitleAfter title={"سفارش مرتبط"} />
-            <div className="space-y-4">
-              {[
-                ["شماره سفارش", "#ORD-7842"],
-                ["محصول", "گوشی سامسونگ A73"],
-                ["تاریخ سفارش", "۱۴۰۲/۱۰/۱۵"],
-              ].map(([title, value], i) => (
-                <div key={i} className="flex justify-between items-center">
-                  <span className="text-gray-600 dark:text-gray-400">
-                    {title}
-                  </span>
-                  <span className="font-medium text-gray-800 dark:text-gray-200">
-                    {value}
-                  </span>
-                </div>
-              ))}
-
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <button className="w-full bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition duration-200 flex items-center justify-center">
-                  <i className="far fa-eye me-2"></i>
-                  مشاهده سفارش
-                </button>
+          {ticket.orderId && (
+            <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+              <TitleAfter title="سفارش مرتبط" />
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-gray-600 dark:text-gray-400">
+                  شناسه سفارش
+                </span>
+                <span
+                  className="font-medium text-gray-800 dark:text-gray-200"
+                  dir="ltr"
+                >
+                  {ticket.orderId}
+                </span>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Ticket Actions */}
-          <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
-            <TitleAfter title={"عملیات تیکت"} />
+          <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+            <TitleAfter title="عملیات تیکت" />
             <div className="space-y-3">
-              <button className="w-full bg-primary text-white px-4 py-3 rounded-lg hover:bg-primary/90 active:scale-95 transition duration-200 flex items-center justify-center">
-                ویرایش تیکت
-              </button>
-
               <button
-                onClick={() => setTicketStatus("حل شد")}
-                className="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 active:scale-95 transition duration-200 flex items-center justify-center"
+                type="button"
+                onClick={handleCloseTicket}
+                disabled={closed || closing}
+                className="flex w-full items-center justify-center rounded-lg border border-red-300 px-4 py-3 text-red-600 transition duration-200 hover:bg-red-50 active:scale-95 disabled:opacity-60 dark:hover:bg-red-900/20"
               >
-                تیکت حل شد
-              </button>
-
-              <button
-                onClick={() => setTicketStatus("بسته شده")}
-                className="w-full border border-red-300 text-red-600 px-4 py-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 active:scale-95 transition duration-200 flex items-center justify-center"
-              >
-                بستن تیکت
+                {closing
+                  ? "در حال بستن..."
+                  : closed
+                    ? "تیکت بسته شده است"
+                    : "بستن تیکت"}
               </button>
             </div>
           </div>

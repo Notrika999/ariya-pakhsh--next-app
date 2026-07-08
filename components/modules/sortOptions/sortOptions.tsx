@@ -28,10 +28,10 @@ export default function SortList({ currentSort, onSortChange }: Props) {
           <button
             key={option.value}
             onClick={() => onSortChange(option.value)}
-            className={`whitespace-nowrap px-2 py-1 rounded-full transition ${
+            className={`whitespace-nowrap rounded-full px-2 py-1 transition ${
               isActive
-                ? "bg-gray-900 text-white"
-                : "text-gray-600 hover:text-gray-900"
+                ? "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900"
+                : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
             }`}
           >
             {option.label}

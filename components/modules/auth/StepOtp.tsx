@@ -76,12 +76,18 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
       setSuccessMessage(null);
 
       try {
-        console.log("[StepOtp] verify login 2FA =>", { codeLength: code.length });
-        const result = await verifyLoginTwoFactor({
+        const verifyBody = {
           twoFactorToken: loginTwoFactorToken,
           code,
           deviceFingerPrint: deviceFingerPrint ?? "device-id",
-        });
+        };
+        console.log(
+          "[StepOtp] login 2FA request body =>",
+          verifyBody,
+          "\nendpoint:",
+          "/api/v1/CustomerAuth/login/verify-2fa",
+        );
+        const result = await verifyLoginTwoFactor(verifyBody);
 
         if (!result.success) {
           setError(result.errorMessage ?? result.message ?? "کد تایید نامعتبر است");

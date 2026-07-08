@@ -1,3 +1,5 @@
+// components/modules/auth/StepMethod.tsx
+
 interface StepMethodProps {
   onOtp: () => void;
   onPassword: () => void;
@@ -25,14 +27,6 @@ export default function StepMethod({
       >
         ورود با رمز عبور
       </button>
-
-      <button
-        onClick={onForgot}
-        className="text-primary text-sm"
-      >
-        رمز عبور را فراموش کرده‌اید؟
-      </button>
-
 
     </div>
   );

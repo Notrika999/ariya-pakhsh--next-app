@@ -81,6 +81,7 @@ export function normalizeProduct(
     return {
       id: product.productId,
       title: product.name,
+      publicCode: product.publicCode,
 
       image: getProductImage(product.thumbnailPath ?? product.mediumPath),
       imageSlider: [],
@@ -138,7 +139,7 @@ export function normalizeProduct(
 
     href: product.href,
 
-    inStock: Boolean(product.inStock),
+    inStock: 'inStock' in product ? Boolean(product.inStock) : undefined,
     isOnSale: Number(product.discount ?? 0) > 0,
     offer: product.offer ?? false,
   };

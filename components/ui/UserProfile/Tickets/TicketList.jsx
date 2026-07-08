@@ -1,41 +1,58 @@
-// components/ui/UserProfile/Tickets/TicketList.jsx
+"use client";
 
 import React, { useState } from "react";
 import TitleAfter from "../../../modules/TitleAfter/TitleAfter";
 import TicketFilters from "./TicketFilters";
 import TicketStatCard from "../../../modules/TicketStatCard/TicketStatCard";
 import CreateTicketModal from "../../../modules/CreateTicketModal/CreateTicketModal";
+import {
+  formatTicketDate,
+  getCategoryLabel,
+  getPriorityMeta,
+  getStatusMeta,
+} from "@/src/lib/tickets/ticket-labels";
 
 export default function TicketList({
   tickets,
+  totalCount = 0,
+  loading = false,
+  loadingMore = false,
+  hasNextPage = false,
+  error = null,
+  creating = false,
   onView,
+  onLoadMore,
+  onCreate,
   filters,
   onFilterChange,
 }) {
   const [showModal, setShowModal] = useState(false);
 
-  const total = tickets.length;
+  const open = tickets.filter((t) => t.status === "open").length;
+  const pending = tickets.filter(
+    (t) => t.status === "pending" || t.status === "answered",
+  ).length;
+  const closed = tickets.filter((t) => t.status === "closed").length;
 
-  const open = tickets.filter((t) => t.status.key === "open").length;
-  const pending = tickets.filter((t) => t.status.key === "pending").length;
-  const closed = tickets.filter((t) => t.status.key === "closed").length;
+  const handleCreate = async (payload) => {
+    const ok = await onCreate?.(payload);
+    if (ok) setShowModal(false);
+  };
+
   return (
-    <div className="lg:col-span-3 space-y-8">
-      {/* <!--Dashboard header with create ticket button--> */}
-      <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
+    <div className="space-y-8 lg:col-span-3">
+      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div className="flex items-center space-x-4 ">
-            <div>
-              <TitleAfter title={"تیکت‌های پشتیبانی"} />
-              <p className="text-gray-600 dark:text-gray-400 mt-1">
-                مدیریت و پیگیری تیکت‌های پشتیبانی
-              </p>
-            </div>
+          <div>
+            <TitleAfter title="تیکت‌های پشتیبانی" />
+            <p className="mt-1 text-gray-600 dark:text-gray-400">
+              مدیریت و پیگیری تیکت‌های پشتیبانی
+            </p>
           </div>
           <div className="mt-4 md:mt-0">
             <button
               onClick={() => setShowModal(true)}
-              className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 active:scale-95 transition duration-200 text-sm font-medium flex items-center justify-center"
+              className="flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white transition duration-200 hover:bg-primary/90 active:scale-95"
             >
               <i className="far fa-plus me-2"></i>
               ایجاد تیکت جدید
@@ -44,137 +61,151 @@ export default function TicketList({
         </div>
       </div>
 
-      {/* <!--Statistics Cards--> */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         <TicketStatCard
           title="کل تیکت‌ها"
-          count={total}
+          count={totalCount}
           bg="bg-blue-100 dark:bg-blue-900"
           icon={
-            <i className="far fa-file-lines text-blue-600 dark:text-blue-400 text-xl"></i>
+            <i className="far fa-file-lines text-xl text-blue-600 dark:text-blue-400"></i>
           }
         />
-
         <TicketStatCard
           title="تیکت‌های باز"
           count={open}
           bg="bg-orange-100 dark:bg-orange-900"
           icon={
-            <i className="far fa-exclamation-triangle text-orange-600 dark:text-orange-400 text-xl"></i>
+            <i className="far fa-exclamation-triangle text-xl text-orange-600 dark:text-orange-400"></i>
           }
         />
-
         <TicketStatCard
           title="در حال بررسی"
           count={pending}
           bg="bg-yellow-100 dark:bg-yellow-900"
           icon={
-            <i className="far fa-clock text-yellow-600 dark:text-yellow-400 text-xl"></i>
+            <i className="far fa-clock text-xl text-yellow-600 dark:text-yellow-400"></i>
           }
         />
-
         <TicketStatCard
           title="بسته شده"
           count={closed}
           bg="bg-green-100 dark:bg-green-900"
           icon={
-            <i className="far fa-clock text-green-600 dark:text-green-400 text-xl"></i>
+            <i className="far fa-circle-check text-xl text-green-600 dark:text-green-400"></i>
           }
         />
       </div>
 
-      {/* <!--Filters and Search--> */}
-      <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
+      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <TicketFilters filters={filters} onFilterChange={onFilterChange} />
       </div>
 
-      {/* <!--Tickets List--> */}
-      <div className="bg-white rounded-3xl shadow-xl p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="font-black text-xl with-highlight dark:text-gray-200">
+      <div className="rounded-3xl bg-white p-6 shadow-xl dark:border dark:border-gray-700 dark:bg-custom-dark">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-xl font-black dark:text-gray-200">
             تیکت‌های اخیر
           </h2>
-          <a
-            href="#"
-            className="text-xs font-medium bg-primary text-white py-1.5 px-4 rounded-lg hover:bg-primary/90 active:scale-95 transition duration-200 shadow-sm hover:shadow dark:bg-primary/80 dark:hover:bg-primary/60 dark:text-white"
-          >
-            مشاهده همه
-          </a>
         </div>
 
-        <div className="overflow-x-auto rounded-2xl border border-gray-100 dark:border-gray-700">
-          <table className="w-full text-sm text-right">
-            <thead className="text-xs bg-gray-100 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 sticky top-0">
-              <tr>
-                <th className="px-5 py-4">شماره تیکت</th>
-                <th className="px-5 py-4">موضوع</th>
-                <th className="px-5 py-4">دپارتمان</th>
-                <th className="px-5 py-4">اولویت</th>
-                <th className="px-5 py-4">وضعیت</th>
-                <th className="px-5 py-4">آخرین بروزرسانی</th>
-                <th className="px-5 py-4">عملیات</th>
-              </tr>
-            </thead>
+        {loading && (
+          <p className="py-8 text-center text-sm text-gray-500">
+            در حال بارگذاری تیکت‌ها...
+          </p>
+        )}
 
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-              {tickets.map((item) => (
-                <tr
-                  key={item.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
-                >
-                  <td className="px-5 py-4 font-bold text-gray-900 dark:text-white">
-                    #{item.id}
-                  </td>
+        {!loading && error && (
+          <p className="py-8 text-center text-sm text-red-500">{error}</p>
+        )}
 
-                  <td className="px-5 py-4">{item.title}</td>
-
-                  <td className="px-5 py-4">{item.department}</td>
-
-                  <td className="px-5 py-4">
-                    <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs text-nowrap font-semibold ${item.priority.color}`}
-                    >
-                      {item.priority.label}
-                    </span>
-                  </td>
-
-                  <td className="px-5 py-4">
-                    <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs text-nowrap font-semibold ${item.status.color}`}
-                    >
-                      {item.status.label}
-                    </span>
-                  </td>
-
-                  <td className="px-5 py-4">{item.lastUpdate}</td>
-
-                  <td className="px-5 py-4">
-                    <button
-                      onClick={() => onView(item.id)}
-                      className="text-xs font-medium bg-primary text-white py-1.5 px-4 rounded-lg hover:bg-primary/90 active:scale-95 transition duration-200 shadow-sm hover:shadow dark:bg-primary/80 dark:hover:bg-primary/60 dark:text-white"
-                    >
-                      مشاهده
-                    </button>
-                  </td>
+        {!loading && !error && (
+          <div className="overflow-x-auto rounded-2xl border border-gray-100 dark:border-gray-700">
+            <table className="w-full text-right text-sm">
+              <thead className="sticky top-0 bg-gray-100 text-xs text-gray-700 dark:bg-gray-800/60 dark:text-gray-300">
+                <tr>
+                  <th className="px-5 py-4">شماره تیکت</th>
+                  <th className="px-5 py-4">موضوع</th>
+                  <th className="px-5 py-4">دسته‌بندی</th>
+                  <th className="px-5 py-4">اولویت</th>
+                  <th className="px-5 py-4">وضعیت</th>
+                  <th className="px-5 py-4">آخرین بروزرسانی</th>
+                  <th className="px-5 py-4">عملیات</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          {tickets.length === 0 && (
-            <div className="p-6 text-center text-gray-500 dark:text-gray-400">
-              تیکتی با این فیلترها پیدا نشد.
-            </div>
-          )}
-        </div>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                {tickets.map((item) => {
+                  const priority = getPriorityMeta(item.priority);
+                  const status = getStatusMeta(item.status);
+
+                  return (
+                    <tr
+                      key={item.id}
+                      className="transition-all hover:bg-gray-50 dark:hover:bg-gray-800"
+                    >
+                      <td className="px-5 py-4 font-bold text-gray-900 dark:text-white">
+                        #{item.ticketNumber || item.id.slice(0, 8)}
+                      </td>
+                      <td className="px-5 py-4">{item.subject}</td>
+                      <td className="px-5 py-4">
+                        {getCategoryLabel(item.category)}
+                      </td>
+                      <td className="px-5 py-4">
+                        <span
+                          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-nowrap ${priority.color}`}
+                        >
+                          {priority.label}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        <span
+                          className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-nowrap ${status.color}`}
+                        >
+                          {status.label}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4">
+                        {formatTicketDate(item.lastMessageAt || item.createdAt)}
+                      </td>
+                      <td className="px-5 py-4">
+                        <button
+                          onClick={() => onView(item.id)}
+                          className="rounded-lg bg-primary px-4 py-1.5 text-xs font-medium text-white transition duration-200 hover:bg-primary/90 active:scale-95"
+                        >
+                          مشاهده
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+
+            {tickets.length === 0 && (
+              <div className="p-6 text-center text-gray-500 dark:text-gray-400">
+                تیکتی با این فیلترها پیدا نشد.
+              </div>
+            )}
+          </div>
+        )}
+
+        {!loading && hasNextPage && (
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={onLoadMore}
+              disabled={loadingMore}
+              className="rounded-lg border border-primary px-6 py-2 text-primary transition hover:bg-primary hover:text-white disabled:opacity-60"
+            >
+              {loadingMore ? "در حال بارگذاری..." : "مشاهده بیشتر"}
+            </button>
+          </div>
+        )}
       </div>
 
       <CreateTicketModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        onSubmit={(data) => {
-          console.log("ticket payload:", data);
-          setShowModal(false); // بستن مودال
-        }}
+        onSubmit={handleCreate}
+        loading={creating}
       />
     </div>
   );

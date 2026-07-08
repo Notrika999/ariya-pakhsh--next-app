@@ -3,7 +3,9 @@
 
 import { apiClient } from "@/src/lib/http/api-client";
 import { ApiError } from "@/src/lib/http/api-client";
-import { FRONT_AUTH_PATHS, CUSTOMER_AUTH_CLIENT_PATHS } from "@/src/lib/auth/constants";
+import {
+  CUSTOMER_AUTH_CLIENT_PATHS,
+} from "@/src/lib/auth/constants";
 import {
   LoginRequest,
   LoginResponse,
@@ -24,6 +26,14 @@ import {
   VerifyLoginTwoFactorResponse,
   VerifyOtpRequest,
   VerifyOtpResponse,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
+  StartChangePasswordOtpRequest,
+  StartChangePasswordOtpResponse,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
 } from "@/src/lib/types/auth/auth.type";
 
 type ApiEnvelope<T> = {
@@ -106,6 +116,8 @@ function unwrapApiData<T>(payload: unknown, label: string): T {
       "success" in inner ||
       "flowToken" in inner ||
       "token" in inner ||
+      "resetToken" in inner ||
+      "verificationToken" in inner ||
       "userId" in inner
     ) {
       return record.data as T;
@@ -119,6 +131,8 @@ function unwrapApiData<T>(payload: unknown, label: string): T {
     "success" in record ||
     "flowToken" in record ||
     "token" in record ||
+    "resetToken" in record ||
+    "verificationToken" in record ||
     "userId" in record
   ) {
     return payload as T;
@@ -224,10 +238,17 @@ export async function completeUserFromMe(
 export const startPhoneAuth = async (
   data: StartAuthRequest,
 ): Promise<StartAuthResponse> => {
-  console.log("[auth.client] POST", FRONT_AUTH_PATHS.PHONE_START, data);
+  console.log(
+    "[auth.client] POST",
+    CUSTOMER_AUTH_CLIENT_PATHS.PHONE_START,
+    data,
+  );
 
   try {
-    const response = await apiClient.post(FRONT_AUTH_PATHS.PHONE_START, data);
+    const response = await apiClient.post(
+      CUSTOMER_AUTH_CLIENT_PATHS.PHONE_START,
+      data,
+    );
     const result = normalizeStartAuthResponse(
       unwrapApiData<StartAuthResponse>(response.data, "startPhoneAuth"),
     );
@@ -243,10 +264,13 @@ export const startPhoneAuth = async (
 export const verifyOtp = async (
   data: VerifyOtpRequest,
 ): Promise<VerifyOtpResponse> => {
-  console.log("[auth.client] POST", FRONT_AUTH_PATHS.PHONE_VERIFY);
+  console.log("[auth.client] POST", CUSTOMER_AUTH_CLIENT_PATHS.PHONE_VERIFY);
 
   try {
-    const response = await apiClient.post(FRONT_AUTH_PATHS.PHONE_VERIFY, data);
+    const response = await apiClient.post(
+      CUSTOMER_AUTH_CLIENT_PATHS.PHONE_VERIFY,
+      data,
+    );
     const result = unwrapApiData<VerifyOtpResponse>(response.data, "verifyOtp");
 
     console.log("[auth.client] verifyOtp OK =>", result);
@@ -280,8 +304,11 @@ export const resendOtp = async (
 export const loginWithPassword = async (
   data: LoginRequest,
 ): Promise<LoginResponse> => {
-  console.log("[auth.client] loginWithPassword => POST", FRONT_AUTH_PATHS.LOGIN);
-  const response = await apiClient.post(FRONT_AUTH_PATHS.LOGIN, data);
+  console.log(
+    "[auth.client] loginWithPassword => POST",
+    CUSTOMER_AUTH_CLIENT_PATHS.LOGIN,
+  );
+  const response = await apiClient.post(CUSTOMER_AUTH_CLIENT_PATHS.LOGIN, data);
   console.log("[auth.client] loginWithPassword raw response =>", response.data);
   const result = normalizeLoginResponse(
     unwrapApiData<LoginResponse>(response.data, "loginWithPassword"),
@@ -309,7 +336,9 @@ function normalizeLoginResponse(result: LoginResponse): LoginResponse {
       pickString(record, ["otpSentTo", "maskedDestination", "maskedPhone"]) ??
       result.otpSentTo,
     errorMessage:
-      pickString(record, ["errorMessage", "error"]) ?? result.errorMessage ?? null,
+      pickString(record, ["errorMessage", "error"]) ??
+      result.errorMessage ??
+      null,
   };
 }
 
@@ -333,7 +362,10 @@ export const verifyLoginTwoFactor = async (
       deviceFingerPrint: data.deviceFingerPrint,
     },
   );
-  console.log("[auth.client] verifyLoginTwoFactor raw response =>", response.data);
+  console.log(
+    "[auth.client] verifyLoginTwoFactor raw response =>",
+    response.data,
+  );
   const result = unwrapApiData<VerifyLoginTwoFactorResponse>(
     response.data,
     "verifyLoginTwoFactor",
@@ -345,15 +377,189 @@ export const verifyLoginTwoFactor = async (
 export const resendLoginTwoFactorOtp = async (
   twoFactorToken: string,
 ): Promise<ResendOtpResponse> => {
-  console.log("[auth.client] resendLoginTwoFactorOtp =>", { token: twoFactorToken });
+  console.log("[auth.client] resendLoginTwoFactorOtp =>", {
+    token: twoFactorToken,
+  });
   return resendOtp({ token: twoFactorToken });
 };
 
 export const register = async (
   data: RegisterRequest,
 ): Promise<RegisterResponse> => {
-  const response = await apiClient.post(FRONT_AUTH_PATHS.REGISTER, data);
+  const response = await apiClient.post(CUSTOMER_AUTH_CLIENT_PATHS.REGISTER, data);
   return unwrapApiData<RegisterResponse>(response.data, "register");
+};
+
+function normalizeForgotPasswordResponse(
+  result: ForgotPasswordResponse,
+): ForgotPasswordResponse {
+  const record = getRecord(result);
+  return {
+    ...result,
+    success: result.success ?? true,
+    resetToken:
+      pickString(record, ["resetToken", "token", "flowToken"]) ??
+      result.resetToken,
+    maskedDestination:
+      pickString(record, [
+        "maskedDestination",
+        "maskedPhone",
+        "otpSentTo",
+        "maskedEmail",
+      ]) ?? result.maskedDestination,
+    deliveryMethod:
+      pickString(record, ["deliveryMethod"]) ?? result.deliveryMethod,
+    resendCooldownSeconds:
+      pickNumber(record, [
+        "resendCooldownSeconds",
+        "cooldownSeconds",
+        "retryAfterSeconds",
+      ]) ??
+      result.resendCooldownSeconds ??
+      120,
+    otpExpiresInSeconds:
+      pickNumber(record, ["otpExpiresInSeconds", "expiresInSeconds"]) ??
+      result.otpExpiresInSeconds ??
+      0,
+    errorMessage:
+      pickString(record, ["errorMessage", "error", "message"]) ??
+      result.errorMessage ??
+      null,
+    errorCode:
+      pickString(record, ["errorCode", "code"]) ?? result.errorCode ?? null,
+  };
+}
+
+export const forgotPassword = async (
+  data: ForgotPasswordRequest,
+): Promise<ForgotPasswordResponse> => {
+  const response = await apiClient.post(
+    CUSTOMER_AUTH_CLIENT_PATHS.PASSWORD_FORGOT,
+    { username: data.username },
+  );
+  return normalizeForgotPasswordResponse(
+    unwrapApiData<ForgotPasswordResponse>(response.data, "forgotPassword"),
+  );
+};
+
+export const resetPassword = async (
+  data: ResetPasswordRequest,
+): Promise<ResetPasswordResponse> => {
+  const response = await apiClient.post(
+    CUSTOMER_AUTH_CLIENT_PATHS.PASSWORD_RESET,
+    {
+      resetToken: data.resetToken,
+      otpCode: data.otpCode,
+      newPassword: data.newPassword,
+      confirmPassword: data.confirmPassword,
+    },
+  );
+  const result = unwrapApiData<ResetPasswordResponse>(
+    response.data,
+    "resetPassword",
+  );
+  const record = getRecord(result);
+  return {
+    ...result,
+    success: result.success ?? true,
+    errorMessage:
+      pickString(record, ["errorMessage", "error", "message"]) ??
+      result.errorMessage ??
+      null,
+    errorCode:
+      pickString(record, ["errorCode", "code"]) ?? result.errorCode ?? null,
+  };
+};
+
+function normalizeStartChangePasswordOtpResponse(
+  result: StartChangePasswordOtpResponse,
+): StartChangePasswordOtpResponse {
+  const record = getRecord(result);
+  return {
+    ...result,
+    success: result.success ?? true,
+    verificationToken:
+      pickString(record, ["verificationToken", "token", "flowToken"]) ??
+      result.verificationToken,
+    otpSentTo:
+      pickString(record, [
+        "otpSentTo",
+        "maskedDestination",
+        "maskedPhone",
+        "maskedEmail",
+      ]) ?? result.otpSentTo,
+    deliveryMethod:
+      pickString(record, ["deliveryMethod"]) ?? result.deliveryMethod,
+    expiresAt: pickString(record, ["expiresAt"]) ?? result.expiresAt,
+    remainingAttempts:
+      pickNumber(record, ["remainingAttempts"]) ?? result.remainingAttempts,
+    developmentCode:
+      pickString(record, ["developmentCode"]) ?? result.developmentCode,
+    errorMessage:
+      pickString(record, ["errorMessage", "error", "message"]) ??
+      result.errorMessage ??
+      null,
+    errorCode:
+      pickString(record, ["errorCode", "code"]) ?? result.errorCode ?? null,
+  };
+}
+
+export const startChangePasswordOtp = async (
+  data: StartChangePasswordOtpRequest,
+): Promise<StartChangePasswordOtpResponse> => {
+  const response = await apiClient.post(
+    CUSTOMER_AUTH_CLIENT_PATHS.ME_PASSWORD_OTP_START,
+    { currentPassword: data.currentPassword },
+  );
+
+  console.log(
+    "[auth.client] startChangePasswordOtp raw response =>",
+    response.data,
+  );
+  return normalizeStartChangePasswordOtpResponse(
+    unwrapApiData<StartChangePasswordOtpResponse>(
+      response.data,
+      "startChangePasswordOtp",
+    ),
+  );
+};
+
+export const changePassword = async (
+  data: ChangePasswordRequest,
+): Promise<ChangePasswordResponse> => {
+  console.log(
+    "[auth.client] changePassword => PATCH",
+    CUSTOMER_AUTH_CLIENT_PATHS.ME_PASSWORD_CHANGE,
+    data,
+  );
+  const response = await apiClient.patch(
+    CUSTOMER_AUTH_CLIENT_PATHS.ME_PASSWORD_CHANGE,
+    {
+      verificationToken: data.verificationToken,
+      otpCode: data.otpCode,
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword,
+      confirmPassword: data.confirmPassword,
+    },
+  );
+
+  console.log("[auth.client] changePassword raw response =>", response.data);
+  const result = unwrapApiData<ChangePasswordResponse>(
+    response.data,
+    "changePassword",
+  );
+  const record = getRecord(result);
+  return {
+    ...result,
+    success: result.success ?? true,
+    errorMessage:
+      pickString(record, ["errorMessage", "error", "message"]) ??
+      result.errorMessage ??
+      null,
+    errorCode:
+      pickString(record, ["errorCode", "code"]) ?? result.errorCode ?? null,
+    message: pickString(record, ["message"]) ?? result.message,
+  };
 };
 
 /** کاربر را از شکل‌های مختلف پاسخ /me استخراج می‌کند. */
@@ -384,9 +590,129 @@ function extractUser(payload: unknown): UserInfoDto {
 }
 
 export const getMe = async (): Promise<UserInfoDto> => {
-  const response = await apiClient.get(FRONT_AUTH_PATHS.ME);
-  console.log("[auth.client] /api/auth/me raw response before store =>", response.data);
+  const response = await apiClient.get(CUSTOMER_AUTH_CLIENT_PATHS.ME);
+  console.log(
+    "[auth.client] CustomerAuth/me raw response before store =>",
+    response.data,
+  );
   return extractUser(response.data);
+};
+
+export interface AvatarUploadResponse {
+  success?: boolean;
+  message?: string;
+  errorMessage?: string | null;
+  avatarUrl?: string;
+}
+
+function extractAvatarUrl(payload: unknown): string | undefined {
+  if (!payload || typeof payload !== "object") return undefined;
+  const record = payload as Record<string, unknown>;
+  const data =
+    record.data && typeof record.data === "object"
+      ? (record.data as Record<string, unknown>)
+      : record;
+
+  return (
+    pickString(data, ["avatarUrl", "url", "imageUrl"]) ??
+    pickString(record, ["avatarUrl", "url", "imageUrl"])
+  );
+}
+
+export const uploadAvatar = async (
+  file: File,
+): Promise<AvatarUploadResponse> => {
+  const formData = new FormData();
+  // نام فیلد رایج در بک‌اندهای ASP.NET برای IFormFile
+  formData.append("file", file);
+
+  console.log("[auth.client] uploadAvatar =>", {
+    path: CUSTOMER_AUTH_CLIENT_PATHS.ME_AVATAR,
+    field: "file",
+    fileName: file.name,
+    fileType: file.type,
+    fileSize: file.size,
+  });
+
+  try {
+    const response = await apiClient.post(
+      CUSTOMER_AUTH_CLIENT_PATHS.ME_AVATAR,
+      formData,
+    );
+    console.log("[auth.client] uploadAvatar response =>", response.data);
+
+    if (!response.data) {
+      return { success: true };
+    }
+
+    let record: Record<string, unknown> = {};
+    try {
+      record = getRecord(
+        unwrapApiData<AvatarUploadResponse>(response.data, "uploadAvatar"),
+      );
+    } catch (parseError) {
+      console.warn(
+        "[auth.client] uploadAvatar parse fallback =>",
+        parseError,
+        response.data,
+      );
+      record = getRecord(response.data);
+    }
+
+    return {
+      success: (record.success as boolean | undefined) ?? true,
+      message: pickString(record, ["message"]),
+      errorMessage: pickString(record, ["errorMessage", "error"]) ?? null,
+      avatarUrl: extractAvatarUrl(response.data) ?? extractAvatarUrl(record),
+    };
+  } catch (error) {
+    console.error("[auth.client] uploadAvatar failed =>", error);
+    if (error instanceof ApiError) {
+      console.error("[auth.client] uploadAvatar error body =>", {
+        status: error.status,
+        code: error.code,
+        message: error.message,
+        data: error.data,
+      });
+    }
+    throw error;
+  }
+};
+
+export const deleteAvatar = async (): Promise<AvatarUploadResponse> => {
+  console.log("[auth.client] deleteAvatar =>", {
+    path: CUSTOMER_AUTH_CLIENT_PATHS.ME_AVATAR,
+    method: "DELETE",
+  });
+
+  try {
+    const response = await apiClient.delete(
+      CUSTOMER_AUTH_CLIENT_PATHS.ME_AVATAR,
+    );
+    console.log("[auth.client] deleteAvatar response =>", response.data);
+
+    const record =
+      response.data && typeof response.data === "object"
+        ? getRecord(response.data)
+        : {};
+
+    return {
+      success: (record.success as boolean | undefined) ?? true,
+      message: pickString(record, ["message"]),
+      errorMessage: pickString(record, ["errorMessage", "error"]) ?? null,
+    };
+  } catch (error) {
+    console.error("[auth.client] deleteAvatar failed =>", error);
+    if (error instanceof ApiError) {
+      console.error("[auth.client] deleteAvatar error body =>", {
+        status: error.status,
+        code: error.code,
+        message: error.message,
+        data: error.data,
+      });
+    }
+    throw error;
+  }
 };
 
 export const getProfile = async (): Promise<Partial<UserInfoDto>> => {
@@ -434,13 +760,16 @@ function normalizeEmailVerificationStart(
     success: result.success ?? true,
     message: pickString(record, ["message"]) ?? result.message ?? null,
     errorMessage:
-      pickString(record, ["errorMessage", "error"]) ?? result.errorMessage ?? null,
+      pickString(record, ["errorMessage", "error"]) ??
+      result.errorMessage ??
+      null,
     email: pickString(record, ["email", "otpSentTo"]) ?? result.email ?? null,
     maskedEmail:
       pickString(record, ["maskedEmail", "maskedEmailAddress"]) ??
       result.maskedEmail ??
       null,
-    otpSentTo: pickString(record, ["otpSentTo", "email"]) ?? result.otpSentTo ?? null,
+    otpSentTo:
+      pickString(record, ["otpSentTo", "email"]) ?? result.otpSentTo ?? null,
   };
 }
 
@@ -477,11 +806,18 @@ export const startEmailVerification =
     return result;
   };
 
-export const verifyEmail = async (code: string): Promise<EmailVerifyResponse> => {
-  console.log("[auth.client] verifyEmail => POST /CustomerAuth/me/email/verify", {
+export const verifyEmail = async (
+  code: string,
+): Promise<EmailVerifyResponse> => {
+  console.log(
+    "[auth.client] verifyEmail => POST /CustomerAuth/me/email/verify",
+    {
+      code,
+    },
+  );
+  const response = await apiClient.post("/CustomerAuth/me/email/verify", {
     code,
   });
-  const response = await apiClient.post("/CustomerAuth/me/email/verify", { code });
   console.log("[auth.client] verifyEmail raw response =>", response.data);
 
   const result = unwrapEmailActionResponse<EmailVerifyResponse>(
@@ -496,7 +832,10 @@ export const enableTwoFactor = async (): Promise<TwoFactorToggleResponse> => {
   console.log(
     "[auth.client] enableTwoFactor => PATCH /CustomerAuth/me/two-factor/enable",
   );
-  const response = await apiClient.patch("/CustomerAuth/me/two-factor/enable", {});
+  const response = await apiClient.patch(
+    "/CustomerAuth/me/two-factor/enable",
+    {},
+  );
   console.log("[auth.client] enableTwoFactor raw response =>", response.data);
   const result = unwrapEmailActionResponse<TwoFactorToggleResponse>(
     response.data,
@@ -510,7 +849,10 @@ export const disableTwoFactor = async (): Promise<TwoFactorToggleResponse> => {
   console.log(
     "[auth.client] disableTwoFactor => PATCH /CustomerAuth/me/two-factor/disable",
   );
-  const response = await apiClient.patch("/CustomerAuth/me/two-factor/disable", {});
+  const response = await apiClient.patch(
+    "/CustomerAuth/me/two-factor/disable",
+    {},
+  );
   console.log("[auth.client] disableTwoFactor raw response =>", response.data);
   const result = unwrapEmailActionResponse<TwoFactorToggleResponse>(
     response.data,
@@ -521,12 +863,12 @@ export const disableTwoFactor = async (): Promise<TwoFactorToggleResponse> => {
 };
 
 export const logout = async (): Promise<void> => {
-  await apiClient.post(FRONT_AUTH_PATHS.LOGOUT, {});
+  await apiClient.post(CUSTOMER_AUTH_CLIENT_PATHS.LOGOUT, {});
 };
 
 /** درخواست توکن جدید از طریق refresh-token. در صورت موفقیت کوکی‌ها به‌روز می‌شوند. */
 export const refreshSession = async (): Promise<void> => {
-  await apiClient.post(FRONT_AUTH_PATHS.REFRESH, {});
+  await apiClient.post(CUSTOMER_AUTH_CLIENT_PATHS.REFRESH, {});
 };
 
 /**
@@ -548,24 +890,90 @@ export const resolveSession = async (): Promise<UserInfoDto | null> => {
   }
 };
 
+function extractValidationMessages(errors: unknown): string[] {
+  if (!errors) return [];
+
+  // فرمت آرایه‌ای: [{ field, message }]
+  if (Array.isArray(errors)) {
+    return errors
+      .map((item) => {
+        if (!item || typeof item !== "object") return "";
+        const record = item as Record<string, unknown>;
+        return typeof record.message === "string" ? record.message : "";
+      })
+      .filter(Boolean);
+  }
+
+  // فرمت ASP.NET ProblemDetails: { "body": ["..."], "$.category": ["..."] }
+  if (typeof errors === "object") {
+    return Object.values(errors as Record<string, unknown>).flatMap((value) => {
+      if (Array.isArray(value)) {
+        return value.filter((item): item is string => typeof item === "string");
+      }
+      if (typeof value === "string") return [value];
+      return [];
+    });
+  }
+
+  return [];
+}
+
 export function getAuthErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
-    const data = error.data as ApiEnvelope<unknown> | undefined;
+    const data = error.data as
+      | (ApiEnvelope<unknown> & {
+          errors?: unknown;
+          title?: string;
+        })
+      | undefined;
     const nested =
       data?.data && typeof data.data === "object"
-        ? (data.data as ApiEnvelope<unknown>)
+        ? (data.data as ApiEnvelope<unknown> & {
+            errors?: unknown;
+            title?: string;
+          })
         : undefined;
+
+    const validationMessages = [
+      ...extractValidationMessages(data?.errors),
+      ...extractValidationMessages(nested?.errors),
+    ];
+
+    // پیام‌های فنی enum را به فارسی ساده‌تر کن
+    const friendlyValidation = validationMessages.map((message) => {
+      if (
+        message.includes("could not be converted") &&
+        message.includes("ategory")
+      ) {
+        return "دسته‌بندی انتخاب‌شده معتبر نیست";
+      }
+      if (message.toLowerCase().includes("body field is required")) {
+        return "متن تیکت الزامی است";
+      }
+      return message;
+    });
+
+    if (friendlyValidation.length > 0) {
+      return friendlyValidation[0].trim();
+    }
 
     const backendMessage = [
       data?.message,
       nested?.message,
+      data?.title,
+      nested?.title,
       data?.errorMessage,
       nested?.errorMessage,
     ].find((value): value is string => Boolean(value && value.trim()));
 
     if (backendMessage) return backendMessage.trim();
 
-    const backendCode = [data?.code, nested?.code, data?.errorCode, nested?.errorCode]
+    const backendCode = [
+      data?.code,
+      nested?.code,
+      data?.errorCode,
+      nested?.errorCode,
+    ]
       .find((value): value is string => Boolean(value && value.trim()))
       ?.trim();
 
@@ -573,11 +981,9 @@ export function getAuthErrorMessage(error: unknown): string {
       return AUTH_ERROR_MESSAGES[backendCode];
     }
 
-    const candidates = [
-      error.code,
-      error.message,
-      String(error.status),
-    ].filter((value): value is string => Boolean(value));
+    const candidates = [error.code, error.message, String(error.status)].filter(
+      (value): value is string => Boolean(value),
+    );
 
     for (const value of candidates) {
       const normalized = value.trim();

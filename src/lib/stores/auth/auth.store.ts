@@ -1,8 +1,7 @@
 // src/lib/stores/auth/auth.store.ts
 import { create } from "zustand";
+import { AUTH_USER_STORAGE_KEY } from "@/src/lib/auth/constants";
 import { UserInfoDto } from "@/src/lib/types/auth/auth.type";
-
-const AUTH_USER_STORAGE_KEY = "CUP_User";
 
 export type AuthOtpMode = "phone" | "login-2fa" | null;
 
@@ -18,10 +17,16 @@ interface AuthState {
   isNewUser: boolean | null;
   user: UserInfoDto | null;
   isAuthenticated: boolean;
+  isAuthBootstrapping: boolean;
 
   authOtpMode: AuthOtpMode;
   loginTwoFactorToken: string | null;
   loginTwoFactorOtpSentTo: string | null;
+
+  passwordResetToken: string | null;
+  passwordResetUsername: string | null;
+  passwordResetMaskedDestination: string | null;
+  passwordResetResendCooldownSeconds: number | null;
 
   setAuthFlow: (
     flowToken: string, 
@@ -36,12 +41,20 @@ interface AuthState {
     deviceFingerPrint: string,
     resendCooldownSeconds?: number,
   ) => void;
+  setPasswordResetFlow: (
+    resetToken: string,
+    username: string,
+    maskedDestination: string | null,
+    resendCooldownSeconds?: number,
+  ) => void;
   setVerifyResult: (isNewUser: boolean, registrationToken?: string) => void;
   setUser: (user: UserInfoDto) => void;
   hydrateUserFromStorage: () => UserInfoDto | null;
   clearUser: () => void;
+  setAuthBootstrapping: (value: boolean) => void;
   clearAuthFlow: () => void;
   clearLoginTwoFactorFlow: () => void;
+  clearPasswordResetFlow: () => void;
 }
 
 function readStoredUser(): UserInfoDto | null {
@@ -82,6 +95,8 @@ function mergeStoredUser(nextUser: UserInfoDto): UserInfoDto {
   };
 }
 
+const initialStoredUser = readStoredUser();
+
 export const useAuthStore = create<AuthState>((set) => ({
   flowToken: null,
   phone: null,
@@ -90,11 +105,16 @@ export const useAuthStore = create<AuthState>((set) => ({
   resendCooldownSeconds: null,
   registrationToken: null,
   isNewUser: null,
-  user: null,
-  isAuthenticated: false,
+  user: initialStoredUser,
+  isAuthenticated: Boolean(initialStoredUser),
+  isAuthBootstrapping: Boolean(initialStoredUser),
   authOtpMode: null,
   loginTwoFactorToken: null,
   loginTwoFactorOtpSentTo: null,
+  passwordResetToken: null,
+  passwordResetUsername: null,
+  passwordResetMaskedDestination: null,
+  passwordResetResendCooldownSeconds: null,
 
   setAuthFlow: (
     flowToken,
@@ -131,6 +151,19 @@ export const useAuthStore = create<AuthState>((set) => ({
       maskedPhone: null,
     }),
 
+  setPasswordResetFlow: (
+    resetToken,
+    username,
+    maskedDestination,
+    resendCooldownSeconds,
+  ) =>
+    set({
+      passwordResetToken: resetToken,
+      passwordResetUsername: username,
+      passwordResetMaskedDestination: maskedDestination,
+      passwordResetResendCooldownSeconds: resendCooldownSeconds ?? 120,
+    }),
+
   setVerifyResult: (isNewUser, registrationToken) =>
     set({ isNewUser, registrationToken: registrationToken ?? null }),
 
@@ -146,7 +179,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   hydrateUserFromStorage: () => {
     const user = readStoredUser();
     if (user) {
-      set({ user, isAuthenticated: true });
+      set({ user, isAuthenticated: true, isAuthBootstrapping: true });
     }
     return user;
   },
@@ -156,8 +189,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({
       user: null,
       isAuthenticated: false,
+      isAuthBootstrapping: false,
     });
   },
+
+  setAuthBootstrapping: (value) => set({ isAuthBootstrapping: value }),
 
   clearAuthFlow: () =>
     set({
@@ -171,6 +207,10 @@ export const useAuthStore = create<AuthState>((set) => ({
       authOtpMode: null,
       loginTwoFactorToken: null,
       loginTwoFactorOtpSentTo: null,
+      passwordResetToken: null,
+      passwordResetUsername: null,
+      passwordResetMaskedDestination: null,
+      passwordResetResendCooldownSeconds: null,
     }),
 
   clearLoginTwoFactorFlow: () =>
@@ -178,6 +218,14 @@ export const useAuthStore = create<AuthState>((set) => ({
       authOtpMode: null,
       loginTwoFactorToken: null,
       loginTwoFactorOtpSentTo: null,
+    }),
+
+  clearPasswordResetFlow: () =>
+    set({
+      passwordResetToken: null,
+      passwordResetUsername: null,
+      passwordResetMaskedDestination: null,
+      passwordResetResendCooldownSeconds: null,
     }),
 }));
 
@@ -188,6 +236,8 @@ export const useAuthStore = create<AuthState>((set) => ({
  */
 export const useCurrentUser = () => useAuthStore((s) => s.user);
 export const useIsAuthenticated = () => useAuthStore((s) => s.isAuthenticated);
+export const useIsAuthBootstrapping = () =>
+  useAuthStore((s) => s.isAuthBootstrapping);
 
 /**
  * دسترسی امری (بیرون از React: interceptor، util، event handler و ...).

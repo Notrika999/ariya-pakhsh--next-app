@@ -1,6 +1,6 @@
 "use client";
-
-import React, { useEffect, useMemo, useState } from "react";
+// components/ui/ProductPageClient/Gallery/Gallery.tsx
+import React, { useCallback, useRef, useState } from "react";
 
 // swiper
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -15,6 +15,8 @@ import "swiper/css/zoom";
 import Image from "next/image";
 import ShareModal from "./ShareModal";
 import ChartModal from "./ChartModal";
+import GalleryLightbox from "./GalleryLightbox";
+import DiscountCountdown from "./DiscountCountdown";
 import Link from "next/link";
 
 export type PriceChartItem = {
@@ -34,45 +36,49 @@ interface GalleryProps {
   productName: string;
 }
 
-function pad2(n: number) {
-  return String(n).padStart(2, "0");
-}
-
-function useCountdown(targetISO: string | null) {
-  const targetTime = useMemo(() => {
-    // targetISO باید مثل: "2028-01-01T18:30:00.000Z" یا تاریخ قابل parse باشد
-    return targetISO ? new Date(targetISO).getTime() : null;
-  }, [targetISO]);
-
-  const [now, setNow] = useState(0);
-
-  useEffect(() => {
-    if (!targetTime) return;
-    const id = setInterval(() => setNow(Date.now()), 250);
-    return () => clearInterval(id);
-  }, [targetTime]);
-
-  if (!targetTime) return { h: 0, m: 0, s: 0, done: true };
-
-  const diff = Math.max(0, targetTime - now);
-  const totalSeconds = Math.floor(diff / 1000);
-
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60);
-  const s = totalSeconds % 60;
-
-  return { h, m, s, done: diff === 0 };
+interface GalleryProps {
+  images: GalleryImage[];
+  isOutOfStock: boolean;
+  productName: string;
+  /** ISO یا ثانیه باقی‌مانده — اختیاری */
+  countdownTarget?: string | number | null;
+  countdownDate?: string;
+  countdownTime?: string;
 }
 
 export default function Gallery({
   images,
   isOutOfStock,
   productName,
+  countdownTarget = "2026-10-01T15:30:00.000Z",
+  countdownDate = "2026-07-09",
+  countdownTime = "18:30",
 }: GalleryProps) {
   const [shareOpen, setShareOpen] = useState(false);
   const [chartOpen, setChartOpen] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperInstance | null>(null);
-  const { h, m, s, done } = useCountdown("2028-01-01T15:30:00.000Z");
+  const mainSwiperRef = useRef<SwiperInstance | null>(null);
+
+  const handleThumbsSwiper = useCallback((swiper: SwiperInstance) => {
+    setThumbsSwiper((prev) => (prev === swiper ? prev : swiper));
+  }, []);
+
+  const openLightbox = useCallback((index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  }, []);
+
+  const closeLightbox = useCallback(
+    (index: number) => {
+      setLightboxIndex(index);
+      setLightboxOpen(false);
+      mainSwiperRef.current?.slideTo(index);
+      thumbsSwiper?.slideTo(index);
+    },
+    [thumbsSwiper],
+  );
 
   const variants = [
     { id: "black", label: "مشکی" },
@@ -287,32 +293,18 @@ export default function Gallery({
   return (
     <section className="xl:col-span-4 mt-7 col-span-12 pb-10 w-full">
       {/* <!-- Discount Timer --> */}
-      {/* <div className="bg-secondary-200 dark:bg-custom-dark dark:text-gray-200 shadow-sm border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-2xl flex items-center justify-between mb-4 transition-all duration-200">
+      <div className="bg-secondary-200 dark:bg-custom-dark dark:text-gray-200 shadow-sm border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-2xl flex items-center justify-between mb-4 transition-all duration-200">
         <h3 className="font-black text-gray-800 dark:text-gray-100">
           فروش ویژه
         </h3>
-        <!-- Timer -->
-        <div
-          className="countdown"
-          style={{ direction: "ltr" }}
-          aria-live="polite"
-        >
-          <div className="flex items-center gap-2 text-sm font-bold text-gray-900 dark:text-gray-200">
-            <span>{pad2(h)}</span>
-            <span>:</span>
-            <span>{pad2(m)}</span>
-            <span>:</span>
-            <span>{pad2(s)}</span>
-            {done && <span className="text-red-500 ms-2 text-xs">پایان</span>}
-          </div>
-        </div>
-        <div
-          className="countdown text-gray-700 dark:text-gray-300"
-          style={{ direction: "ltr" }}
-          data-date="2028-01-01"
-          data-time="18:30"
-        ></div>
-      </div> */}
+        {/* <!-- Timer --> */}
+        <DiscountCountdown target={countdownTarget} />
+        <DiscountCountdown
+          date={countdownDate}
+          time={countdownTime}
+          className="text-gray-700 dark:text-gray-300"
+        />
+      </div>
       {/* <!-- Discount Timer --> */}
 
       {/* <!-- Out of Stock Badge --> */}
@@ -326,7 +318,7 @@ export default function Gallery({
       {/* <!-- Large gallery --> */}
       <div className="bg-primary relative mb-12 rounded-[15px] h-87.5 pt-5 px-3.75 pb-8.35 dark:bg-custom-dark dark:border dark:border-gray-700">
         {/* <!-- Action buttons --> */}
-        <div className="flex rounded-2xl px-2 bg-gray-100 dark:bg-custom-dark gap-2 absolute top-3 inset-e-1/2 -translate-x-1/2 z-10 mt-4">
+        <div className="flex rounded-2xl px-2 bg-gray-100 dark:bg-custom-dark gap-2 absolute top-0.75 inset-e-1/2 -translate-x-1/2 z-10 ">
           {/* Share */}
           <button
             onClick={() => setShareOpen(true)}
@@ -357,7 +349,11 @@ export default function Gallery({
           </button>
         </div>
 
-        <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} title={productName}   />
+        <ShareModal
+          open={shareOpen}
+          onClose={() => setShareOpen(false)}
+          title={productName}
+        />
 
         <ChartModal
           open={chartOpen}
@@ -368,27 +364,39 @@ export default function Gallery({
 
         {/* <!-- Gallery --> */}
         <Swiper
+          onSwiper={(swiper) => {
+            mainSwiperRef.current = swiper;
+          }}
+          onSlideChange={(swiper) => setLightboxIndex(swiper.activeIndex)}
           modules={[Navigation, Pagination, Thumbs, Zoom]}
           navigation
           pagination={{ clickable: true }}
           zoom
           spaceBetween={10}
-          thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+          thumbs={{
+            swiper:
+              thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
+          }}
           className="h-full"
         >
           {images.map((img, index) => (
             <SwiperSlide key={index}>
-              <div className="border h-full border-gray-300 rounded-lg bg-white dark:bg-zinc-800 dark:border-gray-700 flex items-center justify-center">
+              <button
+                type="button"
+                onClick={() => openLightbox(index)}
+                className="group flex h-full w-full  cursor-zoom-in items-center justify-center border border-gray-300 rounded-lg bg-white dark:bg-zinc-800 dark:border-gray-700"
+                aria-label={`بزرگ‌نمایی تصویر ${index + 1}`}
+              >
                 <div className="swiper-zoom-container">
                   <Image
                     width={328}
                     height={328}
                     src={img.imgSrc ?? "/images/default.png"}
                     alt={`product-${index}`}
-                    className="max-h-70 object-contain"
+                    className="max-h-70 object-contain transition group-hover:scale-[1.02]"
                   />
                 </div>
-              </div>
+              </button>
             </SwiperSlide>
           ))}
         </Swiper>
@@ -396,7 +404,7 @@ export default function Gallery({
 
       {/* <!-- Thumbnail gallery --> */}
       <Swiper
-        onSwiper={setThumbsSwiper}
+        onSwiper={handleThumbsSwiper}
         modules={[Thumbs]}
         spaceBetween={10}
         slidesPerView={4}
@@ -406,7 +414,15 @@ export default function Gallery({
       >
         {images.map((img, index) => (
           <SwiperSlide key={index}>
-            <div className="rounded-lg flex justify-center cursor-pointer border border-gray-300 h-20 dark:border-gray-700 p-2 dark:bg-zinc-800">
+            <button
+              type="button"
+              onClick={() => {
+                mainSwiperRef.current?.slideTo(index);
+                openLightbox(index);
+              }}
+              className="flex h-20 w-full cursor-pointer items-center justify-center rounded-lg border border-gray-300 p-2 dark:border-gray-700 dark:bg-zinc-800"
+              aria-label={`نمایش تصویر ${index + 1}`}
+            >
               <Image
                 width={62}
                 height={62}
@@ -414,10 +430,19 @@ export default function Gallery({
                 alt={`thumb-${index}`}
                 className="h-full object-contain"
               />
-            </div>
+            </button>
           </SwiperSlide>
         ))}
       </Swiper>
+
+      <GalleryLightbox
+        key={lightboxOpen ? `lightbox-${lightboxIndex}` : "lightbox-closed"}
+        open={lightboxOpen}
+        images={images}
+        initialIndex={lightboxIndex}
+        productName={productName}
+        onClose={closeLightbox}
+      />
     </section>
   );
 }

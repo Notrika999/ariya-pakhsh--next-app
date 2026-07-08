@@ -60,7 +60,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "فروشگاه اینترنتی آریاپخش",
+    title: "فروشگاه اینترنتی کارآپ 24",
     description: "خرید آسان و مطمئن کالای لوکس خودرو",
     images: ["/images/og-image.jpg"],
   },
@@ -124,7 +124,7 @@ export default async function Home() {
   const stories = [
     {
       type: "image",
-      user: "آریاپخش",
+      user: "کارآپ 24",
       avatar: "/images/story/1.jpg",
       url: "/images/story/1.jpg",
       duration: 5000,
@@ -144,7 +144,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "آریاپخش",
+      user: "کارآپ 24",
       avatar: "/images/story/2.jpg",
       url: "/images/story/2.jpg",
       duration: 5000,
@@ -164,7 +164,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "آریاپخش",
+      user: "کارآپ 24",
       avatar: "/images/story/3.jpg",
       url: "/images/story/3.jpg",
       duration: 5000,
@@ -184,7 +184,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "آریاپخش",
+      user: "کارآپ 24",
       avatar: "/images/story/5.jpg",
       url: "/images/story/5.jpg",
       duration: 5000,
@@ -204,7 +204,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "آریاپخش",
+      user: "کارآپ 24",
       avatar: "/images/story/6.jpg",
       url: "/images/story/6.jpg",
       duration: 5000,
@@ -224,7 +224,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "آریاپخش",
+      user: "کارآپ 24",
       avatar: "/images/story/7.jpg",
       url: "/images/story/7.jpg",
       duration: 5000,
@@ -244,7 +244,7 @@ export default async function Home() {
 
     {
       type: "video",
-      user: "آریاپخش",
+      user: "کارآپ 24",
       avatar: "/images/story/4.jpg",
       url: "/images/story/video/1.mp4",
       duration: null,
@@ -264,7 +264,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "آریاپخش",
+      user: "کارآپ 24",
       avatar: "/images/story/1.jpg",
       url: "/images/story/1.jpg",
       duration: 5000,
@@ -284,7 +284,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "آریاپخش",
+      user: "کارآپ 24",
       avatar: "/images/story/2.jpg",
       url: "/images/story/2.jpg",
       duration: 5000,
@@ -304,7 +304,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "آریاپخش",
+      user: "کارآپ 24",
       avatar: "/images/story/3.jpg",
       url: "/images/story/3.jpg",
       duration: 5000,
@@ -324,7 +324,7 @@ export default async function Home() {
 
     {
       type: "video",
-      user: "آریاپخش",
+      user: "کارآپ 24",
       avatar: "/images/story/4.jpg",
       url: "/images/story/video/1.mp4",
       duration: null,
@@ -344,7 +344,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "آریاپخش",
+      user: "کارآپ 24",
       avatar: "/images/story/1.jpg",
       url: "/images/story/1.jpg",
       duration: 5000,
@@ -364,7 +364,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "آریاپخش",
+      user: "کارآپ 24",
       avatar: "/images/story/2.jpg",
       url: "/images/story/2.jpg",
       duration: 5000,
@@ -384,7 +384,7 @@ export default async function Home() {
 
     {
       type: "image",
-      user: "آریاپخش",
+      user: "کارآپ 24",
       avatar: "/images/story/3.jpg",
       url: "/images/story/3.jpg",
       duration: 5000,
@@ -598,7 +598,7 @@ export default async function Home() {
       {/* <!-- END STORY SECTION --> */}
 
       {/* <!-- SLIDER SECTION --> */}
-      <SectionContainer fullWidth>
+      <SectionContainer fullWidth className="hidden">
         <Slider sliders={sliders} />
       </SectionContainer>
       {/* <!-- END SLIDER SECTION --> */}
@@ -614,10 +614,7 @@ export default async function Home() {
       {/* <!-- START TOP CATEGORIES SECTION --> */}
       {topCategoriesMap.length > 0 && (
         <SectionContainer>
-          <Category
-            categories={topCategoriesMap}
-            title="دسته‌بندی‌های برتر"
-          />
+          <Category categories={topCategoriesMap} title="دسته‌بندی‌های برتر" />
         </SectionContainer>
       )}
       {/* <!-- END TOP CATEGORIES SECTION --> */}
@@ -661,7 +658,7 @@ export default async function Home() {
             products={newestProducts}
             loop={false}
             title="جدیدترین محصولات"
-            href="#"
+            href="/products?sort=newest"
           />
         </SectionContainer>
       ) : null}
@@ -685,7 +682,7 @@ export default async function Home() {
           <BestSellingProducts
             bestSellingProducts={bestSellingProducts}
             title={"پرفروش ترین محصولات"}
-            href={"#"}
+            href={"/products?sort=bestSelling"}
           />
         </SectionContainer>
       ) : null}

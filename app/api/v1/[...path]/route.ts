@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  handleCustomerAuthGet,
+  handleCustomerAuthLogout,
+  handleCustomerAuthPost,
+  handleCustomerAuthRefresh,
+} from "@/src/lib/auth/auth-route-utils";
 import { ProxyError, proxyToBackend } from "@/src/lib/http/server-http";
 
 type RouteContext = {
@@ -10,6 +16,19 @@ type RouteContext = {
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
+
+const CUSTOMER_AUTH_V1_POST: Record<
+  string,
+  { setAuthIndicator?: boolean } | "logout" | "refresh"
+> = {
+  "CustomerAuth/phone/start": {},
+  "CustomerAuth/phone/verify": { setAuthIndicator: true },
+  "CustomerAuth/login": { setAuthIndicator: true },
+  "CustomerAuth/login/verify-2fa": { setAuthIndicator: true },
+  "CustomerAuth/register": { setAuthIndicator: true },
+  "CustomerAuth/logout": "logout",
+  "CustomerAuth/refresh-token": "refresh",
+};
 
 function buildBackendPath(pathSegments: string[]): string {
   return `/api/v1/${pathSegments.map(encodeURIComponent).join("/")}`;
@@ -23,13 +42,41 @@ function getQueryParams(request: NextRequest): Record<string, string> {
   return params;
 }
 
-async function getRequestBody(request: NextRequest): Promise<unknown> {
-  if (request.method === "GET" || request.method === "HEAD") return undefined;
+type ProxyBodyPayload = {
+  body?: unknown;
+  rawBody?: BodyInit;
+  headers?: Record<string, string>;
+};
+
+async function getRequestBodyPayload(
+  request: NextRequest,
+): Promise<ProxyBodyPayload> {
+  if (
+    request.method === "GET" ||
+    request.method === "HEAD" ||
+    request.method === "DELETE"
+  ) {
+    return {};
+  }
 
   const contentType = request.headers.get("content-type") ?? "";
-  if (!contentType.includes("application/json")) return undefined;
 
-  return request.json().catch(() => undefined);
+  // فایل / multipart باید با همان Content-Type (شامل boundary) فوروارد شود
+  if (contentType.includes("multipart/form-data")) {
+    const buffer = await request.arrayBuffer();
+    return {
+      rawBody: buffer,
+      headers: { "Content-Type": contentType },
+    };
+  }
+
+  if (contentType.includes("application/json")) {
+    return {
+      body: await request.json().catch(() => undefined),
+    };
+  }
+
+  return {};
 }
 
 async function handleProxy(
@@ -38,11 +85,34 @@ async function handleProxy(
 ): Promise<NextResponse> {
   try {
     const { path } = await context.params;
+    const pathKey = path.join("/");
+    const backendPath = buildBackendPath(path);
+
+    if (request.method === "POST") {
+      const authHandler = CUSTOMER_AUTH_V1_POST[pathKey];
+      if (authHandler === "logout") {
+        return handleCustomerAuthLogout(backendPath);
+      }
+      if (authHandler === "refresh") {
+        return handleCustomerAuthRefresh(backendPath);
+      }
+      if (authHandler && typeof authHandler === "object") {
+        return handleCustomerAuthPost(request, backendPath, authHandler);
+      }
+    }
+
+    if (request.method === "GET" && pathKey === "CustomerAuth/me") {
+      return handleCustomerAuthGet(backendPath);
+    }
+
+    const payload = await getRequestBodyPayload(request);
     const response = await proxyToBackend({
       method: request.method as "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
-      path: buildBackendPath(path),
+      path: backendPath,
       params: getQueryParams(request),
-      body: await getRequestBody(request),
+      body: payload.body,
+      rawBody: payload.rawBody,
+      headers: payload.headers,
       withAuth: true,
       cache: "no-store",
     });

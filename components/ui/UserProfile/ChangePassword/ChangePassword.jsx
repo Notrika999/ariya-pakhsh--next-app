@@ -18,7 +18,7 @@ export default function ChangePassword() {
       <ChangePasswordForm />
 
       {/* <!--Security Settings--> */}
-      <SecuritySettings />
+      {/* <SecuritySettings /> */}
     </div>
   );
 }

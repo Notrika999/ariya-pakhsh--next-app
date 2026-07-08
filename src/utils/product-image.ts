@@ -10,6 +10,5 @@ export function getProductImage(path?: string | null) {
   if (path.startsWith("http")) {
     return path;
   }
-
   return `${BASE_URL}/${path.replace(/^\/+/, "")}`;
 }

@@ -7,7 +7,7 @@ export default function CategorySlider({ categories, title }) {
       <h2 className="sr-only">دسته‌بندی‌های فروشگاه</h2>
 
       {/* Header */}
-      <SectionHeader title={title} href="#" />
+      <SectionHeader title={title}  />
 
       {/* Categories Swiper */}
       <div className="py-5">

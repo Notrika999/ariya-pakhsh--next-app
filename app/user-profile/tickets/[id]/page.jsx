@@ -1,15 +1,10 @@
-import TicketMessage from '@/components/ui/UserProfile/Tickets/TicketMessage'
-import React from 'react'
+import Tickets from "@/components/ui/UserProfile/Tickets/Tickets";
 
-function TicketDetailsPage() {
-  return (
-    <TicketMessage />
-  )
+export default async function TicketDetailsPage({ params }) {
+  const { id } = await params;
+  return <Tickets initialTicketId={id} />;
 }
 
-export default TicketDetailsPage
-
-// NOINDEX 
 export const metadata = {
   robots: {
     index: false,

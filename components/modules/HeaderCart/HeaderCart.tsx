@@ -30,14 +30,19 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
     >
       {/* Header */}
       <header className="border-b border-gray-200 dark:border-gray-700 p-3 flex items-center justify-between">
-        <h2 id="cart-title" className="font-bold text-base">
+        <Link
+          href="/cart"
+          id="cart-title"
+          onClick={onClose}
+          className="font-bold text-base"
+        >
           سبد خرید شما
           {items.length > 0 && (
             <span className="mr-2 text-xs font-normal text-gray-500 dark:text-gray-400">
               ({items.length} کالا)
             </span>
           )}
-        </h2>
+        </Link>
         <button
           onClick={onClose}
           className="cursor-pointer"
@@ -60,22 +65,17 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
               <div className="flex flex-wrap items-center">
                 {/* Product Image */}
                 <div className="text-start w-1/3">
-                  <Link
-                    href={
-                      item.href 
-                    }
-                    onClick={onClose}
-                  >
+                  <Link href={item.href} onClick={onClose}>
                     {item.image && (
-  <Image
-    width={120}
-    height={120}
-    className="max-w-full rounded-lg shadow-sm"
-    src={item.image}
-    alt={item.title}
-    loading="lazy"
-  />
-)}
+                      <Image
+                        width={120}
+                        height={120}
+                        className="max-w-full rounded-lg shadow-sm"
+                        src={item.image}
+                        alt={item.title}
+                        loading="lazy"
+                      />
+                    )}
                   </Link>
                 </div>
 

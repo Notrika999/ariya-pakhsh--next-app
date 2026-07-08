@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import {
   attachSessionToUser,
   completeUserFromMe,
+  forgotPassword,
   getAuthErrorMessage,
   loginWithPassword,
 } from "@/src/services/auth/auth.client";
@@ -13,14 +14,17 @@ import { getBrowserFingerprint } from "@/src/lib/helper/fingerprint";
 interface LoginWithPassProps {
   onSuccess: () => void;
   onRequiresTwoFactor: () => void;
+  onForgotSuccess: () => void;
 }
 
 export default function LoginWithPass({
   onSuccess,
   onRequiresTwoFactor,
+  onForgotSuccess,
 }: LoginWithPassProps) {
   const setUser = useAuthStore((s) => s.setUser);
   const setLoginTwoFactorFlow = useAuthStore((s) => s.setLoginTwoFactorFlow);
+  const setPasswordResetFlow = useAuthStore((s) => s.setPasswordResetFlow);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -30,6 +34,7 @@ export default function LoginWithPass({
     null,
   );
   const [loading, setLoading] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const getDeviceFingerPrint = async () => {
@@ -51,23 +56,12 @@ export default function LoginWithPass({
 
     try {
       const fingerprint = await getDeviceFingerPrint();
-      console.log("[LoginWithPass] login =>", {
-        username: username.trim(),
-        rememberMe,
-      });
 
       const result = await loginWithPassword({
         username: username.trim(),
         password,
         rememberMe,
         deviceFingerPrint: fingerprint,
-      });
-
-      console.log("[LoginWithPass] login result =>", {
-        success: result.success,
-        requiresTwoFactor: result.requiresTwoFactor,
-        hasTwoFactorToken: Boolean(result.twoFactorToken),
-        otpSentTo: result.otpSentTo,
       });
 
       if (!result.success) {
@@ -86,7 +80,6 @@ export default function LoginWithPass({
           result.otpSentTo ?? null,
           fingerprint,
         );
-        console.log("[LoginWithPass] redirecting to OTP step for 2FA");
         onRequiresTwoFactor();
         return;
       }
@@ -108,6 +101,48 @@ export default function LoginWithPass({
     }
   };
 
+  const handleForgotPassword = async () => {
+    const trimmedUsername = username.trim();
+    if (!trimmedUsername) {
+      setError("برای بازیابی رمز، نام کاربری را وارد کنید");
+      return;
+    }
+
+    setForgotLoading(true);
+    setError(null);
+
+    try {
+      const result = await forgotPassword({ username: trimmedUsername });
+
+      if (!result.success) {
+        setError(
+          result.errorMessage ?? result.message ?? "ارسال کد بازیابی ناموفق بود",
+        );
+        return;
+      }
+
+      if (!result.resetToken) {
+        setError("توکن بازیابی از سرور دریافت نشد");
+        return;
+      }
+
+      setPasswordResetFlow(
+        result.resetToken,
+        trimmedUsername,
+        result.maskedDestination ?? null,
+        result.resendCooldownSeconds,
+      );
+      onForgotSuccess();
+    } catch (err) {
+      console.error("[LoginWithPass] forgot password failed:", err);
+      setError(getAuthErrorMessage(err));
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const busy = loading || forgotLoading;
+
   return (
     <div className="space-y-3" dir="rtl">
       <input
@@ -117,7 +152,7 @@ export default function LoginWithPass({
           setError(null);
         }}
         placeholder="نام کاربری یا شماره موبایل"
-        disabled={loading}
+        disabled={busy}
         className="w-full border rounded-xl p-3"
         dir="ltr"
       />
@@ -131,13 +166,13 @@ export default function LoginWithPass({
             setError(null);
           }}
           placeholder="رمز عبور"
-          disabled={loading}
+          disabled={busy}
           className="w-full border rounded-xl p-3 pl-11"
         />
         <button
           type="button"
           onClick={() => setShowPassword((v) => !v)}
-          disabled={loading}
+          disabled={busy}
           aria-label={showPassword ? "مخفی کردن رمز عبور" : "نمایش رمز عبور"}
           className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:opacity-50"
         >
@@ -145,25 +180,36 @@ export default function LoginWithPass({
         </button>
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 select-none">
-        <input
-          type="checkbox"
-          checked={rememberMe}
-          onChange={(e) => setRememberMe(e.target.checked)}
-          disabled={loading}
-          className="size-4 accent-primary"
-        />
-        <span>مرا به خاطر بسپار</span>
-      </label>
+      <div className="flex items-center justify-between gap-3">
+        <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 select-none">
+          <input
+            type="checkbox"
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+            disabled={busy}
+            className="size-4 accent-primary"
+          />
+          <span>مرا به خاطر بسپار</span>
+        </label>
+
+        <button
+          type="button"
+          onClick={handleForgotPassword}
+          disabled={busy}
+          className="text-sm text-primary hover:opacity-80 disabled:opacity-50"
+        >
+          {forgotLoading ? "در حال ارسال..." : "فراموشی رمز عبور"}
+        </button>
+      </div>
 
       {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
       <button
         onClick={handleLogin}
-        disabled={loading}
+        disabled={busy}
         className={[
           "w-full py-3 rounded-xl text-white transition",
-          !loading ? "bg-primary hover:opacity-90" : "bg-slate-300",
+          !busy ? "bg-primary hover:opacity-90" : "bg-slate-300",
         ].join(" ")}
       >
         {loading ? "در حال ورود..." : "ورود"}

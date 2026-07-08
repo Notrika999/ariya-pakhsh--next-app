@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-export default function SocialMediaItem({ image }) {
+export default function SocialMediaItem({ image }: { image: string }) {
   return (
     <Link
       href=""

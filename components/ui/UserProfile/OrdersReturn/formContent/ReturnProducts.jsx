@@ -30,20 +30,20 @@ export default function ReturnProducts({ products, onChange }) {
                 <Image
                 width={80}
                 height={80}
-                  src="/images/product/television-2.png"
+                  src="/images/product-car/03.jpg"
                   // src=?? "/images/default.png"
                   className="w-16 h-16 rounded-lg"
-                  alt="گوشی موبایل"
+                  alt="روکش صندلی"
                 />
                 <div className="flex-1">
                   <h4 className="font-medium text-gray-800 dark:text-gray-200">
-                    گوشی موبایل سامسونگ گلکسی A73
+                    روکش صندلی
                   </h4>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    رنگ: مشکی • حافظه: 128GB
+                    رنگ: مشکی • تعداد: ۱ عدد
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    قیمت: ۱,۱۰۰,۰۰۰ تومان
+                    ۱,۱۰۰,۰۰۰ تومان
                   </p>
                 </div>
               </div>

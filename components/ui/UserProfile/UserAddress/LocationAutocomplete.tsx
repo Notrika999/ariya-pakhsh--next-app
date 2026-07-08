@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { FieldError, fieldClass } from "@/src/utils/form.validation";
 
 type LocationAutocompleteProps = {
   label: string;
@@ -10,6 +11,8 @@ type LocationAutocompleteProps = {
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
+  error?: string;
+  onClearError?: () => void;
 };
 
 export default function LocationAutocomplete({
@@ -20,6 +23,8 @@ export default function LocationAutocomplete({
   placeholder,
   required = false,
   disabled = false,
+  error,
+  onClearError,
 }: LocationAutocompleteProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value);
@@ -57,6 +62,7 @@ export default function LocationAutocomplete({
     <div ref={containerRef} className="relative">
       <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
         {label}
+        {required && <span className="text-red-500"> *</span>}
       </label>
       <input
         type="text"
@@ -65,18 +71,23 @@ export default function LocationAutocomplete({
           const nextValue = e.target.value;
           setInputValue(nextValue);
           onChange(nextValue);
+          onClearError?.();
           setIsOpen(true);
         }}
         onFocus={() => !disabled && setIsOpen(true)}
         placeholder={placeholder}
-        required={required}
         disabled={disabled}
         autoComplete="off"
         role="combobox"
         aria-expanded={isOpen}
         aria-controls={listId}
-        className="w-full appearance-none rounded-lg border px-4 py-2 pe-10 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-zinc-800 dark:text-white"
+        aria-invalid={Boolean(error)}
+        className={[
+          fieldClass(Boolean(error)),
+          "appearance-none rounded-lg px-4 py-2 pe-10 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-60",
+        ].join(" ")}
       />
+      <FieldError message={error} />
 
       {isOpen && !disabled && filteredOptions.length > 0 && (
         <ul

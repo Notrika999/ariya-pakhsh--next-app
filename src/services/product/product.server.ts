@@ -103,6 +103,8 @@ export async function getProductList(
     cache: "no-store",
   });
 
+  console.log(response)
+
   if (!response.ok) {
     throw new Error(response.data?.message ?? "Failed to fetch product list");
   }
@@ -121,6 +123,8 @@ export async function getProductById(slug: string): Promise<ProductDetail> {
     path: `/api/v1/Products/${slug}`,
     cache: "no-store",
   });
+
+  console.log("getProductById response => ", response);
 
   if (!response.ok || !response.data.isSuccess) {
     throw new Error(response.data?.message ?? "Failed to fetch product");

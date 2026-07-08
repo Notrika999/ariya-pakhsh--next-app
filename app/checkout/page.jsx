@@ -1,8 +1,8 @@
-import Checkout from "@/components/ui/Checkout/Checkout";
+import CheckoutPageClient from "@/components/ui/Checkout/CheckoutPageClient";
 import React from "react";
 
 function CheckoutPage() {
-  return <Checkout />
+  return <CheckoutPageClient />;
 }
 
 export default CheckoutPage;

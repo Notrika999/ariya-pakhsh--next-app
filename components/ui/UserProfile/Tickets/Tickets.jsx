@@ -1,119 +1,147 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import TicketMessage from "./TicketMessage";
 import TicketList from "./TicketList";
+import {
+  createTicket,
+  getMyTickets,
+} from "@/src/services/ticket/ticket.client";
+import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
+import { notify } from "@/src/utils/toast";
 
-export default function Tickets() {
-  const [tickets] = useState([
-    {
-      id: "TKT-4587",
-      title: "مشکل در پرداخت آنلاین",
-      department: "technical",
-      departmentLabel: "فنی",
-      priority: {
-        key: "high",
-        label: "بالا",
-        color: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
-      },
-      status: {
-        key: "pending",
-        label: "در حال بررسی",
-        color:
-          "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300",
-      },
-      lastUpdate: "۲ ساعت پیش",
-    },
-    {
-      id: "TKT-4582",
-      title: "سوال درباره محصول",
-      department: "sales",
-      departmentLabel: "فروش",
-      priority: {
-        key: "medium",
-        label: "متوسط",
-        color:
-          "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
-      },
-      status: {
-        key: "answered",
-        label: "پاسخ داده شده",
-        color:
-          "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
-      },
-      lastUpdate: "۱ روز پیش",
-    },
-    {
-      id: "TKT-4576",
-      title: "درخواست بازگشت کالا",
-      department: "general",
-      departmentLabel: "پشتیبانی",
-      priority: {
-        key: "low",
-        label: "پایین",
-        color:
-          "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
-      },
-      status: {
-        key: "closed",
-        label: "بسته شده",
-        color:
-          "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
-      },
-      lastUpdate: "۳ روز پیش",
-    },
-  ]);
+const PAGE_SIZE = 20;
 
-  const [selectedTicketId, setSelectedTicketId] = useState(null);
+export default function Tickets({ initialTicketId = null }) {
+  const [tickets, setTickets] = useState([]);
+  const [selectedTicketId, setSelectedTicketId] = useState(initialTicketId);
+  const [page, setPage] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState(null);
 
   const [filters, setFilters] = useState({
     status: "",
     priority: "",
-    department: "",
+    category: "",
     search: "",
   });
 
-  const handleViewTicket = (id) => {
-    setSelectedTicketId(id);
-  };
+  const loadTickets = useCallback(async (pageNumber = 1, append = false) => {
+    if (append) setLoadingMore(true);
+    else setLoading(true);
+    setError(null);
 
-  const handleBack = () => {
-    setSelectedTicketId(null);
-  };
+    try {
+      const result = await getMyTickets({
+        page: pageNumber,
+        pageSize: PAGE_SIZE,
+      });
+
+      setTickets((prev) =>
+        append ? [...prev, ...result.items] : result.items,
+      );
+      setPage(result.pageNumber || pageNumber);
+      setTotalCount(result.totalCount);
+      setHasNextPage(
+        result.hasNextPage || result.pageNumber < result.totalPages,
+      );
+    } catch (err) {
+      console.error("[Tickets] loadTickets failed =>", err);
+      setError(getAuthErrorMessage(err));
+      if (!append) setTickets([]);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadTickets(1, false);
+  }, [loadTickets]);
+
+  useEffect(() => {
+    setSelectedTicketId(initialTicketId);
+  }, [initialTicketId]);
 
   const handleFilterChange = (updatedFilter) => {
     setFilters((prev) => ({ ...prev, ...updatedFilter }));
   };
 
-  const filteredTickets = tickets.filter((t) => {
-    const statusMatch = filters.status ? t.status.key === filters.status : true;
-    const priorityMatch = filters.priority
-      ? t.priority.key === filters.priority
-      : true;
-    const departmentMatch = filters.department
-      ? t.department === filters.department
-      : true;
-    const searchMatch = filters.search
-      ? t.title.includes(filters.search) ||
-        t.id.includes(filters.search) ||
-        t.departmentLabel.includes(filters.search)
-      : true;
+  const filteredTickets = useMemo(() => {
+    return tickets.filter((ticket) => {
+      const statusMatch = filters.status
+        ? ticket.status === filters.status
+        : true;
+      const priorityMatch = filters.priority
+        ? ticket.priority === filters.priority
+        : true;
+      const categoryMatch = filters.category
+        ? ticket.category === filters.category
+        : true;
+      const search = filters.search.trim().toLowerCase();
+      const searchMatch = search
+        ? ticket.subject.toLowerCase().includes(search) ||
+          ticket.ticketNumber.toLowerCase().includes(search) ||
+          ticket.id.toLowerCase().includes(search)
+        : true;
 
-    return statusMatch && priorityMatch && departmentMatch && searchMatch;
-  });
+      return statusMatch && priorityMatch && categoryMatch && searchMatch;
+    });
+  }, [tickets, filters]);
+
+  const handleCreateTicket = async (payload) => {
+    setCreating(true);
+    try {
+      const result = await createTicket(payload);
+      notify.success(
+        result.ticketNumber
+          ? `تیکت ${result.ticketNumber} ایجاد شد`
+          : "تیکت با موفقیت ایجاد شد",
+      );
+      await loadTickets(1, false);
+      if (result.ticketId) {
+        setSelectedTicketId(result.ticketId);
+      }
+      return true;
+    } catch (err) {
+      console.error("[Tickets] createTicket failed =>", err);
+      notify.error(getAuthErrorMessage(err));
+      return false;
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  if (selectedTicketId) {
+    return (
+      <TicketMessage
+        ticketId={selectedTicketId}
+        onBack={() => {
+          setSelectedTicketId(null);
+          void loadTickets(1, false);
+        }}
+      />
+    );
+  }
 
   return (
-    <>
-      {selectedTicketId ? (
-        <TicketMessage ticketId={selectedTicketId} onBack={handleBack} />
-      ) : (
-        <TicketList
-          tickets={filteredTickets}
-          onView={handleViewTicket}
-          filters={filters}
-          onFilterChange={handleFilterChange}
-        />
-      )}
-    </>
+    <TicketList
+      tickets={filteredTickets}
+      totalCount={totalCount}
+      loading={loading}
+      loadingMore={loadingMore}
+      hasNextPage={hasNextPage}
+      error={error}
+      creating={creating}
+      onView={setSelectedTicketId}
+      onLoadMore={() => loadTickets(page + 1, true)}
+      onCreate={handleCreateTicket}
+      filters={filters}
+      onFilterChange={handleFilterChange}
+    />
   );
 }

@@ -1,8 +1,13 @@
+'use client'
+// components/ui/Checkout/Checkout.jsx
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
+import CheckoutDeliveryAddress from "./CheckoutDeliveryAddress";
 
 export default function Checkout() {
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+
   return (
     // <!-- START CONTENT /-->
     <SectionContainer>
@@ -19,7 +24,7 @@ export default function Checkout() {
               >
                 جزئیات سفارش
               </h1>
-              <span className="text-gray-600 dark:text-gray-400">3 کالا</span>
+              <span className="text-gray-600 dark:text-gray-400">1 کالا</span>
             </div>
 
             {/* <!--Horizontal timeline--> */}
@@ -60,7 +65,7 @@ export default function Checkout() {
             </div>
 
             {/* <!--Personal information--> */}
-            <div className="mb-8">
+            <div className="mb-8 hidden">
               <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
                 <i className="far fa-user"></i>
                 اطلاعات شخصی
@@ -119,182 +124,13 @@ export default function Checkout() {
             </div>
 
             {/* <!--Delivery address--> */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center">
-                  <i className="far fa-location-dot text-primary-500"></i>
-                  آدرس تحویل
-                </h2>
-                <button className="text-primary-500 hover:text-primary-700 text-sm dark:text-gray-400 flex items-center">
-                  <span className="text-xl">+</span>
-                  افزودن آدرس جدید
-                </button>
-              </div>
-
-              {/* <!--Saved addresses--> */}
-              <div className="mb-6">
-                <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">
-                  آدرس‌های ذخیره شده
-                </h3>
-                <div className="space-y-3" id="saved-addresses">
-                  <div
-                    className="address-item border border-gray-300 dark:border-gray-600 rounded-lg p-4 cursor-pointer hover:border-primary-500 transition-all"
-                    data-address-id="1"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <i className="far fa-house text-primary-500 me-2"></i>
-
-                        <div>
-                          <h4 className="font-medium text-gray-800 dark:text-white">
-                            آدرس منزل
-                          </h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            علیرضا محمدی - ۰۹۱۲۱۲۳۴۵۶۷
-                          </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                            تهران، خیابان ولیعصر، پلاک ۱۲۳، واحد ۴
-                          </p>
-                        </div>
-                      </div>
-                      <button className="text-primary-500 hover:text-primary-700 text-sm dark:text-gray-400">
-                        انتخاب
-                      </button>
-                    </div>
-                  </div>
-
-                  <div
-                    className="address-item border border-primary-500 rounded-lg p-4 cursor-pointer bg-blue-50 dark:bg-zinc-800 selected"
-                    data-address-id="2"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <i className="far fa-toolbox me-2 text-green-500"></i>
-
-                        <div>
-                          <h4 className="font-medium text-gray-800 dark:text-white">
-                            آدرس محل کار
-                          </h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            علیرضا محمدی - ۰۹۳۵۵۵۵۶۷۸۹
-                          </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                            تهران، میدان ونک، خیابان ملاصدرا، پلاک ۸۰
-                          </p>
-                        </div>
-                      </div>
-                      <button className="text-primary-500 hover:text-primary-700 text-sm dark:text-gray-400">
-                        انتخاب
-                      </button>
-                    </div>
-                  </div>
-
-                  <div
-                    className="address-item border border-gray-300 dark:border-gray-600 rounded-lg p-4 cursor-pointer hover:border-primary-500 transition-all"
-                    data-address-id="3"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <i className="far fa-hotel me-2 text-purple-500"></i>
-
-                        <div>
-                          <h4 className="font-medium text-gray-800 dark:text-white">
-                            آدرس فروشگاه
-                          </h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            رضا کریمی - ۰۹۱۹۸۷۶۵۴۳۲
-                          </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                            کرج، عظیمیه، بلوار موذن، پلاک ۴۵
-                          </p>
-                        </div>
-                      </div>
-                      <button className="text-primary-500 hover:text-primary-700 text-sm dark:text-gray-400">
-                        انتخاب
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* <!--New address form--> */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    آدرس کامل
-                  </label>
-                  <textarea
-                    id="address"
-                    className="w-full px-3 py-4 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-200"
-                    rows="3"
-                    placeholder="آدرس کامل خود را وارد کنید"
-                  ></textarea>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      استان
-                    </label>
-                    <select
-                      id="province"
-                      className="w-full px-3 py-4 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-200"
-                    >
-                      <option value="">انتخاب استان</option>
-                      <option value="tehran">تهران</option>
-                      <option value="alborz">البرز</option>
-                      <option value="isfahan">اصفهان</option>
-                      <option value="fars">فارس</option>
-                      <option value="khorasan-razavi">خراسان رضوی</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      شهر
-                    </label>
-                    <select
-                      id="city"
-                      className="w-full px-3 py-4 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-200"
-                    >
-                      <option value="">انتخاب شهر</option>
-                      <option value="tehran">تهران</option>
-                      <option value="karaj">کرج</option>
-                      <option value="shahriar">شهریار</option>
-                      <option value="eslamshahr">اسلامشهر</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    کد پستی
-                  </label>
-                  <input
-                    type="text"
-                    id="postal-code"
-                    className="w-full px-3 py-4 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-zinc-800 text-gray-800 dark:text-gray-200"
-                    placeholder="1234567890"
-                  />
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="save-address"
-                    className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500 dark:bg-gray-700 dark:border-gray-600"
-                  />
-                  <label
-                    htmlFor="save-address"
-                    className="ms-2 text-sm text-gray-700 dark:text-gray-300"
-                  >
-                    این آدرس را ذخیره کن
-                  </label>
-                </div>
-              </div>
-            </div>
+            <CheckoutDeliveryAddress
+              selectedAddressId={selectedAddressId}
+              onSelectAddress={setSelectedAddressId}
+            />
 
             {/* <!--Delivery time--> */}
-            <div className="mb-8">
+            <div className="mb-8 hidden">
               <h2 className="font-bold text-lg mb-4 relative pb-4 before:absolute before:inset-s-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary after:absolute after:w-40 after:h-0.5 after:bottom-0 after:inset-s-4 after:bg-primary after:rounded-lg">
                 زمان تحویل را انتخاب کنید
               </h2>
@@ -570,7 +406,7 @@ export default function Checkout() {
         </div>
         {/* <!-- Left Section - Shopping Cart Summary --> */}
         <div>
-          <div className="bg-white dark:bg-custom-dark rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 sticky top-0">
+          <div className="bg-white dark:bg-custom-dark rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 sticky top-0 z-10">
             <h2
               className="font-black text-lg mb-4 relative pb-4 text-gray-900 dark:text-gray-200
                 before:absolute before:inset-s-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary
@@ -587,49 +423,24 @@ export default function Checkout() {
                     <Image
                       width={56}
                       height={56}
-                      src="/images/product/wach-1.png"
+                      src="/images/product-car/03.jpg"
                       // src=?? "/images/default.png"
                       alt=""
                     />
                   </div>
                   <div>
                     <h3 className="font-medium text-gray-800 dark:text-gray-200">
-                      ساعت هوشمند اپل
-                    </h3>
+                    روکش صندلی                    </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                       1 عدد - رنگ مشکی
                     </p>
                   </div>
                 </div>
                 <span className="font-medium text-gray-800 dark:text-gray-200">
-                  ۲۸,۵۰۰,۰۰۰ تومان
+                  ۷۵٬۸۰۰٬۰۰۰ تومان
                 </span>
               </div>
 
-              <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center">
-                  <div className="w-16 h-16 bg-gray-200 dark:bg-zinc-800 rounded-lg flex items-center justify-center me-3">
-                    <Image
-                      width={56}
-                      height={56}
-                      src="/images/product/wach-3.png"
-                      // src=?? "/images/default.png"
-                      alt=""
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-800 dark:text-gray-200">
-                      ساعت هوشمند سامسونگ
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      1 عدد - رنگ سفید
-                    </p>
-                  </div>
-                </div>
-                <span className="font-medium text-gray-800 dark:text-gray-200">
-                  ۱۰,۹۰۰,۰۰۰ تومان
-                </span>
-              </div>
             </div>
 
             {/* <!--Cost Summary--> */}

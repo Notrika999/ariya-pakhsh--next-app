@@ -1,6 +1,7 @@
 import Image from "next/image";
 import React from "react";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
+import Link from "next/link";
 
 export default function Cart() {
   return (
@@ -18,7 +19,7 @@ export default function Cart() {
               >
                 سبد خرید
               </h1>
-              <span className="text-gray-600 dark:text-gray-400">3 کالا</span>
+              <span className="text-gray-600 dark:text-gray-400">1 کالا</span>
             </div>
 
             {/* <!-- Horizontal Timeline --> */}
@@ -70,7 +71,7 @@ export default function Cart() {
                   <Image
                     width={80}
                     height={80}
-                    src="/images/product/mobile-2.png"
+                    src="/images/product-car/03.jpg"
                     // src=?? "/images/default.png"
 
                     alt=""
@@ -78,10 +79,10 @@ export default function Cart() {
                 </div>
                 <div className="flex-1 space-y-4">
                   <h3 className="font-bold text-gray-800 dark:text-white">
-                    گوشی موبایل اپل مدل iPhone 16 Pro
+                  روکش صندلی
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    رنگ: مشکی - ظرفیت: 256GB
+                  رنگ: مشکی
                   </p>
                   {/* <!--Counter--> */}
                   <div className="flex items-center space-x-4">
@@ -113,7 +114,7 @@ export default function Cart() {
                       </div>
                     </div>
                     <span className="text-xl inline-block mt-2 font-bold dark:text-white">
-                      90,000,000
+                    ۷۵٬۸۰۰٬۰۰۰
                       <span className="text-xs font-bold -rotate-90 dark:text-zinc-300">
                         تومان
                       </span>
@@ -121,54 +122,7 @@ export default function Cart() {
                   </div>
                 </div>
               </div>
-              {/* <!--Product 2--> */}
-              <div className="flex flex-wrap sm:space-y-0 space-y-5 dark:bg-zinc-800 bg-custom-light cart-item items-start space-x-4 border border-gray-200 dark:border-gray-700 rounded-xl p-4">
-                <div className="w-20 h-20 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                  <Image
-                    width={80}
-                    height={80}
-                    src="/images/product/mobile-2.png"
-                    // src=?? "/images/default.png"
-                    alt=""
-                  />
-                </div>
-                <div className="flex-1 space-y-4">
-                  <h3 className="font-bold text-gray-800 dark:text-white">
-                    گوشی موبایل اپل مدل iPhone 16 Pro
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    رنگ: مشکی - ظرفیت: 256GB
-                  </p>
-                  {/* <!--Counter--> */}
-                  <div className="flex items-center space-x-4">
-                    <div className="flex bg-white dark:bg-zinc-700 items-center border border-gray-300 dark:border-gray-600 rounded-lg">
-                      <button className="cart-btn-minus w-8 h-8 flex items-center justify-center text-gray-600 dark:text-gray-400">
-                        -
-                      </button>
-                      <span className="px-3 py-1 text-gray-800 dark:text-white">
-                        1
-                      </span>
-                      <button className="cart-btn-plus w-8 h-8 flex items-center justify-center text-gray-600 dark:text-gray-400">
-                        +
-                      </button>
-                    </div>
-                    <button className="cart-btn-trash text-red-500 hover:text-red-700 transition-colors flex items-center">
-                      <i className="far fa-trash-can text-sm"></i>
-                      حذف
-                    </button>
-                  </div>
-                </div>
-                <div className="text-end">
-                  <div className="text-gray-700 dark:text-gray-300 flex flex-col items-center">
-                    <span className="text-xl inline-block mt-2 font-bold dark:text-white">
-                      90,000,000
-                      <span className="text-xs font-bold -rotate-90 dark:text-zinc-300">
-                        تومان
-                      </span>
-                    </span>
-                  </div>
-                </div>
-              </div>
+              
             </div>
           </div>
         </div>
@@ -218,10 +172,10 @@ export default function Cart() {
               </div>
             </div>
 
-            <button className="w-full bg-primary hover:bg-primary-600 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center">
+            <Link href="/checkout" className="w-full bg-primary hover:bg-primary-600 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center">
               <i className="far fa-credit-card me-1"></i>
               ادامه فرآیند پرداخت
-            </button>
+            </Link>
           </div>
         </div>
       </div>

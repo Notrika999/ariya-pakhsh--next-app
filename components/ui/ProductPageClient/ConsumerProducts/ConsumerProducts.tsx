@@ -138,7 +138,7 @@ export default function ConsumerProducts() {
   ];
 
   return (
-    <section className="py-5">
+    <section className="py-5 hidden">
       <h2 className="sr-only">محصولات مشابه</h2>
 
       <div className="container mx-auto">

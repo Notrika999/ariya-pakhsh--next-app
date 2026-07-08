@@ -1,15 +1,15 @@
 // components/layout/Header/Top/HeaderSetting.tsx
-
 "use client";
 
 import LoginModal from "@/components/modules/auth/LoginModal";
 import UserMenu from "@/components/modules/auth/UserMenu";
 import HeaderCart from "@/components/modules/HeaderCart/HeaderCart";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useCart } from "@/src/context/CartContext";
 import {
   useCurrentUser,
   useIsAuthenticated,
+  useIsAuthBootstrapping,
 } from "@/src/lib/stores/auth/auth.store";
 
 export default function HeaderSetting() {
@@ -23,15 +23,28 @@ export default function HeaderSetting() {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const { totalItems } = useCart();
 
   const user = useCurrentUser();
   const isAuthenticated = useIsAuthenticated();
+  const isAuthBootstrapping = useIsAuthBootstrapping();
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+
+  const showUserMenu =
+    mounted && ((isAuthenticated && user) || isAuthBootstrapping);
 
   useEffect(() => {
     if (!menuOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const clickedTrigger = menuRef.current?.contains(target);
+      const clickedMenu = (target as Element).closest?.("[data-user-menu]");
+      if (!clickedTrigger && !clickedMenu) {
         setMenuOpen(false);
       }
     };
@@ -108,16 +121,22 @@ export default function HeaderSetting() {
 
         <div className="lg:inline-block hidden me-3 h-10 w-px self-stretch bg-gray-200 dark:bg-gray-700"></div>
         {/* login  */}
-        {isAuthenticated && user ? (
+        {!mounted ? (
+          <div
+            className="hidden lg:block h-10 w-28 rounded-lg bg-gray-100 dark:bg-zinc-800 animate-pulse"
+            aria-hidden="true"
+          />
+        ) : showUserMenu ? (
           <div className="relative" ref={menuRef}>
             <button
+              ref={triggerRef}
               onClick={() => setMenuOpen((v) => !v)}
               className="flex items-center bg-white dark:bg-custom-dark text-gray-900 dark:text-gray-100 lg:py-2 lg:px-3 lg:border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1f242c] transition-colors duration-200"
             >
               <i className="fa-regular fa-user-circle me-1"></i>
               <span className="lg:inline-block hidden max-w-[120px] truncate">
-                {user.displayName ||
-                  [user.firstName, user.lastName]
+                {user?.displayName ||
+                  [user?.firstName, user?.lastName]
                     .filter(Boolean)
                     .join(" ") ||
                   "حساب کاربری"}
@@ -128,7 +147,12 @@ export default function HeaderSetting() {
                 }`}
               ></i>
             </button>
-            {menuOpen && <UserMenu onClose={() => setMenuOpen(false)} />}
+            {menuOpen && (
+              <UserMenu
+                anchorRef={triggerRef}
+                onClose={() => setMenuOpen(false)}
+              />
+            )}
           </div>
         ) : (
           <button

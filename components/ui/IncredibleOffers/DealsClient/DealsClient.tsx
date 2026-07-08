@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { ProductCardModel, ProductListResponse } from "@/src/lib/types/productTypes";
 import type { SortOption } from "@/src/lib/types/filters/filters";
@@ -49,6 +49,19 @@ export default function DealsClient({
 }: DealsClientProps) {
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  const handleStartTransition = useCallback<typeof startTransition>(
+    (callback) => {
+      setIsNavigating(true);
+      startTransition(callback);
+    },
+    [startTransition],
+  );
+
+  useEffect(() => {
+    setIsNavigating(false);
+  }, [products, pagination.page, pagination.totalCount]);
 
   const filters = useMemo(
     () => ({
@@ -84,8 +97,8 @@ export default function DealsClient({
         minLimit={minLimit}
         maxLimit={maxLimit}
         products={products}
-        isLoading={isPending}
-        startTransition={startTransition}
+        isLoading={isPending || isNavigating}
+        startTransition={handleStartTransition}
       />
     </SectionContainer>
   );

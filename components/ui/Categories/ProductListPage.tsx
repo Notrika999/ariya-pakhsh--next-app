@@ -70,6 +70,22 @@ export default function CategoryProductListPage({
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
+  // وضعیت لودینگ برای فیلتر/مرتب‌سازی: از لحظه شروع ناوبری تا رسیدن داده جدید سرور
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  const handleStartTransition = useCallback<typeof startTransition>(
+    (callback) => {
+      setIsNavigating(true);
+      startTransition(callback);
+    },
+    [startTransition],
+  );
+
+  // با رسیدن داده تازه از سرور (پراپ‌های جدید)، لودینگ خاموش می‌شود
+  useEffect(() => {
+    setIsNavigating(false);
+  }, [initialProducts, pagination.page, pagination.totalCount]);
+
   const [priceLimit] = useState({
     min: filterOptions?.minPrice ?? 0,
     max: filterOptions?.maxPrice ?? 0,
@@ -242,8 +258,8 @@ export default function CategoryProductListPage({
         minLimit={priceLimit.min}
         maxLimit={priceLimit.max}
         products={products}
-        isLoading={isPending}
-        startTransition={startTransition}
+        isLoading={isPending || isNavigating}
+        startTransition={handleStartTransition}
       />
 
       {hasMore && <div ref={sentinelRef} className="h-1" />}

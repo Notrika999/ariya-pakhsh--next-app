@@ -30,24 +30,6 @@ interface FormErrors {
   general?: string;
 }
 
-interface FormState {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-}
-
-interface FormErrors {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-  general?: string;
-}
-
-// 👇 کامپوننت Field بیرون از StepRegister
 interface FieldProps {
   label: string;
   field: keyof FormState;
@@ -57,6 +39,10 @@ interface FieldProps {
   loading: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   suffix?: React.ReactNode;
+  autoComplete?: string;
+  required?: boolean;
+  optional?: boolean;
+  preventAutofill?: boolean;
 }
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -93,9 +79,7 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
 
     if (!form.firstName.trim()) newErrors.firstName = "نام الزامی است";
     if (!form.lastName.trim()) newErrors.lastName = "نام خانوادگی الزامی است";
-    if (!form.email.trim()) {
-      newErrors.email = "ایمیل الزامی است";
-    } else if (!emailRegex.test(form.email)) {
+    if (form.email.trim() && !emailRegex.test(form.email.trim())) {
       newErrors.email = "فرمت ایمیل صحیح نیست";
     }
     if (!form.password) {
@@ -134,8 +118,6 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
         deviceFingerPrint: deviceFingerPrint ?? "device-id",
       });
 
-      console.log("Result Register => ", result);
-
       if (!result.success) {
         setErrors({ general: result.errorMessage ?? "خطایی رخ داد" });
         return;
@@ -160,7 +142,6 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
           };
         };
       };
-      // خطاهای field-level از server
       const serverErrors = errorResponse.response?.data?.errors;
       if (serverErrors?.length) {
         const mapped: FormErrors = {};
@@ -182,7 +163,16 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
   };
 
   return (
-    <div className="space-y-3" dir="rtl">
+    <form
+      className="space-y-3"
+      dir="rtl"
+      autoComplete="off"
+      onSubmit={(e) => {
+        e.preventDefault();
+        void handleSubmit();
+      }}
+      noValidate
+    >
       <Field
         label="نام"
         field="firstName"
@@ -190,6 +180,8 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
         error={errors.firstName}
         loading={loading}
         onChange={handleChange("firstName")}
+        autoComplete="given-name"
+        required
       />
       <Field
         label="نام خانوادگی"
@@ -198,6 +190,8 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
         error={errors.lastName}
         loading={loading}
         onChange={handleChange("lastName")}
+        autoComplete="family-name"
+        required
       />
       <Field
         label="ایمیل"
@@ -207,6 +201,9 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
         error={errors.email}
         loading={loading}
         onChange={handleChange("email")}
+        autoComplete="off"
+        optional
+        preventAutofill
       />
       <Field
         label="رمز عبور"
@@ -216,6 +213,8 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
         error={errors.password}
         loading={loading}
         onChange={handleChange("password")}
+        autoComplete="new-password"
+        required
         suffix={
           <button
             type="button"
@@ -236,6 +235,8 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
         error={errors.confirmPassword}
         loading={loading}
         onChange={handleChange("confirmPassword")}
+        autoComplete="new-password"
+        required
         suffix={
           <button
             type="button"
@@ -254,7 +255,7 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
       )}
 
       <button
-        onClick={handleSubmit}
+        type="submit"
         disabled={loading}
         className={[
           "w-full py-3 rounded-xl text-white transition",
@@ -265,7 +266,7 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
       >
         {loading ? "در حال ثبت‌نام..." : "ثبت‌نام و ورود"}
       </button>
-    </div>
+    </form>
   );
 }
 
@@ -278,23 +279,47 @@ function Field({
   loading,
   onChange,
   suffix,
+  autoComplete = "off",
+  required = false,
+  optional = false,
+  preventAutofill = false,
 }: FieldProps) {
+  const inputId = `register-${field}`;
+
   return (
     <div className="flex flex-col gap-1">
+      <label htmlFor={inputId} className="text-sm text-gray-500">
+        {label}
+        {optional ? (
+          <span className="text-gray-400"> (اختیاری)</span>
+        ) : (
+          <span className="text-red-500"> *</span>
+        )}
+      </label>
       <div className="relative">
-        <label htmlFor={field} className="text-sm text-gray-500">{label}</label>
         <input
+          id={inputId}
+          name={inputId}
           type={type}
           value={value}
           onChange={onChange}
-          placeholder={label}
+          placeholder={optional ? `${label} (اختیاری)` : label}
           disabled={loading}
+          autoComplete={autoComplete}
+          required={required}
+          readOnly={preventAutofill}
+          onFocus={
+            preventAutofill
+              ? (e) => e.currentTarget.removeAttribute("readonly")
+              : undefined
+          }
+          aria-required={required}
           className={[
             "w-full border rounded-xl p-3 outline-none transition pr-3",
             suffix ? "pl-10" : "",
             error
               ? "border-red-400 bg-red-50"
-              : "border-gray-300 focus:border-primary",
+              : "border-gray-300 focus:border-primary dark:bg-custom-dark dark:border-gray-700",
             loading ? "opacity-50 cursor-not-allowed" : "",
           ].join(" ")}
           dir={field === "email" ? "ltr" : "rtl"}

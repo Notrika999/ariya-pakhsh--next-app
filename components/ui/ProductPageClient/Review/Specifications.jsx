@@ -8,109 +8,142 @@ export default function Specifications() {
       </h2>
 
       <div className="mx-auto p-6">
+        {/* مشخصات کلی */}
         <div className="pb-10 last:pb-0">
           <h2 className="text-2xl font-bold mt-6 mb-4 pb-2">مشخصات کلی</h2>
+
           <div className="grid grid-cols-2 gap-6 text-right">
-            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:odd:bg-[#1e232a] dark:text-white">
-              نوع گوشی موبایل:
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              نوع محصول:
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-              سیستم عامل اندروید
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              روکش صندلی خودرو
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:odd:bg-[#1e232a] dark:text-white">
-              دسته بندی:
+
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              نوع دوخت:
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-              اقتصادی
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              سفارشی متناسب با خودرو
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:odd:bg-[#1e232a] dark:text-white">
-              مدل:
+
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              جنس:
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-              Realme C61
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              چرم مصنوعی، پارچه، مخمل یا ترکیبی
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:odd:bg-[#1e232a] dark:text-white">
-              زمان معرفی:
+
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              مناسب برای:
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-              ژوئن 2024
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              خودروهای سواری داخلی و خارجی
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:odd:bg-[#1e232a] dark:text-white">
-              ابعاد:
+
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              رنگ‌بندی:
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-              164.7x76.7x7.8 میلی‌متر
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              متنوع (مشکی، طوسی، کرم، قرمز، قهوه‌ای و ...)
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:odd:bg-[#1e232a] dark:text-white">
-              وزن:
+
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              کشور سازنده:
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-              188 گرم
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              ایران
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:odd:bg-[#1e232a] dark:text-white">
-              توضیحات بدنه:
+
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              گارانتی:
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-              قاب جلو از شیشه، قاب پشت و فریم از جنس پلاستیک
-            </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:odd:bg-[#1e232a] dark:text-white">
-              قابلیت‌های مقاومتی:
-            </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-              مقاومت در برابر پاشش آب و گرد و غبار
-            </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:odd:bg-[#1e232a] dark:text-white">
-              ویژگی‌های کلیدی:
-            </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-              دارای گواهی IP54، مقاوم در برابر پاشش آب و گرد و غبار
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              بسته به برند تولیدکننده
             </span>
           </div>
         </div>
+
+        {/* ویژگی‌ها */}
         <div className="pb-10 last:pb-0">
-          <h2 className="text-2xl font-bold mt-6 mb-4 pb-2">صفحه نمایش</h2>
+          <h2 className="text-2xl font-bold mt-6 mb-4 pb-2">ویژگی‌ها</h2>
+
           <div className="grid grid-cols-2 gap-6 text-right">
-            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:odd:bg-[#1e232a] dark:text-white">
-              فناوری صفحه نمایش:
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              مقاومت در برابر سایش:
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-              IPS LCD
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              دارد
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:odd:bg-[#1e232a] dark:text-white">
-              نرخ بروزرسانی تصویر:
+
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              قابلیت شستشو:
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-              90 هرتز
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              دارد
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:odd:bg-[#1e232a] dark:text-white">
-              روشنایی صفحه نمایش:
+
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              مقاومت در برابر نور خورشید:
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-              560 نیت
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              دارد
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:odd:bg-[#1e232a] dark:text-white">
-              اندازه:
+
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              ضد تعریق:
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-              6.74 اینچ
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              در مدل‌های پارچه‌ای و ترکیبی
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:odd:bg-[#1e232a] dark:text-white">
-              نسبت صفحه نمایش به بدنه:
+
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              سازگار با ایربگ جانبی:
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-              85.5%
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              بله (در مدل‌های استاندارد)
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:odd:bg-[#1e232a] dark:text-white">
-              نسبت تصویر:
+
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              قابلیت نصب:
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-              20:9
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              نصب آسان بدون نیاز به تغییر در صندلی
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex justify-start items-center dark:odd:bg-[#1e232a] dark:text-white">
-              رزولوشن صفحه نمایش:
+
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              مناسب چهار فصل:
             </span>
-            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex justify-start items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-              720x1600 پیکسل
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              بله
+            </span>
+
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              اقلام همراه:
+            </span>
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              قلاب نصب، بست و دفترچه راهنما
+            </span>
+          </div>
+        </div>
+
+        {/* مزایا */}
+        <div>
+          <h2 className="text-2xl font-bold mt-6 mb-4 pb-2">مزایا</h2>
+
+          <div className="grid grid-cols-2 gap-6 text-right">
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              مزیت اصلی:
+            </span>
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              محافظت از صندلی فابریک و افزایش زیبایی کابین خودرو
+            </span>
+
+            <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:odd:bg-[#1e232a] dark:text-white">
+              مناسب برای:
+            </span>
+            <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:even:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
+              استفاده روزمره، تاکسی‌های اینترنتی، خودروهای شخصی و سازمانی
             </span>
           </div>
         </div>

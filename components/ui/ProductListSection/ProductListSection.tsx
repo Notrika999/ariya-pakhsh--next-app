@@ -130,7 +130,7 @@ export default function ProductListSection({
                 </div>
               ))
             ) : products.length === 0 ? (
-              <div className="col-span-12 text-center py-16 text-gray-400">
+              <div className="col-span-12 py-16 text-center text-gray-400 dark:text-gray-500">
                 <p className="text-lg">محصولی یافت نشد</p>
               </div>
             ) : (

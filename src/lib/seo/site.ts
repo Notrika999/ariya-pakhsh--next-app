@@ -3,7 +3,7 @@ export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://aryapakhsh.shop"
 ).replace(/\/$/, "");
 
-export const SITE_NAME = "آریاپخش";
+export const SITE_NAME = "کارآپ 24";
 
 export function absoluteUrl(path = ""): string {
   if (!path) return SITE_URL;

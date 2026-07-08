@@ -69,7 +69,10 @@ export default function ProductCard({ product }: ProductCardProps) {
     count: product.reviewCount,
   };
 
-  // console.log("Product Card => ", product);
+  const showStockBadge = typeof product.inStock === "boolean";
+  const showSaleBadge = product.isOnSale === true;
+  const showPublicCode = Boolean(product.publicCode?.trim());
+  const isOutOfStock = product.inStock === false;
 
   return (
     <article
@@ -108,29 +111,43 @@ export default function ProductCard({ product }: ProductCardProps) {
         </svg>
       </button>
 
-      {/* Discount badge */}
-      <div className="absolute top-3 right-3 z-20 flex flex-col gap-1">
-        {product?.discountPercent ? (
-          <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-sm">
-            {product.discountPercent}٪
-          </div>
-        ) : (
-          ""
-        )}
-        {product.specialSale && (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-            ویژه
-          </span>
-        )}
-      </div>
-
       {/* Image */}
-      <div className="relative w-full h-48 bg-stone-50 dark:bg-stone-800 overflow-hidden">
+      <div className="relative w-full h-48 bg-white dark:bg-stone-800 flex items-center justify-center overflow-hidden">
+        {(showStockBadge || showSaleBadge || product.discountPercent || product.specialSale) && (
+          <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1">
+            {showStockBadge && (
+              <span
+                className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-sm ${
+                  product.inStock
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800"
+                    : "bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800"
+                }`}
+              >
+                {product.inStock ? "موجود در انبار" : "اتمام کالا"}
+              </span>
+            )}
+            {showSaleBadge && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-sm bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800">
+                فروش ویژه
+              </span>
+            )}
+            {product.discountPercent ? (
+              <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-sm">
+                {product.discountPercent}٪
+              </span>
+            ) : null}
+            {product.specialSale && !showSaleBadge && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-sm bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800">
+                ویژه
+              </span>
+            )}
+          </div>
+        )}
         <Image
           src={product.image}
           alt={product.title}
           fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="object-contain transition-transform duration-500 group-hover:scale-105"
         />
       </div>
 
@@ -148,6 +165,15 @@ export default function ProductCard({ product }: ProductCardProps) {
             {product.title}
           </span>
         </Link>
+
+        {showPublicCode && (
+          <p
+            className="text-[11px] text-stone-500 dark:text-stone-400 -mt-2 hidden"
+            dir="ltr"
+          >
+            {product.publicCode}
+          </p>
+        )}
 
         {/* Rating */}
         {review && (
@@ -187,25 +213,32 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* CTA */}
         <div className="flex gap-2">
-          <button
-            onClick={handleCart}
-            disabled={!product.inStock}
-            className={`w-full py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
-              expired || !product.inStock
-                ? "bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-600 cursor-not-allowed"
-                : addedToCart
-                  ? "bg-emerald-500 text-white scale-95"
-                  : "bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 hover:bg-amber-500 dark:hover:bg-amber-400 hover:shadow-lg hover:shadow-amber-200 dark:hover:shadow-amber-900/30 active:scale-95"
-            }`}
-          >
-            {expired
-              ? "پیشنهاد تمام شد"
-              : !product.inStock
-                ? "ناموجود"
+          {isOutOfStock ? (
+            <Link
+              href={product.href}
+              className="w-full py-2 rounded-xl text-sm text-center font-bold transition-all duration-200 bg-primary hover:bg-primary-600 text-white shadow-sm hover:shadow-md active:scale-95 dark:hover:bg-primary/80"
+            >
+              به من اطلاع بده
+            </Link>
+          ) : (
+            <button
+              onClick={handleCart}
+              disabled={expired}
+              className={`w-full py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
+                expired
+                  ? "bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-600 cursor-not-allowed"
+                  : addedToCart
+                    ? "bg-emerald-500 text-white scale-95"
+                    : "bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 hover:bg-amber-500 dark:hover:bg-amber-400 hover:shadow-lg hover:shadow-amber-200 dark:hover:shadow-amber-900/30 active:scale-95"
+              }`}
+            >
+              {expired
+                ? "پیشنهاد تمام شد"
                 : addedToCart
                   ? "✓ افزوده شد"
                   : "افزودن به سبد"}
-          </button>
+            </button>
+          )}
 
           <Link
             href={product.href}

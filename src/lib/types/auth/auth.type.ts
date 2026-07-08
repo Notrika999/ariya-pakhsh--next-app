@@ -224,3 +224,74 @@ export interface UserProfile {
   phoneNumber: string;
   email: string;
 }
+
+// ─── Forgot / Reset password ────────────────────────────────
+
+export interface ForgotPasswordRequest {
+  username: string;
+}
+
+export interface ForgotPasswordResponse {
+  success: boolean;
+  message?: string;
+  code?: string;
+  errorMessage?: string | null;
+  errorCode?: string | null;
+  resetToken?: string;
+  maskedDestination?: string;
+  deliveryMethod?: string;
+  otpExpiresInSeconds?: number;
+  resendCooldownSeconds?: number;
+  retryAfter?: string | null;
+}
+
+export interface ResetPasswordRequest {
+  resetToken: string;
+  otpCode: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  success: boolean;
+  message?: string;
+  code?: string;
+  errorMessage?: string | null;
+  errorCode?: string | null;
+}
+
+// ─── Change password (authenticated profile) ────────────────
+
+export interface StartChangePasswordOtpRequest {
+  currentPassword: string;
+}
+
+export interface StartChangePasswordOtpResponse {
+  success?: boolean;
+  message?: string;
+  code?: string;
+  errorMessage?: string | null;
+  errorCode?: string | null;
+  verificationToken?: string;
+  otpSentTo?: string;
+  deliveryMethod?: string;
+  expiresAt?: string;
+  remainingAttempts?: number;
+  developmentCode?: string;
+}
+
+export interface ChangePasswordRequest {
+  verificationToken: string;
+  otpCode: string;
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface ChangePasswordResponse {
+  success?: boolean;
+  message?: string;
+  code?: string;
+  errorMessage?: string | null;
+  errorCode?: string | null;
+}

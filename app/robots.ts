@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import { absoluteUrl } from "@/src/lib/seo/site";
+import { absoluteUrl, SITE_URL } from "@/src/lib/seo/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -26,10 +26,12 @@ export default function robots(): MetadataRoute.Robots {
           "/compare",
           "/success-payment",
           "/fail-payment",
-          "/api",
+          "/api/",
+          "/_next/",
         ],
       },
     ],
+    host: SITE_URL,
     sitemap: absoluteUrl("/sitemap.xml"),
   };
 }

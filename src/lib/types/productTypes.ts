@@ -151,6 +151,7 @@ export interface ProductCardModel {
   id: string;
   title: string;
   slug?: string;
+  publicCode?: string;
   image: string;
   imageSlider?: unknown[];
   brandId?: number | string;

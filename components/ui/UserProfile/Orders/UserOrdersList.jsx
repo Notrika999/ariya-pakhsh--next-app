@@ -61,7 +61,7 @@ export default function UserOrdersList() {
                 <Image
                   width={100}
                   height={100}
-                  src="/images/product/television-2.png"
+                  src="/images/product-car/03.jpg"
                   // src=?? "/images/default.png"
                   className="size-20"
                   alt=""
@@ -69,7 +69,7 @@ export default function UserOrdersList() {
               </div>
               <div className="flex-1">
                 <h3 className="font-medium text-gray-800 dark:text-gray-200">
-                  گوشی موبایل سامسونگ گلکسی A73
+                  روکش صندلی
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   رنگ: مشکی • تعداد: ۱ عدد
@@ -78,32 +78,6 @@ export default function UserOrdersList() {
               <div className="text-left md:text-right">
                 <p className="font-medium text-gray-800 dark:text-gray-200">
                   ۱,۱۰۰,۰۰۰ تومان
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 md:">
-              <div className="shrink-0">
-                <Image
-                  width={100}
-                  height={100}
-                  src="/images/product/wach-1.png"
-                  // src=?? "/images/default.png"
-                  className="size-20"
-                  alt=""
-                />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium text-gray-800 dark:text-gray-200">
-                  قاب محافظ گوشی سامسونگ گلکسی A73
-                </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  رنگ: شفاف • تعداد: ۱ عدد
-                </p>
-              </div>
-              <div className="text-left md:text-right">
-                <p className="font-medium text-gray-800 dark:text-gray-200">
-                  ۱۵۰,۰۰۰ تومان
                 </p>
               </div>
             </div>
@@ -174,12 +148,12 @@ export default function UserOrdersList() {
 
           {/* <!-- Order Items --> */}
           <div className="p-6">
-            <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 md:">
-              <div className="flex-shrink-0">
+          <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 md: border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+              <div className="shrink-0">
                 <Image
                   width={100}
                   height={100}
-                  src="/images/product/laptop-4.png"
+                  src="/images/product-car/03.jpg"
                   // src=?? "/images/default.png"
                   className="size-20"
                   alt=""
@@ -187,19 +161,18 @@ export default function UserOrdersList() {
               </div>
               <div className="flex-1">
                 <h3 className="font-medium text-gray-800 dark:text-gray-200">
-                  هدفون بلوتوثی سونی WH-CH510
+                  روکش صندلی
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  رنگ: آبی • تعداد: ۱ عدد
+                  رنگ: مشکی • تعداد: ۱ عدد
                 </p>
               </div>
               <div className="text-left md:text-right">
                 <p className="font-medium text-gray-800 dark:text-gray-200">
-                  ۸۵۰,۰۰۰ تومان
+                  ۱,۱۰۰,۰۰۰ تومان
                 </p>
               </div>
             </div>
-
             {/* <!-- Tracking Info --> */}
             <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
               <h4 className="font-medium text-gray-800 dark:text-gray-200 mb-3">
@@ -289,12 +262,12 @@ export default function UserOrdersList() {
 
           {/* <!-- Order Items --> */}
           <div className="p-6">
-            <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 md: border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
-              <div className="flex-shrink-0">
+          <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 md: border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+              <div className="shrink-0">
                 <Image
                   width={100}
                   height={100}
-                  src="/images/product/laptop-1.png"
+                  src="/images/product-car/03.jpg"
                   // src=?? "/images/default.png"
                   className="size-20"
                   alt=""
@@ -302,33 +275,7 @@ export default function UserOrdersList() {
               </div>
               <div className="flex-1">
                 <h3 className="font-medium text-gray-800 dark:text-gray-200">
-                  لپ تاپ ایسوس ویووبوک ۱۵
-                </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  رنگ: نقره‌ای • تعداد: ۱ عدد
-                </p>
-              </div>
-              <div className="text-left md:text-right">
-                <p className="font-medium text-gray-800 dark:text-gray-200">
-                  ۲,۱۰۰,۰۰۰ تومان
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 md:">
-              <div className="flex-shrink-0">
-                <Image
-                  width={100}
-                  height={100}
-                  src="/images/product/laptop-2.png"
-                  // src=?? "/images/default.png"
-                  className="size-20"
-                  alt=""
-                />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-medium text-gray-800 dark:text-gray-200">
-                  ماوس بی‌سیم لاجیتک
+                  روکش صندلی
                 </h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   رنگ: مشکی • تعداد: ۱ عدد
@@ -336,10 +283,11 @@ export default function UserOrdersList() {
               </div>
               <div className="text-left md:text-right">
                 <p className="font-medium text-gray-800 dark:text-gray-200">
-                  ۲۵۰,۰۰۰ تومان
+                  ۱,۱۰۰,۰۰۰ تومان
                 </p>
               </div>
             </div>
+
 
             {/* <!-- Order Actions --> */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 space-y-3 sm:space-y-0">
@@ -360,7 +308,7 @@ export default function UserOrdersList() {
       {/* <!-- Pagination --> */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
         <p className="text-sm text-gray-700 dark:text-gray-300 mb-4 sm:mb-0">
-          نمایش ۱ تا ۳ از ۱۲ سفارش
+          نمایش 1 تا 1  از 1 سفارش
         </p>
         <div className="flex items-center space-x-2 ">
           <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-zinc-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
@@ -369,12 +317,7 @@ export default function UserOrdersList() {
           <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-primary border border-primary rounded-lg hover:bg-primary/90 dark:bg-primary/80 dark:hover:bg-primary/60">
             ۱
           </button>
-          <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-zinc-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-            ۲
-          </button>
-          <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-zinc-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-            ۳
-          </button>
+          
           <button className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-zinc-800 dark:border-gray-600 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
             بعدی
           </button>

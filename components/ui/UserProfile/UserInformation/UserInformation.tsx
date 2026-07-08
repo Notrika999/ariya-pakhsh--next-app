@@ -14,7 +14,7 @@ export default function UserInformation() {
   const user = useCurrentUser();
 
   const setUser = useAuthStore((state) => state.setUser);
-  const profileRequestedUserIdRef = useRef(null);
+  const profileRequestedUserIdRef = useRef<string | null>(null);
   const userKey = `${user?.userId ?? "guest"}-${user?.birthDate ?? "no-birth-date"}`;
 
   useEffect(() => {

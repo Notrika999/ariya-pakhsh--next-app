@@ -203,7 +203,7 @@ export const Captcha = forwardRef<CaptchaHandle, CaptchaProps>(function Captcha(
         >
           {/* Right: label + input */}
           <div className="flex flex-col justify-center flex-1 px-3 py-2 gap-0.5">
-            <span className="text-xs text-slate-400 text-right select-none">
+            <span className="text-sm text-slate-400 text-right select-none">
               عبارت امنیتی
             </span>
             <label htmlFor="captcha-input" className="sr-only">
@@ -222,7 +222,7 @@ export const Captcha = forwardRef<CaptchaHandle, CaptchaProps>(function Captcha(
               disabled={expired}
               aria-invalid={inputAriaInvalid}
               aria-describedby="captcha-feedback"
-              className="bg-transparent border-none outline-none w-full text-sm text-slate-800 placeholder:text-slate-400 text-right disabled:opacity-50 disabled:cursor-not-allowed"
+              className="ps-1 bg-transparent border-none outline-none w-full placeholder:text-xs text-slate-800 placeholder:text-slate-400 text-right disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
 

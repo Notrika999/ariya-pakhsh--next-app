@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import ErrorUI from "@/components/ui/ErrorUI/ErrorUI";
 
 type Props = {
@@ -9,6 +10,9 @@ type Props = {
 };
 
 export default function ErrorPage({ error, reset }: Props) {
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
+
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -25,10 +29,17 @@ export default function ErrorPage({ error, reset }: Props) {
     <ErrorUI
       variant={isNetworkError ? "network" : "server"}
       statusCode={isNetworkError ? "NET" : "500"}
+      title={
+        isHomePage
+          ? "خطا در بارگذاری صفحه اصلی"
+          : undefined
+      }
       message={
-        isNetworkError
-          ? "ارتباط با سرور برقرار نشد یا پاسخ‌دهی سرویس بیش از حد طول کشید."
-          : "مشکلی در پردازش درخواست رخ داد."
+        isHomePage
+          ? "دریافت داده‌های صفحه اصلی با مشکل مواجه شد. لطفا دوباره تلاش کنید."
+          : isNetworkError
+            ? "ارتباط با سرور برقرار نشد یا پاسخ‌دهی سرویس بیش از حد طول کشید."
+            : "مشکلی در پردازش درخواست رخ داد."
       }
       onRetry={reset}
       digest={error.digest}

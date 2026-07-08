@@ -1,11 +1,11 @@
 "use client";
+
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import StepMobile from "./StepMobile";
 import StepMethod from "./StepMethod";
 import StepOtp from "./StepOtp";
 import StepRegister from "./StepRegister";
-import StepForgot from "./StepForgot";
 import StepReset from "./StepReset";
 import LoginWithPass from "./LoginWithPass";
 import { useAuthStore } from "@/src/lib/stores/auth/auth.store";
@@ -21,8 +21,11 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
 
   const user = useAuthStore((s) => s.user);
   const authOtpMode = useAuthStore((s) => s.authOtpMode);
+  const passwordResetMaskedDestination = useAuthStore(
+    (s) => s.passwordResetMaskedDestination,
+  );
   const clearLoginTwoFactorFlow = useAuthStore((s) => s.clearLoginTwoFactorFlow);
-
+  const clearPasswordResetFlow = useAuthStore((s) => s.clearPasswordResetFlow);
   const { clearAuthFlow } = useAuthStore();
 
   useEffect(() => {
@@ -37,6 +40,35 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
 
   if (!open) return null;
 
+  const title = user
+    ? `سلام ${user.displayName || [user.firstName, user.lastName].filter(Boolean).join(" ")}`
+    : step === 4
+      ? "تکمیل ثبت‌نام"
+      : step === 6
+        ? "بازیابی رمز عبور"
+        : step === 7
+          ? "ورود با رمز عبور"
+          : "ورود / ثبت‌نام";
+
+  const subtitle =
+    step === 1
+      ? "روش ورود را انتخاب کنید"
+      : step === 2
+        ? "شماره موبایل خود را وارد کنید"
+        : step === 3
+          ? authOtpMode === "login-2fa"
+            ? "کد احراز دومرحله‌ای ارسال‌شده را وارد کنید"
+            : "کد تأیید ارسال‌شده را وارد کنید"
+          : step === 4
+            ? "اطلاعات خود را تکمیل کنید"
+            : step === 6
+              ? passwordResetMaskedDestination
+                ? `کد ارسال‌شده به ${passwordResetMaskedDestination} و رمز جدید را وارد کنید`
+                : "کد تأیید و رمز عبور جدید را وارد کنید"
+              : step === 7
+                ? "نام کاربری و رمز عبور خود را وارد کنید"
+                : "";
+
   return (
     <div
       role="dialog"
@@ -46,12 +78,10 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
     >
       <div className="relative p-4 w-full max-w-lg m-auto flex items-center min-h-screen">
         <div className="bg-white relative w-full dark:bg-custom-dark rounded-2xl shadow-soft p-8 border border-gray-100 dark:border-gray-700 fade-in">
-          {/* close button */}
           <button onClick={onClose} className="absolute p-4 top-0 inset-e-0">
             <i className="far fa-x"></i>
           </button>
 
-          {/* logo */}
           <div className="flex items-center mb-5 justify-center">
             <Image
               width={125}
@@ -63,7 +93,6 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
             />
           </div>
 
-          {/* Step Indicators */}
           <div className="flex justify-center mb-6">
             {[1, 2, 3, 4].map((s) => (
               <span
@@ -74,43 +103,30 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
             ))}
           </div>
 
-          {/* Title */}
           <div className="text-center mb-8">
             <h2
               className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2"
               id="LoginModalTitle"
             >
-              {user
-                ? `سلام ${user.displayName || [user.firstName, user.lastName].filter(Boolean).join(" ")}`
-                : step === 4
-                  ? "تکمیل ثبت‌نام"
-                  : "ورود / ثبت‌نام"}
+              {title}
             </h2>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">
-              {step === 1 && "روش ورود را انتخاب کنید"}
-              {step === 2 && "شماره موبایل خود را وارد کنید"}
-              {step === 3 &&
-                (authOtpMode === "login-2fa"
-                  ? "کد احراز دومرحله‌ای ارسال‌شده را وارد کنید"
-                  : "کد تأیید ارسال‌شده را وارد کنید")}
-              {step === 4 && "اطلاعات خود را تکمیل کنید"}
-            </p>
+            {subtitle && (
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                {subtitle}
+              </p>
+            )}
           </div>
 
-          {/* Step 1: روش ورود */}
           {step === 1 && (
             <StepMethod
               onOtp={() => {
                 setStep(2);
               }}
               onPassword={() => setStep(7)}
-              onForgot={() => {
-                setStep(2);
-              }}
+              onForgot={() => setStep(7)}
             />
           )}
 
-          {/* Step 2: شماره موبایل */}
           {step === 2 && (
             <StepMobile
               mobile={mobile}
@@ -119,15 +135,12 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
             />
           )}
 
-          {/* Step 3: OTP */}
           {step === 3 && (
             <StepOtp
               onSuccess={(isNewUser: boolean) => {
                 if (isNewUser) {
-                  // کاربر جدید → ثبت‌نام
                   setStep(4);
                 } else {
-                  // کاربر قدیمی → لاگین شد
                   onClose();
                 }
               }}
@@ -142,26 +155,26 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
             />
           )}
 
-          {/* Step 4: ثبت‌نام کاربر جدید */}
           {step === 4 && <StepRegister onSuccess={onClose} />}
 
-          {/* Step 5: Forgot Password */}
-          {step === 5 && (
-            <StepForgot
-              mobile={mobile}
-              onNext={() => setStep(6)}
-              onBack={() => setStep(2)}
+          {step === 6 && (
+            <StepReset
+              onSuccess={() => {
+                clearPasswordResetFlow();
+                setStep(7);
+              }}
+              onBack={() => {
+                clearPasswordResetFlow();
+                setStep(7);
+              }}
             />
           )}
 
-          {/* Step 6: Set New Password */}
-          {step === 6 && <StepReset />}
-
-          {/* Step 7: Login With Pass */}
           {step === 7 && (
             <LoginWithPass
               onSuccess={onClose}
               onRequiresTwoFactor={() => setStep(3)}
+              onForgotSuccess={() => setStep(6)}
             />
           )}
         </div>

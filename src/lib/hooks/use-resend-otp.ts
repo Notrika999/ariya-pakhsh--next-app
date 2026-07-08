@@ -4,7 +4,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react'
 import apiClient from "@/src/lib/http/api-client";
-import { FRONT_AUTH_PATHS } from '@/src/lib/auth/constants'
+import { CUSTOMER_AUTH_CLIENT_PATHS } from '@/src/lib/auth/constants'
 import { ApiResponseWithData } from '@/src/lib/projectConstant/constants'
 import { ResendOtpResponse } from '@/src/lib/types/auth'
 import { AxiosError } from 'axios'
@@ -126,7 +126,7 @@ export function useResendOtp({
 
     try {
       const { data: response } = await apiClient.post<ApiResponseWithData<ResendOtpResponse>>(
-        FRONT_AUTH_PATHS.RESEND_OTP,
+        CUSTOMER_AUTH_CLIENT_PATHS.OTP_RESEND,
         { twoFactorToken }
       )
 

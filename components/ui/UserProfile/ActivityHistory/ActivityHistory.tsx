@@ -26,24 +26,17 @@ export default function ActivityHistory() {
   const recentViews: RecentViewItem[] = [
     {
       id: 1,
-      imgSrc: "/images/product/television-2.png",
-      title: "گوشی موبایل سامسونگ گلکسی A73",
+      imgSrc: "/images/product-car/03.jpg",
+      title: "روکش صندلی",
       productCode: "کد: PRD-001",
       date: "today",
       price: "۱۱۰۰۰۰۰",
     },
-    {
-      id: 2,
-      imgSrc: "/images/product/wach-1.png",
-      title: "قاب محافظ گوشی سامسونگ گلکسی A73",
-      productCode: "کد: PRD-002",
-      date: "today",
-      price: "۱۱۰۰۰۰۰",
-    },
+   
     {
       id: 3,
-      imgSrc: "/images/product/television-2.png",
-      title: "گوشی موبایل سامسونگ گلکسی A73",
+      imgSrc: "/images/product-car/03.jpg",
+      title: "روکش صندلی",
       productCode: "کد: PRD-001",
       date: "yesterday",
       price: "۱۱۰۰۰۰۰",
