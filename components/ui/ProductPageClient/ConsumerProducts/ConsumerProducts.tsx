@@ -1,182 +1,114 @@
-import React from "react";
+"use client";
 
 import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+
 import ProductCard from "@/components/modules/ProductCard/ProductCard";
 import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
-import { ProductCardModel } from "@/src/lib/types/productTypes";
+import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
+import type { RelatedProduct } from "@/src/lib/types/products/productDetail.types";
+import type { ProductCardModel } from "@/src/lib/types/productTypes";
+import { getProductImage } from "@/src/utils/product-image";
 
-type ConsumerProductMock = {
-  id: number;
-  title: string;
-  image: string;
-  discount: string;
-  price: string;
-  oldPrice: string;
-  rating: number;
-  colors: string[];
-  href: string;
-};
-
-function parsePrice(value: string): number {
-  return Number(value.replace(/[^\d]/g, "")) || 0;
+interface ConsumerProductsProps {
+  products?: RelatedProduct[] | null;
+  title?: string;
+  noClick?: boolean;
 }
 
-function toProductCardModel(product: ConsumerProductMock): ProductCardModel {
+function mapRelatedToCard(product: RelatedProduct): ProductCardModel {
+  const defaultVariant =
+    product.variants?.find((v) => v.isDefault) ?? product.variants?.[0];
+
+  const imagePath =
+    product.thumbnailPath ??
+    product.mediumPath ??
+    defaultVariant?.images?.find((img) => img.isPrimary)?.mediumPath ??
+    defaultVariant?.images?.[0]?.mediumPath ??
+    defaultVariant?.images?.[0]?.thumbnailPath;
+
+  const price =
+    product.salePrice && product.salePrice > 0
+      ? product.salePrice
+      : (product.price ?? defaultVariant?.price ?? 0);
+
+  const oldPrice =
+    product.compareAtPrice && product.compareAtPrice > 0
+      ? product.compareAtPrice
+      : (product.price ?? defaultVariant?.price ?? price);
+
+  const isOnSale =
+    Boolean(product.isOnSale) ||
+    Boolean(defaultVariant?.isOnSale) ||
+    (oldPrice > price && price > 0);
+
+  const discountPercent =
+    isOnSale && oldPrice > price
+      ? Math.round(((oldPrice - price) / oldPrice) * 100)
+      : undefined;
+
   return {
-    id: String(product.id),
-    title: product.title,
-    image: product.image,
+    id: product.productId,
+    title: product.name,
+    publicCode: product.publicCode,
+    slug: product.slug,
+    image: getProductImage(imagePath),
     imageSlider: [],
-    categoryName: "",
-    currency: "IRR",
-    price: parsePrice(product.price),
-    oldPrice: parsePrice(product.oldPrice),
-    rating: product.rating,
-    reviewCount: 0,
-    colors: product.colors,
-    quantity: 1,
-    soldCount: 0,
-    inStock: true,
-    isOnSale: Number(product.discount) > 0,
-    href: product.href,
-    discount: product.discount,
-    discountPercent: Number(product.discount) || 0,
+    primaryBrandName: product.primaryBrandName,
+    primaryBrandSlug: product.primaryBrandSlug,
+    categoryName: product.primaryCategoryName ?? "",
+    currency: product.currencyCode ?? defaultVariant?.currencyCode ?? "IRT",
+    price,
+    oldPrice,
+    rating: product.averageRating ?? 0,
+    reviewCount: product.reviewCount ?? 0,
+    colors: [],
+    quantity: product.availableQuantity ?? defaultVariant?.availableQuantity ?? 0,
+    soldCount: product.soldCount ?? 0,
+    inStock: product.inStock ?? defaultVariant?.inStock ?? true,
+    isOnSale,
+    href: `/product/${product.publicCode}/${product.slug}`,
+    discountPercent,
+    variantId: defaultVariant?.variantId,
   };
 }
 
-export default function ConsumerProducts() {
-  const consumerProducts: ConsumerProductMock[] = [
-    {
-      id: 1,
-      title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-      image: "/images/product/laptop-2.png",
-      discount: "3",
-      price: "13,550,000",
-      oldPrice: "13,900,000",
-      rating: 4,
-      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
-      href: "/product",
-    },
-    {
-      id: 2,
-      title: "تبلت سامسونگ مدل S8",
-      image: "/images/product/laptop-1.png",
-      discount: "3",
-      price: "13,550,000",
-      oldPrice: "13,900,000",
-      rating: 4,
-      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
-      href: "/product",
-    },
-    {
-      id: 3,
-      title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-      image: "/images/product/laptop-3.png",
-      discount: "3",
-      price: "13,550,000",
-      oldPrice: "13,900,000",
-      rating: 4,
-      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
-      href: "/product",
-    },
-    {
-      id: 4,
-      title: "تبلت سامسونگ مدل S8",
-      image: "/images/product/television-2.png",
-      discount: "3",
-      price: "13,550,000",
-      oldPrice: "13,900,000",
-      rating: 4,
-      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
-      href: "/product",
-    },
-    {
-      id: 5,
-      title: "تبلت سامسونگ مدل S8",
-      image: "/images/product/laptop-5.png",
-      discount: "3",
-      price: "13,550,000",
-      oldPrice: "13,900,000",
-      rating: 4,
-      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
-      href: "/product",
-    },
-    {
-      id: 6,
-      title: "تبلت سامسونگ مدل S8",
-      image: "/images/product/laptop-1.png",
-      discount: "3",
-      price: "13,550,000",
-      oldPrice: "13,900,000",
-      rating: 4,
-      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
-      href: "/product",
-    },
-    {
-      id: 7,
-      title: "تبلت سامسونگ مدل S8",
-      image: "/images/product/wach-2.png",
-      discount: "3",
-      price: "13,550,000",
-      oldPrice: "13,900,000",
-      rating: 4,
-      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
-      href: "/product",
-    },
-    {
-      id: 8,
-      title: "تبلت سامسونگ مدل S8",
-      image: "/images/product/laptop-1.png",
-      discount: "3",
-      price: "13,550,000",
-      oldPrice: "13,900,000",
-      rating: 4,
-      colors: ["rgb(248, 162, 3)", "rgb(255, 232, 145)"],
-      href: "/product",
-    },
-    // سایر محصولات را اینجا اضافه کنید...
-  ];
+export default function ConsumerProducts({
+  products = [],
+  title = "محصولات مشابه",
+  noClick = false,
+}: ConsumerProductsProps) {
+  const items = (products ?? []).filter((item) => Boolean(item?.productId));
+
+  if (items.length === 0) return null;
+
+  const cards = items.map(mapRelatedToCard);
 
   return (
-    <section className="py-5 hidden">
-      <h2 className="sr-only">محصولات مشابه</h2>
+    <SectionContainer>
+      <section>
+        <h2 className="sr-only">{title}</h2>
+        <SectionHeader title={title} href={false} />
 
-      <div className="container mx-auto">
-        {/* <!-- header --> */}
-       
-        <SectionHeader title={"محصولات مشابه"} href={"#"} />
-
-        {/* <!-- products background --> */}
         <div className="bg-linear-to-b from-white dark:from-[#121923] to-transparent rounded-2xl p-5 transition-colors">
-          <div className="swiper product-carousel">
-            <Swiper
-              // modules={loop ? [Autoplay] : []}
-              // loop={!!loop}
-              // autoplay={
-              //   loop
-              //     ? {
-              //         delay: 2500,
-              //         disableOnInteraction: false,
-              //         pauseOnMouseEnter: true,
-              //       }
-              //     : false
-              // }
-              spaceBetween={2}
-              slidesPerView={2}
-              breakpoints={{
-                640: { slidesPerView: 3 },
-                1024: { slidesPerView: 5 },
-              }}
-            >
-              {consumerProducts.map((product) => (
-                <SwiperSlide key={product.id}>
-                  <ProductCard product={toProductCardModel(product)} />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          </div>
+          <Swiper
+            spaceBetween={8}
+            slidesPerView={1}
+            breakpoints={{
+              640: { slidesPerView: 2 },
+              768: { slidesPerView: 3 },
+              1024: { slidesPerView: 4 },
+              1280: { slidesPerView: 5 },
+            }}
+          >
+            {cards.map((product) => (
+              <SwiperSlide key={product.id}>
+                <ProductCard product={product} noClick={noClick} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
-      </div>
-    </section>
+      </section>
+    </SectionContainer>
   );
 }

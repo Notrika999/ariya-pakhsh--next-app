@@ -288,6 +288,7 @@ export default function ChangePasswordForm() {
                     setError(null);
                     clearFieldError("currentPassword");
                   }}
+                  onFocus={(e) => e.target.removeAttribute("readOnly")}
                   disabled={loading}
                   className={`w-full rounded-lg border px-4 py-3 transition-colors focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-60 dark:bg-zinc-800 dark:text-white ${
                     fieldErrors.currentPassword
@@ -295,7 +296,8 @@ export default function ChangePasswordForm() {
                       : "border-gray-300 dark:border-gray-600"
                   }`}
                   placeholder="رمز عبور فعلی خود را وارد کنید"
-                  autoComplete="current-password"
+                  autoComplete="off"
+                  readOnly
                 />
                 <button
                   type="button"

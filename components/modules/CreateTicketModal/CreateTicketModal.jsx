@@ -8,6 +8,8 @@ import {
   TICKET_PRIORITIES,
 } from "@/src/lib/tickets/ticket-labels";
 import { FieldError, fieldClass } from "@/src/utils/form.validation";
+import CustomSelect from "@/components/modules/UserProfile/CustomSelect";
+import OrderAutocomplete from "@/components/modules/UserProfile/OrderAutocomplete";
 
 export default function CreateTicketModal({
   isOpen,
@@ -92,6 +94,20 @@ export default function CreateTicketModal({
     onClose?.();
   };
 
+  const handleCategoryChange = (nextCategory) => {
+    setCategory(nextCategory);
+    clearError("category");
+    if (
+      nextCategory !== DEFAULT_TICKET_CATEGORY ||
+      nextCategory !== "paymentIssue" ||
+      nextCategory !== "returnRequest" ||
+      nextCategory !== "damageProduct" ||
+      nextCategory !== "shippingDelay"
+    ) {
+      clearError("orderId");
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
@@ -126,31 +142,14 @@ export default function CreateTicketModal({
             <label className="text-sm text-gray-600 dark:text-gray-400">
               دسته‌بندی <span className="text-red-500">*</span>
             </label>
-            <select
+            <CustomSelect
+              className="mt-1"
+              buttonClassName={fieldClass(errors.category)}
+              options={TICKET_CATEGORIES}
               value={category}
-              onChange={(event) => {
-                const nextCategory = event.target.value;
-                setCategory(nextCategory);
-                clearError("category");
-                if (
-                  nextCategory !== DEFAULT_TICKET_CATEGORY ||
-                  nextCategory !== "paymentIssue" ||
-                  nextCategory !== "returnRequest" ||
-                  nextCategory !== "damageProduct" ||
-                  nextCategory !== "shippingDelay"
-                ) {
-                  clearError("orderId");
-                }
-              }}
+              onChange={handleCategoryChange}
               disabled={loading}
-              className={fieldClass(errors.category)}
-            >
-              {TICKET_CATEGORIES.map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
+            />
             <FieldError message={errors.category} />
           </div>
 
@@ -158,18 +157,14 @@ export default function CreateTicketModal({
             <label className="text-sm text-gray-600 dark:text-gray-400">
               اولویت
             </label>
-            <select
+            <CustomSelect
+              className="mt-1"
+              buttonClassName="w-full flex items-center justify-between gap-2 rounded-md border p-2 text-start text-sm dark:border-gray-700 dark:bg-custom-dark dark:text-gray-200"
+              options={TICKET_PRIORITIES}
               value={priority}
-              onChange={(event) => setPriority(event.target.value)}
+              onChange={setPriority}
               disabled={loading}
-              className="mt-1 w-full rounded-md border p-2 dark:border-gray-700 dark:bg-custom-dark dark:text-gray-200"
-            >
-              {TICKET_PRIORITIES.map((item) => (
-                <option key={item.value} value={item.value}>
-                  {item.label}
-                </option>
-              ))}
-            </select>
+            />
           </div>
 
           <div>
@@ -182,20 +177,19 @@ export default function CreateTicketModal({
                 "شناسه سفارش (اختیاری)"
               )}
             </label>
-            <input
+            <OrderAutocomplete
+              inputClassName={fieldClass(errors.orderId)}
               value={orderId}
-              onChange={(event) => {
-                setOrderId(event.target.value);
+              onChange={(nextOrderId) => {
+                setOrderId(nextOrderId);
                 clearError("orderId");
               }}
               disabled={loading}
-              className={fieldClass(errors.orderId)}
               placeholder={
                 isOrderTracking
-                  ? "شناسه سفارش را وارد کنید"
-                  : "در صورت مرتبط بودن با سفارش"
+                  ? "شماره سفارش یا نام کالا را جستجو کنید"
+                  : "در صورت مرتبط بودن با سفارش، جستجو کنید"
               }
-              dir="ltr"
             />
             <FieldError message={errors.orderId} />
           </div>

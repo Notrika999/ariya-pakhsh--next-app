@@ -27,7 +27,7 @@ export default function MenuClient({ menu }: { menu: Category[] }) {
     >
       <span className="flex items-center relative font-bold hover:text-primary transition cursor-default">
         <i className="fa-solid fa-bars me-1"></i>
-        فروشگاه
+        دسته بندی ها
         <i className="fa-solid fa-chevron-down text-sm ms-2"></i>
       </span>
 

@@ -1,3 +1,5 @@
+import CustomSelect from "@/components/modules/UserProfile/CustomSelect";
+
 type SelectOption = {
   label: string;
   value: string;
@@ -26,23 +28,12 @@ export default function FilterBar({ selects = [], search }: FilterBarProps) {
     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div className="flex flex-col sm:flex-row gap-3">
         {selects.map((select) => (
-          <div key={select.key} className="relative">
-            <select
-              className="w-full appearance-none border rounded-lg px-4 pe-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-zinc-800 dark:border-gray-600 dark:text-white"
-              value={select.value}
-              onChange={(e) => select.onChange(e.target.value)}
-            >
-              {select.options.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-
-            <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
-              <i className="far fa-angle-down"></i>
-            </div>
-          </div>
+          <CustomSelect
+            key={select.key}
+            options={select.options}
+            value={select.value}
+            onChange={select.onChange}
+          />
         ))}
       </div>
 

@@ -1,66 +1,39 @@
-export default function ReturnSummary({ products }) {
-  // تعداد محصولاتی که انتخاب شده‌اند
-  const selectedProductsCount = Object.values(products).filter(
-    (p) => p.checked,
-  ).length;
-
-  // قیمت محصولات (فعلاً ثابت — مثل نمونه HTML اصلی)
-  // اگر می‌خوای داینامیک از API یا props بیاد بگو
-  const productPrices = {
-    product1: 1100000, // ۱,۱۰۰,۰۰۰
-    product2: 1850000, // مثال — می‌تونی تغییر بدی
-  };
-
-  // محاسبه مبلغ قابل استرداد
-  const refundableAmount = Object.entries(products).reduce(
-    (total, [key, product]) => {
-      if (product.checked) {
-        const price = productPrices[key] || 0;
-        return total + price * product.quantity;
-      }
-      return total;
-    },
-    0,
+export default function ReturnSummary({ orderItems = [], selections = {} }) {
+  const selectedItems = orderItems.filter(
+    (item) => selections[item.orderItemId]?.checked,
   );
 
-  // هزینه ارسال: همیشه رایگان (طبق UI اصلی)
-  const finalRefund = refundableAmount;
+  const refundableAmount = selectedItems.reduce((total, item) => {
+    const quantity = Number(selections[item.orderItemId]?.quantity) || 1;
+    return total + (Number(item.unitPrice) || 0) * quantity;
+  }, 0);
 
   return (
-    <div className="bg-gray-50 dark:bg-zinc-800 rounded-lg p-6">
-      <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200 mb-4">
+    <div className="rounded-lg bg-gray-50 p-6 dark:bg-zinc-800">
+      <h3 className="mb-4 text-lg font-bold text-gray-800 dark:text-gray-200">
         خلاصه مرجوعی
       </h3>
 
       <div className="space-y-3">
-        {/* تعداد محصولات انتخابی */}
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <span className="text-gray-600 dark:text-gray-400">
             تعداد محصولات انتخابی
           </span>
-          <span
-            id="selectedProductsCount"
-            className="font-medium text-gray-800 dark:text-gray-200"
-          >
-            {selectedProductsCount} از {Object.keys(products).length}
+          <span className="font-medium text-gray-800 dark:text-gray-200">
+            {selectedItems.length} از {orderItems.length}
           </span>
         </div>
 
-        {/* مبلغ قابل استرداد */}
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <span className="text-gray-600 dark:text-gray-400">
             مبلغ قابل استرداد
           </span>
-          <span
-            id="refundableAmount"
-            className="font-medium text-gray-800 dark:text-gray-200"
-          >
+          <span className="font-medium text-gray-800 dark:text-gray-200">
             {refundableAmount.toLocaleString("fa-IR")} تومان
           </span>
         </div>
 
-        {/* هزینه ارسال */}
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <span className="text-gray-600 dark:text-gray-400">
             هزینه ارسال مرجوعی
           </span>
@@ -69,17 +42,13 @@ export default function ReturnSummary({ products }) {
           </span>
         </div>
 
-        {/* مبلغ نهایی */}
-        <div className="border-t border-gray-300 dark:border-gray-600 pt-3">
-          <div className="flex justify-between items-center">
+        <div className="border-t border-gray-300 pt-3 dark:border-gray-600">
+          <div className="flex items-center justify-between">
             <span className="text-lg font-bold text-gray-800 dark:text-gray-200">
               مبلغ نهایی استرداد
             </span>
-            <span
-              id="finalRefundAmount"
-              className="text-lg font-bold text-primary"
-            >
-              {finalRefund.toLocaleString("fa-IR")} تومان
+            <span className="text-lg font-bold text-primary">
+              {refundableAmount.toLocaleString("fa-IR")} تومان
             </span>
           </div>
         </div>

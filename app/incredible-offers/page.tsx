@@ -6,6 +6,11 @@ import {
 } from "@/src/services/promotion/promotion.server";
 import { Metadata } from "next";
 import { absoluteUrl, SITE_NAME } from "@/src/lib/seo/site";
+import {
+  COLOR_PALETTE_PARAM,
+  getColorOptionLabel,
+  listSearchParamValues,
+} from "@/src/lib/helper/productListHelpers";
 
 // تعریف متادیتای سئو
 export const metadata: Metadata = {
@@ -72,13 +77,23 @@ function booleanParam(
 
 function toAmazingFilterParams(
   searchParams: PageSearchParams,
+  options?: {
+    colorOptionIds?: string[];
+    brandIds?: string[];
+  },
 ): AmazingFilterParams {
   const sortBy =
     firstParam(searchParams, "SortBy") ?? firstParam(searchParams, "sort");
   const defaultVariantBy = firstParam(searchParams, "DefaultVariantBy");
-  const colorOptionIds = [
+  const resolvedColorOptionIds = [
+    ...(options?.colorOptionIds ?? []),
     ...listParam(searchParams, "ColorOptionIds"),
     ...listParam(searchParams, "attr_color"),
+  ];
+  const resolvedBrandIds = [
+    ...(options?.brandIds ?? []),
+    ...listParam(searchParams, "BrandIds"),
+    ...listParam(searchParams, "brandId"),
   ];
 
   return {
@@ -90,11 +105,8 @@ function toAmazingFilterParams(
       numberParam(searchParams, "PageSize") ??
       numberParam(searchParams, "pageSize") ??
       24,
-    BrandIds: [
-      ...listParam(searchParams, "BrandIds"),
-      ...listParam(searchParams, "brandId"),
-    ],
-    ColorOptionIds: colorOptionIds,
+    BrandIds: [...new Set(resolvedBrandIds)],
+    ColorOptionIds: [...new Set(resolvedColorOptionIds)],
     CategoryId: firstParam(searchParams, "CategoryId"),
     InStockOnly:
       booleanParam(searchParams, "InStockOnly") ??
@@ -125,8 +137,43 @@ async function IncredibleOffersPage({
   searchParams?: Promise<PageSearchParams>;
 }) {
   const resolvedSearchParams = (await searchParams) ?? {};
+  const paletteLabels = listSearchParamValues(
+    resolvedSearchParams,
+    COLOR_PALETTE_PARAM,
+  );
+  const brandSlugs = listSearchParamValues(resolvedSearchParams, "brand");
+
+  let colorOptionIds: string[] = [];
+  let brandIds: string[] = [];
+
+  if (paletteLabels.length > 0 || brandSlugs.length > 0) {
+    const preview = await getAmazingFilteredProducts(
+      toAmazingFilterParams(resolvedSearchParams),
+    );
+    const normalize = (value: string) => value.trim().toLowerCase();
+
+    if (paletteLabels.length > 0) {
+      const wanted = new Set(paletteLabels.map(normalize));
+      colorOptionIds = preview.colorFilterOptions
+        .filter((option) => wanted.has(normalize(getColorOptionLabel(option))))
+        .map((option) => option.optionId);
+    }
+
+    if (brandSlugs.length > 0) {
+      const wanted = new Set(brandSlugs.map(normalize));
+      brandIds = preview.brands
+        .filter((brand) => wanted.has(normalize(brand.slug ?? "")))
+        .map((brand) => brand.brandId);
+    }
+  }
+
   const [amazingResult, specialProducts] = await Promise.all([
-    getAmazingFilteredProducts(toAmazingFilterParams(resolvedSearchParams)),
+    getAmazingFilteredProducts(
+      toAmazingFilterParams(resolvedSearchParams, {
+        colorOptionIds,
+        brandIds,
+      }),
+    ),
     getSpecialPromotionProducts(),
   ]);
 

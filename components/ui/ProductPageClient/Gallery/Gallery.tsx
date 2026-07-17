@@ -1,6 +1,6 @@
 "use client";
 // components/ui/ProductPageClient/Gallery/Gallery.tsx
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 // swiper
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -18,6 +18,18 @@ import ChartModal from "./ChartModal";
 import GalleryLightbox from "./GalleryLightbox";
 import DiscountCountdown from "./DiscountCountdown";
 import Link from "next/link";
+import {
+  useIsAuthenticated,
+  useIsAuthBootstrapping,
+} from "@/src/lib/stores/auth/auth.store";
+import {
+  addWishlistProduct,
+  getWishlistProductStatus,
+  removeWishlistProduct,
+} from "@/src/services/wishlist/wishlist.client";
+import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
+import { notify } from "@/src/utils/toast";
+import { ProductDetailPromotion } from "@/src/lib/types/products/productDetail.types";
 
 export type PriceChartItem = {
   date: string;
@@ -28,31 +40,30 @@ export type PriceChartItem = {
 
 type GalleryImage = {
   imgSrc?: string;
+  thumbSrc?: string;
 };
 
 interface GalleryProps {
   images: GalleryImage[];
   isOutOfStock: boolean;
   productName: string;
-}
-
-interface GalleryProps {
-  images: GalleryImage[];
-  isOutOfStock: boolean;
-  productName: string;
+  productId: string;
+  initialIsInWishlist?: boolean;
+  isAmazingOffer?: boolean;
+  promotion?: ProductDetailPromotion | null;
   /** ISO یا ثانیه باقی‌مانده — اختیاری */
   countdownTarget?: string | number | null;
-  countdownDate?: string;
-  countdownTime?: string;
 }
 
 export default function Gallery({
   images,
   isOutOfStock,
   productName,
+  productId,
+  initialIsInWishlist = false,
+  isAmazingOffer = false,
+  promotion = null,
   countdownTarget = "2026-10-01T15:30:00.000Z",
-  countdownDate = "2026-07-09",
-  countdownTime = "18:30",
 }: GalleryProps) {
   const [shareOpen, setShareOpen] = useState(false);
   const [chartOpen, setChartOpen] = useState(false);
@@ -60,6 +71,73 @@ export default function Gallery({
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperInstance | null>(null);
   const mainSwiperRef = useRef<SwiperInstance | null>(null);
+  const [isInWishlist, setIsInWishlist] = useState(initialIsInWishlist);
+  const [wishlistBusy, setWishlistBusy] = useState(false);
+
+  const isAuthenticated = useIsAuthenticated();
+  const isAuthBootstrapping = useIsAuthBootstrapping();
+  const showFilledHeart = isAuthenticated && isInWishlist;
+  const promotionTitle =
+    promotion?.promotionTypeDisplayName || promotion?.typeLabel || "فروش ویژه";
+  const promotionCountdownTarget = promotion?.promotionEndAt ?? countdownTarget;
+
+  useEffect(() => {
+    if (!productId || isAuthBootstrapping || !isAuthenticated) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadWishlistStatus() {
+      try {
+        const status = await getWishlistProductStatus(productId);
+        if (!cancelled) {
+          setIsInWishlist(status.isInWishlist);
+        }
+      } catch {
+        if (!cancelled) {
+          setIsInWishlist(false);
+        }
+      }
+    }
+
+    void loadWishlistStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [productId, isAuthenticated, isAuthBootstrapping]);
+
+  const handleToggleWishlist = useCallback(async () => {
+    if (wishlistBusy) return;
+
+    if (!isAuthenticated) {
+      notify.info("برای افزودن به علاقه‌مندی‌ها ابتدا وارد حساب کاربری شوید.");
+      return;
+    }
+
+    if (!productId) {
+      notify.error("شناسه محصول نامعتبر است.");
+      return;
+    }
+
+    setWishlistBusy(true);
+    try {
+      if (isInWishlist) {
+        await removeWishlistProduct(productId);
+        setIsInWishlist(false);
+        notify.success("محصول از علاقه‌مندی‌ها حذف شد.");
+      } else {
+        await addWishlistProduct(productId);
+        setIsInWishlist(true);
+        notify.success("محصول به علاقه‌مندی‌ها اضافه شد.");
+      }
+    } catch (error) {
+      notify.error(getAuthErrorMessage(error));
+    } finally {
+      setWishlistBusy(false);
+    }
+  }, [isAuthenticated, isInWishlist, productId, wishlistBusy]);
 
   const handleThumbsSwiper = useCallback((swiper: SwiperInstance) => {
     setThumbsSwiper((prev) => (prev === swiper ? prev : swiper));
@@ -292,20 +370,14 @@ export default function Gallery({
 
   return (
     <section className="xl:col-span-4 mt-7 col-span-12 pb-10 w-full">
-      {/* <!-- Discount Timer --> */}
-      <div className="bg-secondary-200 dark:bg-custom-dark dark:text-gray-200 shadow-sm border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-2xl flex items-center justify-between mb-4 transition-all duration-200">
-        <h3 className="font-black text-gray-800 dark:text-gray-100">
-          فروش ویژه
-        </h3>
-        {/* <!-- Timer --> */}
-        <DiscountCountdown target={countdownTarget} />
-        <DiscountCountdown
-          date={countdownDate}
-          time={countdownTime}
-          className="text-gray-700 dark:text-gray-300"
-        />
-      </div>
-      {/* <!-- Discount Timer --> */}
+      {isAmazingOffer && (
+        <div className="bg-secondary-200 dark:bg-custom-dark dark:text-gray-200 shadow-sm border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-2xl flex items-center justify-between mb-4 transition-all duration-200">
+          <h3 className="font-black text-gray-800 dark:text-gray-100">
+            {promotionTitle}
+          </h3>
+          <DiscountCountdown target={promotionCountdownTarget} />
+        </div>
+       )} 
 
       {/* <!-- Out of Stock Badge --> */}
       {isOutOfStock && (
@@ -316,7 +388,7 @@ export default function Gallery({
       )}
 
       {/* <!-- Large gallery --> */}
-      <div className="bg-primary relative mb-12 rounded-[15px] h-87.5 pt-5 px-3.75 pb-8.35 dark:bg-custom-dark dark:border dark:border-gray-700">
+      <div className="bg-primary relative mb-12 aspect-square w-full rounded-[15px] p-3 dark:bg-custom-dark dark:border dark:border-gray-700">
         {/* <!-- Action buttons --> */}
         <div className="flex rounded-2xl px-2 bg-gray-100 dark:bg-custom-dark gap-2 absolute top-0.75 inset-e-1/2 -translate-x-1/2 z-10 ">
           {/* Share */}
@@ -336,8 +408,23 @@ export default function Gallery({
           </Link>
 
           {/* Favorite */}
-          <button className="flex z-10 group relative items-center justify-center w-full p-2 transition dark:border-gray-700 drop-shadow rounded">
-            <i className="far fa-heart"></i>
+          <button
+            type="button"
+            onClick={() => void handleToggleWishlist()}
+            disabled={wishlistBusy || isAuthBootstrapping}
+            aria-label={
+              showFilledHeart
+                ? "حذف از علاقه‌مندی‌ها"
+                : "افزودن به علاقه‌مندی‌ها"
+            }
+            aria-pressed={showFilledHeart}
+            className="flex z-10 group relative items-center justify-center w-full p-2 transition dark:border-gray-700 drop-shadow rounded disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <i
+              className={`${
+                showFilledHeart ? "fas text-red-500" : "far"
+              } fa-heart transition-colors`}
+            ></i>
           </button>
 
           {/* Chart */}
@@ -384,16 +471,16 @@ export default function Gallery({
               <button
                 type="button"
                 onClick={() => openLightbox(index)}
-                className="group flex h-full w-full  cursor-zoom-in items-center justify-center border border-gray-300 rounded-lg bg-white dark:bg-zinc-800 dark:border-gray-700"
+                className="group relative flex h-full w-full cursor-zoom-in items-center justify-center overflow-hidden border border-gray-300 rounded-lg bg-white dark:bg-zinc-800 dark:border-gray-700"
                 aria-label={`بزرگ‌نمایی تصویر ${index + 1}`}
               >
-                <div className="swiper-zoom-container">
+                <div className="swiper-zoom-container relative aspect-square h-full w-full">
                   <Image
-                    width={328}
-                    height={328}
+                    fill
+                    sizes="(min-width: 1280px) 33vw, 100vw"
                     src={img.imgSrc ?? "/images/default.png"}
                     alt={`product-${index}`}
-                    className="max-h-70 object-contain transition group-hover:scale-[1.02]"
+                    className="object-contain p-4 transition group-hover:scale-[1.02]"
                   />
                 </div>
               </button>
@@ -420,15 +507,15 @@ export default function Gallery({
                 mainSwiperRef.current?.slideTo(index);
                 openLightbox(index);
               }}
-              className="flex h-20 w-full cursor-pointer items-center justify-center rounded-lg border border-gray-300 p-2 dark:border-gray-700 dark:bg-zinc-800"
+              className="relative flex aspect-square w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-gray-300 p-2 dark:border-gray-700 dark:bg-zinc-800"
               aria-label={`نمایش تصویر ${index + 1}`}
             >
               <Image
-                width={62}
-                height={62}
-                src={img.imgSrc ?? "/images/default.png"}
+                fill
+                sizes="25vw"
+                src={img.thumbSrc ?? img.imgSrc ?? "/images/default.png"}
                 alt={`thumb-${index}`}
-                className="h-full object-contain"
+                className="object-contain p-2"
               />
             </button>
           </SwiperSlide>

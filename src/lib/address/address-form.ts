@@ -108,6 +108,18 @@ export function validateAddressForm(
     nextErrors.addressLine = "آدرس کامل الزامی است";
   }
 
+  const lat = Number(formData.latitude);
+  const lng = Number(formData.longitude);
+  if (
+    !Number.isFinite(lat) ||
+    !Number.isFinite(lng) ||
+    (lat === 0 && lng === 0)
+  ) {
+    nextErrors.latitude = "موقعیت روی نقشه را انتخاب کنید";
+  } else if (lat < 24 || lat > 40 || lng < 43 || lng > 64) {
+    nextErrors.latitude = "موقعیت انتخاب‌شده خارج از محدوده ایران است";
+  }
+
   return nextErrors;
 }
 
@@ -115,7 +127,16 @@ export function buildAddressPayload(
   formData: CustomerAddressPayload,
 ): CustomerAddressPayload {
   return {
-    ...formData,
+    title: formData.title.trim(),
     province: resolveIranProvince(formData.province),
+    city: formData.city.trim(),
+    addressLine: formData.addressLine.trim(),
+    postalCode: formData.postalCode.trim(),
+    receiverFirstName: formData.receiverFirstName.trim(),
+    receiverLastName: formData.receiverLastName.trim(),
+    receiverMobile: formData.receiverMobile.trim(),
+    isDefault: Boolean(formData.isDefault),
+    latitude: Number(formData.latitude) || 0,
+    longitude: Number(formData.longitude) || 0,
   };
 }

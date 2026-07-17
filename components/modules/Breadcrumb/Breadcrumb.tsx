@@ -5,7 +5,7 @@ import { CategoryBreadcrumbItem } from "@/src/lib/types/categories/breadcrumb";
 type BreadcrumbItem = CategoryBreadcrumbItem & { link?: string };
 
 export default function Breadcrumb({ items }: { items: BreadcrumbItem[] }) {
-  console.log("breadcrumb items => ", items);
+  
   return (
     <nav className="w-full py-3" aria-label="Breadcrumb">
       <ol className="flex flex-wrap items-center text-sm font-medium text-gray-700 dark:text-gray-400">

@@ -192,7 +192,7 @@
   --color-secondary-600: oklch(70.637% 0.15834 65.116);
   --color-secondary-900: oklch(27.875% 0.05944 72.794);
 
- --background-image-brand-gradient: linear-gradient(
+  --background-image-brand-gradient: linear-gradient(
     225deg,
     #d22c4e,
     #ee384e 41.68%,
@@ -239,7 +239,8 @@ html,
   line-height: 1.5;
   -webkit-text-size-adjust: 100%;
   tab-size: 4;
-  font-family: var(
+  font-family: Payda, serif;
+  /* font-family: var(
     --default-font-family,
     ui-sans-serif,
     system-ui,
@@ -248,7 +249,7 @@ html,
     "Segoe UI Emoji",
     "Segoe UI Symbol",
     "Noto Color Emoji"
-  );
+  ); */
   font-feature-settings: var(--default-font-feature-settings, normal);
   font-variation-settings: var(--default-font-variation-settings, normal);
   -webkit-tap-highlight-color: transparent;
@@ -267,6 +268,15 @@ body,
 html {
   direction: rtl;
   font-family: Payda, serif;
+}
+
+select,
+option,
+optgroup,
+input,
+textarea,
+button {
+  font-family: Payda !important;
 }
 
 /* Slider.module */
@@ -337,7 +347,7 @@ html {
 
 /* Specific adjustments for Webkit (Chrome, Safari) */
 .range-thumb::-webkit-slider-thumb {
- -webkit-appearance: none;
+  -webkit-appearance: none;
   appearance: none;
   pointer-events: all;
   width: 20px;
@@ -377,4 +387,10 @@ html {
 
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
+}
+
+/* Leaflet pin used in address form map */
+.address-location-pin {
+  background: transparent !important;
+  border: none !important;
 }

@@ -19,7 +19,7 @@ function getRecord(value: unknown): Record<string, unknown> {
 }
 
 function logApiError(label: string, error: unknown) {
-  console.error(`[question.client] ${label} failed =>`, error);
+
   if (error instanceof ApiError) {
     console.error(`[question.client] ${label} error body =>`, {
       status: error.status,
@@ -93,16 +93,13 @@ export async function getProductQuestions(
     sort: params.sort ?? "newest",
   };
 
-  console.log("[question.client] getProductQuestions =>", { productId, query });
+  
 
   try {
     const response = await apiClient.get(`/products/${productId}/questions`, {
       params: query,
     });
-    console.log(
-      "[question.client] getProductQuestions response =>",
-      response.data,
-    );
+  
     return unwrapQuestionsPage(response.data);
   } catch (error) {
     logApiError("getProductQuestions", error);
@@ -114,17 +111,14 @@ export async function createProductQuestion(
   productId: string,
   body: CreateProductQuestionRequest,
 ): Promise<unknown> {
-  console.log("[question.client] createProductQuestion =>", { productId, body });
+
 
   try {
     const response = await apiClient.post(
       `/products/${productId}/questions`,
       body,
     );
-    console.log(
-      "[question.client] createProductQuestion response =>",
-      response.data,
-    );
+   
     return response.data;
   } catch (error) {
     logApiError("createProductQuestion", error);
@@ -136,10 +130,7 @@ export async function createQuestionAnswer(
   questionId: string,
   body: CreateQuestionAnswerRequest,
 ): Promise<unknown> {
-  console.log("[question.client] createQuestionAnswer =>", {
-    questionId,
-    body,
-  });
+
 
   try {
     const response = await apiClient.post(
@@ -162,17 +153,14 @@ export async function voteQuestionAnswer(
   voteType: QuestionVoteType,
 ): Promise<unknown> {
   const body = { voteType };
-  console.log("[question.client] voteQuestionAnswer =>", { answerId, body });
+
 
   try {
     const response = await apiClient.post(
       `/Questions/answers/${answerId}/vote`,
       body,
     );
-    console.log(
-      "[question.client] voteQuestionAnswer response =>",
-      response.data,
-    );
+   
     return response.data;
   } catch (error) {
     logApiError("voteQuestionAnswer", error);
@@ -184,20 +172,13 @@ export async function reportProductQuestion(
   questionId: string,
   body: ReportQuestionRequest,
 ): Promise<unknown> {
-  console.log("[question.client] reportProductQuestion =>", {
-    questionId,
-    body,
-  });
-
+  
   try {
     const response = await apiClient.post(
       `/Questions/${questionId}/report`,
       body,
     );
-    console.log(
-      "[question.client] reportProductQuestion response =>",
-      response.data,
-    );
+   
     return response.data;
   } catch (error) {
     logApiError("reportProductQuestion", error);

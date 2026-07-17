@@ -12,8 +12,8 @@ export default function HeaderLogo() {
             height={48}
             className="h-12 dark:invert"
             src="/images/logo.png"
-            loading="lazy"
-            alt=""
+            priority
+            alt="کارآپ ۲۴"
           />
         </div>
       </Link>

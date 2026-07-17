@@ -1,12 +1,12 @@
 "use client";
-
+// components/modules/SliderProduct/SliderProduct.tsx
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
-import ProductCard from "@/components/modules/ProductCard/ProductCard";
+
 import "swiper/css";
 import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
-import ProductCardTest from "../ProductCard/ProductCard";
+import ProductCard from "../ProductCard/ProductCard";
 import { normalizeProduct } from "@/src/lib/mappers/product.mapper";
 import { ProductCardModel } from "@/src/lib/types/productTypes";
 
@@ -64,7 +64,7 @@ export default function SliderProduct({
 
             return (
               <SwiperSlide key={cardProduct.id}>
-                <ProductCardTest product={cardProduct} />
+                <ProductCard product={cardProduct} />
               </SwiperSlide>
             );
           })}

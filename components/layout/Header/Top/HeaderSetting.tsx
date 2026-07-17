@@ -9,7 +9,6 @@ import { useCart } from "@/src/context/CartContext";
 import {
   useCurrentUser,
   useIsAuthenticated,
-  useIsAuthBootstrapping,
 } from "@/src/lib/stores/auth/auth.store";
 
 export default function HeaderSetting() {
@@ -28,15 +27,13 @@ export default function HeaderSetting() {
 
   const user = useCurrentUser();
   const isAuthenticated = useIsAuthenticated();
-  const isAuthBootstrapping = useIsAuthBootstrapping();
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
     () => false,
   );
 
-  const showUserMenu =
-    mounted && ((isAuthenticated && user) || isAuthBootstrapping);
+  const showUserMenu = mounted && isAuthenticated && Boolean(user);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -66,7 +63,7 @@ export default function HeaderSetting() {
         {/* basket and call and darkmode  */}
         <div className="flex items-center md:me-5 me-2">
           {/* heart  */}
-          <a href="" className="lg:block hidden">
+          <a href="" className="hidden">
             <i className="fa-regular fa-heart"></i>
           </a>
 

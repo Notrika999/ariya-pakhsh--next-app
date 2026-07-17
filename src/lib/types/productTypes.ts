@@ -60,8 +60,11 @@ export interface ProductIndexData {
 export interface ProductListParams {
   CategoryId?: string;
   BrandId?: string;
+  CategoryIds?: string[];
+  BrandIds?: string[];
 
   CategorySlug?: string;
+  /** Single brand slug only — use BrandIds for multi-select */
   BrandSlug?: string;
 
   MinPrice?: number;
@@ -116,6 +119,21 @@ export interface ProductListItem {
   primaryBrandSlug?: string;
 
   primaryCategoryName?: string;
+
+  defaultVariantId?: string;
+  DefaultVariantId?: string;
+  defaultVariantID?: string;
+  DefaultVariantID?: string;
+  variantId?: string;
+  VariantId?: string;
+  variantID?: string;
+  VariantID?: string;
+  variants?: Array<{
+    variantId?: string;
+    VariantId?: string;
+    variantID?: string;
+    VariantID?: string;
+  }>;
 }
 
 export type SortOrder =
@@ -178,6 +196,8 @@ export interface ProductCardModel {
   specialSale?: boolean;
   dealEndsAt?: string | Date;
   offer?: boolean;
+  /** Default/sellable variant for add-to-cart API */
+  variantId?: string;
 }
 
 export interface ProductIndexApiResponse {

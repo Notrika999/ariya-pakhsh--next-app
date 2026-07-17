@@ -2,22 +2,17 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import QuantitySelector from "../../../modules/QuantityProductSelector/QuantityProductSelector";
-import { ProductDetail } from "@/src/lib/types/products/productDetail.types";
+import {
+  ProductDetail,
+  ProductDetailVariant,
+} from "@/src/lib/types/products/productDetail.types";
 import { useCart } from "@/src/context/CartContext";
-
-interface Variant {
-  variantId: string;
-  name: string;
-  price: number;
-  isOnSale: boolean;
-  availableQuantity: number;
-  inStock: boolean;
-  maxQuantityPerOrder?: number;
-}
+import { getProductImage } from "@/src/utils/product-image";
+import Link from "next/link";
 
 interface Props {
   product: ProductDetail;
-  variant: Variant;
+  variant?: ProductDetailVariant;
   isOutOfStock: boolean;
 }
 
@@ -27,8 +22,8 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
 
   const { addItem, updateQty, items } = useCart();
 
-  const price = variant?.price ?? 0;
-  const originalPrice = price;
+  const price = variant?.salePrice ?? variant?.price ?? 0;
+  const originalPrice = variant?.compareAtPrice ?? variant?.price ?? price;
   const hasDiscount = originalPrice > price;
   const discountPercent = hasDiscount
     ? Math.round(((originalPrice - price) / originalPrice) * 100)
@@ -47,20 +42,33 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
         setQuantity(inCart.quantity);
         setAdded(true);
       });
+      return;
     }
+
+    queueMicrotask(() => {
+      setQuantity(1);
+      setAdded(false);
+    });
   }, [items, variant?.variantId]);
 
   const handleAddToCart = () => {
     if (!variant) return;
-    addItem({
-      id: product.productId,
+
+    const primaryImage =
+      variant.images?.find((img) => img.isPrimary) ?? variant.images?.[0];
+
+    void addItem({
+      id: variant.variantId,
+      variantId: variant.variantId,
+      productId: product.productId,
       title: product.name,
-      image:
-        `https://aryapakhsh.shop${product.variants[0]?.images[0]?.thumbnailPath}` ||
-        "",
-      price: product.variants[0]?.price,
-      oldPrice: product.variants[0]?.price,
+      image: primaryImage?.thumbnailPath
+        ? getProductImage(primaryImage.thumbnailPath)
+        : "",
+      price,
+      oldPrice: originalPrice,
       href: `/product/${product.publicCode}/${product.slug}`,
+      quantity,
     });
     setAdded(true);
   };
@@ -68,7 +76,7 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
   const handleQtyChange = (newQty: number) => {
     setQuantity(newQty);
     if (added && variant) {
-      updateQty(variant.variantId, newQty);
+      void updateQty(variant.variantId, newQty);
     }
   };
 
@@ -76,17 +84,17 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
     <section className="xl:col-span-3 mt-7 col-span-12 pb-10 w-full">
       <div className="bg-gray-100/90 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-2xl shadow py-5 px-3 space-y-5">
         {/* Title */}
-        <div className="flex items-center justify-between mb-3">
+        {/* <div className="flex items-center justify-between mb-3 hidden">
           <h3 className="font-bold text-gray-800 dark:text-white text-base">
             فروشنده
           </h3>
-          <a
-            href="#"
+          <Link
+            href={`/`}
             className="text-primary-600 dark:text-primary-400 text-xs"
           >
-            1 فروشنده دیگر
-          </a>
-        </div>
+            کارآپ 24
+          </Link>
+        </div> */}
 
         <div className="rounded-xl py-4 px-2 space-y-4">
           {/* Performance */}

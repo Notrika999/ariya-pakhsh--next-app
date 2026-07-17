@@ -30,7 +30,7 @@ export default function MegaSubmenu({ sections }: { sections: Category[] }) {
                 </Link>
               ) : (
                 <>
-                  <Link href={sec.slug} className="text-sm font-bold">
+                  <Link href={`/products/${sec.slug}`} className="text-sm font-bold">
                     {sec.name}
                   </Link>
 

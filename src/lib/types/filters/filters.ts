@@ -36,7 +36,7 @@ export interface CategoryFilterOption {
 export interface ProductFilterState {
   categoryId?: string;
 
-  brandId?: string;
+  brandSlug?: string;
 
   minPrice: number;
   maxPrice: number;
@@ -54,7 +54,11 @@ export interface ProductFilterState {
 export interface AttributeOption {
   optionId: string;
   value: string;
+  /** Human-readable label for UI / SEO query (`color_palette`) */
+  displayText?: string;
   count: number;
+  colorCodes?: string;
+  hex?: string;
 }
 
 export interface AttributeFilter {

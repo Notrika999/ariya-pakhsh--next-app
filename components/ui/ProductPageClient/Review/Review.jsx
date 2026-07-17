@@ -9,6 +9,7 @@ import Comments from "./Comments";
 import Question from "./Question";
 import ProductAction from "./ProductAction";
 import TabBar from "@/components/modules/TabBar/TabBar";
+import ConsumerProducts from "../ConsumerProducts/ConsumerProducts";
 
 const TABS = [
   { id: "desc", label: "معرفی اجمالی" },
@@ -18,7 +19,7 @@ const TABS = [
   { id: "question", label: "پرسش و پاسخ" },
 ];
 
-export default function Review({ product, variant, isOutOfStock }) {
+export default function Review({ product, attributes, variant, isOutOfStock }) {
   const navRef = useRef(null);
 
   useEffect(() => {
@@ -131,7 +132,7 @@ export default function Review({ product, variant, isOutOfStock }) {
             id="desc"
             className="tab-section p-8 bg-white dark:bg-custom-dark dark:border-gray-700 rounded-2xl shadow-md border border-gray-200"
           >
-            <ProductIntroduction />
+            <ProductIntroduction product={product} />
           </div>
 
           {/* <!--Tab 2 - Supplementary Introduction--> */}
@@ -139,7 +140,7 @@ export default function Review({ product, variant, isOutOfStock }) {
             id="intro"
             className="tab-section p-8 bg-white dark:bg-custom-dark dark:border-gray-700 rounded-2xl shadow-md border border-gray-200"
           >
-            <Intro />
+            <Intro product={product} />
           </div>
 
           {/* <!--Tab 3 - Technical specifications--> */}
@@ -147,8 +148,15 @@ export default function Review({ product, variant, isOutOfStock }) {
             id="specs"
             className="tab-section p-8 bg-white dark:bg-custom-dark dark:border-gray-700 rounded-2xl shadow-md border border-gray-200"
           >
-            <Specifications />
+            <Specifications
+              product={product}
+              attributes={attributes}
+              // variant={variant}
+            />
           </div>
+
+          {/* <!--Tab 4 - Upsell Products--> */}
+          <ConsumerProducts products={product.upsellProducts} noClick={true} title="محصولات پیشنهادی" />
 
           {/* <!--Tab 4 - Comments--> */}
           <div

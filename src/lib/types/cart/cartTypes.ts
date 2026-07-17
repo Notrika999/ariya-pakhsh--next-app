@@ -1,7 +1,10 @@
-// src/lib/types/cartTypes.ts
+// src/lib/types/cart/cartTypes.ts
 
 export interface CartItem {
-  id: string | number;
+  /** Always the variantId used by cart APIs */
+  id: string;
+  variantId?: string;
+  productId?: string;
   title: string;
   image: string;
   price: number;
@@ -13,3 +16,7 @@ export interface CartItem {
 export interface CartState {
   items: CartItem[];
 }
+
+export type AddCartProductInput = Omit<CartItem, "quantity"> & {
+  quantity?: number;
+};

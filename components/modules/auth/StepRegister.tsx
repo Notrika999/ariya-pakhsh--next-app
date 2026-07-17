@@ -6,8 +6,10 @@ import { useAuthStore } from "@/src/lib/stores/auth/auth.store";
 import {
   attachSessionToUser,
   completeUserFromMe,
+  getAuthErrorMessage,
   register,
 } from "@/src/services/auth/auth.client";
+import { ApiError } from "@/src/lib/http/api-client";
 
 interface StepRegisterProps {
   onSuccess: () => void;
@@ -100,12 +102,27 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
   const handleSubmit = async () => {
     if (!validate()) return;
     if (!registrationToken) {
+      console.error("[StepRegister] missing registrationToken", {
+        hasDeviceFingerPrint: Boolean(deviceFingerPrint),
+      });
       setErrors({ general: "توکن ثبت‌نام معتبر نیست. لطفاً دوباره تلاش کنید" });
       return;
     }
 
     setLoading(true);
     setErrors({});
+
+    console.log("[StepRegister] submit start", {
+      hasRegistrationToken: Boolean(registrationToken),
+      registrationTokenPreview: `${registrationToken.slice(0, 8)}…`,
+      deviceFingerPrint: deviceFingerPrint
+        ? `${deviceFingerPrint.slice(0, 12)}…`
+        : null,
+      firstName: form.firstName.trim(),
+      lastName: form.lastName.trim(),
+      email: form.email.trim() || null,
+      passwordLength: form.password.length,
+    });
 
     try {
       const result = await register({
@@ -118,45 +135,80 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
         deviceFingerPrint: deviceFingerPrint ?? "device-id",
       });
 
+      console.log("[StepRegister] register result", {
+        success: result.success,
+        errorMessage: result.errorMessage,
+        errorCode: result.errorCode,
+        hasUserInfo: Boolean(result.userInfoDto),
+        hasSessionInfo: Boolean(result.sessionInfoDto),
+        userId: result.userInfoDto?.userId ?? result.userInfoDto?.id ?? null,
+      });
+
       if (!result.success) {
         setErrors({ general: result.errorMessage ?? "خطایی رخ داد" });
         return;
       }
 
       if (!result.userInfoDto) {
+        console.error("[StepRegister] missing userInfoDto in register result", result);
         setErrors({ general: "اطلاعات کاربر از سرور دریافت نشد" });
         return;
       }
 
       const freshUser = await completeUserFromMe(result.userInfoDto);
+      console.log("[StepRegister] completeUserFromMe done", {
+        userId: freshUser.userId ?? freshUser.id ?? null,
+        hasBirthDate: Boolean(freshUser.birthDate),
+      });
+
       setUser(attachSessionToUser(freshUser, result.sessionInfoDto));
       clearAuthFlow();
       onSuccess();
     } catch (err: unknown) {
-      const errorResponse = err as {
-        response?: {
-          data?: {
-            data?: { errorMessage?: string };
-            errors?: { field: string; message: string }[];
-            message?: string;
-          };
-        };
-      };
-      const serverErrors = errorResponse.response?.data?.errors;
-      if (serverErrors?.length) {
-        const mapped: FormErrors = {};
-        serverErrors.forEach(({ field, message }) => {
-          const key = field.charAt(0).toLowerCase() + field.slice(1);
-          if (key in form) mapped[key as keyof FormState] = message;
-        });
-        setErrors(mapped);
-      } else {
-        const msg =
-          errorResponse.response?.data?.data?.errorMessage ??
-          errorResponse.response?.data?.message ??
-          "ارتباط با سرور برقرار نشد";
-        setErrors({ general: msg });
+      console.error("[StepRegister] submit failed", {
+        isApiError: err instanceof ApiError,
+        name: err instanceof Error ? err.name : typeof err,
+        message: err instanceof Error ? err.message : String(err),
+        ...(err instanceof ApiError
+          ? {
+              status: err.status,
+              code: err.code,
+              data: err.data,
+              original:
+                err.original && typeof err.original === "object"
+                  ? {
+                      name: (err.original as Error).name,
+                      message: (err.original as Error).message,
+                      code: (err.original as { code?: string }).code,
+                    }
+                  : err.original,
+            }
+          : { raw: err }),
+      });
+
+      if (err instanceof ApiError) {
+        const data = err.data as
+          | {
+              errors?: { field?: string; message?: string }[];
+              data?: { errors?: { field?: string; message?: string }[] };
+            }
+          | undefined;
+        const serverErrors = data?.errors ?? data?.data?.errors;
+        if (Array.isArray(serverErrors) && serverErrors.length > 0) {
+          const mapped: FormErrors = {};
+          serverErrors.forEach(({ field, message }) => {
+            if (!field || !message) return;
+            const key = field.charAt(0).toLowerCase() + field.slice(1);
+            if (key in form) mapped[key as keyof FormState] = message;
+          });
+          if (Object.keys(mapped).length > 0) {
+            setErrors(mapped);
+            return;
+          }
+        }
       }
+
+      setErrors({ general: getAuthErrorMessage(err) });
     } finally {
       setLoading(false);
     }

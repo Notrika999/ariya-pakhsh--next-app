@@ -1,32 +1,125 @@
 "use client";
-// components/ui/ProductPageClient/Description.tsx
-import React, { useState } from "react";
-import { ProductDetail } from "@/src/lib/types/products/productDetail.types";
+// components/ui/ProductPageClient/Description/Description.tsx
+import type { CSSProperties } from "react";
+import {
+  ProductDetail,
+  ProductDetailAttribute,
+  ProductDetailVariant,
+} from "@/src/lib/types/products/productDetail.types";
+
+export type ProductColorOption = {
+  variantId: string;
+  titles: string[];
+  codes: string[];
+  inStock: boolean;
+};
 
 interface Props {
   product: ProductDetail;
+  selectedVariantId: string;
+  onSelectVariant: (variantId: string) => void;
   isOutOfStock: boolean;
 }
 
-export default function Description({ product, isOutOfStock }: Props) {
-  const defaultVariant =
-    product.variants?.find((v) => v.isDefault) ?? product.variants?.[0];
-
-  const colorAttributes =
-    product.variants?.map((v) => {
-      const colorAttr = v.attributes?.find((a) => a.attributeName === "رنگ");
-      return {
-        id: v.variantId,
-        title: v.name,
-        code: colorAttr?.value ?? "#ccc",
-        inStock: v.inStock,
-      };
-    }) ?? [];
-
-  const [selectedColor, setSelectedColor] = useState(
-    colorAttributes.find((c) => c.id === defaultVariant?.variantId) ??
-      colorAttributes[0],
+function isColorAttribute(attr: ProductDetailAttribute) {
+  return (
+    Boolean(attr.colorCode) ||
+    Boolean(attr.colorHexCodes) ||
+    attr.attributeName === "رنگ" ||
+    attr.attributeName?.toLowerCase() === "color"
   );
+}
+
+function resolveColorHex(attr?: ProductDetailAttribute | null) {
+  if (typeof attr?.colorCode === "string" && attr.colorCode.trim()) {
+    return attr.colorCode.trim();
+  }
+
+  const raw = attr?.colorHexCodes;
+  if (Array.isArray(raw)) return raw[0] || "#ccc";
+  if (typeof raw === "string" && raw.trim()) return raw.trim();
+  return "#ccc";
+}
+
+function resolveColorLabel(
+  attr?: ProductDetailAttribute | null,
+  fallback = "",
+) {
+  return attr?.displayText?.trim() || attr?.value?.trim() || fallback;
+}
+
+function isLightHex(hex: string) {
+  const clean = hex.replace("#", "");
+  if (clean.length < 6) return false;
+  const r = parseInt(clean.slice(0, 2), 16);
+  const g = parseInt(clean.slice(2, 4), 16);
+  const b = parseInt(clean.slice(4, 6), 16);
+  return r * 0.299 + g * 0.587 + b * 0.114 > 180;
+}
+
+/** Hard split from the center — no soft blend edge */
+function swatchStyle(codes: string[]): CSSProperties {
+  if (codes.length === 0) return { backgroundColor: "#e5e7eb" };
+  if (codes.length === 1) return { backgroundColor: codes[0] };
+  if (codes.length === 2) {
+    return {
+      background: `linear-gradient(90deg, ${codes[0]} 50%, ${codes[1]} 50%)`,
+    };
+  }
+
+  const step = 100 / codes.length;
+  const stops = codes
+    .map((code, index) => {
+      const start = step * index;
+      const end = step * (index + 1);
+      return `${code} ${start}% ${end}%`;
+    })
+    .join(", ");
+
+  return { background: `linear-gradient(90deg, ${stops})` };
+}
+
+/** One selectable swatch per variant; multi-color attrs become a split circle. */
+export function buildProductColorOptions(
+  variants?: ProductDetailVariant[] | null,
+): ProductColorOption[] {
+  const options: ProductColorOption[] = [];
+
+  for (const variant of variants ?? []) {
+    const colorAttrs = variant.attributes?.filter(isColorAttribute) ?? [];
+    if (colorAttrs.length === 0) continue;
+
+    options.push({
+      variantId: variant.variantId,
+      titles: colorAttrs.map((attr) => resolveColorLabel(attr, variant.name)),
+      codes: colorAttrs.map((attr) => resolveColorHex(attr)),
+      inStock: variant.inStock,
+    });
+  }
+
+  return options;
+}
+
+export default function Description({
+  product,
+  selectedVariantId,
+  onSelectVariant,
+  isOutOfStock,
+}: Props) {
+  const selectedVariant =
+    product.variants?.find((v) => v.variantId === selectedVariantId) ??
+    product.variants?.find((v) => v.isDefault) ??
+    product.variants?.[0];
+
+  const colorOptions = buildProductColorOptions(product.variants);
+
+  const selectedColor =
+    colorOptions.find((c) => c.variantId === selectedVariantId) ??
+    colorOptions[0];
+
+  const displayAttributes =
+    selectedVariant?.attributes?.filter((attr) => !isColorAttribute(attr)) ??
+    [];
 
   const primaryCategory =
     product.categories?.find((c) => c.isPrimary) ?? product.categories?.[0];
@@ -40,7 +133,10 @@ export default function Description({ product, isOutOfStock }: Props) {
         {primaryBrand && (
           <>
             <li>
-              <a href={`/brand/${primaryBrand.slug}`} className="text-primary">
+              <a
+                href={`/products?brand=${primaryBrand.slug}`}
+                className="text-primary"
+              >
                 {primaryBrand.name}
               </a>
             </li>
@@ -50,7 +146,7 @@ export default function Description({ product, isOutOfStock }: Props) {
         {primaryCategory && (
           <li>
             <a
-              href={`/category/${primaryCategory.slug}`}
+              href={`/products/${primaryCategory.slug}`}
               className="text-primary"
             >
               {primaryCategory.name}
@@ -63,9 +159,10 @@ export default function Description({ product, isOutOfStock }: Props) {
       <div className="space-y-2 mt-2 pb-2 border-b border-b-gray-300 dark:border-b-gray-700">
         <h2 className="font-black leading-8">{product.name}</h2>
         {product.shortDescription && (
-          <h2 className="text-gray-400 dark:text-gray-500 text-sm leading-8">
-            {product.shortDescription}
-          </h2>
+          <div
+            className="text-gray-400 dark:text-gray-500 text-sm leading-8"
+            dangerouslySetInnerHTML={{ __html: product.shortDescription }}
+          />
         )}
       </div>
 
@@ -113,38 +210,68 @@ export default function Description({ product, isOutOfStock }: Props) {
         </div>
       )}
 
-      {/* Color Picker */}
-      {colorAttributes.length > 0 && selectedColor && (
+      {/* Color Picker — one swatch per variant */}
+      {colorOptions.length > 0 && selectedColor && (
         <div className="mt-6 space-y-4">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span
-              className="w-4 h-4 rounded-full border"
-              style={{ background: selectedColor.code }}
+              className="size-4 shrink-0 rounded-full border border-gray-300"
+              style={swatchStyle(selectedColor.codes)}
             />
-            <p className="font-semibold text-lg">رنگ: {selectedColor.title}</p>
+            <p className="font-semibold text-lg">
+              رنگ:{" "}
+              <span className="inline-flex flex-wrap items-center gap-x-1 gap-y-1">
+                {selectedColor.titles.map((title, index) => (
+                  <span
+                    key={`${selectedColor.variantId}-label-${index}`}
+                    className="inline-flex items-center gap-1.5"
+                  >
+                    {index > 0 && (
+                      <span className="text-gray-400 dark:text-gray-500">
+                        /
+                      </span>
+                    )}
+                    {title}
+                  </span>
+                ))}
+              </span>
+            </p>
           </div>
 
-          <div className="flex items-center gap-4">
-            {colorAttributes.slice(0, 4).map((color) => {
-              const isActive = selectedColor?.id === color.id;
+          <div className="flex flex-wrap items-center gap-4">
+            {colorOptions.map((color) => {
+              const isActive = selectedVariantId === color.variantId;
+              const titleText = color.titles.filter(Boolean).join(" / ");
+              const avgLight =
+                color.codes.filter(isLightHex).length >=
+                Math.ceil(color.codes.length / 2);
+              const checkClass = avgLight
+                ? "text-gray-800"
+                : "text-white drop-shadow";
+
               return (
                 <button
-                  key={color.id}
+                  key={color.variantId}
                   type="button"
-                  disabled={isOutOfStock}
-                  onClick={() => !isOutOfStock && setSelectedColor(color)}
-                  className="relative w-12 h-12 rounded-full flex items-center justify-center"
+                  title={titleText}
+                  aria-label={`انتخاب رنگ ${titleText}`}
+                  aria-pressed={isActive}
+                  onClick={() => onSelectVariant(color.variantId)}
+                  className={[
+                    "relative flex w-12 h-12 items-center justify-center rounded-full",
+                    !color.inStock ? "opacity-50" : "",
+                  ].join(" ")}
                 >
                   {isActive && (
                     <span className="absolute inset-0 rounded-full ring-4 ring-sky-400" />
                   )}
                   <span
-                    className="relative z-10 w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center"
-                    style={{ background: color.code }}
+                    className="relative z-10 flex size-8 items-center justify-center rounded-full border border-gray-300"
+                    style={swatchStyle(color.codes)}
                   >
                     {isActive && (
                       <svg
-                        className="w-4 h-4 text-white"
+                        className={`size-4 ${checkClass}`}
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -203,26 +330,29 @@ export default function Description({ product, isOutOfStock }: Props) {
         </div>
       )}
 
-      {/* Attributes */}
-      {product.variants?.[0]?.attributes?.length > 0 && (
+      {/* Attributes of selected variant (non-color) */}
+      {displayAttributes.length > 0 && (
         <div className="mt-8 space-y-3">
           <h4 className="font-bold text-lg">ویژگی‌ها</h4>
           <div className="grid gap-3 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1">
-            {product.variants[0].attributes.map((attr) => (
-              <div
-                key={attr.attributeId}
-                className="p-3 bg-gray-200 dark:bg-zinc-800 rounded-lg relative group"
-              >
-                <h5 className="line-clamp-1 text-xs text-gray-600 dark:text-gray-300">
-                  {attr.attributeName}
-                </h5>
-                <h6 className="line-clamp-1 mt-3 text-xs">{attr.value}</h6>
-                <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
-                  <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
-                  {attr.value}
-                </span>
-              </div>
-            ))}
+            {displayAttributes.map((attr) => {
+              const label = resolveColorLabel(attr, attr.value);
+              return (
+                <div
+                  key={`${attr.attributeId}-${attr.optionId ?? attr.value}`}
+                  className="p-3 bg-gray-200 dark:bg-zinc-800 rounded-lg relative group"
+                >
+                  <h5 className="line-clamp-1 text-xs text-gray-600 dark:text-gray-300">
+                    {attr.attributeName}
+                  </h5>
+                  <h6 className="line-clamp-1 mt-3 text-xs">{label}</h6>
+                  <span className="absolute text-nowrap z-50 inset-e-1/2 ms-2 -top-3 -translate-x-1/2 hidden group-hover:block bg-gray-900 text-white text-xs py-1 px-2 rounded-md shadow-lg">
+                    <span className="absolute inset-e-1/2 -bottom-2.5 rotate-90 -translate-y-1/2 w-0 h-0 border-y-4 border-y-transparent border-e-4 border-e-gray-900"></span>
+                    {label}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

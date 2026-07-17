@@ -53,6 +53,8 @@ export default function UserSidebar() {
   const avatarSrc = previewUrl || resolveAvatarSrc(user?.avatarUrl);
   const hasCustomAvatar = Boolean(user?.avatarUrl);
 
+  console.log("avatarSrc => ", avatarSrc);
+
   const userPanelMenu = [
     {
       id: 1,
@@ -66,7 +68,7 @@ export default function UserSidebar() {
       title: "سفارش های من",
       link: "/user-profile/orders",
       icon: "far fa-cart-shopping",
-      disabled: true,
+      disabled: false,
     },
     {
       id: 3,
@@ -101,7 +103,7 @@ export default function UserSidebar() {
       title: "علاقمندی",
       link: "/user-profile/favorites",
       icon: "far fa-heart",
-      disabled: true,
+      disabled: false,
     },
     {
       id: 8,
@@ -122,7 +124,7 @@ export default function UserSidebar() {
       title: "تراکنش ها",
       link: "/user-profile/credit-history",
       icon: "far fa-receipt",
-      disabled: true,
+      disabled: false,
     },
     {
       id: 11,

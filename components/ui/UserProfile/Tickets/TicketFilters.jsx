@@ -1,12 +1,37 @@
 "use client";
 
 import { TICKET_CATEGORIES } from "@/src/lib/tickets/ticket-labels";
+import CustomSelect from "@/components/modules/UserProfile/CustomSelect";
+
+const STATUS_OPTIONS = [
+  { value: "", label: "همه وضعیت‌ها" },
+  { value: "open", label: "باز" },
+  { value: "pending", label: "در حال بررسی" },
+  { value: "answered", label: "پاسخ داده شده" },
+  { value: "closed", label: "بسته شده" },
+];
+
+const PRIORITY_OPTIONS = [
+  { value: "", label: "همه اولویت‌ها" },
+  { value: "low", label: "کم" },
+  { value: "medium", label: "متوسط" },
+  { value: "high", label: "بالا" },
+  { value: "urgent", label: "فوری" },
+];
+
+const CATEGORY_OPTIONS = [
+  { value: "", label: "همه دسته‌ها" },
+  ...TICKET_CATEGORIES.map((item) => ({
+    value: item.value,
+    label: item.label,
+  })),
+];
 
 export default function TicketFilters({ filters, onFilterChange }) {
   return (
     <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
       <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
-        <div className="relative">
+        {/* <div className="relative">
           <select
             value={filters.status}
             onChange={(e) => onFilterChange({ status: e.target.value })}
@@ -47,7 +72,28 @@ export default function TicketFilters({ filters, onFilterChange }) {
               </option>
             ))}
           </select>
-        </div>
+        </div> */}
+
+        <CustomSelect
+          className="sm:w-44"
+          options={STATUS_OPTIONS}
+          value={filters.status}
+          onChange={(val) => onFilterChange({ status: val })}
+        />
+
+        <CustomSelect
+          className="sm:w-44"
+          options={PRIORITY_OPTIONS}
+          value={filters.priority}
+          onChange={(val) => onFilterChange({ priority: val })}
+        />
+
+        <CustomSelect
+          className="sm:w-44"
+          options={CATEGORY_OPTIONS}
+          value={filters.category}
+          onChange={(val) => onFilterChange({ category: val })}
+        />
       </div>
 
       <div className="relative w-full md:w-64">

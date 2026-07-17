@@ -1,40 +1,28 @@
 import React from "react";
 
-export default function ProductIntroduction() {
+function stripHtml(html = "") {
+  return html.replace(/<[^>]+>/g, "").trim();
+}
+
+export default function ProductIntroduction({ product }) {
+  const html = product?.shortDescription || product?.description || "";
+  const text = stripHtml(html);
+
   return (
     <div className="space-y-5">
       <h2 className="text-2xl pb-3 font-black text-zinc-800 relative before:absolute before:bottom-0 before:right-0 before:h-1 before:w-22 before:bg-secondary-500 before:rounded dark:text-white">
         معرفی محصول
       </h2>
-      <p className="text-neutral-700 leading-9 text-justify text-lg dark:text-white">
-        روکش صندلی، پوششی است که روی صندلی خودرو یا صندلی‌های دیگر قرار می‌گیرد
-        
-        
-        و سه هدف اصلی دارد: <br />
-        
-         1.
-         **محافظت**: از پارگی، ساییدگی، لک، نور خورشید و
-        تعریق جلوگیری می‌کند و عمر روکش فابریک را افزایش می‌دهد. <br />
-        
-        2. **زیبایی**: ظاهر کابین را تغییر می‌دهد و می‌توان رنگ و جنس دلخواه را
-        انتخاب کرد. <br />
-        
-        3. **راحتی**: بعضی روکش‌ها در تابستان کمتر داغ می‌شوند، در زمستان حس
-        بهتری دارند یا نشستن را نرم‌تر می‌کنند. <br />
-        
-        جنس‌های رایج عبارت‌اند از: * **چرم مصنوعی (PU یا PVC):** تمیز کردن آسان،
-        ظاهر شیک، اما ممکن است در گرما داغ و در سرما سفت شود. * **پارچه‌ای:**
-        تنفس‌پذیر، راحت‌تر در چهار فصل، اما لکه‌پذیرتر. * **ترکیبی چرم و
-        پارچه:** ظاهر مناسب همراه با راحتی بیشتر. * **مخمل یا جیر مصنوعی:** نرم
-        و زیبا، ولی نیاز به مراقبت بیشتری دارد. از نظر نوع نصب نیز دو دسته اصلی
-        وجود دارد: * **روکش فری‌سایز (آماده):** ارزان‌تر، روی مدل‌های مختلف نصب
-        می‌شود اما کاملاً فیت نیست. * **روکش سفارشی (دوخت اختصاصی):** دقیقاً
-        متناسب با مدل خودرو دوخته می‌شود، ظاهر بهتر و دوام بیشتری دارد، اما
-        گران‌تر است. **نکته مهم:** اگر خودروی شما دارای **ایربگ جانبی صندلی**
-        باشد، باید از روکش مخصوص سازگار با ایربگ استفاده کنید تا هنگام باز شدن
-        ایربگ، عملکرد آن مختل نشود. اگر منظورت **روکش صندلی خودرو** است،
-        می‌توانم درباره بهترین جنس، قیمت تقریبی و نکات خرید هم توضیح بدهم.
-      </p>
+      {html ? (
+        <div
+          className="text-neutral-700 leading-9 text-justify text-lg dark:text-white [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pe-6"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      ) : (
+        <p className="text-neutral-500 leading-8 dark:text-neutral-400">
+          {text || "توضیح کوتاهی برای این محصول ثبت نشده است."}
+        </p>
+      )}
     </div>
   );
 }

@@ -1,16 +1,16 @@
 export default function ReturnReasons({ value, onChange }) {
   return (
     <div>
-      <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200 mb-4">
+      <h3 className="mb-4 text-lg font-bold text-gray-800 dark:text-gray-200">
         دلیل مرجوعی
       </h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <label className="flex items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <label className="flex cursor-pointer items-center rounded-lg border border-gray-200 p-4 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-zinc-800">
           <input
             type="radio"
             name="returnReason"
-            className="w-5 h-5 text-primary border-gray-300 focus:ring-primary"
+            className="h-5 w-5 border-gray-300 text-primary focus:ring-primary"
             value="defective"
             checked={value === "defective"}
             onChange={(e) => onChange(e.target.value)}
@@ -19,12 +19,12 @@ export default function ReturnReasons({ value, onChange }) {
             کالای معیوب یا ناقص
           </span>
         </label>
-        <label className="flex items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800">
+        <label className="flex cursor-pointer items-center rounded-lg border border-gray-200 p-4 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-zinc-800">
           <input
             type="radio"
             name="returnReason"
             value="wrong_item"
-            className="w-5 h-5 text-primary border-gray-300 focus:ring-primary"
+            className="h-5 w-5 border-gray-300 text-primary focus:ring-primary"
             checked={value === "wrong_item"}
             onChange={(e) => onChange(e.target.value)}
           />
@@ -32,12 +32,12 @@ export default function ReturnReasons({ value, onChange }) {
             کالای نادرست ارسال شده
           </span>
         </label>
-        <label className="flex items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800">
+        <label className="flex cursor-pointer items-center rounded-lg border border-gray-200 p-4 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-zinc-800">
           <input
             type="radio"
             name="returnReason"
             value="not_as_described"
-            className="w-5 h-5 text-primary border-gray-300 focus:ring-primary"
+            className="h-5 w-5 border-gray-300 text-primary focus:ring-primary"
             checked={value === "not_as_described"}
             onChange={(e) => onChange(e.target.value)}
           />
@@ -45,12 +45,12 @@ export default function ReturnReasons({ value, onChange }) {
             مغایرت با توضیحات
           </span>
         </label>
-        <label className="flex items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800">
+        <label className="flex cursor-pointer items-center rounded-lg border border-gray-200 p-4 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-zinc-800">
           <input
             type="radio"
             name="returnReason"
             value="change_mind"
-            className="w-5 h-5 text-primary border-gray-300 focus:ring-primary"
+            className="h-5 w-5 border-gray-300 text-primary focus:ring-primary"
             checked={value === "change_mind"}
             onChange={(e) => onChange(e.target.value)}
           />
@@ -58,12 +58,12 @@ export default function ReturnReasons({ value, onChange }) {
             تغییر نظر
           </span>
         </label>
-        <label className="flex items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800">
+        <label className="flex cursor-pointer items-center rounded-lg border border-gray-200 p-4 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-zinc-800">
           <input
             type="radio"
             name="returnReason"
             value="damaged"
-            className="w-5 h-5 text-primary border-gray-300 focus:ring-primary"
+            className="h-5 w-5 border-gray-300 text-primary focus:ring-primary"
             checked={value === "damaged"}
             onChange={(e) => onChange(e.target.value)}
           />
@@ -71,12 +71,12 @@ export default function ReturnReasons({ value, onChange }) {
             آسیب دیده در حمل و نقل
           </span>
         </label>
-        <label className="flex items-center p-4 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800">
+        <label className="flex cursor-pointer items-center rounded-lg border border-gray-200 p-4 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-zinc-800">
           <input
             type="radio"
             name="returnReason"
             value="other"
-            className="w-5 h-5 text-primary border-gray-300 focus:ring-primary"
+            className="h-5 w-5 border-gray-300 text-primary focus:ring-primary"
             checked={value === "other"}
             onChange={(e) => onChange(e.target.value)}
           />

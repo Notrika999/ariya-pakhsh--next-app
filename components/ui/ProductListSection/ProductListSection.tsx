@@ -4,11 +4,11 @@
 import { TransitionStartFunction } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import ProductCardTest from "@/components/modules/ProductCard/ProductCard";
-import ProductCardSkeleton from "@/components/modules/ProductCard/ProductCardSkeleton";
+import ProductCard from "@/components/modules/ProductCard/ProductCard";
 import FilterResponsive from "../Categories/FilterResponsive/FilterResponsive";
 import Filter from "../Categories/Filter/Filter";
 import SortList from "@/components/modules/sortOptions/sortOptions";
+import { ProductCardsSkeletonGrid } from "../Categories/ProductListPageSkeleton";
 import { normalizeProduct } from "@/src/lib/mappers/product.mapper";
 import type {
   ProductCardModel,
@@ -20,6 +20,7 @@ import type { SortOption } from "@/src/lib/types/filters/filters";
 type ProductListFilters = {
   search: string;
   // color: string;
+  categoryId?: string;
   brands: string[];
   minPrice: number;
   maxPrice: number;
@@ -119,31 +120,26 @@ export default function ProductListSection({
             />
           </div>
 
-          <div className="grid grid-cols-12 gap-4 mt-4">
-            {isLoading ? (
-              Array.from({ length: SKELETON_COUNT }, (_, i) => (
-                <div
-                  key={`skeleton-${i}`}
-                  className="xl:col-span-3 md:col-span-4 sm:col-span-6 col-span-12"
-                >
-                  <ProductCardSkeleton />
+          {isLoading ? (
+            <ProductCardsSkeletonGrid count={SKELETON_COUNT} />
+          ) : (
+            <div className="mt-4 grid grid-cols-12 gap-4">
+              {products.length === 0 ? (
+                <div className="col-span-12 py-16 text-center text-gray-400 dark:text-gray-500">
+                  <p className="text-lg">محصولی یافت نشد</p>
                 </div>
-              ))
-            ) : products.length === 0 ? (
-              <div className="col-span-12 py-16 text-center text-gray-400 dark:text-gray-500">
-                <p className="text-lg">محصولی یافت نشد</p>
-              </div>
-            ) : (
-              products.map((product) => (
-                <div
-                  key={getProductKey(product)}
-                  className="xl:col-span-3 md:col-span-4 sm:col-span-6 col-span-12"
-                >
-                  <ProductCardTest product={toCardProduct(product)} />
-                </div>
-              ))
-            )}
-          </div>
+              ) : (
+                products.map((product) => (
+                  <div
+                    key={getProductKey(product)}
+                    className="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-3"
+                  >
+                    <ProductCard product={toCardProduct(product)} />
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </section>
       </div>
     </>

@@ -1,116 +1,135 @@
-// components/Categories/FilterFilterColor.tsx
+// components/ui/Categories/Filter/FilterColor.tsx
 "use client";
 
+import type { TransitionStartFunction } from "react";
+import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
-type ColorOption = {
-  optionId: string;
-  value: string;
-  count: number;
-  colorCodes?: string; // comma-separated: "#000000" or "#000000,#FF0000"
-  hex?: string;        // legacy single hex support
-};
+import { COLOR_PALETTE_PARAM } from "@/src/lib/helper/productListHelpers";
+import {
+  buildColorFilterItems,
+  colorSwatchStyle,
+  formatColorFilterTitle,
+  isLightHex,
+  type ColorFilterAttribute,
+} from "@/src/lib/helper/filterColorHelpers";
 
 type Props = {
-  attributeId: string;
-  options: ColorOption[];
+  colorAttributes: ColorFilterAttribute[];
+  startTransition?: TransitionStartFunction;
 };
 
-/** Parse colorCodes string into array of hex values */
-function parseColorCodes(option: ColorOption): string[] {
-  if (option.colorCodes) {
-    return option.colorCodes.split(",").map((c) => c.trim()).filter(Boolean);
-  }
-  if (option.hex) return [option.hex];
-  return [];
+function ColorTitle({ labels }: { labels: string[] }) {
+  if (labels.length === 0) return null;
+
+  return (
+    <span className="inline-flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 text-xs font-medium">
+      {labels.map((label, index) => (
+        <span key={`${label}-${index}`} className="inline-flex items-center gap-1.5">
+          {index > 0 ? (
+            <span className="text-gray-400 dark:text-gray-500">/</span>
+          ) : null}
+          <span>{label}</span>
+        </span>
+      ))}
+    </span>
+  );
 }
 
-/** Returns true if a hex color is visually light */
-function isLightHex(hex: string): boolean {
-  const clean = hex.replace("#", "");
-  const r = parseInt(clean.substring(0, 2), 16);
-  const g = parseInt(clean.substring(2, 4), 16);
-  const b = parseInt(clean.substring(4, 6), 16);
-  // Perceived luminance
-  return r * 0.299 + g * 0.587 + b * 0.114 > 200;
-}
-
-/** Build the inline background style for the swatch */
-function swatchStyle(colors: string[]): React.CSSProperties {
-  if (colors.length === 0) {
-    return { backgroundColor: "#e5e7eb" };
-  }
-  if (colors.length === 1) {
-    return { backgroundColor: colors[0] };
-  }
-  // Two colors: hard split diagonal gradient (no fade)
-  return {
-    background: `linear-gradient(135deg, ${colors[0]} 50%, ${colors[1]} 50%)`,
-  };
-}
-
-export default function FilterColor({ attributeId, options }: Props) {
+export default function FilterColor({
+  colorAttributes,
+  startTransition,
+}: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const selectedColors = searchParams.getAll(`attr_${attributeId}`);
+  const items = useMemo(
+    () => buildColorFilterItems(colorAttributes),
+    [colorAttributes],
+  );
 
-  const handleToggle = (optionId: string) => {
-  const params = new URLSearchParams(searchParams.toString());
-  const paramKey = `attr_${attributeId}`;          // key یونیک per attribute
-  const current = params.getAll(paramKey);
+  const selectedColors = searchParams.getAll(COLOR_PALETTE_PARAM);
 
-  params.delete(paramKey);
+  const navigate = (params: URLSearchParams) => {
+    const replaceUrl = () => {
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    };
 
-  if (current.includes(optionId)) {
-    current.filter((c) => c !== optionId).forEach((c) => params.append(paramKey, c));
-  } else {
-    [...current, optionId].forEach((c) => params.append(paramKey, c));
-  }
+    if (startTransition) {
+      startTransition(replaceUrl);
+      return;
+    }
 
-  params.set("page", "1");
-  router.push(`${pathname}?${params.toString()}`);
-};
+    replaceUrl();
+  };
 
-  if (!options || options.length === 0) {
-    return <p className="text-xs text-gray-400 text-center py-2">رنگی موجود نیست</p>;
+  const isItemSelected = (labels: string[]) =>
+    labels.length > 0 && labels.every((label) => selectedColors.includes(label));
+
+  const handleToggle = (labels: string[], attributeIds: string[]) => {
+    if (labels.length === 0) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+    const current = params.getAll(COLOR_PALETTE_PARAM);
+    const selected = isItemSelected(labels);
+
+    for (const attributeId of attributeIds) {
+      params.delete(`attr_${attributeId}`);
+    }
+    params.delete("attr_color");
+    params.delete("ColorOptionIds");
+    params.delete(COLOR_PALETTE_PARAM);
+
+    if (selected) {
+      current
+        .filter((value) => !labels.includes(value))
+        .forEach((value) => params.append(COLOR_PALETTE_PARAM, value));
+    } else {
+      const next = [...new Set([...current, ...labels])];
+      next.forEach((value) => params.append(COLOR_PALETTE_PARAM, value));
+    }
+
+    params.set("page", "1");
+    navigate(params);
+  };
+
+  if (items.length === 0) {
+    return null;
   }
 
   return (
     <div className="flex flex-wrap gap-3 justify-end" dir="rtl">
-      {options.map((option) => {
-        const colors = parseColorCodes(option);
-        const selected = selectedColors.includes(option.optionId);
-        const needsBorder = colors.length > 0 && colors.every(isLightHex);
+      {items.map((item) => {
+        const selected = isItemSelected(item.labels);
+        const hoverTitle = formatColorFilterTitle(item.labels);
+        const needsBorder =
+          item.codes.length > 0 && item.codes.every(isLightHex);
 
         return (
           <button
-            key={option.optionId}
+            key={item.key}
             type="button"
-            onClick={() => !selected && handleToggle(option.optionId)}
-            disabled={selected}
-            className={`flex flex-col items-center gap-1.5 group ${selected ? "cursor-default" : "cursor-pointer"}`}
-            title={option.value}
+            onClick={() => handleToggle(item.labels, item.attributeIds)}
+            aria-pressed={selected}
+            title={hoverTitle}
+            className="group flex flex-col items-center gap-1.5 cursor-pointer"
           >
-            {/* سواچ رنگ */}
             <div
-              className={`w-14 h-14 rounded-2xl transition-all duration-200 ${
+              className={`h-14 w-14 overflow-hidden rounded-2xl transition-all duration-200 ${
                 selected
-                  ? "ring-2 ring-offset-2 ring-indigo-500 scale-105"
+                  ? "scale-105 ring-2 ring-indigo-500 ring-offset-2"
                   : "hover:scale-105"
               } ${needsBorder ? "border border-gray-200 dark:border-gray-600" : ""}`}
-              style={swatchStyle(colors)}
+              style={colorSwatchStyle(item.codes)}
             />
-            {/* نام رنگ */}
             <span
-              className={`text-xs font-medium transition-colors ${
+              className={`transition-colors ${
                 selected
                   ? "text-indigo-600 dark:text-indigo-400"
-                  : "text-gray-600 dark:text-gray-300"
+                  : "text-gray-600 group-hover:text-gray-800 dark:text-gray-300 dark:group-hover:text-gray-100"
               }`}
             >
-              {option.value}
+              <ColorTitle labels={item.labels} />
             </span>
           </button>
         );

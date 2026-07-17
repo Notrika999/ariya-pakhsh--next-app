@@ -11,19 +11,6 @@ export const AUTH_COOKIE_NAMES = {
 
 export const AUTH_USER_STORAGE_KEY = "CUP_User";
 
-/** Admin panel — used only by management BFF routes under app/api/v1/auth/* */
-// note for me
-export const BACKEND_AUTH_PATHS = {
-  LOGIN: "/api/v1/management/ManagementAuth/login",
-  VERIFY_2FA: "/api/v1/management/ManagementAuth/verify-2fa",
-  REFRESH: "/api/v1/management/ManagementAuth/refresh-token",
-  LOGOUT: "/api/v1/management/ManagementAuth/logout",
-  ME: "/api/v1/management/ManagementAuth/me",
-  SECURITY_STAMP: "/api/v1/management/ManagementAuth/security-stamp",
-  RESEND_OTP: "/api/v1/management/ManagementAuth/resend-otp",
-} as const;
-// note for me
-
 /** Browser → Next.js BFF (same-origin cookies on localhost) */
 export const FRONT_AUTH_PATHS = {
   ME: "/api/auth/me",

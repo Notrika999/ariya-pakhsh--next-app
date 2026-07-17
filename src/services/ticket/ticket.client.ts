@@ -18,7 +18,7 @@ function getRecord(value: unknown): Record<string, unknown> {
 }
 
 function logApiError(label: string, error: unknown) {
-  console.error(`[ticket.client] ${label} failed =>`, error);
+ 
   if (error instanceof ApiError) {
     console.error(`[ticket.client] ${label} error body =>`, {
       status: error.status,
@@ -89,6 +89,7 @@ function unwrapTicketDetail(payload: unknown): TicketDetail {
     ticketNumber: String(data.ticketNumber ?? ""),
     userId: String(data.userId ?? ""),
     orderId: data.orderId ? String(data.orderId) : null,
+    orderNumber: data.orderNumber ? String(data.orderNumber) : null,
     subject: String(data.subject ?? ""),
     category: String(data.category ?? ""),
     priority: String(data.priority ?? "low"),
@@ -117,7 +118,7 @@ export async function getMyTickets(params?: {
     pageSize: params?.pageSize ?? 20,
   };
 
-  console.log("[ticket.client] getMyTickets =>", query);
+
 
   try {
     const response = await apiClient.get("/Tickets/my", { params: query });
@@ -130,7 +131,7 @@ export async function getMyTickets(params?: {
 }
 
 export async function getTicketById(ticketId: string): Promise<TicketDetail> {
-  console.log("[ticket.client] getTicketById =>", { ticketId });
+
 
   try {
     const response = await apiClient.get(`/Tickets/${ticketId}`);
@@ -161,17 +162,13 @@ export async function createTicket(
     throw new ApiError(400, "موضوع و متن تیکت الزامی است", "VALIDATION_ERROR");
   }
 
-  console.log(
-    "[ticket.client] createTicket =>",
-    payload,
-    JSON.stringify(payload),
-  );
+
 
   try {
     const response = await apiClient.post("/Tickets", payload, {
       headers: { "Content-Type": "application/json" },
     });
-    console.log("[ticket.client] createTicket response =>", response.data);
+ 
 
     const root = getRecord(response.data);
     const data = getRecord(root.data ?? root);
@@ -190,17 +187,14 @@ export async function sendTicketMessage(
   ticketId: string,
   body: SendTicketMessageRequest,
 ): Promise<unknown> {
-  console.log("[ticket.client] sendTicketMessage =>", { ticketId, body });
+
 
   try {
     const response = await apiClient.post(
       `/Tickets/${ticketId}/messages`,
       body,
     );
-    console.log(
-      "[ticket.client] sendTicketMessage response =>",
-      response.data,
-    );
+   
     return response.data;
   } catch (error) {
     logApiError("sendTicketMessage", error);
@@ -209,11 +203,11 @@ export async function sendTicketMessage(
 }
 
 export async function closeTicket(ticketId: string): Promise<unknown> {
-  console.log("[ticket.client] closeTicket =>", { ticketId });
+ 
 
   try {
     const response = await apiClient.post(`/Tickets/${ticketId}/close`);
-    console.log("[ticket.client] closeTicket response =>", response.data);
+   
     return response.data;
   } catch (error) {
     logApiError("closeTicket", error);

@@ -111,6 +111,14 @@ apiClient.interceptors.response.use(
     const backendCode = extractApiErrorCode(errorData);
 
     if (!error.response) {
+      console.error("[api-client] network/no-response error", {
+        url: error.config?.url,
+        method: error.config?.method,
+        baseURL: error.config?.baseURL,
+        code: error.code,
+        message: error.message,
+        name: error.name,
+      });
       return Promise.reject(
         new ApiError(
           0,
@@ -122,26 +130,60 @@ apiClient.interceptors.response.use(
       );
     }
 
+    console.error("[api-client] http error", {
+      url: error.config?.url,
+      method: error.config?.method,
+      status,
+      backendCode,
+      backendMessage,
+      errorData,
+    });
+
     switch (status) {
       case 400:
         return Promise.reject(
-          new ApiError(400, "Bad request", "BAD_REQUEST", errorData),
+          new ApiError(
+            400,
+            backendMessage || "Bad request",
+            backendCode || "BAD_REQUEST",
+            errorData,
+          ),
         );
       case 401:
         return Promise.reject(
-          new ApiError(401, "Session expired", "UNAUTHORIZED", errorData),
+          new ApiError(
+            401,
+            backendMessage || "Session expired",
+            backendCode || "UNAUTHORIZED",
+            errorData,
+          ),
         );
       case 403:
         return Promise.reject(
-          new ApiError(403, "Access denied", "FORBIDDEN", errorData),
+          new ApiError(
+            403,
+            backendMessage || "Access denied",
+            backendCode || "FORBIDDEN",
+            errorData,
+          ),
         );
       case 404:
         return Promise.reject(
-          new ApiError(404, "Resource not found", "NOT_FOUND", errorData),
+          new ApiError(
+            404,
+            backendMessage || "Resource not found",
+            backendCode || "NOT_FOUND",
+            errorData,
+          ),
         );
       case 422:
         return Promise.reject(
-          new ApiError(422, "Validation failed", "VALIDATION_ERROR", errorData),
+          new ApiError(
+            422,
+            backendMessage || "Validation failed",
+            backendCode || "VALIDATION_ERROR",
+            errorData,
+          ),
         );
       case 429:
         return Promise.reject(

@@ -13,10 +13,13 @@ import React, {
 import { usePathname, useSearchParams } from "next/navigation";
 
 import DescriptionCategory from "./DescriptionCategory/DescriptionCategory";
-import CategoriesSlider from "@/components/modules/CategoriesSlider/CategoriesSlider";
+import CategoriesSlider, {
+  type SliderCategory,
+} from "@/components/modules/CategoriesSlider/CategoriesSlider";
 import SectionTitle from "@/components/modules/SectionTitle/SectionTitle";
 import Breadcrumb from "@/components/modules/Breadcrumb/Breadcrumb";
 import ProductListSection from "../ProductListSection/ProductListSection";
+import { ProductCardsSkeletonGrid } from "./ProductListPageSkeleton";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 
 import type { Category as MenuCategory } from "@/src/lib/types/categories/menuType";
@@ -27,7 +30,7 @@ import type {
 } from "@/src/lib/types/productTypes";
 import type { SortOption } from "@/src/lib/types/filters/filters";
 
-import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { CheckCircle, AlertCircle } from "lucide-react";
 
 type BreadcrumbItem = CategoryBreadcrumbItem & { link?: string };
 
@@ -81,11 +84,6 @@ export default function CategoryProductListPage({
     [startTransition],
   );
 
-  // با رسیدن داده تازه از سرور (پراپ‌های جدید)، لودینگ خاموش می‌شود
-  useEffect(() => {
-    setIsNavigating(false);
-  }, [initialProducts, pagination.page, pagination.totalCount]);
-
   const [priceLimit] = useState({
     min: filterOptions?.minPrice ?? 0,
     max: filterOptions?.maxPrice ?? 0,
@@ -115,12 +113,37 @@ export default function CategoryProductListPage({
     totalCount: pagination.totalCount,
   }));
 
+  // همگام‌سازی لیست با داده سرور
+  useEffect(() => {
+    setLoadedList({
+      key: listKey,
+      items: initialProducts,
+      page: pagination.page,
+      totalPages: pagination.totalPages,
+      totalCount: pagination.totalCount,
+    });
+  }, [
+    listKey,
+    initialProducts,
+    pagination.page,
+    pagination.totalPages,
+    pagination.totalCount,
+  ]);
+
+  // پایان transition ناوبری → خاموش کردن لودینگ (حتی اگر totalCount تغییر نکرده باشد)
+  useEffect(() => {
+    if (!isPending) {
+      setIsNavigating(false);
+    }
+  }, [isPending]);
+
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
   const inFlightPageRef = useRef<number | null>(null);
-  const categoryId = category?.id ? String(category.id) : undefined;
+  const routeCategoryId = category?.id ? String(category.id) : undefined;
+  const categoryId = searchParams.get("categoryId") ?? routeCategoryId;
 
   const slug = useMemo(() => {
     return decodeURIComponent(pathname.split("/").filter(Boolean).pop() ?? "");
@@ -212,6 +235,23 @@ export default function CategoryProductListPage({
 
   const hasMore = currentPage < totalPages;
 
+  const sliderCategories = useMemo<SliderCategory[]>(() => {
+    if (category?.children?.length) {
+      return category.children;
+    }
+
+    if (category) {
+      return [];
+    }
+
+    return (filterOptions.categories ?? []).map((item) => ({
+      id: item.categoryId,
+      categoryId: item.categoryId,
+      name: item.name,
+      slug: item.slug,
+    }));
+  }, [category, filterOptions.categories]);
+
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el || !hasMore) return;
@@ -231,8 +271,13 @@ export default function CategoryProductListPage({
 
   const filters = {
     search: "",
-    // color: searchParams.get("color") ?? "",
-    brands: searchParams.getAll("brandId"),
+    categoryId,
+    brands:
+      searchParams.getAll("brand").length > 0
+        ? searchParams.getAll("brand")
+        : searchParams.getAll("brandSlug").length > 0
+          ? searchParams.getAll("brandSlug")
+          : searchParams.getAll("brandId"),
     minPrice: Number(searchParams.get("minPrice") ?? priceLimit.min),
     maxPrice: Number(searchParams.get("maxPrice") ?? priceLimit.max),
     sort: parseSortOption(searchParams.get("sort")),
@@ -242,11 +287,11 @@ export default function CategoryProductListPage({
     <SectionContainer>
       <Breadcrumb items={breadcrumb} />
 
-      {category && category.children.length > 0 && (
+      {sliderCategories.length > 0 && (
         <>
           <SectionTitle title="دسته بندی ها" />
           <div className="pb-10">
-            <CategoriesSlider categories={category.children} />
+            <CategoriesSlider categories={sliderCategories} />
           </div>
         </>
       )}
@@ -265,12 +310,10 @@ export default function CategoryProductListPage({
       {hasMore && <div ref={sentinelRef} className="h-1" />}
 
       {isFetchingMore && (
-        <div className="py-6">
-          <div className="w-150 mx-auto flex items-center justify-center gap-3 rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-blue-700 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-400">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="text-sm font-medium">
-              در حال بارگذاری محصولات بیشتر...
-            </span>
+        <div className="mt-4 grid grid-cols-12 gap-5">
+          <div className="hidden lg:col-span-3 lg:block" aria-hidden />
+          <div className="col-span-12 lg:col-span-9">
+            <ProductCardsSkeletonGrid count={4} />
           </div>
         </div>
       )}

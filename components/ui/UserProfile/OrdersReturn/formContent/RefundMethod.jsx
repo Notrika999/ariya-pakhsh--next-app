@@ -1,7 +1,7 @@
 export default function RefundMethod({ value, onChange }) {
   return (
     <div>
-      <h3 className="font-bold text-lg text-gray-800 dark:text-gray-200 mb-4">
+      <h3 className="mb-4 text-lg font-bold text-gray-800 dark:text-gray-200">
         روش استرداد وجه
       </h3>
 

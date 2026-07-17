@@ -146,6 +146,7 @@ function mapAmazingProduct(
     isFeatured: true,
     specialSale: true,
     offer: true,
+    variantId: promotion.variantId || item.defaultVariantId,
     ...(options?.includeDealTimer
       ? { dealEndsAt: promotion.promotionEndAt }
       : {}),

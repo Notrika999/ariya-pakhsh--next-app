@@ -11,6 +11,15 @@ import {
   ProductListResponse,
   ProductResponse,
 } from "@/src/lib/types/productTypes";
+import {
+  COLOR_PALETTE_PARAM,
+  allBrandSlugParams,
+  listSearchParamValues,
+  mergeColorIntoAttributeFilters,
+  parseAttributeFilters,
+  resolveBrandSlugsToIds,
+  resolveColorPaletteAttributeFilters,
+} from "@/src/lib/helper/productListHelpers";
 
 export interface GetProductsParams {
   FeaturedCount?: number;
@@ -58,8 +67,6 @@ export async function getProducts(
     cache: "no-store",
   });
 
-  console.log("response => ", response);
-
   if (!response.ok || !response.data.isSuccess) {
     throw new Error("Failed to fetch products");
   }
@@ -83,6 +90,8 @@ export async function getProductList(
   const body = removeEmptyValues({
     categoryId: params.CategoryId,
     brandId: params.BrandId,
+    categoryIds: params.CategoryIds,
+    brandIds: params.BrandIds,
     brandSlug: params.BrandSlug,
     categorySlug: params.CategorySlug,
     page: params.Page ?? 1,
@@ -103,8 +112,6 @@ export async function getProductList(
     cache: "no-store",
   });
 
-  console.log(response)
-
   if (!response.ok) {
     throw new Error(response.data?.message ?? "Failed to fetch product list");
   }
@@ -117,16 +124,101 @@ export async function getProductList(
   return response.data.data;
 }
 
-export async function getProductById(slug: string): Promise<ProductDetail> {
+/**
+ * Resolves SEO query params (`brand=slug`, `color_palette=displayText`)
+ * into the Products/filter body (brandIds / attributeFilters).
+ */
+export async function getProductListFromSearchParams(
+  params: Omit<ProductListParams, "AttributeFilters" | "BrandIds"> & {
+    /** /products/[slug] brand page when no ?brand= query */
+    PathBrandSlug?: string;
+  },
+  searchParams: Record<string, string | string[] | undefined>,
+): Promise<ProductListResponse> {
+  const baseFilters = parseAttributeFilters(searchParams);
+  const paletteLabels = listSearchParamValues(
+    searchParams,
+    COLOR_PALETTE_PARAM,
+  );
+  const queryBrandSlugs = allBrandSlugParams(searchParams);
+  const brandSlugs =
+    queryBrandSlugs.length > 0
+      ? queryBrandSlugs
+      : params.PathBrandSlug
+        ? [params.PathBrandSlug]
+        : typeof params.BrandSlug === "string" && params.BrandSlug
+          ? [params.BrandSlug]
+          : [];
+
+  const {
+    PathBrandSlug: _pathBrandSlug,
+    BrandSlug: _incomingBrandSlug,
+    ...listParams
+  } = params;
+
+  const needsColorResolve = paletteLabels.length > 0;
+  const needsBrandResolve = brandSlugs.length > 0;
+
+  let preview: ProductListResponse | null = null;
+  if (needsColorResolve || needsBrandResolve) {
+    preview = await getProductList({
+      ...listParams,
+      BrandSlug: undefined,
+      BrandIds: undefined,
+      AttributeFilters: baseFilters.length > 0 ? baseFilters : undefined,
+      Page: 1,
+      PageSize: 1,
+    });
+  }
+
+  let brandSlug: string | undefined;
+  let brandIds: string[] | undefined;
+
+  if (brandSlugs.length > 0 && preview) {
+    brandIds = resolveBrandSlugsToIds(
+      brandSlugs,
+      preview.filterOptions?.brands,
+    );
+    // fallback when facet list misses a slug
+    if (brandIds.length === 0 && brandSlugs.length === 1) {
+      brandSlug = brandSlugs[0];
+    }
+  } else if (brandSlugs.length === 1) {
+    brandSlug = brandSlugs[0];
+  }
+
+  let attributeFilters = baseFilters;
+  if (needsColorResolve && preview) {
+    const colorFilters = resolveColorPaletteAttributeFilters(
+      paletteLabels,
+      preview.filterOptions?.attributes,
+    );
+    attributeFilters = mergeColorIntoAttributeFilters(
+      baseFilters,
+      colorFilters,
+    );
+  }
+
+  return getProductList({
+    ...listParams,
+    BrandSlug: brandIds?.length ? undefined : brandSlug,
+    BrandIds: brandIds && brandIds.length > 0 ? brandIds : undefined,
+    AttributeFilters:
+      attributeFilters.length > 0 ? attributeFilters : undefined,
+  });
+}
+
+export async function getProductById(productIdOrSlug: string): Promise<ProductDetail> {
   const response = await proxyToBackend<ApiResponse<ProductDetail>>({
     method: "GET",
-    path: `/api/v1/Products/${slug}`,
+    path: `/api/v1/Products/${productIdOrSlug}`,
     cache: "no-store",
   });
 
-  console.log("getProductById response => ", response);
+  console.log("response ProductById => ", response);
 
-  if (!response.ok || !response.data.isSuccess) {
+  const isSuccess = response.data?.isSuccess ?? response.data?.success;
+  if (!response.ok || !isSuccess) {
     throw new Error(response.data?.message ?? "Failed to fetch product");
   }
 

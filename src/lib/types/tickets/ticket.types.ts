@@ -40,6 +40,7 @@ export type TicketDetail = {
   ticketNumber: string;
   userId: string;
   orderId: string | null;
+  orderNumber: string | null;
   subject: string;
   category: TicketCategory;
   priority: TicketPriority;

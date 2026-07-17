@@ -168,6 +168,8 @@ function ReviewCard({
       notify.success(
         voteType === "like" ? "رأی مثبت ثبت شد" : "رأی منفی ثبت شد",
       );
+
+      console.log(voteType)
     } catch (error) {
       console.error("[Comments] vote failed =>", error);
       notify.error(getAuthErrorMessage(error));

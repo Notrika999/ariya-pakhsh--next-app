@@ -115,13 +115,13 @@ export async function getProductReviews(
     sort: params.sort ?? "newest",
   };
 
-  console.log("[review.client] getProductReviews =>", { productId, query });
+
 
   try {
     const response = await apiClient.get(`/products/${productId}/reviews`, {
       params: query,
     });
-    console.log("[review.client] getProductReviews response =>", response.data);
+    
     return unwrapReviewsPage(response.data);
   } catch (error) {
     logApiError("getProductReviews", error);
@@ -132,16 +132,13 @@ export async function getProductReviews(
 export async function getProductReviewsSummary(
   productId: string,
 ): Promise<ProductReviewsSummary> {
-  console.log("[review.client] getProductReviewsSummary =>", { productId });
+ 
 
   try {
     const response = await apiClient.get(
       `/products/${productId}/reviews/summary`,
     );
-    console.log(
-      "[review.client] getProductReviewsSummary response =>",
-      response.data,
-    );
+    
     return unwrapSummary(response.data);
   } catch (error) {
     logApiError("getProductReviewsSummary", error);
@@ -153,14 +150,14 @@ export async function createProductReview(
   productId: string,
   body: CreateProductReviewRequest,
 ): Promise<unknown> {
-  console.log("[review.client] createProductReview =>", { productId, body });
+ 
 
   try {
     const response = await apiClient.post(
       `/products/${productId}/reviews`,
       body,
     );
-    console.log("[review.client] createProductReview response =>", response.data);
+    
     return response.data;
   } catch (error) {
     logApiError("createProductReview", error);
@@ -173,7 +170,7 @@ export async function voteProductReview(
   voteType: ReviewVoteType,
 ): Promise<unknown> {
   const body = { voteType };
-  console.log("[review.client] voteProductReview =>", { reviewId, body });
+ 
 
   try {
     const response = await apiClient.post(`/Reviews/${reviewId}/vote`, body);
@@ -189,7 +186,7 @@ export async function reportProductReview(
   reviewId: string,
   body: ReportReviewRequest,
 ): Promise<unknown> {
-  console.log("[review.client] reportProductReview =>", { reviewId, body });
+
 
   try {
     const response = await apiClient.post(`/Reviews/${reviewId}/report`, body);
@@ -205,7 +202,7 @@ export async function reportProductReview(
 }
 
 export async function deleteProductReview(reviewId: string): Promise<unknown> {
-  console.log("[review.client] deleteProductReview =>", { reviewId });
+ 
 
   try {
     const response = await apiClient.delete(`/Reviews/${reviewId}`);

@@ -16,9 +16,10 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { params } = await pageParams;
 
-  const [publicCode = "", slug = ""] = params;
+  const [publicCodeOrProductId = "", slug = ""] = params;
+  const productIdentifier = decodeURIComponent(slug || publicCodeOrProductId);
 
-  const product = await getProductById(decodeURIComponent(slug));
+  const product = await getProductById(productIdentifier);
 
   return {
     title: product?.metaTitle ?? product.name,
@@ -26,7 +27,7 @@ export async function generateMetadata({
     keywords: product?.metaKeywords,
     alternates: {
       canonical: absoluteUrl(
-        `/product/${encodeURIComponent(publicCode)}/${encodeURIComponent(slug)}`,
+        `/product/${encodeURIComponent(product.publicCode)}/${encodeURIComponent(product.slug)}`,
       ),
     },
     robots: { index: true, follow: true },
@@ -35,11 +36,11 @@ export async function generateMetadata({
 
 export default async function ProductDetailsPage({ params: pageParams }: PageProps) {
   const { params } = await pageParams;
-  const [, slug] = params;
+  const [publicCodeOrProductId = "", slug = ""] = params;
 
-  const title = await decodeURIComponent(slug);
+  const productIdentifier = decodeURIComponent(slug || publicCodeOrProductId);
 
-  const product = await getProductById(title);
+  const product = await getProductById(productIdentifier);
 
   return <ProductDetails product={product} />;
 }

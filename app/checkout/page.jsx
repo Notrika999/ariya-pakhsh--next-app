@@ -1,3 +1,5 @@
+// app/checkout/page.jsx
+
 import CheckoutPageClient from "@/components/ui/Checkout/CheckoutPageClient";
 import React from "react";
 

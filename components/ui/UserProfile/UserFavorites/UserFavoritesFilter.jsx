@@ -1,3 +1,13 @@
+import CustomSelect from "@/components/modules/UserProfile/CustomSelect";
+
+const SORT_OPTIONS = [
+  { value: "", label: "همه مرتب‌سازی‌ها" },
+  { value: "recent", label: "جدیدترین" },
+  { value: "oldest", label: "قدیمی‌ترین" },
+  { value: "price-low", label: "قیمت (کم به زیاد)" },
+  { value: "price-high", label: "قیمت (زیاد به کم)" },
+];
+
 export default function UserFavoritesFilter({
   category,
   sort,
@@ -9,63 +19,12 @@ export default function UserFavoritesFilter({
   return (
     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative">
-          <select
-            className="w-full appearance-none border rounded-lg px-4 pe-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-zinc-800 dark:border-gray-600 dark:text-white"
-            value={category}
-            onChange={(e) => onCategoryChange(e.target.value)}
-          >
-            <option value="all">همه دسته‌بندی‌ها</option>
-            <option value="mobile">موبایل</option>
-            <option value="laptop">لپ‌تاپ</option>
-            <option value="accessory">لوازم جانبی</option>
-            <option value="electronics">الکترونیک</option>
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M19 9l-7 7-7-7"
-              ></path>
-            </svg>
-          </div>
-        </div>
-
-        <div className="relative">
-          <select
-            className="w-full appearance-none border rounded-lg px-4 pe-10 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-zinc-800 dark:border-gray-600 dark:text-white"
-            value={sort}
-            onChange={(e) => onSortChange(e.target.value)}
-          >
-            <option value="all">مرتب‌سازی بر اساس</option>
-            <option value="recent">جدیدترین</option>
-            <option value="oldest">قدیمی‌ترین</option>
-            <option value="price-low">قیمت (کم به زیاد)</option>
-            <option value="price-high">قیمت (زیاد به کم)</option>
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M19 9l-7 7-7-7"
-              ></path>
-            </svg>
-          </div>
-        </div>
+        <CustomSelect
+          className="sm:w-44"
+          options={SORT_OPTIONS}
+          value={sort}
+          onChange={(val) => onSortChange(val)}
+        />
       </div>
 
       <div className="relative w-full md:w-64">

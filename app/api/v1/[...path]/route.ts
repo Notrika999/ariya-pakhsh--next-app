@@ -106,13 +106,23 @@ async function handleProxy(
     }
 
     const payload = await getRequestBodyPayload(request);
+    const guestSessionId =
+      request.headers.get("x-guest-session-id") ??
+      request.headers.get("X-Guest-Session-Id");
+    const forwardHeaders: Record<string, string> = {
+      ...(payload.headers ?? {}),
+    };
+    if (guestSessionId?.trim()) {
+      forwardHeaders["X-Guest-Session-Id"] = guestSessionId.trim();
+    }
+
     const response = await proxyToBackend({
       method: request.method as "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
       path: backendPath,
       params: getQueryParams(request),
       body: payload.body,
       rawBody: payload.rawBody,
-      headers: payload.headers,
+      headers: forwardHeaders,
       withAuth: true,
       cache: "no-store",
     });

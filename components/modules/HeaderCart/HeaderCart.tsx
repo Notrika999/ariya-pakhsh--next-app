@@ -7,6 +7,7 @@ import Link from "next/link";
 import React from "react";
 import { useCart } from "@/src/context/CartContext";
 import { formatPrice } from "@/src/utils/formatPrice";
+import { notify } from "@/src/utils/toast";
 
 interface HeaderCartProps {
   open: boolean;
@@ -14,9 +15,28 @@ interface HeaderCartProps {
 }
 
 export default function HeaderCart({ open, onClose }: HeaderCartProps) {
-  const { items, totalPrice, removeItem, updateQty } = useCart();
+  const { items, totalPrice, removeItem, updateQty, clearCart } = useCart();
+  const [clearing, setClearing] = React.useState(false);
 
-  // console.log(items);
+  const handleClearCart = async () => {
+    if (items.length === 0 || clearing) return;
+
+    const confirmed = await notify.confirm("همه کالاها از سبد خرید حذف شوند؟", {
+      confirmLabel: "حذف همه",
+      cancelLabel: "انصراف",
+    });
+    if (!confirmed) return;
+
+    setClearing(true);
+    try {
+      await clearCart();
+      notify.success("سبد خرید خالی شد");
+    } catch {
+      notify.error("حذف سبد خرید ناموفق بود");
+    } finally {
+      setClearing(false);
+    }
+  };
 
   return (
     <div
@@ -29,7 +49,7 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
       aria-modal="true"
     >
       {/* Header */}
-      <header className="border-b border-gray-200 dark:border-gray-700 p-3 flex items-center justify-between">
+      <header className="border-b border-gray-200 dark:border-gray-700 p-3 flex items-center justify-between gap-2">
         <Link
           href="/cart"
           id="cart-title"
@@ -43,13 +63,27 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
             </span>
           )}
         </Link>
-        <button
-          onClick={onClose}
-          className="cursor-pointer"
-          aria-label="بستن سبد خرید"
-        >
-          <i className="far fa-x"></i>
-        </button>
+
+        <div className="flex items-center gap-3">
+          {items.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => void handleClearCart()}
+              disabled={clearing}
+              className="cursor-pointer text-xs font-medium text-red-600 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-400 dark:hover:text-red-300"
+              aria-label="حذف همه کالاها از سبد خرید"
+            >
+              {clearing ? "در حال حذف..." : "حذف همه"}
+            </button>
+          ) : null}
+          <button
+            onClick={onClose}
+            className="cursor-pointer"
+            aria-label="بستن سبد خرید"
+          >
+            <i className="far fa-x"></i>
+          </button>
+        </div>
       </header>
 
       {/* Cart Items */}
@@ -105,7 +139,7 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
                     {/* Quantity Controls */}
                     <div className="flex items-center gap-2 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                       <button
-                        onClick={() => updateQty(item.id, item.quantity - 1)}
+                        onClick={() => void updateQty(item.id, item.quantity - 1)}
                         className="px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                         aria-label="کاهش تعداد"
                       >
@@ -115,7 +149,7 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
                         {item.quantity}
                       </span>
                       <button
-                        onClick={() => updateQty(item.id, item.quantity + 1)}
+                        onClick={() => void updateQty(item.id, item.quantity + 1)}
                         className="px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                         aria-label="افزایش تعداد"
                       >
@@ -125,7 +159,7 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
 
                     {/* Remove Button */}
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => void removeItem(item.id)}
                       className="bg-red-100 hover:bg-red-200 dark:bg-custom-dark dark:hover:bg-[#1f242c] text-red-800 dark:text-gray-200 border border-transparent dark:border-gray-700 p-2 rounded-lg transition-colors duration-200"
                       aria-label="حذف محصول از سبد خرید"
                     >

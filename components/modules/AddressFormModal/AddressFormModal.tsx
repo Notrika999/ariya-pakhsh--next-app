@@ -1,7 +1,8 @@
 "use client";
-
+// components/modules/AddressFormModal/AddressFormModal.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import dynamic from "next/dynamic";
 import LocationAutocomplete from "@/components/ui/UserProfile/UserAddress/LocationAutocomplete";
 import {
   createCustomerAddress,
@@ -22,6 +23,18 @@ import {
 } from "@/src/lib/address/address-form";
 import { FieldError, fieldClass } from "@/src/utils/form.validation";
 import { notify } from "@/src/utils/toast";
+
+const AddressLocationMap = dynamic(
+  () => import("./AddressLocationMap"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-64 items-center justify-center rounded-lg border border-gray-300 bg-gray-50 text-sm text-gray-500 dark:border-gray-600 dark:bg-zinc-800 dark:text-gray-400">
+        در حال بارگذاری نقشه...
+      </div>
+    ),
+  },
+);
 
 const INPUT_CLASS =
   "appearance-none rounded-lg px-4 pe-10 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary";
@@ -96,6 +109,7 @@ export default function AddressFormModal({
     }
 
     const payload = buildAddressPayload(formData);
+
     setSubmitting(true);
 
     try {
@@ -312,6 +326,23 @@ export default function AddressFormModal({
               placeholder="خیابان، کوچه، پلاک، طبقه، واحد"
             />
             <FieldError message={fieldErrors.addressLine} />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+              موقعیت روی نقشه <span className="text-red-500">*</span>
+            </label>
+            <AddressLocationMap
+              latitude={formData.latitude}
+              longitude={formData.longitude}
+              disabled={submitting}
+              hasError={Boolean(fieldErrors.latitude)}
+              onChange={({ latitude, longitude }) => {
+                setFormData((prev) => ({ ...prev, latitude, longitude }));
+                clearFieldError("latitude");
+              }}
+            />
+            <FieldError message={fieldErrors.latitude} />
           </div>
 
           {showDefaultCheckbox && (

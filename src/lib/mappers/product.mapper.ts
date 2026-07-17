@@ -13,6 +13,50 @@ function isProductListItem(
   return "productId" in product;
 }
 
+function getStringField(
+  value: unknown,
+  keys: string[],
+): string | undefined {
+  if (!value || typeof value !== "object") return undefined;
+
+  const record = value as Record<string, unknown>;
+  for (const key of keys) {
+    const fieldValue = record[key];
+    if (typeof fieldValue === "string" && fieldValue.trim()) {
+      return fieldValue.trim();
+    }
+  }
+
+  return undefined;
+}
+
+function getProductVariantId(product: unknown): string | undefined {
+  const directVariantId = getStringField(product, [
+    "variantId",
+    "VariantId",
+    "variantID",
+    "VariantID",
+    "defaultVariantId",
+    "DefaultVariantId",
+    "defaultVariantID",
+    "DefaultVariantID",
+  ]);
+
+  if (directVariantId) return directVariantId;
+
+  if (!product || typeof product !== "object") return undefined;
+
+  const variants = (product as Record<string, unknown>).variants;
+  if (!Array.isArray(variants) || variants.length === 0) return undefined;
+
+  return getStringField(variants[0], [
+    "variantId",
+    "VariantId",
+    "variantID",
+    "VariantID",
+  ]);
+}
+
 function toProduct(item: Product | ProductListItem): Product {
   if (!isProductListItem(item)) {
     return item;
@@ -78,9 +122,12 @@ export function normalizeProduct(
 ): ProductCardModel {
   // console.log("Product Mapper normalizeProduct => ", product);
   if (isProductListItem(product)) {
+    const variantId = getProductVariantId(product);
+
     return {
       id: product.productId,
       title: product.name,
+      slug: product.slug,
       publicCode: product.publicCode,
 
       image: getProductImage(product.thumbnailPath ?? product.mediumPath),
@@ -108,6 +155,7 @@ export function normalizeProduct(
       offer: false,
       quantity: product.availableQuantity,
       soldCount: product.soldCount,
+      variantId,
     };
   }
 
@@ -139,8 +187,9 @@ export function normalizeProduct(
 
     href: product.href,
 
-    inStock: 'inStock' in product ? Boolean(product.inStock) : undefined,
+    inStock: "inStock" in product ? Boolean(product.inStock) : undefined,
     isOnSale: Number(product.discount ?? 0) > 0,
     offer: product.offer ?? false,
+    variantId: getProductVariantId(product),
   };
 }

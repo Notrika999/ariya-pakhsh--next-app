@@ -9,11 +9,18 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import Image from "next/image";
 import Link from "next/link";
-import type { Category } from "@/src/lib/types/categories/menuType";
 import { truncateTitle } from "@/src/utils/truncateTitle";
 
+export type SliderCategory = {
+  id?: string;
+  categoryId?: string;
+  name: string;
+  slug: string;
+  src?: string | null;
+};
+
 type Props = {
-  categories: Category[];
+  categories: SliderCategory[];
 };
 
 export default function CategoriesSlider({ categories }: Props) {
@@ -25,8 +32,8 @@ export default function CategoriesSlider({ categories }: Props) {
       spaceBetween={16}
       className="mySwiper"
     >
-      {categories.map((item, index) => (
-        <SwiperSlide key={index} className="w-50!">
+      {categories.map((item) => (
+        <SwiperSlide key={item.id ?? item.categoryId ?? item.slug} className="w-50!">
           <Link href={`/products/${item.slug}`}>
             <div className="bg-white dark:bg-custom-dark dark:border-gray-700 dark:text-gray-200 space-y-3 shadow-sm border border-gray-200 p-3 rounded-2xl flex flex-col items-center justify-center duration-200 hover:shadow-md hover:scale-[1.02] transition-all">
               <figure>

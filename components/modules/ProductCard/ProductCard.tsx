@@ -3,15 +3,28 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ProductCardModel } from "@/src/lib/types/productTypes";
 import { formatPrice } from "@/src/utils/formatPrice";
 import CountdownTimer from "../CountdownTimer/CountdownTimer";
 import Link from "next/link";
 import { useCart } from "@/src/context/CartContext";
+import { apiClient } from "@/src/lib/http/api-client";
+import { notify } from "@/src/utils/toast";
+import {
+  useIsAuthenticated,
+  useIsAuthBootstrapping,
+} from "@/src/lib/stores/auth/auth.store";
+import {
+  addWishlistProduct,
+  getWishlistProductStatus,
+  removeWishlistProduct,
+} from "@/src/services/wishlist/wishlist.client";
+import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
 
 interface ProductCardProps {
   product: ProductCardModel;
+  noClick?: boolean;
 }
 
 function StarRating({ rating, count }: { rating: number; count: number }) {
@@ -20,7 +33,7 @@ function StarRating({ rating, count }: { rating: number; count: number }) {
   return (
     <div className="flex items-center gap-1.5">
       <div className="flex gap-0.5">
-        {Array.from({ length: 5 }, (_, i) => (
+        {Array.from({ length: 1 }, (_, i) => (
           <svg
             key={i}
             className={`w-3.5 h-3.5 ${
@@ -44,25 +57,200 @@ function StarRating({ rating, count }: { rating: number; count: number }) {
   );
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+function getRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object"
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+function getStringField(
+  value: Record<string, unknown>,
+  keys: string[],
+): string | null {
+  for (const key of keys) {
+    const fieldValue = value[key];
+    if (typeof fieldValue === "string" && fieldValue.trim()) {
+      return fieldValue.trim();
+    }
+  }
+
+  return null;
+}
+
+function getProductHrefIdentifiers(href: string | undefined): string[] {
+  if (!href) return [];
+
+  const [path] = href.split("?");
+  return path
+    .split("/")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .filter((part) => part !== "product")
+    .map((part) => decodeURIComponent(part));
+}
+
+async function resolveVariantId(
+  product: ProductCardModel,
+): Promise<string | null> {
+  const direct = product.variantId?.trim();
+  if (direct) return direct;
+
+  const lookupKeys = [
+    product.slug?.trim(),
+    ...getProductHrefIdentifiers(product.href).reverse(),
+    product.publicCode?.trim() || product.id?.trim(),
+  ].filter((value): value is string => Boolean(value));
+
+  const uniqueLookupKeys = [...new Set(lookupKeys)];
+  if (uniqueLookupKeys.length === 0) return null;
+
+  for (const lookupKey of uniqueLookupKeys) {
+    try {
+      const response = await apiClient.get(
+        `/Products/${encodeURIComponent(lookupKey)}`,
+      );
+      const root = getRecord(response.data);
+      const data = getRecord(root.data ?? root);
+      const variants = Array.isArray(data.variants) ? data.variants : [];
+      const firstVariant = variants[0];
+      const variantId = getStringField(getRecord(firstVariant), [
+        "variantId",
+        "VariantId",
+        "variantID",
+        "VariantID",
+      ]);
+
+      if (variantId) return variantId;
+    } catch (error) {
+      console.error("[ProductCard] resolveVariantId failed =>", {
+        lookupKey,
+        error,
+      });
+    }
+  }
+
+  return null;
+}
+
+export default function ProductCard({
+  product,
+  noClick = false,
+}: ProductCardProps) {
   const [wishlist, setWishlist] = useState(false);
+  const [wishlistBusy, setWishlistBusy] = useState(false);
   const [expired, setExpired] = useState(false);
-  const [addedToCart, setAddedToCart] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
+  const [adding, setAdding] = useState(false);
 
-  const { addItem } = useCart();
+  const { addItem, items } = useCart();
+  const isAuthenticated = useIsAuthenticated();
+  const isAuthBootstrapping = useIsAuthBootstrapping();
+  const productId = product.id?.trim() ?? "";
+  const showWishlistActive = isAuthenticated && wishlist;
 
-  const handleCart = useCallback(() => {
-    addItem({
-      id: product.id,
-      title: product.title,
-      image: product.image,
-      price: product.price,
-      oldPrice: product.oldPrice,
-      href: product.href,
+  const isOutOfStock = product.inStock === false;
+
+  const isInCart = useMemo(() => {
+    const variantId = product.variantId?.trim();
+    return items.some((item) => {
+      const itemVariantId = String(item.variantId ?? item.id).trim();
+      if (variantId && itemVariantId === variantId) return true;
+      if (item.productId && String(item.productId) === String(product.id)) {
+        return true;
+      }
+      return false;
     });
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
-  }, [addItem, product]);
+  }, [items, product.id, product.variantId]);
+
+  const showAdded = isInCart || justAdded;
+
+  useEffect(() => {
+    if (!productId || isAuthBootstrapping) return;
+
+    if (!isAuthenticated) return;
+
+    let cancelled = false;
+
+    async function loadWishlistStatus() {
+      try {
+        const status = await getWishlistProductStatus(productId);
+        if (!cancelled) {
+          setWishlist(status.isInWishlist);
+        }
+      } catch {
+        if (!cancelled) {
+          setWishlist(false);
+        }
+      }
+    }
+
+    void loadWishlistStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [productId, isAuthenticated, isAuthBootstrapping]);
+
+  const handleToggleWishlist = useCallback(async () => {
+    if (wishlistBusy || isAuthBootstrapping) return;
+
+    if (!isAuthenticated) {
+      notify.info("برای افزودن به علاقمندی ابتدا وارد شوید");
+      return;
+    }
+
+    if (!productId) {
+      notify.error("شناسه محصول نامعتبر است.");
+      return;
+    }
+
+    setWishlistBusy(true);
+    try {
+      if (wishlist) {
+        await removeWishlistProduct(productId);
+        setWishlist(false);
+        notify.success("محصول از علاقه‌مندی‌ها حذف شد.");
+      } else {
+        await addWishlistProduct(productId);
+        setWishlist(true);
+        notify.success("محصول به علاقه‌مندی‌ها اضافه شد.");
+      }
+    } catch (error) {
+      notify.error(getAuthErrorMessage(error));
+    } finally {
+      setWishlistBusy(false);
+    }
+  }, [isAuthenticated, isAuthBootstrapping, productId, wishlist, wishlistBusy]);
+
+  const handleCart = useCallback(async () => {
+    if (expired || adding || isOutOfStock || isInCart) return;
+
+    setAdding(true);
+    try {
+      const variantId = await resolveVariantId(product);
+      if (!variantId) {
+        notify.error("امکان افزودن این محصول به سبد وجود ندارد");
+        return;
+      }
+
+      await addItem({
+        id: variantId,
+        variantId,
+        productId: product.id,
+        title: product.title,
+        image: product.image,
+        price: product.price,
+        oldPrice: product.oldPrice,
+        href: product.href,
+        quantity: 1,
+      });
+
+      setJustAdded(true);
+      window.setTimeout(() => setJustAdded(false), 2000);
+    } finally {
+      setAdding(false);
+    }
+  }, [addItem, adding, expired, isInCart, isOutOfStock, product]);
 
   const review = {
     rating: product.rating,
@@ -72,7 +260,6 @@ export default function ProductCard({ product }: ProductCardProps) {
   const showStockBadge = typeof product.inStock === "boolean";
   const showSaleBadge = product.isOnSale === true;
   const showPublicCode = Boolean(product.publicCode?.trim());
-  const isOutOfStock = product.inStock === false;
 
   return (
     <article
@@ -86,19 +273,22 @@ export default function ProductCard({ product }: ProductCardProps) {
     >
       {/* Wishlist */}
       <button
-        onClick={() => setWishlist((w) => !w)}
+        type="button"
+        onClick={() => void handleToggleWishlist()}
+        disabled={wishlistBusy || isAuthBootstrapping}
         aria-label={
           wishlist ? "حذف از علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها"
         }
-        className="absolute top-3 left-3 z-20 w-8 h-8 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-sm flex items-center justify-center transition-all hover:scale-110 hover:bg-white dark:hover:bg-gray-800"
+        aria-pressed={showWishlistActive}
+        className="absolute top-3 left-3 z-20 w-8 h-8 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-sm flex items-center justify-center transition-all hover:scale-110 hover:bg-white dark:hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <svg
           className={`w-4 h-4 transition-colors ${
-            wishlist
+            showWishlistActive
               ? "text-red-500 fill-red-500"
               : "text-stone-400 dark:text-stone-500"
           }`}
-          fill={wishlist ? "currentColor" : "none"}
+          fill={showWishlistActive ? "currentColor" : "none"}
           stroke="currentColor"
           viewBox="0 0 24 24"
           strokeWidth={2}
@@ -113,7 +303,10 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       {/* Image */}
       <div className="relative w-full h-48 bg-white dark:bg-stone-800 flex items-center justify-center overflow-hidden">
-        {(showStockBadge || showSaleBadge || product.discountPercent || product.specialSale) && (
+        {(showStockBadge ||
+          showSaleBadge ||
+          product.discountPercent ||
+          product.specialSale) && (
           <div className="absolute top-3 right-3 z-10 flex flex-col items-end gap-1">
             {showStockBadge && (
               <span
@@ -158,6 +351,15 @@ export default function ProductCard({ product }: ProductCardProps) {
           href={product.href}
           className="leading-relaxed line-clamp-2 min-h-10"
         >
+          {noClick && (
+            <>
+              {showSaleBadge && (
+                <span className="text-[10px] font-bold px-2 py-0.5 shadow-sm  text-amber-700  dark:text-amber-300 ">
+                  فروش ویژه
+                </span>
+              )}
+            </>
+          )}
           <span
             title={product.title}
             className="text-sm font-medium text-gray-900 dark:text-gray-100 block"
@@ -166,14 +368,14 @@ export default function ProductCard({ product }: ProductCardProps) {
           </span>
         </Link>
 
-        {showPublicCode && (
+        {/* {showPublicCode && (
           <p
             className="text-[11px] text-stone-500 dark:text-stone-400 -mt-2 hidden"
             dir="ltr"
           >
             {product.publicCode}
           </p>
-        )}
+        )} */}
 
         {/* Rating */}
         {review && (
@@ -212,41 +414,48 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* CTA */}
-        <div className="flex gap-2">
-          {isOutOfStock ? (
+        {!noClick && (
+          <div className="flex gap-2">
+            {isOutOfStock ? (
+              <Link
+                href={product.href}
+                className="w-full py-2 rounded-xl text-sm text-center font-bold transition-all duration-200 bg-primary hover:bg-primary-600 text-white shadow-sm hover:shadow-md active:scale-95 dark:hover:bg-primary/80"
+              >
+                به من اطلاع بده
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void handleCart()}
+                disabled={expired || adding || showAdded}
+                className={`w-full py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
+                  expired
+                    ? "cursor-not-allowed bg-stone-100 text-stone-400 dark:bg-stone-800 dark:text-stone-600"
+                    : showAdded
+                      ? "cursor-default bg-emerald-500 text-white opacity-90"
+                      : adding
+                        ? "cursor-wait bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900"
+                        : "cursor-pointer bg-stone-900 text-white hover:bg-amber-500 hover:shadow-lg hover:shadow-amber-200 active:scale-95 dark:bg-stone-100 dark:text-stone-900 dark:hover:bg-amber-400 dark:hover:shadow-amber-900/30"
+                }`}
+              >
+                {expired
+                  ? "پیشنهاد تمام شد"
+                  : adding
+                    ? "در حال افزودن..."
+                    : showAdded
+                      ? "✓ افزوده شد"
+                      : "افزودن به سبد"}
+              </button>
+            )}
+
             <Link
               href={product.href}
-              className="w-full py-2 rounded-xl text-sm text-center font-bold transition-all duration-200 bg-primary hover:bg-primary-600 text-white shadow-sm hover:shadow-md active:scale-95 dark:hover:bg-primary/80"
+              className="w-full py-2 rounded-xl text-sm text-center font-bold transition-all duration-200 bg-primary hover:bg-primary-400 text-white"
             >
-              به من اطلاع بده
+              جزییات
             </Link>
-          ) : (
-            <button
-              onClick={handleCart}
-              disabled={expired}
-              className={`w-full py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
-                expired
-                  ? "bg-stone-100 dark:bg-stone-800 text-stone-400 dark:text-stone-600 cursor-not-allowed"
-                  : addedToCart
-                    ? "bg-emerald-500 text-white scale-95"
-                    : "bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 hover:bg-amber-500 dark:hover:bg-amber-400 hover:shadow-lg hover:shadow-amber-200 dark:hover:shadow-amber-900/30 active:scale-95"
-              }`}
-            >
-              {expired
-                ? "پیشنهاد تمام شد"
-                : addedToCart
-                  ? "✓ افزوده شد"
-                  : "افزودن به سبد"}
-            </button>
-          )}
-
-          <Link
-            href={product.href}
-            className="w-full py-2 rounded-xl text-sm text-center font-bold transition-all duration-200 bg-primary hover:bg-primary-400 text-white"
-          >
-            جزییات
-          </Link>
-        </div>
+          </div>
+        )}
       </div>
     </article>
   );

@@ -37,15 +37,11 @@ export async function handleCustomerAuthPost(
     setAuthIndicator?: boolean;
   },
 ): Promise<NextResponse> {
-  console.log(
-    "[auth-route] handleCustomerAuthPost =>",
-    buildBackendUrl(backendPath),
-  );
+  
   try {
     const body = await request.json();
     const extraHeaders = await buildDeviceCookieHeader();
 
-    console.log("[auth-route] body =>", body);
     const response = await proxyToBackend({
       method: "POST",
       path: backendPath,
@@ -55,10 +51,7 @@ export async function handleCustomerAuthPost(
       retries: 0,
     });
 
-    console.log("[auth-route] status =>", response.status, "ok =>", response.ok);
-
     if (!response.ok) {
-      console.warn("[auth-route] backend error =>", response.data);
       return NextResponse.json(response.data, { status: response.status });
     }
 
@@ -78,18 +71,8 @@ export async function handleCustomerAuthPost(
       setAuthIndicator(nextResponse, expiresIn);
     }
 
-    console.log(
-      "[auth-route] cookies set =>",
-      nextResponse.cookies.getAll().map((c) => c.name),
-      "fromBody =>",
-      tokensSet,
-      "deviceFromBody =>",
-      deviceSet,
-    );
-
     return nextResponse;
   } catch (error) {
-    console.error("[auth-route] handleCustomerAuthPost error =>", error);
     if (error instanceof ProxyError) {
       return NextResponse.json(
         {
@@ -115,13 +98,6 @@ export async function handleCustomerAuthGet(
       method: "GET",
       path: backendPath,
       withAuth,
-    });
-
-    console.log("[auth-route] GET backend raw response before client store =>", {
-      backendPath,
-      status: response.status,
-      ok: response.ok,
-      data: response.data,
     });
 
     return NextResponse.json(response.data, { status: response.status });

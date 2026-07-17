@@ -102,7 +102,18 @@ function pickNumber(
 }
 
 function unwrapApiData<T>(payload: unknown, label: string): T {
+  const debug = label === "register";
+  if (debug) {
+    console.log(`[auth.client] unwrapApiData(${label}) => input`, payload);
+  }
+
   if (!payload || typeof payload !== "object") {
+    if (debug) {
+      console.error(`[auth.client] unwrapApiData(${label}) => invalid payload`, {
+        payload,
+        type: typeof payload,
+      });
+    }
     throw new Error(`${label}: پاسخ سرور نامعتبر است`);
   }
 
@@ -118,11 +129,21 @@ function unwrapApiData<T>(payload: unknown, label: string): T {
       "token" in inner ||
       "resetToken" in inner ||
       "verificationToken" in inner ||
-      "userId" in inner
+      "userId" in inner ||
+      "userInfoDto" in inner ||
+      "accessToken" in inner
     ) {
+      if (debug) {
+        console.log(`[auth.client] unwrapApiData(${label}) => using record.data`);
+      }
       return record.data as T;
     }
     if ("data" in inner && inner.data) {
+      if (debug) {
+        console.log(
+          `[auth.client] unwrapApiData(${label}) => using nested data.data`,
+        );
+      }
       return inner.data as T;
     }
   }
@@ -133,11 +154,19 @@ function unwrapApiData<T>(payload: unknown, label: string): T {
     "token" in record ||
     "resetToken" in record ||
     "verificationToken" in record ||
-    "userId" in record
+    "userId" in record ||
+    "userInfoDto" in record ||
+    "accessToken" in record
   ) {
+    if (debug) {
+      console.log(`[auth.client] unwrapApiData(${label}) => using root payload`);
+    }
     return payload as T;
   }
 
+  console.error(`[auth.client] unwrapApiData(${label}) => data field missing`, {
+    keys: Object.keys(record),
+  });
   throw new Error(`${label}: فیلد data در پاسخ پیدا نشد`);
 }
 
@@ -231,18 +260,40 @@ export function attachSessionToUser(
 export async function completeUserFromMe(
   user: UserInfoDto,
 ): Promise<UserInfoDto> {
+  console.log("[auth.client] completeUserFromMe => start", {
+    userId: user.userId ?? user.id ?? null,
+    hasBirthDate: Boolean(user.birthDate),
+  });
+
   if (user.birthDate) return user;
-  return getMe().catch(() => user);
+
+  try {
+    const me = await getMe();
+    console.log("[auth.client] completeUserFromMe => getMe ok", {
+      userId: me.userId ?? me.id ?? null,
+      hasBirthDate: Boolean(me.birthDate),
+    });
+    return me;
+  } catch (error) {
+    console.warn(
+      "[auth.client] completeUserFromMe => getMe failed, fallback to register user",
+      error instanceof ApiError
+        ? {
+            status: error.status,
+            code: error.code,
+            message: error.message,
+            data: error.data,
+          }
+        : error,
+    );
+    return user;
+  }
 }
 
 export const startPhoneAuth = async (
   data: StartAuthRequest,
 ): Promise<StartAuthResponse> => {
-  console.log(
-    "[auth.client] POST",
-    CUSTOMER_AUTH_CLIENT_PATHS.PHONE_START,
-    data,
-  );
+ 
 
   try {
     const response = await apiClient.post(
@@ -253,10 +304,10 @@ export const startPhoneAuth = async (
       unwrapApiData<StartAuthResponse>(response.data, "startPhoneAuth"),
     );
 
-    console.log("[auth.client] startPhoneAuth OK =>", result);
+  
     return result;
   } catch (error) {
-    console.error("[auth.client] startPhoneAuth FAILED =>", error);
+
     throw error;
   }
 };
@@ -264,7 +315,7 @@ export const startPhoneAuth = async (
 export const verifyOtp = async (
   data: VerifyOtpRequest,
 ): Promise<VerifyOtpResponse> => {
-  console.log("[auth.client] POST", CUSTOMER_AUTH_CLIENT_PATHS.PHONE_VERIFY);
+
 
   try {
     const response = await apiClient.post(
@@ -273,10 +324,10 @@ export const verifyOtp = async (
     );
     const result = unwrapApiData<VerifyOtpResponse>(response.data, "verifyOtp");
 
-    console.log("[auth.client] verifyOtp OK =>", result);
+
     return result;
   } catch (error) {
-    console.error("[auth.client] verifyOtp FAILED =>", error);
+
     throw error;
   }
 };
@@ -284,36 +335,29 @@ export const verifyOtp = async (
 export const resendOtp = async (
   data: ResendOtpRequest,
 ): Promise<ResendOtpResponse> => {
-  console.log(
-    "[auth.client] resendOtp => POST",
-    CUSTOMER_AUTH_CLIENT_PATHS.OTP_RESEND,
-    data,
-  );
+ 
   const response = await apiClient.post(
     CUSTOMER_AUTH_CLIENT_PATHS.OTP_RESEND,
     data,
   );
-  console.log("[auth.client] resendOtp raw response =>", response.data);
+
   const result = normalizeResendOtpResponse(
     unwrapApiData<ResendOtpResponse>(response.data, "resendOtp"),
   );
-  console.log("[auth.client] resendOtp parsed =>", result);
+
   return result;
 };
 
 export const loginWithPassword = async (
   data: LoginRequest,
 ): Promise<LoginResponse> => {
-  console.log(
-    "[auth.client] loginWithPassword => POST",
-    CUSTOMER_AUTH_CLIENT_PATHS.LOGIN,
-  );
+  
   const response = await apiClient.post(CUSTOMER_AUTH_CLIENT_PATHS.LOGIN, data);
-  console.log("[auth.client] loginWithPassword raw response =>", response.data);
+
   const result = normalizeLoginResponse(
     unwrapApiData<LoginResponse>(response.data, "loginWithPassword"),
   );
-  console.log("[auth.client] loginWithPassword parsed =>", result);
+ 
   return result;
 };
 
@@ -345,15 +389,7 @@ function normalizeLoginResponse(result: LoginResponse): LoginResponse {
 export const verifyLoginTwoFactor = async (
   data: VerifyLoginTwoFactorRequest,
 ): Promise<VerifyLoginTwoFactorResponse> => {
-  console.log(
-    "[auth.client] verifyLoginTwoFactor => POST",
-    CUSTOMER_AUTH_CLIENT_PATHS.LOGIN_VERIFY_2FA,
-    {
-      twoFactorToken: data.twoFactorToken,
-      code: data.code,
-      deviceFingerPrint: data.deviceFingerPrint,
-    },
-  );
+ 
   const response = await apiClient.post(
     CUSTOMER_AUTH_CLIENT_PATHS.LOGIN_VERIFY_2FA,
     {
@@ -362,33 +398,94 @@ export const verifyLoginTwoFactor = async (
       deviceFingerPrint: data.deviceFingerPrint,
     },
   );
-  console.log(
-    "[auth.client] verifyLoginTwoFactor raw response =>",
-    response.data,
-  );
+ 
   const result = unwrapApiData<VerifyLoginTwoFactorResponse>(
     response.data,
     "verifyLoginTwoFactor",
   );
-  console.log("[auth.client] verifyLoginTwoFactor parsed =>", result);
+
   return result;
 };
 
 export const resendLoginTwoFactorOtp = async (
   twoFactorToken: string,
 ): Promise<ResendOtpResponse> => {
-  console.log("[auth.client] resendLoginTwoFactorOtp =>", {
-    token: twoFactorToken,
-  });
+ 
   return resendOtp({ token: twoFactorToken });
 };
 
 export const register = async (
   data: RegisterRequest,
 ): Promise<RegisterResponse> => {
-  const response = await apiClient.post(CUSTOMER_AUTH_CLIENT_PATHS.REGISTER, data);
-  return unwrapApiData<RegisterResponse>(response.data, "register");
+  const safePayload = {
+    registrationToken: data.registrationToken
+      ? `${data.registrationToken.slice(0, 8)}…(${data.registrationToken.length})`
+      : null,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email || null,
+    hasPassword: Boolean(data.password),
+    hasConfirmPassword: Boolean(data.confirmPassword),
+    deviceFingerPrint: data.deviceFingerPrint
+      ? `${data.deviceFingerPrint.slice(0, 12)}…`
+      : null,
+  };
+
+  console.log("[auth.client] register => request", {
+    path: CUSTOMER_AUTH_CLIENT_PATHS.REGISTER,
+    payload: safePayload,
+  });
+
+  try {
+    const response = await apiClient.post(
+      CUSTOMER_AUTH_CLIENT_PATHS.REGISTER,
+      data,
+    );
+
+    console.log("[auth.client] register => raw response", {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers,
+      data: response.data,
+    });
+
+    const parsed = unwrapApiData<RegisterResponse>(response.data, "register");
+
+    console.log("[auth.client] register => parsed", {
+      success: parsed?.success,
+      errorMessage: parsed?.errorMessage,
+      errorCode: parsed?.errorCode,
+      hasUserInfo: Boolean(parsed?.userInfoDto),
+      hasSessionInfo: Boolean(parsed?.sessionInfoDto),
+      userId: parsed?.userInfoDto?.userId ?? parsed?.userInfoDto?.id ?? null,
+      hasAccessToken: Boolean(parsed?.accessToken),
+      hasRefreshToken: Boolean(parsed?.refreshToken),
+    });
+
+    return parsed;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      console.error("[auth.client] register => ApiError", {
+        status: error.status,
+        code: error.code,
+        message: error.message,
+        data: error.data,
+        original:
+          error.original && typeof error.original === "object"
+            ? {
+                name: (error.original as Error).name,
+                message: (error.original as Error).message,
+                code: (error.original as { code?: string }).code,
+              }
+            : error.original,
+      });
+    } else {
+      console.error("[auth.client] register => unexpected error", error);
+    }
+    throw error;
+  }
 };
+
 
 function normalizeForgotPasswordResponse(
   result: ForgotPasswordResponse,
@@ -512,10 +609,7 @@ export const startChangePasswordOtp = async (
     { currentPassword: data.currentPassword },
   );
 
-  console.log(
-    "[auth.client] startChangePasswordOtp raw response =>",
-    response.data,
-  );
+ 
   return normalizeStartChangePasswordOtpResponse(
     unwrapApiData<StartChangePasswordOtpResponse>(
       response.data,
@@ -527,11 +621,7 @@ export const startChangePasswordOtp = async (
 export const changePassword = async (
   data: ChangePasswordRequest,
 ): Promise<ChangePasswordResponse> => {
-  console.log(
-    "[auth.client] changePassword => PATCH",
-    CUSTOMER_AUTH_CLIENT_PATHS.ME_PASSWORD_CHANGE,
-    data,
-  );
+  
   const response = await apiClient.patch(
     CUSTOMER_AUTH_CLIENT_PATHS.ME_PASSWORD_CHANGE,
     {
@@ -543,7 +633,7 @@ export const changePassword = async (
     },
   );
 
-  console.log("[auth.client] changePassword raw response =>", response.data);
+ 
   const result = unwrapApiData<ChangePasswordResponse>(
     response.data,
     "changePassword",
@@ -591,10 +681,7 @@ function extractUser(payload: unknown): UserInfoDto {
 
 export const getMe = async (): Promise<UserInfoDto> => {
   const response = await apiClient.get(CUSTOMER_AUTH_CLIENT_PATHS.ME);
-  console.log(
-    "[auth.client] CustomerAuth/me raw response before store =>",
-    response.data,
-  );
+ 
   return extractUser(response.data);
 };
 
@@ -626,20 +713,13 @@ export const uploadAvatar = async (
   // نام فیلد رایج در بک‌اندهای ASP.NET برای IFormFile
   formData.append("file", file);
 
-  console.log("[auth.client] uploadAvatar =>", {
-    path: CUSTOMER_AUTH_CLIENT_PATHS.ME_AVATAR,
-    field: "file",
-    fileName: file.name,
-    fileType: file.type,
-    fileSize: file.size,
-  });
 
   try {
     const response = await apiClient.post(
       CUSTOMER_AUTH_CLIENT_PATHS.ME_AVATAR,
       formData,
     );
-    console.log("[auth.client] uploadAvatar response =>", response.data);
+
 
     if (!response.data) {
       return { success: true };
@@ -651,11 +731,7 @@ export const uploadAvatar = async (
         unwrapApiData<AvatarUploadResponse>(response.data, "uploadAvatar"),
       );
     } catch (parseError) {
-      console.warn(
-        "[auth.client] uploadAvatar parse fallback =>",
-        parseError,
-        response.data,
-      );
+      
       record = getRecord(response.data);
     }
 
@@ -666,7 +742,7 @@ export const uploadAvatar = async (
       avatarUrl: extractAvatarUrl(response.data) ?? extractAvatarUrl(record),
     };
   } catch (error) {
-    console.error("[auth.client] uploadAvatar failed =>", error);
+    
     if (error instanceof ApiError) {
       console.error("[auth.client] uploadAvatar error body =>", {
         status: error.status,
@@ -689,7 +765,7 @@ export const deleteAvatar = async (): Promise<AvatarUploadResponse> => {
     const response = await apiClient.delete(
       CUSTOMER_AUTH_CLIENT_PATHS.ME_AVATAR,
     );
-    console.log("[auth.client] deleteAvatar response =>", response.data);
+    
 
     const record =
       response.data && typeof response.data === "object"
@@ -784,17 +860,12 @@ function unwrapEmailActionResponse<T>(payload: unknown, label: string): T {
 
 export const startEmailVerification =
   async (): Promise<EmailVerificationStartResponse> => {
-    console.log(
-      "[auth.client] startEmailVerification => POST /CustomerAuth/me/email/verification/start",
-    );
+   
     const response = await apiClient.post(
       "/CustomerAuth/me/email/verification/start",
       {},
     );
-    console.log(
-      "[auth.client] startEmailVerification raw response =>",
-      response.data,
-    );
+   
 
     const result = normalizeEmailVerificationStart(
       unwrapEmailActionResponse<EmailVerificationStartResponse>(
@@ -802,63 +873,54 @@ export const startEmailVerification =
         "startEmailVerification",
       ),
     );
-    console.log("[auth.client] startEmailVerification parsed =>", result);
+   
     return result;
   };
 
 export const verifyEmail = async (
   code: string,
 ): Promise<EmailVerifyResponse> => {
-  console.log(
-    "[auth.client] verifyEmail => POST /CustomerAuth/me/email/verify",
-    {
-      code,
-    },
-  );
+ 
   const response = await apiClient.post("/CustomerAuth/me/email/verify", {
     code,
   });
-  console.log("[auth.client] verifyEmail raw response =>", response.data);
+
 
   const result = unwrapEmailActionResponse<EmailVerifyResponse>(
     response.data,
     "verifyEmail",
   );
-  console.log("[auth.client] verifyEmail parsed =>", result);
+  
   return result;
 };
 
 export const enableTwoFactor = async (): Promise<TwoFactorToggleResponse> => {
-  console.log(
-    "[auth.client] enableTwoFactor => PATCH /CustomerAuth/me/two-factor/enable",
-  );
+ 
   const response = await apiClient.patch(
     "/CustomerAuth/me/two-factor/enable",
     {},
   );
-  console.log("[auth.client] enableTwoFactor raw response =>", response.data);
+  
   const result = unwrapEmailActionResponse<TwoFactorToggleResponse>(
     response.data,
     "enableTwoFactor",
   );
-  console.log("[auth.client] enableTwoFactor parsed =>", result);
+
   return result;
 };
 
 export const disableTwoFactor = async (): Promise<TwoFactorToggleResponse> => {
-  console.log(
-    "[auth.client] disableTwoFactor => PATCH /CustomerAuth/me/two-factor/disable",
-  );
+
   const response = await apiClient.patch(
     "/CustomerAuth/me/two-factor/disable",
     {},
   );
-  console.log("[auth.client] disableTwoFactor raw response =>", response.data);
+  
   const result = unwrapEmailActionResponse<TwoFactorToggleResponse>(
     response.data,
     "disableTwoFactor",
   );
-  console.log("[auth.client] disableTwoFactor parsed =>", result);
+
   return result;
 };
 

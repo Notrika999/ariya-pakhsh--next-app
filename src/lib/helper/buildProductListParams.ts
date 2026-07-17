@@ -5,7 +5,17 @@ export default function buildProductListParams(params: ProductListParams) {
 
   if (params.CategoryId) searchParams.append("CategoryId", params.CategoryId);
 
+  if (params.BrandSlug) searchParams.append("BrandSlug", params.BrandSlug);
+
   if (params.BrandId) searchParams.append("BrandId", params.BrandId);
+
+  if (params.BrandIds?.length) {
+    searchParams.append("BrandIds", JSON.stringify(params.BrandIds));
+  }
+
+  if (params.CategoryIds?.length) {
+    searchParams.append("CategoryIds", JSON.stringify(params.CategoryIds));
+  }
 
   if (params.MinPrice) searchParams.append("MinPrice", String(params.MinPrice));
 

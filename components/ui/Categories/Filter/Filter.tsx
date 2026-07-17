@@ -5,6 +5,7 @@ import React, {
   ReactNode,
   TransitionStartFunction,
   useCallback,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -13,18 +14,26 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import FilterColor from "./FilterColor";
 import PriceRangeFilter from "./PriceRangeFilter";
 import FilterBrand from "./FilterBrand";
+import {
+  BRAND_PARAM,
+  COLOR_PALETTE_PARAM,
+  normalizeBrandParamToSlug,
+} from "@/src/lib/helper/productListHelpers";
+import { isColorFilterAttribute } from "@/src/lib/helper/filterColorHelpers";
 
 type FilterState = {
   search?: string;
   minPrice: number;
   maxPrice: number;
-  brands?: (string | number)[];
+  brands?: string[];
+  categoryId?: string;
 };
 
 type BrandOption = {
   id?: string | number;
   brandId: string | number;
   name: string;
+  slug?: string;
 };
 
 type RawBrandOption = BrandOption | string;
@@ -32,7 +41,10 @@ type RawBrandOption = BrandOption | string;
 type ColorOption = {
   optionId: string;
   value: string;
+  displayText?: string;
   count: number;
+  colorCodes?: string;
+  hex?: string;
 };
 
 type FilterAttribute = {
@@ -41,9 +53,24 @@ type FilterAttribute = {
   options?: ColorOption[];
 };
 
+type CategoryOption = {
+  categoryId: string;
+  parentId?: string | null;
+  parentCategoryId?: string | null;
+  name: string;
+  slug: string;
+  count: number;
+  children?: CategoryOption[];
+};
+
+type CategoryTreeNode = CategoryOption & {
+  children: CategoryTreeNode[];
+};
+
 type FilterOptions = {
   attributes?: FilterAttribute[];
   brands?: BrandOption[];
+  categories?: CategoryOption[];
 };
 
 type Props = {
@@ -62,12 +89,14 @@ type FilterDropdownProps = {
   title: string;
   children: ReactNode;
   defaultOpen?: boolean;
+  isActive?: boolean;
 };
 
 function FilterDropdown({
   title,
   children,
   defaultOpen = false,
+  isActive = false,
 }: FilterDropdownProps) {
   const [open, setOpen] = useState(defaultOpen);
 
@@ -79,7 +108,15 @@ function FilterDropdown({
         onClick={() => setOpen((prev) => !prev)}
         className="w-full flex items-center justify-between gap-3 p-4 text-start"
       >
-        <span className="font-bold text-base">{title}</span>
+        <span className="font-bold text-base inline-flex items-center gap-2">
+          {title}
+          {isActive ? (
+            <span
+              className="inline-block w-2 h-2 rounded-full bg-blue-500 shrink-0"
+              aria-label="فیلتر فعال"
+            />
+          ) : null}
+        </span>
         <i
           className={`far fa-chevron-down text-sm text-gray-500 transition-transform duration-200 ${
             open ? "rotate-180" : ""
@@ -94,6 +131,89 @@ function FilterDropdown({
         </div>
       )}
     </section>
+  );
+}
+
+function getCategoryParentId(category: CategoryOption): string | null {
+  return category.parentCategoryId ?? category.parentId ?? null;
+}
+
+function buildCategoryTree(categories: CategoryOption[]): CategoryTreeNode[] {
+  const nodes = new Map<string, CategoryTreeNode>();
+
+  for (const category of categories) {
+    const children = category.children?.length
+      ? buildCategoryTree(category.children)
+      : [];
+
+    nodes.set(category.categoryId, {
+      ...category,
+      children,
+    });
+  }
+
+  const roots: CategoryTreeNode[] = [];
+
+  for (const node of nodes.values()) {
+    const parentId = getCategoryParentId(node);
+    const parent = parentId ? nodes.get(parentId) : null;
+
+    if (parent) {
+      parent.children.push(node);
+    } else {
+      roots.push(node);
+    }
+  }
+
+  return roots;
+}
+
+function CategoryTree({
+  nodes,
+  selectedCategoryId,
+  onToggle,
+  level = 0,
+}: {
+  nodes: CategoryTreeNode[];
+  selectedCategoryId?: string;
+  onToggle: (categoryId: string) => void;
+  level?: number;
+}) {
+  return (
+    <ul className={level === 0 ? "space-y-1" : "mt-1 space-y-1"}>
+      {nodes.map((node) => {
+        const isSelected = selectedCategoryId === node.categoryId;
+
+        return (
+          <li key={node.categoryId}>
+            <button
+              type="button"
+              onClick={() => onToggle(node.categoryId)}
+              className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-start text-sm transition ${
+                isSelected
+                  ? "bg-primary/10 text-primary"
+                  : "text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800"
+              }`}
+              style={{ paddingInlineStart: 12 + level * 14 }}
+            >
+              <span className="min-w-0 truncate">{node.name}</span>
+              <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                {node.count}
+              </span>
+            </button>
+
+            {node.children.length > 0 ? (
+              <CategoryTree
+                nodes={node.children}
+                selectedCategoryId={selectedCategoryId}
+                onToggle={onToggle}
+                level={level + 1}
+              />
+            ) : null}
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -147,18 +267,63 @@ export default function Filter({
     [searchParams, navigate],
   );
 
-  const handleBrandToggle = useCallback(
-    (id: string | number) => {
-      const idString = String(id);
-      const params = new URLSearchParams(searchParams.toString());
-      const current = params.getAll("brandId");
+  const normalizedBrands: BrandOption[] = availableBrands
+    .map((brand) =>
+      typeof brand === "string"
+        ? { brandId: brand, name: brand, slug: brand }
+        : brand,
+    )
+    .filter((brand) => Boolean(brand.slug || brand.brandId));
 
-      if (current.includes(idString)) {
-        const next = current.filter((x) => x !== idString);
-        params.delete("brandId");
-        next.forEach((v) => params.append("brandId", v));
+  const handleBrandToggle = useCallback(
+    (slug: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      const canonicalSlug = normalizeBrandParamToSlug(slug, normalizedBrands);
+      const current = [
+        ...params.getAll(BRAND_PARAM),
+        ...params.getAll("brandSlug"),
+      ]
+        .map((value) => normalizeBrandParamToSlug(value, normalizedBrands))
+        .filter(Boolean);
+
+      params.delete("brandId");
+      params.delete("brandSlug");
+      params.delete(BRAND_PARAM);
+
+      const uniqueCurrent = [...new Set(current)];
+
+      if (uniqueCurrent.includes(canonicalSlug)) {
+        uniqueCurrent
+          .filter((value) => value !== canonicalSlug)
+          .forEach((value) => params.append(BRAND_PARAM, value));
       } else {
-        params.append("brandId", idString);
+        [...uniqueCurrent, canonicalSlug].forEach((value) =>
+          params.append(BRAND_PARAM, value),
+        );
+      }
+
+      params.set("page", "1");
+      navigate(params);
+    },
+    [searchParams, navigate, normalizedBrands],
+  );
+
+  const categoryTree = useMemo(
+    () => buildCategoryTree(filterOptions?.categories ?? []),
+    [filterOptions?.categories],
+  );
+
+  const selectedCategoryId =
+    searchParams.get("categoryId") ?? filters.categoryId ?? undefined;
+
+  const handleCategoryToggle = useCallback(
+    (categoryId: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+
+      if (params.get("categoryId") === categoryId) {
+        params.delete("categoryId");
+      } else {
+        params.set("categoryId", categoryId);
       }
 
       params.set("page", "1");
@@ -167,24 +332,32 @@ export default function Filter({
     [searchParams, navigate],
   );
 
-  const colorAttribute = filterOptions?.attributes?.find(
-    (attr) => attr.attributeName === "رنگ",
+  const colorAttributes =
+    filterOptions?.attributes?.filter((attr) => isColorFilterAttribute(attr)) ??
+    [];
+  const hasColorOptions = colorAttributes.some(
+    (attr) => (attr.options?.length ?? 0) > 0,
   );
 
   const selectedBrands = Array.isArray(filters.brands) ? filters.brands : [];
-  const normalizedBrands: BrandOption[] = availableBrands.map((brand) =>
-    typeof brand === "string" ? { brandId: brand, name: brand } : brand,
-  );
 
-  const hasAttributeFilters = Array.from(searchParams.keys()).some((key) =>
-    key.startsWith("attr_"),
-  );
+  const hasColorFilter =
+    searchParams.getAll(COLOR_PALETTE_PARAM).length > 0 ||
+    Array.from(searchParams.keys()).some(
+      (key) => key.startsWith("attr_") || key === "ColorOptionIds",
+    );
+
+  const hasBrandFilter = selectedBrands.length > 0;
+  const hasCategoryFilter = Boolean(selectedCategoryId);
+
+  const hasPriceFilter =
+    filters.minPrice > minLimit || filters.maxPrice < maxLimit;
 
   const hasActiveFilters =
-    selectedBrands.length > 0 ||
-    filters.minPrice > minLimit ||
-    filters.maxPrice < maxLimit ||
-    hasAttributeFilters ||
+    hasBrandFilter ||
+    hasCategoryFilter ||
+    hasPriceFilter ||
+    hasColorFilter ||
     (filters.search && filters.search.trim() !== "");
 
   const handleClearFilters = useCallback(() => {
@@ -195,7 +368,6 @@ export default function Filter({
 
   return (
     <section className="space-y-5 sticky top-0">
-      {/* دکمه حذف فیلترها */}
       {hasActiveFilters && (
         <div
           className="dark:bg-custom-dark bg-white rounded-lg border p-4"
@@ -224,7 +396,6 @@ export default function Filter({
         </div>
       )}
 
-      {/* Search */}
       <section className="hidden">
         <div className="dark:bg-custom-dark bg-white rounded-lg border p-4">
           <input
@@ -236,18 +407,16 @@ export default function Filter({
         </div>
       </section>
 
-      {/* Color */}
-      {colorAttribute?.options && (
-        <FilterDropdown title="رنگ ها">
+      {hasColorOptions ? (
+        <FilterDropdown title="رنگ ها" isActive={hasColorFilter}>
           <FilterColor
-            attributeId={colorAttribute.attributeId} // ← این اضافه بشه
-            options={colorAttribute.options}
+            colorAttributes={colorAttributes}
+            startTransition={startTransition}
           />
         </FilterDropdown>
-      )}
+      ) : null}
 
-      {/* Price */}
-      <FilterDropdown title="محدوده قیمت" defaultOpen>
+      <FilterDropdown title="محدوده قیمت" defaultOpen isActive={hasPriceFilter}>
         <PriceRangeFilter
           min={minLimit}
           max={maxLimit}
@@ -259,14 +428,24 @@ export default function Filter({
         />
       </FilterDropdown>
 
-      {/* Brand */}
-      <FilterDropdown title="برندها">
+      <FilterDropdown title="برند" isActive={hasBrandFilter}>
         <FilterBrand
           brands={normalizedBrands}
           selectedBrands={selectedBrands}
           onToggle={handleBrandToggle}
         />
       </FilterDropdown>
+
+
+      {categoryTree.length > 0 ? (
+        <FilterDropdown title="دسته‌بندی" defaultOpen isActive={hasCategoryFilter}>
+          <CategoryTree
+            nodes={categoryTree}
+            selectedCategoryId={selectedCategoryId}
+            onToggle={handleCategoryToggle}
+          />
+        </FilterDropdown>
+      ) : null}
     </section>
   );
 }

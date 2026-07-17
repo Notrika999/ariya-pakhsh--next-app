@@ -36,7 +36,9 @@ export default function HeaderClient() {
       <div className="max-w-420 mx-auto">
         <HeaderTop />
 
-        {showMega && <MegaMenu />}
+        <div className={showMega ? "block" : "hidden"}>
+          <MegaMenu />
+        </div>
       </div>
     </header>
   );

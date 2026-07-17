@@ -35,6 +35,8 @@ export default function TicketMessage({ ticketId, onBack }) {
     try {
       const result = await getTicketById(ticketId);
       setTicket(result);
+
+      console.log("[TicketMessage] ticket =>", result);
     } catch (err) {
       console.error("[TicketMessage] loadTicket failed =>", err);
       setError(getAuthErrorMessage(err));
@@ -366,7 +368,7 @@ export default function TicketMessage({ ticketId, onBack }) {
                   className="font-medium text-gray-800 dark:text-gray-200"
                   dir="ltr"
                 >
-                  {ticket.orderId}
+                  {ticket.orderNumber}
                 </span>
               </div>
             </div>

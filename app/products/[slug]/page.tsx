@@ -9,14 +9,13 @@ import {
   getCategoryBreadcrumb,
   getCategoryBySlug,
 } from "@/src/services/category/category.server";
-import { getProductList } from "@/src/services/product/product.server";
+import { getProductListFromSearchParams } from "@/src/services/product/product.server";
 
 import type { Category as CategoryType } from "@/src/lib/types/categories/menuType";
 import type { ProductListResponse } from "@/src/lib/types/productTypes";
 import {
   createFallbackBreadcrumb,
-  firstValue,
-  parseAttributeFilters,
+  allBrandSlugParams,
   parseNumber,
   parseSortOrder,
 } from "@/src/lib/helper/productListHelpers";
@@ -28,6 +27,8 @@ type Props = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{
     page?: string;
+    brand?: string | string[];
+    brandSlug?: string | string[];
     brandId?: string | string[];
     color?: string | string[];
     minPrice?: string;
@@ -47,15 +48,16 @@ async function CategoryPage({ params, searchParams }: Props) {
 
   if (!slug) notFound();
 
+  const resolvedSearchParams = await searchParams;
   const {
     page = "1",
-    brandId,
     minPrice,
     maxPrice,
     sort,
     inStock,
     onSaleOnly,
-  } = await searchParams;
+    categoryId,
+  } = resolvedSearchParams;
 
   // ── Category ──────────────────────────────────────────────────────────────
   let category: CategoryType | null = null;
@@ -78,25 +80,27 @@ async function CategoryPage({ params, searchParams }: Props) {
   // ── Products ──────────────────────────────────────────────────────────────
   let productLists: ProductListResponse;
 
+  const queryBrands = allBrandSlugParams(resolvedSearchParams);
+  const selectedCategoryId = Array.isArray(categoryId)
+    ? categoryId[0]
+    : categoryId;
+
   try {
-    productLists = await getProductList({
-      CategoryId: category?.id,
-      BrandId: firstValue(brandId),
-      CategorySlug: category ? slug : undefined,
-      BrandSlug: category ? undefined : slug,
-
-      Page: parseNumber(page) ?? 1,
-
-      AttributeFilters: parseAttributeFilters(await searchParams),
-
-      MinPrice: parseNumber(minPrice),
-      MaxPrice: parseNumber(maxPrice),
-
-      SortOrder: parseSortOrder(sort),
-
-      InStock: inStock === "true" ? true : undefined,
-      OnSaleOnly: onSaleOnly === "true" ? true : undefined,
-    });
+    productLists = await getProductListFromSearchParams(
+      {
+        CategoryId: selectedCategoryId ?? category?.id,
+        CategorySlug: selectedCategoryId ? undefined : category ? slug : undefined,
+        // صفحه برند (بدون دسته): slug مسیر فقط وقتی ?brand= نداریم
+        PathBrandSlug: category || queryBrands.length > 0 ? undefined : slug,
+        Page: parseNumber(page) ?? 1,
+        MinPrice: parseNumber(minPrice),
+        MaxPrice: parseNumber(maxPrice),
+        SortOrder: parseSortOrder(sort),
+        InStock: inStock === "true" ? true : undefined,
+        OnSaleOnly: onSaleOnly === "true" ? true : undefined,
+      },
+      resolvedSearchParams,
+    );
   } catch (error) {
     if (error instanceof ApiError && error.status === 404) notFound();
     throw error;

@@ -2,7 +2,7 @@
 // components/ui/UserProfile/UserInformation/PersonalInfoForm.jsx
 import { useEffect, useState } from "react";
 import DateObject from "react-date-object";
-import DatePicker from "react-multi-date-picker";
+import DatePicker from "@/components/modules/DatePicker/AppDatePicker";
 import persian from "react-date-object/calendars/persian";
 import gregorian from "react-date-object/calendars/gregorian";
 import persian_fa from "react-date-object/locales/persian_fa";

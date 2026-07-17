@@ -1,6 +1,6 @@
 "use client";
-
-import { useEffect, useRef, useState } from "react";
+// components/ui/ProductPageClient/Gallery/GalleryLightbox.tsx
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FreeMode } from "swiper/modules";
@@ -21,6 +21,12 @@ type GalleryLightboxProps = {
   onClose: (activeIndex: number) => void;
 };
 
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 4;
+const ZOOM_STEP = 1;
+
+type Point = { x: number; y: number };
+
 export default function GalleryLightbox({
   open,
   images,
@@ -30,11 +36,65 @@ export default function GalleryLightbox({
 }: GalleryLightboxProps) {
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   const [thumbSwiper, setThumbSwiper] = useState<SwiperInstance | null>(null);
+  const [zoom, setZoom] = useState(MIN_ZOOM);
+  const [origin, setOrigin] = useState<Point>({ x: 50, y: 50 });
+  const [offset, setOffset] = useState<Point>({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+
   const activeIndexRef = useRef(activeIndex);
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const dragStartRef = useRef<Point | null>(null);
+  const offsetStartRef = useRef<Point>({ x: 0, y: 0 });
+  const didDragRef = useRef(false);
+  const zoomRef = useRef(zoom);
+
+  useEffect(() => {
+    zoomRef.current = zoom;
+  }, [zoom]);
+
+  const resetZoom = useCallback(() => {
+    setZoom(MIN_ZOOM);
+    setOrigin({ x: 50, y: 50 });
+    setOffset({ x: 0, y: 0 });
+    setIsDragging(false);
+    dragStartRef.current = null;
+    didDragRef.current = false;
+  }, []);
+
+  const setZoomTowardPoint = useCallback(
+    (nextZoom: number, clientX?: number, clientY?: number) => {
+      const clamped = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, nextZoom));
+
+      if (stageRef.current && clientX != null && clientY != null) {
+        const rect = stageRef.current.getBoundingClientRect();
+        const x = ((clientX - rect.left) / rect.width) * 100;
+        const y = ((clientY - rect.top) / rect.height) * 100;
+        setOrigin({
+          x: Math.min(100, Math.max(0, x)),
+          y: Math.min(100, Math.max(0, y)),
+        });
+      }
+
+      if (clamped === MIN_ZOOM) {
+        setOffset({ x: 0, y: 0 });
+      }
+
+      setZoom(clamped);
+    },
+    [],
+  );
 
   useEffect(() => {
     activeIndexRef.current = activeIndex;
   }, [activeIndex]);
+
+  const changeImage = useCallback(
+    (nextIndex: number) => {
+      setActiveIndex(nextIndex);
+      resetZoom();
+    },
+    [resetZoom],
+  );
 
   useEffect(() => {
     if (!open) return;
@@ -44,10 +104,21 @@ export default function GalleryLightbox({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose(activeIndexRef.current);
       if (event.key === "ArrowRight") {
-        setActiveIndex((index) => (index - 1 + images.length) % images.length);
+        const current = activeIndexRef.current;
+        changeImage((current - 1 + images.length) % images.length);
       }
       if (event.key === "ArrowLeft") {
-        setActiveIndex((index) => (index + 1) % images.length);
+        const current = activeIndexRef.current;
+        changeImage((current + 1) % images.length);
+      }
+      if (event.key === "+" || event.key === "=") {
+        setZoomTowardPoint(zoomRef.current + ZOOM_STEP);
+      }
+      if (event.key === "-") {
+        setZoomTowardPoint(zoomRef.current - ZOOM_STEP);
+      }
+      if (event.key === "0") {
+        resetZoom();
       }
     };
 
@@ -56,7 +127,7 @@ export default function GalleryLightbox({
       document.body.style.overflow = "";
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [open, images.length, onClose]);
+  }, [open, images.length, onClose, resetZoom, setZoomTowardPoint, changeImage]);
 
   useEffect(() => {
     if (open && thumbSwiper && !thumbSwiper.destroyed) {
@@ -64,13 +135,76 @@ export default function GalleryLightbox({
     }
   }, [activeIndex, open, thumbSwiper]);
 
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!open || !stage) return;
+
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const currentZoom = zoomRef.current;
+      if (event.deltaY < 0) {
+        setZoomTowardPoint(currentZoom + ZOOM_STEP, event.clientX, event.clientY);
+      } else if (event.deltaY > 0) {
+        setZoomTowardPoint(currentZoom - ZOOM_STEP, event.clientX, event.clientY);
+      }
+    };
+
+    stage.addEventListener("wheel", handleWheel, { passive: false });
+    return () => stage.removeEventListener("wheel", handleWheel);
+  }, [open, setZoomTowardPoint]);
+
   if (!open || images.length === 0) return null;
 
   const currentImage = images[activeIndex];
   const goPrev = () =>
-    setActiveIndex((index) => (index - 1 + images.length) % images.length);
-  const goNext = () =>
-    setActiveIndex((index) => (index + 1) % images.length);
+    changeImage((activeIndex - 1 + images.length) % images.length);
+  const goNext = () => changeImage((activeIndex + 1) % images.length);
+
+  const handleImageClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (didDragRef.current) {
+      didDragRef.current = false;
+      return;
+    }
+
+    if (zoom >= MAX_ZOOM) {
+      resetZoom();
+      return;
+    }
+
+    setZoomTowardPoint(zoom + ZOOM_STEP, event.clientX, event.clientY);
+  };
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (zoom <= MIN_ZOOM) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setIsDragging(true);
+    didDragRef.current = false;
+    dragStartRef.current = { x: event.clientX, y: event.clientY };
+    offsetStartRef.current = offset;
+  };
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDragging || !dragStartRef.current || zoom <= MIN_ZOOM) return;
+    const dx = event.clientX - dragStartRef.current.x;
+    const dy = event.clientY - dragStartRef.current.y;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+      didDragRef.current = true;
+    }
+    setOffset({
+      x: offsetStartRef.current.x + dx,
+      y: offsetStartRef.current.y + dy,
+    });
+  };
+
+  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    setIsDragging(false);
+    dragStartRef.current = null;
+  };
 
   return (
     <div
@@ -88,6 +222,36 @@ export default function GalleryLightbox({
       >
         <i className="far fa-xmark"></i>
       </button>
+
+      <div className="absolute top-5 end-5 z-20 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            setZoomTowardPoint(zoom - ZOOM_STEP);
+          }}
+          disabled={zoom <= MIN_ZOOM}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
+          aria-label="کوچک‌نمایی"
+        >
+          <i className="far fa-minus"></i>
+        </button>
+        <span className="min-w-12 text-center text-sm text-white/90" dir="ltr">
+          {zoom}x
+        </span>
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            setZoomTowardPoint(zoom + ZOOM_STEP);
+          }}
+          disabled={zoom >= MAX_ZOOM}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-40"
+          aria-label="بزرگ‌نمایی"
+        >
+          <i className="far fa-plus"></i>
+        </button>
+      </div>
 
       <div
         className="relative flex flex-1 items-center justify-center px-4 pb-4 pt-16"
@@ -114,15 +278,41 @@ export default function GalleryLightbox({
           </>
         )}
 
-        <div className="flex h-full max-h-[min(70vh,720px)] w-full max-w-[min(92vw,720px)] items-center justify-center rounded-2xl bg-white p-6 md:p-10">
-          <Image
-            width={640}
-            height={640}
-            src={currentImage?.imgSrc ?? "/images/default.png"}
-            alt={`${productName} - تصویر ${activeIndex + 1}`}
-            className="max-h-full w-full object-contain"
-            priority
-          />
+        <div
+          ref={stageRef}
+          onClick={handleImageClick}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          className={[
+            "flex h-full max-h-[min(70vh,720px)] w-full max-w-[min(92vw,720px)] items-center justify-center overflow-hidden rounded-2xl bg-white p-6 md:p-10 touch-none select-none",
+            zoom > MIN_ZOOM
+              ? isDragging
+                ? "cursor-grabbing"
+                : "cursor-grab"
+              : "cursor-zoom-in",
+          ].join(" ")}
+          role="img"
+          aria-label={`${productName} - تصویر ${activeIndex + 1}. اسکرول یا کلیک برای زوم`}
+        >
+          <div
+            className="will-change-transform transition-transform duration-150 ease-out"
+            style={{
+              transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})`,
+              transformOrigin: `${origin.x}% ${origin.y}%`,
+            }}
+          >
+            <Image
+              width={640}
+              height={640}
+              src={currentImage?.imgSrc ?? "/images/default.png"}
+              alt={`${productName} - تصویر ${activeIndex + 1}`}
+              className="max-h-[min(60vh,640px)] w-auto max-w-full object-contain pointer-events-none"
+              priority
+              draggable={false}
+            />
+          </div>
         </div>
       </div>
 
@@ -144,7 +334,7 @@ export default function GalleryLightbox({
             <SwiperSlide key={index} className="!w-24 md:!w-28">
               <button
                 type="button"
-                onClick={() => setActiveIndex(index)}
+                onClick={() => changeImage(index)}
                 className={[
                   "flex h-20 w-full items-center justify-center overflow-hidden rounded-xl border-2 bg-white p-2 transition",
                   activeIndex === index

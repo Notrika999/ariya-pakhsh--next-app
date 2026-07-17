@@ -60,13 +60,20 @@ export default function DealsClient({
   );
 
   useEffect(() => {
-    setIsNavigating(false);
-  }, [products, pagination.page, pagination.totalCount]);
+    if (!isPending) {
+      setIsNavigating(false);
+    }
+  }, [isPending]);
 
   const filters = useMemo(
     () => ({
       search: searchParams.get("search") ?? "",
-      brands: searchParams.getAll("brandId"),
+      brands:
+        searchParams.getAll("brand").length > 0
+          ? searchParams.getAll("brand")
+          : searchParams.getAll("brandSlug").length > 0
+            ? searchParams.getAll("brandSlug")
+            : searchParams.getAll("brandId"),
       minPrice: Number(searchParams.get("minPrice") ?? minLimit),
       maxPrice: Number(searchParams.get("maxPrice") ?? maxLimit),
       sort: parseSort(searchParams.get("sort")),
