@@ -64,6 +64,8 @@ async function CategoryPage({ params, searchParams }: Props) {
 
   try {
     category = await getCategoryBySlug(slug);
+
+    console.log("category", category);
   } catch {
     // اگه category پیدا نشد (404) یا هر خطای دیگه‌ای،
     // فرض میکنیم slug مربوط به برند است

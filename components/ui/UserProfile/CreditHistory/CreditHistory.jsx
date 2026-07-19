@@ -5,6 +5,7 @@ import CreditHistoryTop from "./CreditHistoryTop";
 import CreditHistorySummary from "./CreditHistorySummary";
 import FilterBar from "../../../modules/FilterBar/FilterBar";
 import TransactionCard from "../../../modules/Transactions/TransactionCard";
+import GatewayRedirectConfirmation from "@/components/modules/GatewayRedirectConfirmation/GatewayRedirectConfirmation";
 import {
   getMyWallet,
   getMyWalletTransactions,
@@ -15,6 +16,9 @@ import { notify } from "@/src/utils/toast";
 
 const PAGE_SIZE = 10;
 const QUICK_AMOUNTS = [50000, 100000, 200000];
+
+const formatMoney = (value) =>
+  `${new Intl.NumberFormat("fa-IR").format(Math.max(0, Math.round(Number(value) || 0)))} تومان`;
 
 const INCOME_TYPES = new Set([
   "income",
@@ -94,6 +98,7 @@ export default function CreditHistory() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [topUpLoading, setTopUpLoading] = useState(false);
+  const [pendingTopUpGateway, setPendingTopUpGateway] = useState(null);
 
   const [type, setType] = useState("all");
   const [period, setPeriod] = useState("all");
@@ -206,7 +211,11 @@ export default function CreditHistory() {
     try {
       const result = await topUpMyWallet(amount);
       if (result.paymentUrl) {
-        window.location.href = result.paymentUrl;
+        setPendingTopUpGateway({
+          amount,
+          paymentUrl: result.paymentUrl,
+        });
+        setTopUpLoading(false);
         return;
       }
 
@@ -221,8 +230,57 @@ export default function CreditHistory() {
     }
   };
 
+  const handleCancelTopUpGateway = useCallback(() => {
+    setPendingTopUpGateway(null);
+    setTopUpLoading(false);
+  }, []);
+
+  const handleProceedTopUpGateway = useCallback(() => {
+    if (!pendingTopUpGateway?.paymentUrl || topUpLoading) return;
+
+    setTopUpLoading(true);
+    window.location.href = pendingTopUpGateway.paymentUrl;
+  }, [pendingTopUpGateway, topUpLoading]);
+
   const from = totalCount === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const to = Math.min(page * PAGE_SIZE, totalCount);
+
+  if (pendingTopUpGateway) {
+    const topUpAmount = Number(pendingTopUpGateway.amount) || 0;
+
+    return (
+      <GatewayRedirectConfirmation
+        title="تایید افزایش اعتبار"
+        description="قبل از انتقال به درگاه، جزئیات افزایش اعتبار کیف پول را بررسی کنید."
+        iconClassName="far fa-wallet text-lg"
+        details={[
+          {
+            label: "نوع عملیات",
+            value: "افزایش اعتبار کیف پول",
+            tone: "primary",
+          },
+          {
+            label: "موجودی فعلی",
+            value: formatMoney(balance),
+          },
+          {
+            label: "مبلغ افزایش اعتبار",
+            value: formatMoney(topUpAmount),
+            tone: "success",
+          },
+          {
+            label: "موجودی پس از پرداخت",
+            value: formatMoney(balance + topUpAmount),
+          },
+        ]}
+        amountLabel="مبلغ قابل پرداخت"
+        amountValue={formatMoney(topUpAmount)}
+        starting={topUpLoading}
+        onCancel={handleCancelTopUpGateway}
+        onProceed={handleProceedTopUpGateway}
+      />
+    );
+  }
 
   return (
     <div className="space-y-8 lg:col-span-3">

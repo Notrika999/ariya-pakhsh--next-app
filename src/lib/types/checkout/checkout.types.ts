@@ -57,6 +57,32 @@ export type PlaceOrderResult = {
   raw: unknown;
 };
 
+export type CheckoutCouponPayload = {
+  couponCode: string;
+  shippingMethodId: string;
+  shippingAddress: PlaceOrderShippingAddress;
+};
+
+export type CheckoutCouponDiscount = {
+  couponCode: string;
+  couponIsApplicable: boolean;
+  couponMessage: string;
+  couponItemsDiscount: number;
+  couponShippingDiscount: number;
+  couponTotalDiscount: number;
+  campaignDiscount: number;
+  appliedSource: string;
+  appliedAmount: number;
+  rejectedSource: string;
+  rejectedAmount: number;
+  decisionReason: string;
+  itemsSubtotal: number;
+  shippingFee: number;
+  discount: number;
+  payableAmount: number;
+  raw: unknown;
+};
+
 export type StartPaymentPayload = {
   orderId: string;
   providerCode?: string;

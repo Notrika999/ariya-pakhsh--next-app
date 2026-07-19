@@ -3,6 +3,13 @@
 
 import axios, { AxiosError } from "axios";
 import { FRONT_API_PREFIX } from "@/src/lib/auth/constants";
+import {
+  assertSafeInput,
+  UnsafeInputError,
+} from "@/src/utils/input-security";
+
+const UNSAFE_INPUT_MESSAGE =
+  "\u0644\u0637\u0641\u0627 \u0645\u062a\u0646 \u0631\u0627 \u0628\u062f\u0631\u0633\u062a\u06cc \u0627\u0631\u0633\u0627\u0644 \u06a9\u0646\u06cc\u062f";
 
 export class ApiError extends Error {
   constructor(
@@ -43,7 +50,29 @@ apiClient.interceptors.request.use((config) => {
     config.url = toApiPath(config.url);
   }
 
-  // برای FormData نباید Content-Type دستی ست شود تا boundary درست ساخته شود
+  try {
+    const method = String(config.method ?? "").toLowerCase();
+    if (config.params) {
+      assertSafeInput(config.params);
+    }
+
+    if (config.data && ["post", "put", "patch", "delete"].includes(method)) {
+      assertSafeInput(config.data);
+    }
+  } catch (error) {
+    if (error instanceof UnsafeInputError) {
+      throw new ApiError(
+        400,
+        UNSAFE_INPUT_MESSAGE,
+        "UNSAFE_INPUT",
+        { violations: error.violations },
+        error,
+      );
+    }
+
+    throw error;
+  }
+
   if (typeof FormData !== "undefined" && config.data instanceof FormData) {
     const headers = config.headers;
     if (headers && typeof headers === "object") {
@@ -74,8 +103,9 @@ function extractApiErrorMessage(errorData: unknown): string | undefined {
     if (!source) continue;
     for (const key of ["message", "errorMessage", "error", "title"]) {
       const value = source[key];
-      if (typeof value === "string" && value.trim().length > 0)
+      if (typeof value === "string" && value.trim().length > 0) {
         return value.trim();
+      }
     }
   }
 
@@ -94,8 +124,9 @@ function extractApiErrorCode(errorData: unknown): string | undefined {
     if (!source) continue;
     for (const key of ["code", "errorCode"]) {
       const value = source[key];
-      if (typeof value === "string" && value.trim().length > 0)
+      if (typeof value === "string" && value.trim().length > 0) {
         return value.trim();
+      }
     }
   }
 
@@ -104,7 +135,11 @@ function extractApiErrorCode(errorData: unknown): string | undefined {
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error: AxiosError<unknown>) => {
+  (error: AxiosError<unknown> | ApiError) => {
+    if (error instanceof ApiError) {
+      return Promise.reject(error);
+    }
+
     const status = error.response?.status;
     const errorData = error.response?.data;
     const backendMessage = extractApiErrorMessage(errorData);

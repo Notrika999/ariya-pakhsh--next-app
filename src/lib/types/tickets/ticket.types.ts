@@ -69,6 +69,7 @@ export type CreateTicketRequest = {
   body: string;
   priority: TicketPriority;
   orderId?: string | null;
+  orderNumber?: string | null;
 };
 
 export type CreateTicketResponse = {

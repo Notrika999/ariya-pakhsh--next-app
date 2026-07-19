@@ -61,7 +61,6 @@ async function getRequestBodyPayload(
 
   const contentType = request.headers.get("content-type") ?? "";
 
-  // فایل / multipart باید با همان Content-Type (شامل boundary) فوروارد شود
   if (contentType.includes("multipart/form-data")) {
     const buffer = await request.arrayBuffer();
     return {
@@ -79,6 +78,19 @@ async function getRequestBodyPayload(
   return {};
 }
 
+function proxyErrorStatus(error: ProxyError): number {
+  if (error.status) return error.status;
+  return error.code === "TIMEOUT" ? 504 : 502;
+}
+
+function proxyErrorMessage(error: ProxyError): string {
+  if (error.code === "UNSAFE_INPUT") return error.message;
+  if (error.code === "TIMEOUT") {
+    return "زمان پاسخ‌گویی سرویس به پایان رسید.";
+  }
+  return "ارتباط با سرویس برقرار نشد.";
+}
+
 async function handleProxy(
   request: NextRequest,
   context: RouteContext,
@@ -87,6 +99,15 @@ async function handleProxy(
     const { path } = await context.params;
     const pathKey = path.join("/");
     const backendPath = buildBackendPath(path);
+
+    if (backendPath === "/api/v1/Payments/mellat/callback") {
+      console.log("[api/v1 proxy] Payments mellat callback request", {
+        method: request.method,
+        frontendPath: request.nextUrl.pathname,
+        backendPath,
+        query: getQueryParams(request),
+      });
+    }
 
     if (request.method === "POST") {
       const authHandler = CUSTOMER_AUTH_V1_POST[pathKey];
@@ -112,6 +133,7 @@ async function handleProxy(
     const forwardHeaders: Record<string, string> = {
       ...(payload.headers ?? {}),
     };
+
     if (guestSessionId?.trim()) {
       forwardHeaders["X-Guest-Session-Id"] = guestSessionId.trim();
     }
@@ -135,13 +157,10 @@ async function handleProxy(
       return NextResponse.json(
         {
           success: false,
-          message:
-            error.code === "TIMEOUT"
-              ? "زمان پاسخ‌گویی سرویس به پایان رسید."
-              : "ارتباط با سرویس برقرار نشد.",
+          message: proxyErrorMessage(error),
           code: error.code,
         },
-        { status: error.code === "TIMEOUT" ? 504 : 502 },
+        { status: proxyErrorStatus(error) },
       );
     }
 

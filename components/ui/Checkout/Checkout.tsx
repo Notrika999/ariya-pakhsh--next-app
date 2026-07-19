@@ -5,17 +5,21 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
+import GatewayRedirectConfirmation from "@/components/modules/GatewayRedirectConfirmation/GatewayRedirectConfirmation";
 import CheckoutDeliveryAddress from "./CheckoutDeliveryAddress";
 import { useCart } from "@/src/context/CartContext";
 import type { CustomerAddressDto } from "@/src/lib/types/address/address.type";
 import type {
+  CheckoutCouponDiscount,
   CheckoutPaymentMethod,
   CheckoutShippingMethod,
 } from "@/src/lib/types/checkout/checkout.types";
 import {
+  applyCheckoutCoupon,
   ensureServerCartHasItems,
   getCheckoutPaymentMethods,
   placeCheckoutOrder,
+  previewCheckoutDiscount,
   startOrderPayment,
 } from "@/src/services/checkout/checkout.client";
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
@@ -26,6 +30,36 @@ const formatMoney = (value: number) =>
 
 const formatShippingPrice = (method: CheckoutShippingMethod) =>
   method.formattedPrice ?? (method.price > 0 ? formatMoney(method.price) : "رایگان");
+
+const GATEWAY_REDIRECT_SECONDS = 30;
+
+type PendingGatewayPayment = {
+  orderId?: string;
+  orderNumber?: string;
+  providerCode?: string;
+  directPaymentUrl?: string;
+  paymentMethodTitle: string;
+  isGiftCardPayment: boolean;
+  addressTitle: string;
+  itemCount: number;
+  discount: number;
+  shippingFee: number;
+  totalAmount: number;
+  payableAmount: number;
+};
+
+function isGiftCardPaymentMethod(method: CheckoutPaymentMethod | null): boolean {
+  if (!method) return false;
+
+  const value = `${method.code} ${method.title}`.toLowerCase();
+  return (
+    value.includes("gift") ||
+    value.includes("giftcard") ||
+    value.includes("gift-card") ||
+    value.includes("gift_card") ||
+    value.includes("کارت هدیه")
+  );
+}
 
 function toShippingAddress(address: CustomerAddressDto) {
   return {
@@ -76,6 +110,10 @@ export default function Checkout() {
     useState<CustomerAddressDto | null>(null);
   const [customerNote, setCustomerNote] = useState("");
   const [couponCode, setCouponCode] = useState("");
+  const [couponDiscount, setCouponDiscount] =
+    useState<CheckoutCouponDiscount | null>(null);
+  const [couponApplying, setCouponApplying] = useState(false);
+  const [couponPreviewing, setCouponPreviewing] = useState(false);
   const [giftCardCode, setGiftCardCode] = useState("");
 
   const [paymentMethods, setPaymentMethods] = useState<CheckoutPaymentMethod[]>(
@@ -94,9 +132,17 @@ export default function Checkout() {
     null,
   );
   const [submitting, setSubmitting] = useState(false);
+  const [pendingGatewayPayment, setPendingGatewayPayment] =
+    useState<PendingGatewayPayment | null>(null);
+  const [gatewayStarting, setGatewayStarting] = useState(false);
 
   const selectPaymentMethod = (method: CheckoutPaymentMethod) => {
     setSelectedPaymentCode(method.code);
+
+    if (!isGiftCardPaymentMethod(method)) {
+      setGiftCardCode("");
+    }
+
     const preferredProvider =
       method.providers.find(
         (provider) => provider.isDefault && provider.isAvailable,
@@ -155,6 +201,11 @@ export default function Checkout() {
     setSelectedShippingId(availableMethods[0]?.id ?? null);
   }, []);
 
+  const handleSelectAddress = useCallback((address: CustomerAddressDto | null) => {
+    setSelectedAddress(address);
+    setCouponDiscount(null);
+  }, []);
+
   const selectedShipping = useMemo(
     () =>
       shippingMethods.find((item) => item.id === selectedShippingId) ?? null,
@@ -175,8 +226,114 @@ export default function Checkout() {
     [selectedPayment, selectedProviderCode],
   );
 
+  const selectedIsGiftCardPayment = useMemo(
+    () => isGiftCardPaymentMethod(selectedPayment),
+    [selectedPayment],
+  );
+
+  const selectedPaymentTitle = useMemo(
+    () =>
+      [selectedPayment?.title, selectedIsGiftCardPayment ? null : selectedProvider?.title]
+        .filter(Boolean)
+        .join(" - ") || selectedPaymentCode || "",
+    [
+      selectedIsGiftCardPayment,
+      selectedPayment?.title,
+      selectedPaymentCode,
+      selectedProvider?.title,
+    ],
+  );
+
+  const buildCouponPayload = useCallback(() => {
+    const code = couponCode.trim();
+    if (!code || !selectedAddress || !selectedShippingId) return null;
+
+    return {
+      couponCode: code,
+      shippingMethodId: selectedShippingId,
+      shippingAddress: toShippingAddress(selectedAddress),
+    };
+  }, [couponCode, selectedAddress, selectedShippingId]);
+
   const shippingCost = selectedShipping?.price ?? 0;
-  const payable = totalPrice + shippingCost;
+  const discountAmount = couponDiscount?.couponIsApplicable
+    ? couponDiscount.discount || couponDiscount.couponTotalDiscount
+    : 0;
+  const payable =
+    couponDiscount?.couponIsApplicable && couponDiscount.payableAmount > 0
+      ? couponDiscount.payableAmount
+      : Math.max(0, totalPrice + shippingCost - discountAmount);
+
+  useEffect(() => {
+    const payload = buildCouponPayload();
+    if (!couponDiscount?.couponIsApplicable || !payload) return;
+    if (payload.couponCode !== couponDiscount.couponCode) return;
+    const requestPayload = payload;
+
+    let cancelled = false;
+
+    async function previewDiscount() {
+      setCouponPreviewing(true);
+      try {
+        const result = await previewCheckoutDiscount(requestPayload);
+        if (cancelled) return;
+        setCouponDiscount(result);
+      } catch (err) {
+        if (cancelled) return;
+        console.error("[Checkout] preview discount failed =>", err);
+        setCouponDiscount(null);
+        notify.error(getAuthErrorMessage(err));
+      } finally {
+        if (!cancelled) {
+          setCouponPreviewing(false);
+        }
+      }
+    }
+
+    void previewDiscount();
+    return () => {
+      cancelled = true;
+    };
+  }, [buildCouponPayload, couponDiscount?.couponCode, couponDiscount?.couponIsApplicable]);
+
+  const handleCouponCodeChange = (value: string) => {
+    setCouponCode(value);
+    setCouponDiscount(null);
+  };
+
+  const handleApplyCoupon = async () => {
+    const payload = buildCouponPayload();
+    if (!couponCode.trim()) {
+      notify.error("لطفاً کد تخفیف را وارد کنید");
+      return;
+    }
+    if (!selectedAddress) {
+      notify.error("لطفاً آدرس تحویل را انتخاب کنید");
+      return;
+    }
+    if (!selectedShippingId) {
+      notify.error("لطفاً روش ارسال را انتخاب کنید");
+      return;
+    }
+    if (!payload) return;
+
+    setCouponApplying(true);
+    try {
+      const result = await applyCheckoutCoupon(payload);
+      setCouponDiscount(result);
+      if (result.couponIsApplicable) {
+        notify.success(result.couponMessage || "کد تخفیف اعمال شد");
+      } else {
+        notify.error(result.couponMessage || "کد تخفیف قابل اعمال نیست");
+      }
+    } catch (err) {
+      console.error("[Checkout] apply coupon failed =>", err);
+      setCouponDiscount(null);
+      notify.error(getAuthErrorMessage(err));
+    } finally {
+      setCouponApplying(false);
+    }
+  };
 
   const handlePlaceOrder = async () => {
     if (items.length === 0) {
@@ -195,12 +352,21 @@ export default function Checkout() {
       notify.error("لطفاً روش پرداخت را انتخاب کنید");
       return;
     }
+    if (selectedIsGiftCardPayment && !giftCardCode.trim()) {
+      notify.error("لطفاً کد کارت هدیه را وارد کنید");
+      return;
+    }
     if (
       selectedPayment &&
+      !selectedIsGiftCardPayment &&
       selectedPayment.providers.length > 0 &&
       !selectedProviderCode
     ) {
       notify.error("لطفاً بانک مقصد را انتخاب کنید");
+      return;
+    }
+    if (couponCode.trim() && !couponDiscount?.couponIsApplicable) {
+      notify.error("لطفاً ابتدا کد تخفیف را اعمال کنید");
       return;
     }
 
@@ -218,35 +384,53 @@ export default function Checkout() {
         shippingMethodId: selectedShippingId,
         shippingAddress: toShippingAddress(selectedAddress),
         paymentMethodCode: selectedPaymentCode,
-        providerCode: selectedProviderCode || undefined,
-        couponCode: couponCode.trim() || undefined,
+        providerCode: selectedIsGiftCardPayment
+          ? undefined
+          : selectedProviderCode || undefined,
+        couponCode: couponDiscount?.couponIsApplicable
+          ? couponDiscount.couponCode
+          : undefined,
         customerNote: customerNote.trim() || undefined,
         giftCardCode: giftCardCode.trim() || undefined,
       });
 
-      let paymentUrl = result.paymentUrl || result.redirectUrl;
+      const paymentUrl = result.paymentUrl || result.redirectUrl;
 
-      if (!paymentUrl && result.orderId) {
-        const payment = await startOrderPayment({
+      notify.success(result.message || "سفارش با موفقیت ثبت شد");
+
+      if (selectedIsGiftCardPayment) {
+        await clearCart();
+        setPendingGatewayPayment({
           orderId: result.orderId,
-          providerCode: selectedProviderCode || undefined,
+          orderNumber: result.orderNumber,
+          paymentMethodTitle: selectedPaymentTitle || "کارت هدیه",
+          isGiftCardPayment: true,
+          addressTitle: selectedAddress.title,
+          itemCount: totalItems,
+          discount: discountAmount,
+          shippingFee: shippingCost,
+          totalAmount: totalPrice + shippingCost,
+          payableAmount: payable,
         });
-        paymentUrl = payment.redirectUrl;
+        return;
       }
 
       await clearCart();
 
-      if (paymentUrl) {
-        window.location.href = paymentUrl;
-        return;
-      }
-
-      notify.success(result.message || "سفارش با موفقیت ثبت شد");
-      router.push(
-        result.orderId
-          ? `/success-payment?orderId=${encodeURIComponent(result.orderId)}`
-          : "/success-payment",
-      );
+      setPendingGatewayPayment({
+        orderId: result.orderId,
+        orderNumber: result.orderNumber,
+        providerCode: selectedProviderCode || undefined,
+        directPaymentUrl: paymentUrl,
+        paymentMethodTitle: selectedPaymentTitle,
+        isGiftCardPayment: false,
+        addressTitle: selectedAddress.title,
+        itemCount: totalItems,
+        discount: discountAmount,
+        shippingFee: shippingCost,
+        totalAmount: totalPrice + shippingCost,
+        payableAmount: payable,
+      });
     } catch (err) {
       console.error("[Checkout] place order failed =>", err);
       notify.error(getAuthErrorMessage(err));
@@ -254,6 +438,118 @@ export default function Checkout() {
       setSubmitting(false);
     }
   };
+
+  const handleCancelGatewayRedirect = useCallback(() => {
+    router.replace("/user-profile/orders");
+  }, [router]);
+
+  const handleProceedToGateway = useCallback(async () => {
+    if (!pendingGatewayPayment || gatewayStarting) return;
+
+    if (pendingGatewayPayment.isGiftCardPayment) {
+      router.replace("/user-profile/orders");
+      return;
+    }
+
+    if (pendingGatewayPayment.directPaymentUrl) {
+      window.location.href = pendingGatewayPayment.directPaymentUrl;
+      return;
+    }
+
+    if (!pendingGatewayPayment.orderId) {
+      notify.error("شناسه سفارش برای شروع پرداخت دریافت نشد");
+      return;
+    }
+
+    setGatewayStarting(true);
+    try {
+      const payment = await startOrderPayment({
+        orderId: pendingGatewayPayment.orderId,
+        providerCode: pendingGatewayPayment.providerCode,
+      });
+
+      if (!payment.redirectUrl) {
+        notify.error("آدرس درگاه از سرویس پرداخت دریافت نشد");
+        setGatewayStarting(false);
+        return;
+      }
+
+      window.location.href = payment.redirectUrl;
+    } catch (err) {
+      console.error("[Checkout] start payment failed =>", err);
+      notify.error(getAuthErrorMessage(err));
+      setGatewayStarting(false);
+    }
+  }, [gatewayStarting, pendingGatewayPayment, router]);
+
+  if (pendingGatewayPayment) {
+    return (
+      <GatewayRedirectConfirmation
+        title={
+          pendingGatewayPayment.isGiftCardPayment
+            ? "سفارش با کارت هدیه ثبت شد"
+            : "تایید انتقال به درگاه"
+        }
+        description={
+          pendingGatewayPayment.isGiftCardPayment
+            ? "پرداخت سفارش با کارت هدیه با موفقیت انجام شد. جزئیات سفارش را بررسی کنید و سپس به صفحه سفارش‌ها بروید."
+            : "سفارش ثبت شده است. قبل از ورود به درگاه، خلاصه پرداخت را بررسی کنید."
+        }
+        iconClassName={
+          pendingGatewayPayment.isGiftCardPayment
+            ? "far fa-gift text-lg"
+            : "far fa-credit-card text-lg"
+        }
+        iconWrapClassName={
+          pendingGatewayPayment.isGiftCardPayment
+            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
+            : "bg-primary/10 text-primary"
+        }
+        details={[
+          { label: "محل دریافت", value: pendingGatewayPayment.addressTitle },
+          {
+            label: "روش پرداخت",
+            value: pendingGatewayPayment.paymentMethodTitle,
+            tone: pendingGatewayPayment.isGiftCardPayment
+              ? "success"
+              : "primary",
+          },
+          {
+            label: "تعداد کالا",
+            value: new Intl.NumberFormat("fa-IR").format(
+              pendingGatewayPayment.itemCount,
+            ),
+          },
+          {
+            label: "تخفیف",
+            value: formatMoney(pendingGatewayPayment.discount),
+            tone: "success",
+          },
+          {
+            label: "هزینه ارسال",
+            value: formatMoney(pendingGatewayPayment.shippingFee),
+          },
+          {
+            label: "مبلغ کل",
+            value: formatMoney(pendingGatewayPayment.totalAmount),
+          },
+        ]}
+        amountLabel="مبلغ قابل پرداخت"
+        amountValue={formatMoney(pendingGatewayPayment.payableAmount)}
+        starting={gatewayStarting}
+        seconds={GATEWAY_REDIRECT_SECONDS}
+        showCountdown={!pendingGatewayPayment.isGiftCardPayment}
+        showCancel={!pendingGatewayPayment.isGiftCardPayment}
+        proceedLabel={
+          pendingGatewayPayment.isGiftCardPayment
+            ? "مشاهده سفارش‌ها"
+            : "انتقال به درگاه"
+        }
+        onCancel={handleCancelGatewayRedirect}
+        onProceed={() => void handleProceedToGateway()}
+      />
+    );
+  }
 
   return (
     <SectionContainer>
@@ -360,7 +656,7 @@ export default function Checkout() {
 
             <CheckoutDeliveryAddress
               selectedAddressId={selectedAddress?.id ?? null}
-              onSelectAddress={setSelectedAddress}
+              onSelectAddress={handleSelectAddress}
               onShippingOptionsChange={handleShippingOptionsChange}
               customerNote={customerNote}
               onCustomerNoteChange={setCustomerNote}
@@ -499,7 +795,9 @@ export default function Checkout() {
                         </div>
                       </div>
 
-                      {isSelected && availableProviders.length > 0 ? (
+                      {isSelected &&
+                      !selectedIsGiftCardPayment &&
+                      availableProviders.length > 0 ? (
                         <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">
                           <p className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
                             بانک مقصد
@@ -548,7 +846,8 @@ export default function Checkout() {
                 })}
               </div>
 
-              <div className="mt-4">
+              {selectedIsGiftCardPayment ? (
+                <div className="mt-4">
                 <label
                   htmlFor="gift-card-code"
                   className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
@@ -563,7 +862,8 @@ export default function Checkout() {
                   placeholder="کد کارت هدیه را وارد کنید"
                   className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-zinc-800 dark:text-gray-200"
                 />
-              </div>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -625,7 +925,7 @@ export default function Checkout() {
                   className="text-green-600 dark:text-green-400"
                   id="discount"
                 >
-                  {formatMoney(0)}
+                  {formatMoney(discountAmount)}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -725,17 +1025,38 @@ export default function Checkout() {
                 <input
                   type="text"
                   value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value)}
-                  className="flex-1 rounded-s-lg border border-gray-300 px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-zinc-800 dark:text-gray-200"
+                  onChange={(e) => handleCouponCodeChange(e.target.value)}
+                  className="flex-1 rounded-s-lg border border-gray-300 px-4 py-3  dark:border-gray-700 dark:bg-zinc-800 dark:text-gray-200"
                   placeholder="کد تخفیف را وارد کنید"
                 />
                 <button
                   type="button"
-                  className="rounded-e-lg bg-blue-600 px-4 py-3 text-white transition-colors hover:bg-blue-700"
+                  disabled={couponApplying || couponPreviewing}
+                  onClick={() => void handleApplyCoupon()}
+                  className="rounded-e-lg bg-blue-600 px-4 py-3 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  اعمال
+                  {couponApplying
+                    ? "در حال اعمال..."
+                    : couponPreviewing
+                      ? "در حال محاسبه..."
+                      : "اعمال"}
                 </button>
               </div>
+              {couponDiscount ? (
+                <p
+                  className={[
+                    "mt-2 text-sm",
+                    couponDiscount.couponIsApplicable
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-red-600 dark:text-red-400",
+                  ].join(" ")}
+                >
+                  {couponDiscount.couponMessage ||
+                    (couponDiscount.couponIsApplicable
+                      ? "کد تخفیف اعمال شد"
+                      : "کد تخفیف قابل اعمال نیست")}
+                </p>
+              ) : null}
             </div>
 
             <button

@@ -29,6 +29,7 @@ export default function StepReset({ onSuccess, onBack }: StepResetProps) {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showRepetPassword, setShowRepetPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -195,18 +196,33 @@ export default function StepReset({ onSuccess, onBack }: StepResetProps) {
         </button>
       </div>
 
-      <input
-        type={showPassword ? "text" : "password"}
-        value={confirmPassword}
-        onChange={(e) => {
-          setConfirmPassword(e.target.value);
-          setError(null);
-        }}
-        placeholder="تکرار رمز عبور جدید"
-        autoComplete="new-password"
-        disabled={busy}
-        className="w-full border rounded-xl p-3"
-      />
+      <div className="relative">
+        <input
+          type={showRepetPassword ? "text" : "password"}
+          value={confirmPassword}
+          onChange={(e) => {
+            setConfirmPassword(e.target.value);
+            setError(null);
+          }}
+          placeholder="تکرار رمز عبور جدید"
+          autoComplete="new-password"
+          disabled={busy}
+          className="w-full border rounded-xl p-3"
+        />
+        <button
+          type="button"
+          onClick={() => setShowRepetPassword((v) => !v)}
+          disabled={busy}
+          aria-label={
+            showRepetPassword ? "مخفی کردن رمز عبور" : "نمایش رمز عبور"
+          }
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 disabled:opacity-50"
+        >
+          <i
+            className={`fa-regular ${showRepetPassword ? "fa-eye-slash" : "fa-eye"}`}
+          ></i>
+        </button>
+      </div>
 
       {error && <p className="text-red-500 text-sm text-center">{error}</p>}
       {successMessage && (

@@ -46,6 +46,8 @@ export async function getCategoryBySlug(slug: string): Promise<Category> {
     cache: "no-store",
   });
 
+  console.log("response", response);
+
   if (!response.ok) {
     throw new Error("Failed to fetch category");
   }

@@ -4,6 +4,10 @@ import "server-only";
 import { cookies } from "next/headers";
 import { getBackendBaseUrl } from "@/src/lib/api/backend-base";
 import { AUTH_COOKIE_NAMES } from "@/src/lib/auth/constants";
+import {
+  assertSafeInput,
+  UnsafeInputError,
+} from "@/src/utils/input-security";
 
 /* -------------------------------------------------------------------------- */
 /*                                 Constants                                  */
@@ -271,6 +275,21 @@ export async function proxyToBackend<T = unknown>(
   } = options;
 
   /* ------------------------------ Build URL ------------------------------- */
+
+  try {
+    if (params) assertSafeInput(params);
+    if (body && method !== "GET" && method !== "HEAD") assertSafeInput(body);
+  } catch (error) {
+    if (error instanceof UnsafeInputError) {
+      throw new ProxyError(
+        "ورودی شامل محتوای غیرمجاز یا کد مخرب است.",
+        400,
+        "UNSAFE_INPUT",
+      );
+    }
+
+    throw error;
+  }
 
   const url = buildUrl(path, params);
 

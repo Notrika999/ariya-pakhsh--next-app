@@ -1,48 +1,87 @@
-import React from "react";
-
-const numberFormatter = new Intl.NumberFormat("fa-IR");
-
-function formatNumber(value) {
-  if (value === undefined || value === null) return "";
-  return numberFormatter.format(value);
-}
+// components/ui/ProductPageClient/Review/Specifications.jsx
 
 function attributeValue(attribute) {
   return attribute?.displayText || attribute?.value || "";
 }
 
+function normalizeListValue(value) {
+  if (Array.isArray(value)) {
+    return value.map(String).map((item) => item.trim()).filter(Boolean);
+  }
+
+  if (typeof value !== "string") return [];
+
+  return value
+    .split(/[،,]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function buildRows(product, attributes, variant) {
-  const primaryCategory =
-    product?.categories?.find((item) => item.isPrimary) ||
-    product?.categories?.[0];
-  const primaryBrand =
-    product?.brands?.find((item) => item.isPrimary) || product?.brands?.[0];
+  const compatibleCars =
+    product?.compatibilities
+      ?.map((item) => `${item.name}${item.model ? ` ${item.model}` : ""}`)
+      .filter(Boolean) ?? [];
 
   const rows = [
-    
-   
-    [
-      "خودروهای سازگار",
-      product?.compatibilities
-        ?.map((item) => `${item.name}${item.model ? ` ${item.model}` : ""}`)
-        .join("، "),
-    ],
+    compatibleCars.length
+      ? {
+          label: "خودروهای سازگار",
+          value: compatibleCars.join("، "),
+          values: compatibleCars,
+          featured: true,
+        }
+      : null,
   ];
 
   const productAttributes =
-    attributes?.map((attribute) => [
-      attribute.attributeName,
-      attributeValue(attribute),
-    ]) ?? [];
+    attributes?.map((attribute) => ({
+      label: attribute.attributeName,
+      value: attributeValue(attribute),
+      values: normalizeListValue(attributeValue(attribute)),
+    })) ?? [];
 
   const variantAttributes =
-    variant?.attributes?.map((attribute) => [
-      attribute.attributeName,
-      attributeValue(attribute),
-    ]) ?? [];
+    variant?.attributes?.map((attribute) => ({
+      label: attribute.attributeName,
+      value: attributeValue(attribute),
+      values: normalizeListValue(attributeValue(attribute)),
+    })) ?? [];
 
   return [...rows, ...productAttributes, ...variantAttributes].filter(
-    ([, value]) => value !== undefined && value !== null && String(value).trim(),
+    (row) =>
+      row &&
+      row.label &&
+      row.value !== undefined &&
+      row.value !== null &&
+      String(row.value).trim(),
+  );
+}
+
+function ValueContent({ row }) {
+  const shouldUseChips = row.featured || row.values.length > 3;
+
+  if (!shouldUseChips) {
+    return (
+      <p className="whitespace-pre-line break-words text-sm leading-7 text-gray-800 dark:text-gray-100">
+        {row.value}
+      </p>
+    );
+  }
+
+  return (
+    <div className="max-h-72 overflow-y-auto pe-1">
+      <div className="flex flex-wrap gap-2">
+        {row.values.map((item, index) => (
+          <span
+            key={`${item}-${index}`}
+            className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium leading-5 text-gray-700 shadow-sm dark:border-gray-700 dark:bg-zinc-900 dark:text-gray-200"
+          >
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -51,29 +90,33 @@ export default function Specifications({ product, attributes, variant }) {
 
   return (
     <>
-      <h2 className="text-2xl pb-3 font-black text-zinc-800 relative before:absolute before:bottom-0 before:right-0 before:h-1 before:w-22 before:bg-secondary-500 before:rounded dark:text-white">
+      <h2 className="relative pb-3 text-2xl font-black text-zinc-800 before:absolute before:bottom-0 before:right-0 before:h-1 before:w-22 before:rounded before:bg-secondary-500 dark:text-white">
         مشخصات فنی
       </h2>
 
       {rows.length > 0 ? (
-        <div className="mx-auto p-6">
-          <div className="grid grid-cols-2 gap-6 text-right">
-            {rows.map(([label, value], index) => (
-              <React.Fragment key={`${label}-${index}`}>
-                <span className="sm:col-span-1 col-span-2 bg-gray-200 border border-gray-300 dark:border-gray-700 px-3 rounded text-gray-900 text-sm py-4 inline-flex items-center dark:bg-[#1e232a] dark:text-white">
-                  {label}:
+        <div className="mt-8 grid grid-cols-1 gap-4">
+          {rows.map((row, index) => (
+            <section
+              key={`${row.label}-${index}`}
+              className="grid grid-cols-1 gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3 shadow-sm transition-colors dark:border-gray-700 dark:bg-zinc-900/70 md:grid-cols-[240px_1fr]"
+            >
+              <div className="flex min-h-14 items-center rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 dark:border-blue-900/50 dark:bg-blue-950/30">
+                <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
+                  {row.label}
                 </span>
-                <span className="sm:col-span-1 col-span-2 bg-gray-100 border border-gray-200 px-3 py-4 text-sm text-gray-900 inline-flex items-center dark:bg-[#252b33] dark:border-gray-700 rounded dark:text-white">
-                  {value}
-                </span>
-              </React.Fragment>
-            ))}
-          </div>
+              </div>
+
+              <div className="min-h-14 rounded-lg border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-[#1e232a]">
+                <ValueContent row={row} />
+              </div>
+            </section>
+          ))}
         </div>
       ) : (
-        <p className="mt-6 text-neutral-500 dark:text-neutral-400">
+        <div className="mt-8 rounded-xl border border-dashed border-gray-300 bg-gray-50 p-6 text-center text-sm text-neutral-500 dark:border-gray-700 dark:bg-zinc-900 dark:text-neutral-400">
           مشخصاتی برای این محصول ثبت نشده است.
-        </p>
+        </div>
       )}
     </>
   );

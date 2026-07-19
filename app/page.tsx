@@ -121,486 +121,40 @@ export default async function Home() {
     3,
   );
 
-  const stories = [
-    {
-      type: "image",
-      user: "کارآپ 24",
-      avatar: "/images/story/1.jpg",
-      url: "/images/story/1.jpg",
-      duration: 5000,
-      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
-
-      title: "هندزفری",
-      description: "کیفیت صدای فوق‌العاده با شارژدهی طولانی",
-      likes: 3500,
-      comments: 110,
-
-      product: {
-        image: "/images/story/1.jpg",
-        title: "هندزفری بلوتوثی شیائومی",
-        price: "۱٬۹۸۰٬۰۰۰ تومان",
-      },
-    },
-
-    {
-      type: "image",
-      user: "کارآپ 24",
-      avatar: "/images/story/2.jpg",
-      url: "/images/story/2.jpg",
-      duration: 5000,
-      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
-
-      title: "تخفیف ویژه لپ‌تاپ",
-      description: "قدرت بالا برای برنامه‌نویسی و طراحی",
-      likes: 2800,
-      comments: 86,
-
-      product: {
-        image: "/images/story/2.jpgg",
-        title: "لپ‌تاپ ASUS VivoBook",
-        price: "۴۲٬۰۰۰٬۰۰۰ تومان",
-      },
-    },
-
-    {
-      type: "image",
-      user: "کارآپ 24",
-      avatar: "/images/story/3.jpg",
-      url: "/images/story/3.jpg",
-      duration: 5000,
-      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
-
-      title: "موس گیمینگ حرفه‌ای",
-      description: "RGB حرفه‌ای با سنسور دقیق",
-      likes: 1900,
-      comments: 52,
-
-      product: {
-        image: "/images/story/3.jpg",
-        title: "موس گیمینگ Logitech",
-        price: "۳٬۴۰۰٬۰۰۰ تومان",
-      },
-    },
-
-    {
-      type: "image",
-      user: "کارآپ 24",
-      avatar: "/images/story/5.jpg",
-      url: "/images/story/5.jpg",
-      duration: 5000,
-      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
-
-      title: "اسپیکر قابل حمل",
-      description: "صدای قدرتمند با باتری طولانی",
-      likes: 4200,
-      comments: 143,
-
-      product: {
-        image: "/images/products/speaker.png",
-        title: "اسپیکر JBL Charge",
-        price: "۶٬۹۰۰٬۰۰۰ تومان",
-      },
-    },
-
-    {
-      type: "image",
-      user: "کارآپ 24",
-      avatar: "/images/story/6.jpg",
-      url: "/images/story/6.jpg",
-      duration: 5000,
-      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
-
-      title: "ساعت هوشمند جدید",
-      description: "پایش سلامت و تماس بلوتوثی",
-      likes: 5100,
-      comments: 201,
-
-      product: {
-        image: "/images/products/watch.png",
-        title: "ساعت هوشمند Amazfit",
-        price: "۵٬۳۰۰٬۰۰۰ تومان",
-      },
-    },
-
-    {
-      type: "image",
-      user: "کارآپ 24",
-      avatar: "/images/story/7.jpg",
-      url: "/images/story/7.jpg",
-      duration: 5000,
-      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
-
-      title: "پاوربانک اقتصادی",
-      description: "شارژ سریع و ظرفیت بالا",
-      likes: 2400,
-      comments: 73,
-
-      product: {
-        image: "/images/products/powerbank.png",
-        title: "پاوربانک Redmi 20000",
-        price: "۲٬۲۰۰٬۰۰۰ تومان",
-      },
-    },
-
-    {
-      type: "video",
-      user: "کارآپ 24",
-      avatar: "/images/story/4.jpg",
-      url: "/images/story/video/1.mp4",
-      duration: null,
-      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
-
-      title: "پرفروش‌ترین پاوربانک",
-      description: "شارژ سریع 18 وات با ظرفیت 20000 میلی‌آمپر",
-      likes: 3500,
-      comments: 110,
-
-      product: {
-        image: "/images/products/powerbank.png",
-        title: "پاوربانک 18 وات شیائومی",
-        price: "۲٬۰۰۰٬۰۰۰ تومان",
-      },
-    },
-
-    {
-      type: "image",
-      user: "کارآپ 24",
-      avatar: "/images/story/1.jpg",
-      url: "/images/story/1.jpg",
-      duration: 5000,
-      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
-
-      title: "هدفون نویز کنسلینگ",
-      description: "تجربه صدای حرفه‌ای و شفاف",
-      likes: 4800,
-      comments: 167,
-
-      product: {
-        image: "/images/products/headphone.png",
-        title: "هدفون Sony WH1000XM5",
-        price: "۱۵٬۸۰۰٬۰۰۰ تومان",
-      },
-    },
-
-    {
-      type: "image",
-      user: "کارآپ 24",
-      avatar: "/images/story/2.jpg",
-      url: "/images/story/2.jpg",
-      duration: 5000,
-      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
-
-      title: "کیبورد مکانیکی RGB",
-      description: "تجربه تایپ نرم و حرفه‌ای",
-      likes: 2100,
-      comments: 44,
-
-      product: {
-        image: "/images/products/keyboard.png",
-        title: "کیبورد مکانیکی Redragon",
-        price: "۴٬۷۰۰٬۰۰۰ تومان",
-      },
-    },
-
-    {
-      type: "image",
-      user: "کارآپ 24",
-      avatar: "/images/story/3.jpg",
-      url: "/images/story/3.jpg",
-      duration: 5000,
-      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
-
-      title: "مانیتور گیمینگ",
-      description: "نرخ تازه‌سازی 165 هرتز",
-      likes: 3300,
-      comments: 92,
-
-      product: {
-        image: "/images/products/monitor.png",
-        title: "مانیتور MSI Curved",
-        price: "۱۲٬۴۰۰٬۰۰۰ تومان",
-      },
-    },
-
-    {
-      type: "video",
-      user: "کارآپ 24",
-      avatar: "/images/story/4.jpg",
-      url: "/images/story/video/1.mp4",
-      duration: null,
-      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
-
-      title: "پرفروش‌ترین پاوربانک",
-      description: "شارژ سریع 18 وات با ظرفیت 20000 میلی‌آمپر",
-      likes: 3500,
-      comments: 110,
-
-      product: {
-        image: "/images/products/powerbank.png",
-        title: "پاوربانک 18 وات شیائومی",
-        price: "۲٬۰۰۰٬۰۰۰ تومان",
-      },
-    },
-
-    {
-      type: "image",
-      user: "کارآپ 24",
-      avatar: "/images/story/1.jpg",
-      url: "/images/story/1.jpg",
-      duration: 5000,
-      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
-
-      title: "هدفون نویز کنسلینگ",
-      description: "تجربه صدای حرفه‌ای و شفاف",
-      likes: 4800,
-      comments: 167,
-
-      product: {
-        image: "/images/products/headphone.png",
-        title: "هدفون Sony WH1000XM5",
-        price: "۱۵٬۸۰۰٬۰۰۰ تومان",
-      },
-    },
-
-    {
-      type: "image",
-      user: "کارآپ 24",
-      avatar: "/images/story/2.jpg",
-      url: "/images/story/2.jpg",
-      duration: 5000,
-      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
-
-      title: "کیبورد مکانیکی RGB",
-      description: "تجربه تایپ نرم و حرفه‌ای",
-      likes: 2100,
-      comments: 44,
-
-      product: {
-        image: "/images/products/keyboard.png",
-        title: "کیبورد مکانیکی Redragon",
-        price: "۴٬۷۰۰٬۰۰۰ تومان",
-      },
-    },
-
-    {
-      type: "image",
-      user: "کارآپ 24",
-      avatar: "/images/story/3.jpg",
-      url: "/images/story/3.jpg",
-      duration: 5000,
-      link: "https://www.rtl-theme.com/author/amir_rezaii/products/",
-
-      title: "مانیتور گیمینگ",
-      description: "نرخ تازه‌سازی 165 هرتز",
-      likes: 3300,
-      comments: 92,
-
-      product: {
-        image: "/images/products/monitor.png",
-        title: "مانیتور MSI Curved",
-        price: "۱۲٬۴۰۰٬۰۰۰ تومان",
-      },
-    },
-  ];
-
-  const sliders = [
+  // fake banners data
+  const bannersData = [
     {
       id: 1,
-      image: "/images/slider/landing/laptop-1.webp",
+      image: "/images/banner/banner-1.png",
       alt: "تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 1",
-      slug: "coffee",
+      slug: "/products?category=1",
     },
     {
       id: 2,
-      image: "/images/slider/landing/laptop-2.webp",
+      image: "/images/banner/banner-2.png",
       alt: "تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 2",
-      slug: "tea",
+      slug: "/products?category=2",
     },
     {
       id: 3,
-      image: "/images/slider/landing/laptop-3.webp",
+      image: "/images/banner/banner-3.png",
       alt: "تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 3",
-      slug: "coffee",
-    },
-  ];
-
-  const suggestedProducts = [
-    {
-      id: 1,
-      title: "لپتاپ",
-      offerProducts: [
-        {
-          id: 1,
-          title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-          image: "/images/product/laptop-2.png",
-          discount: 3,
-          rating: 4,
-          oldPrice: "13,900,000",
-          price: "13,550,000",
-
-          colors: ["rgb(248,162,3)", "rgb(255,232,145)"],
-          href: "/product",
-        },
-        {
-          id: 2,
-          title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-          image: "/images/product/laptop-1.png",
-          discount: 3,
-          rating: 4,
-          oldPrice: "13,900,000",
-          price: "13,550,000",
-
-          colors: ["rgb(248,162,3)", "rgb(255,232,145)"],
-          href: "/product",
-        },
-        {
-          id: 3,
-          title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-          image: "/images/product/laptop-3.png",
-          discount: 3,
-          rating: 4,
-          oldPrice: "13,900,000",
-          price: "13,550,000",
-
-          colors: ["rgb(248,162,3)", "rgb(255,232,145)"],
-          href: "/product",
-        },
-        {
-          id: 4,
-          title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-          image: "/images/product/laptop-4.png",
-          discount: 3,
-          rating: 4,
-          oldPrice: "13,900,000",
-          price: "13,550,000",
-
-          colors: ["rgb(248,162,3)", "rgb(255,232,145)"],
-          href: "/product",
-        },
-      ],
-    },
-    {
-      id: 2,
-      title: "ساعت هوشمند",
-      offerProducts: [
-        {
-          id: 1,
-          title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-          image: "/images/product/wach-2.png",
-          discount: 3,
-          rating: 4,
-          oldPrice: "13,900,000",
-          price: "13,550,000",
-
-          colors: ["rgb(248,162,3)", "rgb(255,232,145)"],
-          href: "/product",
-        },
-        {
-          id: 2,
-          title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-          image: "/images/product/wach-1.png",
-          discount: 3,
-          rating: 4,
-          oldPrice: "13,900,000",
-          price: "13,550,000",
-
-          colors: ["rgb(248,162,3)", "rgb(255,232,145)"],
-          href: "/product",
-        },
-        {
-          id: 3,
-          title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-          image: "/images/product/wach-3.png",
-          discount: 3,
-          rating: 4,
-          oldPrice: "13,900,000",
-          price: "13,550,000",
-
-          colors: ["rgb(248,162,3)", "rgb(255,232,145)"],
-          href: "/product",
-        },
-        {
-          id: 4,
-          title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-          image: "/images/product/wach-4.png",
-          discount: 3,
-          rating: 4,
-          oldPrice: "13,900,000",
-          price: "13,550,000",
-
-          colors: ["rgb(248,162,3)", "rgb(255,232,145)"],
-          href: "/product",
-        },
-      ],
-    },
-    {
-      id: 3,
-      title: "تلفن همراه",
-      offerProducts: [
-        {
-          id: 1,
-          title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-          image: "/images/product/television-2.png",
-          discount: 3,
-          rating: 4,
-          oldPrice: "13,900,000",
-          price: "13,550,000",
-
-          colors: ["rgb(248,162,3)", "rgb(255,232,145)"],
-          href: "/product",
-        },
-        {
-          id: 2,
-          title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-          image: "/images/product/television-1.png",
-          discount: 3,
-          rating: 4,
-          oldPrice: "13,900,000",
-          price: "13,550,000",
-
-          colors: ["rgb(248,162,3)", "rgb(255,232,145)"],
-          href: "/product",
-        },
-        {
-          id: 3,
-          title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-          image: "/images/product/television-3.png",
-          discount: 3,
-          rating: 4,
-          oldPrice: "13,900,000",
-          price: "13,550,000",
-
-          colors: ["rgb(248,162,3)", "rgb(255,232,145)"],
-          href: "/product",
-        },
-        {
-          id: 4,
-          title: "تبلت سامسونگ مدل Galaxy Tab S8 Ultra ظرفیت 128 گیگابایت",
-          image: "/images/product/television-4.png",
-          discount: 3,
-          rating: 4,
-          oldPrice: "13,900,000",
-          price: "13,550,000",
-
-          colors: ["rgb(248,162,3)", "rgb(255,232,145)"],
-          href: "/product",
-        },
-      ],
+      slug: "/products?category=3",
     },
   ];
 
   return (
     <main>
       {/* <!-- START STORY SECTION --> */}
-      <SectionContainer className="hidden">
+      {/* <SectionContainer>
         <Story stories={stories} />
-      </SectionContainer>
+      </SectionContainer> */}
       {/* <!-- END STORY SECTION --> */}
 
       {/* <!-- SLIDER SECTION --> */}
-      <SectionContainer fullWidth className="hidden">
+      {/* <SectionContainer fullWidth>
         <Slider sliders={sliders} />
-      </SectionContainer>
+      </SectionContainer> */}
       {/* <!-- END SLIDER SECTION --> */}
 
       {/* <!-- START AMAZING SECTION --> */}
@@ -636,7 +190,7 @@ export default async function Home() {
 
       {/* <!-- START BANNER SECTION --> */}
       <SectionContainer>
-        <Banner />
+        <Banner banners={bannersData} title="تبلیغات فروشگاه" />
       </SectionContainer>
       {/* <!-- END BANNER SECTION --> */}
 
@@ -665,15 +219,15 @@ export default async function Home() {
       {/* <!-- END NEW PRODUCT SLIDER SECTION --> */}
 
       {/* <!-- START LATEST VIEW SECTION --> */}
-      {suggestedProducts.length > 0 ? (
-        <SectionContainer className="hidden">
+      {/* {suggestedProducts.length > 0 ? (
+        <SectionContainer>
           <UserLatestViews
             suggestedProducts={suggestedProducts}
             title={"محصولات پیشنهادی"}
             href={"#"}
           />
         </SectionContainer>
-      ) : null}
+      ) : null} */}
       {/* <!-- END LATEST VIEW SECTION --> */}
 
       {/* <!-- START NEW PRODUCT SECTION --> */}

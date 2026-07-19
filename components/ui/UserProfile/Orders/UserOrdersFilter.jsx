@@ -4,7 +4,8 @@ import CustomSelect from "@/components/modules/UserProfile/CustomSelect";
 
 const STATUS_OPTIONS = [
   { value: "", label: "همه وضعیت‌ها" },
-  { value: "order.pending", label: "در انتظار پرداخت" },
+  { value: "pending", label: "در انتظار پرداخت" },
+  { value: "order.payment_review_required", label: "نیاز به بررسی پرداخت" },
   { value: "order.processing", label: "در حال پردازش" },
   { value: "order.shipped", label: "در حال ارسال" },
   { value: "order.delivered", label: "تحویل شده" },

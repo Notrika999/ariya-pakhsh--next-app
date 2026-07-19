@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import UserOrdersTop from "./UserOrdersTop";
 import UserOrdersFilter from "./UserOrdersFilter";
 import UserOrdersList from "./UserOrdersList";
+import GatewayRedirectConfirmation from "@/components/modules/GatewayRedirectConfirmation/GatewayRedirectConfirmation";
 import {
   getMyOrderById,
   getMyOrderByNumber,
@@ -16,6 +17,9 @@ import { notify } from "@/src/utils/toast";
 const PAGE_SIZE = 10;
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const formatMoney = (value) =>
+  `${new Intl.NumberFormat("fa-IR").format(Math.max(0, Math.round(Number(value) || 0)))} تومان`;
 
 function buildDateRange(daysValue) {
   if (!daysValue) return {};
@@ -37,6 +41,7 @@ export default function UserOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [retryingOrderId, setRetryingOrderId] = useState(null);
+  const [pendingRetryOrder, setPendingRetryOrder] = useState(null);
 
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -126,8 +131,10 @@ export default function UserOrders() {
     }
   };
 
-  const handleRetryPayment = async (order) => {
+  const handleRetryPayment = (order) => {
     if (!order?.orderId) return;
+    setPendingRetryOrder(order);
+    /*
 
     setRetryingOrderId(order.orderId);
     try {
@@ -143,6 +150,70 @@ export default function UserOrders() {
       setRetryingOrderId(null);
     }
   };
+
+  */
+  };
+
+  const handleCancelRetryGateway = useCallback(() => {
+    setPendingRetryOrder(null);
+    setRetryingOrderId(null);
+  }, []);
+
+  const handleProceedRetryGateway = useCallback(async () => {
+    if (!pendingRetryOrder?.orderId || retryingOrderId) return;
+
+    setRetryingOrderId(pendingRetryOrder.orderId);
+    try {
+      const result = await retryMyOrderPayment(pendingRetryOrder.orderId);
+      if (result.paymentUrl) {
+        window.location.href = result.paymentUrl;
+        return;
+      }
+      notify.success(result.message || "درخواست پرداخت مجدد ثبت شد");
+      setPendingRetryOrder(null);
+    } catch (error) {
+      notify.error(getAuthErrorMessage(error));
+    } finally {
+      setRetryingOrderId(null);
+    }
+  }, [pendingRetryOrder, retryingOrderId]);
+
+  if (pendingRetryOrder) {
+    return (
+      <GatewayRedirectConfirmation
+        title="تایید پرداخت مجدد"
+        description="قبل از انتقال به درگاه، جزئیات سفارش را بررسی کنید."
+        details={[
+          {
+            label: "شماره سفارش",
+            value: pendingRetryOrder.publicOrderNumber || pendingRetryOrder.orderId,
+          },
+          {
+            label: "تعداد کالا",
+            value: new Intl.NumberFormat("fa-IR").format(
+              Number(pendingRetryOrder.itemCount) || 0,
+            ),
+          },
+          {
+            label: "وضعیت سفارش",
+            value: pendingRetryOrder.statusTitleFa || pendingRetryOrder.statusKey,
+            tone: "warning",
+          },
+          {
+            label: "وضعیت پرداخت",
+            value:
+              pendingRetryOrder.paymentStatusTitleFa ||
+              pendingRetryOrder.paymentStatusKey,
+          },
+        ]}
+        amountLabel="مبلغ قابل پرداخت"
+        amountValue={formatMoney(pendingRetryOrder.payableAmount)}
+        starting={retryingOrderId === pendingRetryOrder.orderId}
+        onCancel={handleCancelRetryGateway}
+        onProceed={() => void handleProceedRetryGateway()}
+      />
+    );
+  }
 
   return (
     <div className="space-y-8 lg:col-span-3">

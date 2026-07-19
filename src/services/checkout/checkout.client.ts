@@ -3,6 +3,8 @@
 
 import { apiClient, ApiError } from "@/src/lib/http/api-client";
 import type {
+  CheckoutCouponDiscount,
+  CheckoutCouponPayload,
   CheckoutPaymentMethod,
   CheckoutPaymentProvider,
   CheckoutShippingMethod,
@@ -20,12 +22,14 @@ import type { CartItem } from "@/src/lib/types/cart/cartTypes";
 
 const BASE = "/Checkout";
 
+// getRecord یک تابع است که یک آرگومان unknown را دریافت می کند و یک آبجکت Record<string, unknown> را برمی گرداند.
 function getRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object"
     ? (value as Record<string, unknown>)
     : {};
 }
 
+// unwrapDataArray یک تابع است که یک آرگومان unknown را دریافت می کند و یک آرایه unknown[] را برمی گرداند.
 function unwrapDataArray(payload: unknown): unknown[] {
   const root = getRecord(payload);
   if (Array.isArray(root.data)) return root.data;
@@ -33,6 +37,7 @@ function unwrapDataArray(payload: unknown): unknown[] {
   return [];
 }
 
+// unwrapDataObject یک تابع است که یک آرگومان unknown را دریافت می کند و یک آبجکت Record<string, unknown> را برمی گرداند.
 function unwrapDataObject(payload: unknown): Record<string, unknown> {
   const root = getRecord(payload);
   const data = root.data;
@@ -42,6 +47,12 @@ function unwrapDataObject(payload: unknown): Record<string, unknown> {
   return root;
 }
 
+function toNumber(value: unknown): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+// assertSuccess یک تابع است که یک آرگومان unknown و یک آرگومان string را دریافت می کند و یک آبجکت Record<string, unknown> را برمی گرداند.
 function assertSuccess(payload: unknown, fallback: string) {
   const root = getRecord(payload);
   const ok = root.success ?? root.isSuccess;
@@ -57,6 +68,7 @@ function assertSuccess(payload: unknown, fallback: string) {
   }
 }
 
+// mapPaymentProvider یک تابع است که یک آرگومان unknown را دریافت می کند و یک آبجکت CheckoutPaymentProvider را برمی گرداند.
 function mapPaymentProvider(value: unknown): CheckoutPaymentProvider | null {
   const item = getRecord(value);
   const code = String(
@@ -84,6 +96,7 @@ function mapPaymentProvider(value: unknown): CheckoutPaymentProvider | null {
   };
 }
 
+// extractProviders یک تابع است که یک آرگومان Record<string, unknown> را دریافت می کند و یک آرایه unknown[] را برمی گرداند.
 function extractProviders(item: Record<string, unknown>): unknown[] {
   const candidates = [
     item.providers,
@@ -102,6 +115,7 @@ function extractProviders(item: Record<string, unknown>): unknown[] {
   return [];
 }
 
+// mapPaymentMethod یک تابع است که یک آرگومان unknown را دریافت می کند و یک آبجکت CheckoutPaymentMethod را برمی گرداند.
 function mapPaymentMethod(value: unknown): CheckoutPaymentMethod | null {
   const item = getRecord(value);
   const code = String(item.code ?? "").trim();
@@ -120,6 +134,7 @@ function mapPaymentMethod(value: unknown): CheckoutPaymentMethod | null {
   };
 }
 
+// mapShippingMethod یک تابع است که یک آرگومان unknown را دریافت می کند و یک آبجکت CheckoutShippingMethod را برمی گرداند.
 function mapShippingMethod(value: unknown): CheckoutShippingMethod | null {
   const item = getRecord(value);
   const id = String(
@@ -144,6 +159,34 @@ function mapShippingMethod(value: unknown): CheckoutShippingMethod | null {
   };
 }
 
+function mapCouponDiscount(
+  payload: unknown,
+  raw: unknown,
+): CheckoutCouponDiscount {
+  const data = getRecord(payload);
+
+  return {
+    couponCode: String(data.couponCode ?? ""),
+    couponIsApplicable: Boolean(data.couponIsApplicable),
+    couponMessage: String(data.couponMessage ?? ""),
+    couponItemsDiscount: toNumber(data.couponItemsDiscount),
+    couponShippingDiscount: toNumber(data.couponShippingDiscount),
+    couponTotalDiscount: toNumber(data.couponTotalDiscount),
+    campaignDiscount: toNumber(data.campaignDiscount),
+    appliedSource: String(data.appliedSource ?? ""),
+    appliedAmount: toNumber(data.appliedAmount),
+    rejectedSource: String(data.rejectedSource ?? ""),
+    rejectedAmount: toNumber(data.rejectedAmount),
+    decisionReason: String(data.decisionReason ?? ""),
+    itemsSubtotal: toNumber(data.itemsSubtotal),
+    shippingFee: toNumber(data.shippingFee),
+    discount: toNumber(data.discount),
+    payableAmount: toNumber(data.payableAmount),
+    raw,
+  };
+}
+
+// getCheckoutPaymentMethods یک تابع است که یک آبجکت Promise<CheckoutPaymentMethod[]> را برمی گرداند.
 export async function getCheckoutPaymentMethods(): Promise<
   CheckoutPaymentMethod[]
 > {
@@ -167,6 +210,7 @@ export async function getCheckoutPaymentMethods(): Promise<
   return mapped;
 }
 
+// getCheckoutShippingMethods یک تابع است که یک آبجکت Promise<CheckoutShippingMethod[]> را برمی گرداند.
 export async function getCheckoutShippingMethods(): Promise<
   CheckoutShippingMethod[]
 > {
@@ -184,6 +228,7 @@ export async function getCheckoutShippingMethods(): Promise<
   return mapped;
 }
 
+// getCheckoutShippingOptions یک تابع است که یک آبجکت Promise<CheckoutShippingMethod[]> را برمی گرداند.
 export async function getCheckoutShippingOptions(payload: {
   shippingAddress: PlaceOrderPayload["shippingAddress"];
 }): Promise<CheckoutShippingMethod[]> {
@@ -201,6 +246,41 @@ export async function getCheckoutShippingOptions(payload: {
   return mapped;
 }
 
+function buildCouponPayload(payload: CheckoutCouponPayload): CheckoutCouponPayload {
+  return {
+    couponCode: payload.couponCode.trim(),
+    shippingMethodId: payload.shippingMethodId,
+    shippingAddress: payload.shippingAddress,
+  };
+}
+
+export async function applyCheckoutCoupon(
+  payload: CheckoutCouponPayload,
+): Promise<CheckoutCouponDiscount> {
+  const body = buildCouponPayload(payload);
+  console.log("[Checkout] POST /Checkout/apply-coupon payload =>", body);
+
+  const response = await apiClient.post(`${BASE}/apply-coupon`, body);
+  console.log("[Checkout] apply-coupon raw =>", response.data);
+  assertSuccess(response.data, "اعمال کد تخفیف ناموفق بود");
+
+  return mapCouponDiscount(unwrapDataObject(response.data), response.data);
+}
+
+export async function previewCheckoutDiscount(
+  payload: CheckoutCouponPayload,
+): Promise<CheckoutCouponDiscount> {
+  const body = buildCouponPayload(payload);
+  console.log("[Checkout] POST /Checkout/preview-discount payload =>", body);
+
+  const response = await apiClient.post(`${BASE}/preview-discount`, body);
+  console.log("[Checkout] preview-discount raw =>", response.data);
+  assertSuccess(response.data, "محاسبه تخفیف ناموفق بود");
+
+  return mapCouponDiscount(unwrapDataObject(response.data), response.data);
+}
+
+// placeCheckoutOrder یک تابع است که یک آبجکت PlaceOrderPayload را دریافت می کند و یک آبجکت PlaceOrderResult را برمی گرداند.
 export async function placeCheckoutOrder(
   payload: PlaceOrderPayload,
 ): Promise<PlaceOrderResult> {
@@ -321,6 +401,7 @@ export async function ensureServerCartHasItems(
   return cart.items.length;
 }
 
+// startOrderPayment یک تابع است که یک آبجکت StartPaymentPayload را دریافت می کند و یک آبجکت StartPaymentResult را برمی گرداند.
 export async function startOrderPayment(
   payload: StartPaymentPayload,
 ): Promise<StartPaymentResult> {

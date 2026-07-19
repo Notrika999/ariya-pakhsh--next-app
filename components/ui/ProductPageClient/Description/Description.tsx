@@ -30,15 +30,25 @@ function isColorAttribute(attr: ProductDetailAttribute) {
   );
 }
 
-function resolveColorHex(attr?: ProductDetailAttribute | null) {
-  if (typeof attr?.colorCode === "string" && attr.colorCode.trim()) {
-    return attr.colorCode.trim();
+function normalizeColorCodes(value?: string | string[] | null): string[] {
+  if (Array.isArray(value)) {
+    return value.flatMap((item) => normalizeColorCodes(item));
   }
 
-  const raw = attr?.colorHexCodes;
-  if (Array.isArray(raw)) return raw[0] || "#ccc";
-  if (typeof raw === "string" && raw.trim()) return raw.trim();
-  return "#ccc";
+  if (typeof value !== "string") return [];
+
+  return value
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function resolveColorHexes(attr?: ProductDetailAttribute | null) {
+  const colorCodeParts = normalizeColorCodes(attr?.colorCode);
+  if (colorCodeParts.length > 0) return colorCodeParts;
+
+  const colorHexParts = normalizeColorCodes(attr?.colorHexCodes);
+  return colorHexParts.length > 0 ? colorHexParts : ["#ccc"];
 }
 
 function resolveColorLabel(
@@ -92,7 +102,7 @@ export function buildProductColorOptions(
     options.push({
       variantId: variant.variantId,
       titles: colorAttrs.map((attr) => resolveColorLabel(attr, variant.name)),
-      codes: colorAttrs.map((attr) => resolveColorHex(attr)),
+      codes: colorAttrs.flatMap((attr) => resolveColorHexes(attr)),
       inStock: variant.inStock,
     });
   }

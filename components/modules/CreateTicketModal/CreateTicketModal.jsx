@@ -22,6 +22,7 @@ export default function CreateTicketModal({
   const [priority, setPriority] = useState(DEFAULT_TICKET_PRIORITY);
   const [messageBody, setMessageBody] = useState("");
   const [orderId, setOrderId] = useState("");
+  const [orderNumber, setOrderNumber] = useState("");
   const [errors, setErrors] = useState({});
 
   const isOrderTracking =
@@ -68,6 +69,7 @@ export default function CreateTicketModal({
     setPriority(DEFAULT_TICKET_PRIORITY);
     setMessageBody("");
     setOrderId("");
+    setOrderNumber("");
     setErrors({});
   };
 
@@ -80,7 +82,8 @@ export default function CreateTicketModal({
       category,
       priority,
       body: messageBody.trim(),
-      orderId: orderId.trim() || undefined,
+      orderId: orderId.trim(),
+      orderNumber: orderNumber.trim(),
     };
 
     const ok = await onSubmit?.(payload);
@@ -95,17 +98,27 @@ export default function CreateTicketModal({
   };
 
   const handleCategoryChange = (nextCategory) => {
+    console.log("payload", payload);
     setCategory(nextCategory);
     clearError("category");
     if (
-      nextCategory !== DEFAULT_TICKET_CATEGORY ||
-      nextCategory !== "paymentIssue" ||
-      nextCategory !== "returnRequest" ||
-      nextCategory !== "damageProduct" ||
-      nextCategory !== "shippingDelay"
+      ![
+        DEFAULT_TICKET_CATEGORY,
+        "paymentIssue",
+        "returnRequest",
+        "damageProduct",
+        "shippingDelay",
+      ].includes(nextCategory)
     ) {
       clearError("orderId");
     }
+  };
+
+  const handleOrderNumberChange = (nextOrderId, nextOrderNumber = "") => {
+    setOrderId(nextOrderId);
+    setOrderNumber(nextOrderNumber);
+    clearError("orderId");
+    clearError("orderNumber");
   };
 
   return (
@@ -180,10 +193,7 @@ export default function CreateTicketModal({
             <OrderAutocomplete
               inputClassName={fieldClass(errors.orderId)}
               value={orderId}
-              onChange={(nextOrderId) => {
-                setOrderId(nextOrderId);
-                clearError("orderId");
-              }}
+              onChange={handleOrderNumberChange}
               disabled={loading}
               placeholder={
                 isOrderTracking

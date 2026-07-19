@@ -1,5 +1,5 @@
 "use client";
-
+// src/services/ticket/ticket.client.ts
 import { apiClient, ApiError } from "@/src/lib/http/api-client";
 import type {
   CreateTicketRequest,
@@ -151,12 +151,9 @@ export async function createTicket(
     category: request.category,
     body: request.body?.trim() ?? "",
     priority: request.priority,
+    orderId: request.orderId?.trim() ?? "",
+    orderNumber: request.orderNumber?.trim() ?? "",
   };
-
-  const orderId = request.orderId?.trim();
-  if (orderId) {
-    payload.orderId = orderId;
-  }
 
   if (!payload.subject || !payload.body) {
     throw new ApiError(400, "موضوع و متن تیکت الزامی است", "VALIDATION_ERROR");

@@ -29,10 +29,12 @@ import type {
   ProductListResponse,
 } from "@/src/lib/types/productTypes";
 import type { SortOption } from "@/src/lib/types/filters/filters";
+import { getCategoryImage } from "@/src/utils/product-image";
 
 import { CheckCircle, AlertCircle } from "lucide-react";
 
 type BreadcrumbItem = CategoryBreadcrumbItem & { link?: string };
+type CategoryImageInput = Parameters<typeof getCategoryImage>[0];
 
 const SORT_OPTIONS: SortOption[] = [
   "default",
@@ -193,6 +195,7 @@ export default function CategoryProductListPage({
 
       const res = await fetch(`/api/products?${params.toString()}`);
 
+
       if (!res.ok) {
         throw new Error("Failed to fetch products");
       }
@@ -237,7 +240,13 @@ export default function CategoryProductListPage({
 
   const sliderCategories = useMemo<SliderCategory[]>(() => {
     if (category?.children?.length) {
-      return category.children;
+      return category.children.map((item) => ({
+        id: item.id,
+        categoryId: item.id,
+        name: item.name,
+        slug: item.slug,
+        src: getCategoryImage(item.image),
+      }));
     }
 
     if (category) {
@@ -249,6 +258,9 @@ export default function CategoryProductListPage({
       categoryId: item.categoryId,
       name: item.name,
       slug: item.slug,
+      src: getCategoryImage(
+        ("image" in item ? item.image : null) as CategoryImageInput,
+      ),
     }));
   }, [category, filterOptions.categories]);
 

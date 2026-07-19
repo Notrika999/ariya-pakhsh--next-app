@@ -93,6 +93,8 @@ export default function ProductListSection({
       />
 
       <div className="grid grid-cols-12 gap-5 mt-6">
+
+        {/* <!-- START FILTER SECTION --> */}
         <aside className="lg:col-span-3 hidden lg:block">
           <div className="sticky top-6">
             <Filter
@@ -105,7 +107,9 @@ export default function ProductListSection({
             />
           </div>
         </aside>
+        {/* <!-- END FILTER SECTION --> */}
 
+        {/* <!-- START PRODUCT LIST SECTION --> */}
         <section className="lg:col-span-9 col-span-12">
           <div className="flex flex-wrap items-center sm:space-y-0 space-y-3 space-x-3">
             <div className="flex items-center gap-2">

@@ -9,6 +9,13 @@ export type Category = {
   isRecommended: boolean;
   isLeaf: boolean;
   children: Category[];
+  image?: string | {
+    iconUrl?: string | null;
+    thumbUrl?: string | null;
+    cardUrl?: string | null;
+    url?: string | null;
+    path?: string | null;
+  } | null;
   src?: string;
   seoTitle: string;
   seoDescription: string;

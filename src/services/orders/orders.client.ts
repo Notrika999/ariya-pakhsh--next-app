@@ -9,8 +9,17 @@ import type {
   CreateOrderReturnResult,
   GetMyOrdersParams,
   MyOrderDetail,
+  MyOrderDiscount,
   MyOrderItem,
   MyOrderListItem,
+  MyOrderNote,
+  MyOrderPayment,
+  MyOrderPaymentAttempt,
+  MyOrderReturn,
+  MyOrderReturnItem,
+  MyOrderReturnRefund,
+  MyOrderShipment,
+  MyOrderShipmentItem,
   MyOrdersPage,
   RetryPaymentResult,
 } from "@/src/lib/types/orders/order.types";
@@ -24,15 +33,30 @@ function getRecord(value: unknown): Record<string, unknown> {
     : {};
 }
 
+function toNumber(value: unknown, fallback = 0): number {
+  if (typeof value === "number") return Number.isFinite(value) ? value : fallback;
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  }
+  return fallback;
+}
+
+function toString(value: unknown, fallback = ""): string {
+  return typeof value === "string" ? value : fallback;
+}
+
+function toNullableString(value: unknown): string | null {
+  return typeof value === "string" && value ? value : null;
+}
+
 function assertSuccess(payload: unknown, fallback: string) {
   const root = getRecord(payload);
   const ok = root.success ?? root.isSuccess;
   if (ok === false) {
     throw new ApiError(
       400,
-      typeof root.message === "string" && root.message
-        ? root.message
-        : fallback,
+      typeof root.message === "string" && root.message ? root.message : fallback,
       typeof root.code === "string" ? root.code : undefined,
       payload,
     );
@@ -55,12 +79,12 @@ function mapOrderListItem(value: unknown): MyOrderListItem {
     fulfillmentStatusTitleFa: String(
       item.fulfillmentStatusTitleFa ?? item.fulfillmentStatusTitle ?? "",
     ),
-    payableAmount: Number(item.payableAmount ?? 0) || 0,
-    paidAmount: Number(item.paidAmount ?? 0) || 0,
-    itemCount: Number(item.itemCount ?? 0) || 0,
+    payableAmount: toNumber(item.payableAmount),
+    paidAmount: toNumber(item.paidAmount),
+    itemCount: toNumber(item.itemCount),
     createdAt: String(item.createdAt ?? ""),
-    expiresAt: item.expiresAt ? String(item.expiresAt) : null,
-    paidAt: item.paidAt ? String(item.paidAt) : null,
+    expiresAt: toNullableString(item.expiresAt),
+    paidAt: toNullableString(item.paidAt),
     canRetryPayment: Boolean(item.canRetryPayment),
     canRequestReturn: Boolean(item.canRequestReturn),
   };
@@ -79,10 +103,11 @@ function unwrapOrdersPage(payload: unknown): MyOrdersPage {
 
   return {
     items,
-    pageNumber: Number(data.pageNumber ?? root.pageNumber ?? 1),
-    pageSize: Number(data.pageSize ?? root.pageSize ?? (items.length || 10)),
-    totalCount: Number(data.totalCount ?? root.totalCount ?? items.length),
-    totalPages: Number(data.totalPages ?? root.totalPages ?? 1),
+    orders: items,
+    pageNumber: toNumber(data.pageNumber ?? root.pageNumber, 1),
+    pageSize: toNumber(data.pageSize ?? root.pageSize, items.length || 10),
+    totalCount: toNumber(data.totalCount ?? root.totalCount, items.length),
+    totalPages: toNumber(data.totalPages ?? root.totalPages, 1),
     hasPreviousPage: Boolean(data.hasPreviousPage ?? root.hasPreviousPage),
     hasNextPage: Boolean(data.hasNextPage ?? root.hasNextPage),
   };
@@ -135,61 +160,187 @@ function mapOrderItem(value: unknown): MyOrderItem | null {
   ).trim();
   if (!orderItemId) return null;
 
-  const quantity = Math.max(1, Number(item.quantity ?? item.qty ?? 1) || 1);
-  const unitPrice =
-    Number(
-      item.unitPrice ??
-        item.price ??
-        item.unitAmount ??
-        item.originalUnitPrice ??
-        0,
-    ) || 0;
-  const lineTotal =
-    Number(
-      item.finalLineAmount ??
-        item.lineTotal ??
-        item.totalPrice ??
-        item.total ??
-        unitPrice * quantity,
-    ) ||
-    unitPrice * quantity;
-
+  const quantity = Math.max(1, toNumber(item.quantity ?? item.qty, 1));
+  const unitPrice = toNumber(
+    item.unitPrice ?? item.price ?? item.unitAmount ?? item.originalUnitPrice,
+  );
+  const finalLineAmount = toNumber(
+    item.finalLineAmount ?? item.lineTotal ?? item.totalPrice ?? item.total,
+    unitPrice * quantity,
+  );
   const imagePath = pickImagePath(item);
+  const productTitle = String(
+    item.productTitle ?? item.productName ?? item.name ?? item.title ?? "محصول",
+  );
+  const variantTitle = String(
+    item.variantTitle ?? item.variantName ?? item.skuName ?? "",
+  );
 
   return {
     orderItemId,
-    productId: typeof item.productId === "string" ? item.productId : undefined,
-    variantId: typeof item.variantId === "string" ? item.variantId : undefined,
-    productTitle: String(
-      item.productTitle ?? item.name ?? item.title ?? "محصول",
-    ),
-    variantName: String(
-      item.variantName ?? item.variantTitle ?? item.skuName ?? "",
-    ),
+    id: orderItemId,
+    productId: toString(item.productId) || undefined,
+    variantId: toString(item.variantId) || undefined,
+    productTitle,
+    productName: productTitle,
+    variantTitle,
+    variantName: variantTitle,
     quantity,
     unitPrice,
-    lineTotal,
-    originalUnitPrice: Number(item.originalUnitPrice ?? unitPrice) || 0,
-    campaignDiscountAmount: Number(item.campaignDiscountAmount ?? 0) || 0,
-    couponDiscountShare: Number(item.couponDiscountShare ?? 0) || 0,
-    refundableAmount: Number(item.refundableAmount ?? 0) || 0,
-    refundedAmount: Number(item.refundedAmount ?? 0) || 0,
-    quantityCancelled: Number(item.quantityCancelled ?? 0) || 0,
-    quantityReturned: Number(item.quantityReturned ?? 0) || 0,
-    cancelReason:
-      typeof item.cancelReason === "string" ? item.cancelReason : null,
-    statusKey: typeof item.statusKey === "string" ? item.statusKey : undefined,
-    statusTitleFa:
-      typeof item.statusTitleFa === "string" ? item.statusTitleFa : undefined,
-    promotionTitle:
-      typeof item.promotionTitle === "string" ? item.promotionTitle : null,
+    lineTotal: finalLineAmount,
+    finalLineAmount,
+    originalUnitPrice: toNumber(item.originalUnitPrice, unitPrice),
+    campaignDiscountAmount: toNumber(item.campaignDiscountAmount),
+    couponDiscountShare: toNumber(item.couponDiscountShare),
+    refundableAmount: toNumber(item.refundableAmount),
+    refundedAmount: toNumber(item.refundedAmount),
+    quantityCancelled: toNumber(item.quantityCancelled),
+    quantityReturned: toNumber(item.quantityReturned),
+    cancelReason: toNullableString(item.cancelReason),
+    statusKey: toString(item.statusKey) || undefined,
+    statusTitleFa: toString(item.statusTitleFa) || undefined,
+    promotionTitle: toNullableString(item.promotionTitle),
     imageUrl: imagePath ? getProductImage(imagePath) : getProductImage(null),
-    sku:
-      typeof item.sku === "string"
-        ? item.sku
-        : typeof item.productCode === "string"
-          ? item.productCode
-          : null,
+    sku: toString(item.sku) || toString(item.productCode) || null,
+  };
+}
+
+function mapShipmentItem(value: unknown): MyOrderShipmentItem | null {
+  const item = getRecord(value);
+  const orderItemId = String(item.orderItemId ?? "").trim();
+  if (!orderItemId) return null;
+
+  return {
+    orderItemId,
+    quantity: toNumber(item.quantity),
+  };
+}
+
+function mapShipment(value: unknown): MyOrderShipment {
+  const item = getRecord(value);
+  const itemsRaw = Array.isArray(item.items) ? item.items : [];
+
+  return {
+    id: String(item.id ?? ""),
+    shipmentNumber: String(item.shipmentNumber ?? ""),
+    statusKey: String(item.statusKey ?? ""),
+    statusTitleFa: String(item.statusTitleFa ?? ""),
+    trackingCode: String(item.trackingCode ?? ""),
+    courierName: String(item.courierName ?? ""),
+    shippingMethodTitle: String(item.shippingMethodTitle ?? ""),
+    shipmentFee: toNumber(item.shipmentFee),
+    receiverName: String(item.receiverName ?? ""),
+    receiverPhone: String(item.receiverPhone ?? ""),
+    addressSnapshotJson: String(item.addressSnapshotJson ?? ""),
+    estimatedDeliveryAt: toNullableString(item.estimatedDeliveryAt),
+    shippedAt: toNullableString(item.shippedAt),
+    deliveredAt: toNullableString(item.deliveredAt),
+    items: itemsRaw
+      .map(mapShipmentItem)
+      .filter((shipmentItem): shipmentItem is MyOrderShipmentItem =>
+        Boolean(shipmentItem),
+      ),
+  };
+}
+
+function mapDiscount(value: unknown): MyOrderDiscount {
+  const item = getRecord(value);
+
+  return {
+    discountSource: String(item.discountSource ?? ""),
+    sourceLabel: String(item.sourceLabel ?? ""),
+    discountAmount: toNumber(item.discountAmount),
+    isApplied: Boolean(item.isApplied),
+    rejectionReason: toNullableString(item.rejectionReason),
+    decidedAt: toNullableString(item.decidedAt),
+  };
+}
+
+function mapPaymentAttempt(value: unknown): MyOrderPaymentAttempt {
+  const item = getRecord(value);
+
+  return {
+    id: String(item.id ?? ""),
+    amount: toNumber(item.amount),
+    statusKey: String(item.statusKey ?? ""),
+    statusTitleFa: String(item.statusTitleFa ?? ""),
+    refIdMasked: String(item.refIdMasked ?? ""),
+    failureReasonFa: toNullableString(item.failureReasonFa),
+    createdAt: toNullableString(item.createdAt),
+    settledAt: toNullableString(item.settledAt),
+    failedAt: toNullableString(item.failedAt),
+  };
+}
+
+function mapPayment(value: unknown): MyOrderPayment {
+  const item = getRecord(value);
+  const attemptsRaw = Array.isArray(item.attempts) ? item.attempts : [];
+
+  return {
+    id: String(item.id ?? ""),
+    method: String(item.method ?? ""),
+    methodTitleFa: String(item.methodTitleFa ?? ""),
+    amount: toNumber(item.amount),
+    statusKey: String(item.statusKey ?? ""),
+    statusTitleFa: String(item.statusTitleFa ?? ""),
+    providerCode: String(item.providerCode ?? ""),
+    attempts: attemptsRaw.map(mapPaymentAttempt),
+  };
+}
+
+function mapNote(value: unknown): MyOrderNote {
+  const item = getRecord(value);
+
+  return {
+    content: String(item.content ?? ""),
+    authorType: String(item.authorType ?? ""),
+    createdAt: toNullableString(item.createdAt),
+  };
+}
+
+function mapReturnItem(value: unknown): MyOrderReturnItem {
+  const item = getRecord(value);
+
+  return {
+    id: String(item.id ?? ""),
+    orderItemId: String(item.orderItemId ?? ""),
+    quantity: toNumber(item.quantity),
+    refundAmount: toNumber(item.refundAmount),
+    statusKey: String(item.statusKey ?? ""),
+    statusTitleFa: String(item.statusTitleFa ?? ""),
+  };
+}
+
+function mapReturnRefund(value: unknown): MyOrderReturnRefund | null {
+  const item = getRecord(value);
+  if (!Object.keys(item).length) return null;
+
+  return {
+    id: String(item.id ?? ""),
+    amount: toNumber(item.amount),
+    statusKey: String(item.statusKey ?? ""),
+    statusTitleFa: String(item.statusTitleFa ?? ""),
+    createdAt: toNullableString(item.createdAt),
+    paidAt: toNullableString(item.paidAt),
+  };
+}
+
+function mapReturn(value: unknown): MyOrderReturn {
+  const item = getRecord(value);
+  const itemsRaw = Array.isArray(item.items) ? item.items : [];
+
+  return {
+    id: String(item.id ?? ""),
+    statusKey: String(item.statusKey ?? ""),
+    statusTitleFa: String(item.statusTitleFa ?? ""),
+    reason: toNullableString(item.reason),
+    adminNote: toNullableString(item.adminNote),
+    totalRefundAmount: toNumber(item.totalRefundAmount),
+    createdAt: toNullableString(item.createdAt),
+    decidedAt: toNullableString(item.decidedAt),
+    completedAt: toNullableString(item.completedAt),
+    items: itemsRaw.map(mapReturnItem),
+    refund: mapReturnRefund(item.refund),
   };
 }
 
@@ -215,29 +366,29 @@ function unwrapOrderDetail(payload: unknown): MyOrderDetail {
     itemCount: base.itemCount || items.length,
     items,
     currency: String(data.currency ?? ""),
-    subtotalAmount: Number(data.subtotalAmount ?? 0) || 0,
-    campaignDiscountAmount: Number(data.campaignDiscountAmount ?? 0) || 0,
-    couponDiscountAmount: Number(data.couponDiscountAmount ?? 0) || 0,
-    manualDiscountAmount: Number(data.manualDiscountAmount ?? 0) || 0,
-    appliedDiscountAmount: Number(data.appliedDiscountAmount ?? 0) || 0,
+    subtotalAmount: toNumber(data.subtotalAmount),
+    campaignDiscountAmount: toNumber(data.campaignDiscountAmount),
+    couponDiscountAmount: toNumber(data.couponDiscountAmount),
+    manualDiscountAmount: toNumber(data.manualDiscountAmount),
+    appliedDiscountAmount: toNumber(data.appliedDiscountAmount),
     appliedDiscountSource: String(data.appliedDiscountSource ?? ""),
-    shippingFee: Number(data.shippingFee ?? 0) || 0,
-    shippingDiscountAmount: Number(data.shippingDiscountAmount ?? 0) || 0,
-    taxAmount: Number(data.taxAmount ?? 0) || 0,
-    refundedAmount: Number(data.refundedAmount ?? 0) || 0,
+    shippingFee: toNumber(data.shippingFee),
+    shippingDiscountAmount: toNumber(data.shippingDiscountAmount),
+    taxAmount: toNumber(data.taxAmount),
+    refundedAmount: toNumber(data.refundedAmount),
     customerNote: String(data.customerNote ?? ""),
     selectedShippingMethodId: String(data.selectedShippingMethodId ?? ""),
     shippingMethodTitleSnapshot: String(data.shippingMethodTitleSnapshot ?? ""),
     shippingAddressSnapshotJson: String(data.shippingAddressSnapshotJson ?? ""),
-    estimatedDeliveryDays: Number(data.estimatedDeliveryDays ?? 0) || 0,
-    cancelledAt: data.cancelledAt ? String(data.cancelledAt) : null,
-    closedAt: data.closedAt ? String(data.closedAt) : null,
+    estimatedDeliveryDays: toNumber(data.estimatedDeliveryDays),
+    cancelledAt: toNullableString(data.cancelledAt),
+    closedAt: toNullableString(data.closedAt),
     canRequestReturn: Boolean(data.canRequestReturn),
-    shipments: Array.isArray(data.shipments) ? data.shipments : [],
-    discounts: Array.isArray(data.discounts) ? data.discounts : [],
-    payments: Array.isArray(data.payments) ? data.payments : [],
-    notes: Array.isArray(data.notes) ? data.notes : [],
-    returns: Array.isArray(data.returns) ? data.returns : [],
+    shipments: Array.isArray(data.shipments) ? data.shipments.map(mapShipment) : [],
+    discounts: Array.isArray(data.discounts) ? data.discounts.map(mapDiscount) : [],
+    payments: Array.isArray(data.payments) ? data.payments.map(mapPayment) : [],
+    notes: Array.isArray(data.notes) ? data.notes.map(mapNote) : [],
+    returns: Array.isArray(data.returns) ? data.returns.map(mapReturn) : [],
   };
 }
 

@@ -1,3 +1,5 @@
+// app/checkout/payment-result/page.tsx
+
 import { Suspense } from "react";
 import PaymentResult from "@/components/ui/Checkout/PaymentResult";
 

@@ -1,3 +1,5 @@
+// app/user-profile/orders/[id]/page.jsx
+
 import React from "react";
 import OrderDetails from "@/components/ui/UserProfile/Orders/OrderDetails";
 

@@ -982,6 +982,14 @@ function extractValidationMessages(errors: unknown): string[] {
 
 export function getAuthErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
+    if (error.code === "UNSAFE_INPUT") {
+      return "\u0644\u0637\u0641\u0627 \u0645\u062a\u0646 \u0631\u0627 \u0628\u062f\u0631\u0633\u062a\u06cc \u0627\u0631\u0633\u0627\u0644 \u06a9\u0646\u06cc\u062f";
+    }
+
+    if (error.code === "UNSAFE_INPUT") {
+      return "لطفا متن را بدرستی ارسال کنید";
+    }
+
     const data = error.data as
       | (ApiEnvelope<unknown> & {
           errors?: unknown;
