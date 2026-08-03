@@ -1,5 +1,6 @@
 "use client";
 // components/ui/UserProfile/Tickets/TicketMessage.jsx
+import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
 import { FieldError, fieldClass } from "@/src/utils/form.validation";
@@ -8,6 +9,7 @@ import {
   getTicketById,
   sendTicketMessage,
 } from "@/src/services/ticket/ticket.client";
+import { getProductImage } from "@/src/utils/product-image";
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
 import {
   formatTicketDate,
@@ -17,6 +19,20 @@ import {
   isTicketClosed,
 } from "@/src/lib/tickets/ticket-labels";
 import { notify } from "@/src/utils/toast";
+
+const formatAttachmentSize = (size) => {
+  if (!Number.isFinite(size) || size <= 0) return "";
+  if (size < 1024 * 1024) {
+    return `${new Intl.NumberFormat("fa-IR").format(Math.ceil(size / 1024))} KB`;
+  }
+
+  return `${new Intl.NumberFormat("fa-IR", {
+    maximumFractionDigits: 1,
+  }).format(size / (1024 * 1024))} MB`;
+};
+
+const isImageAttachment = (attachment) =>
+  attachment.contentType?.toLowerCase().startsWith("image/");
 
 export default function TicketMessage({ ticketId, onBack }) {
   const [ticket, setTicket] = useState(null);
@@ -36,7 +52,6 @@ export default function TicketMessage({ ticketId, onBack }) {
       const result = await getTicketById(ticketId);
       setTicket(result);
 
-      console.log("[TicketMessage] ticket =>", result);
     } catch (err) {
       console.error("[TicketMessage] loadTicket failed =>", err);
       setError(getAuthErrorMessage(err));
@@ -47,6 +62,7 @@ export default function TicketMessage({ ticketId, onBack }) {
   }, [ticketId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void loadTicket();
   }, [loadTicket]);
 
@@ -272,6 +288,63 @@ export default function TicketMessage({ ticketId, onBack }) {
                         <p className="whitespace-pre-line text-sm text-gray-800 dark:text-gray-200">
                           {msg.body}
                         </p>
+                        {msg.attachments.length > 0 && (
+                          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                            {msg.attachments.map((attachment) => {
+                              const attachmentUrl = getProductImage(
+                                attachment.url,
+                              );
+                              const attachmentSize = formatAttachmentSize(
+                                attachment.fileSizeBytes,
+                              );
+
+                              if (isImageAttachment(attachment)) {
+                                return (
+                                  <a
+                                    key={attachment.id}
+                                    href={attachmentUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="group overflow-hidden rounded-lg border border-gray-200 bg-white transition hover:border-primary dark:border-gray-700 dark:bg-zinc-900"
+                                  >
+                                    <Image
+                                      src={attachmentUrl}
+                                      alt={attachment.fileName || "پیوست تیکت"}
+                                      width={180}
+                                      height={180}
+                                      sizes="(min-width: 640px) 180px, 50vw"
+                                      className="aspect-square w-full object-cover"
+                                      loading="lazy"
+                                    />
+                                    <span className="block truncate border-t border-gray-100 px-2 py-1.5 text-xs text-gray-600 group-hover:text-primary dark:border-gray-800 dark:text-gray-300">
+                                      {attachment.fileName || "پیوست"}
+                                    </span>
+                                  </a>
+                                );
+                              }
+
+                              return (
+                                <a
+                                  key={attachment.id}
+                                  href={attachmentUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 transition hover:border-primary hover:text-primary dark:border-gray-700 dark:bg-zinc-900 dark:text-gray-300"
+                                >
+                                  <i className="far fa-file"></i>
+                                  <span className="min-w-0 flex-1 truncate">
+                                    {attachment.fileName || "پیوست"}
+                                  </span>
+                                  {attachmentSize && (
+                                    <span className="shrink-0 text-gray-400">
+                                      {attachmentSize}
+                                    </span>
+                                  )}
+                                </a>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -30,8 +30,12 @@ export type WalletTransactionsPage = {
 };
 
 export type GetWalletTransactionsParams = {
+  page?: number;
   pageNumber?: number;
   pageSize?: number;
+  search?: string;
+  period?: string;
+  transactionType?: string;
   type?: string;
   fromDate?: string;
   toDate?: string;

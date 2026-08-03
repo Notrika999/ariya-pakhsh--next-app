@@ -1,19 +1,61 @@
+// components/ui/Home/Slider/SliderItem.jsx
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 
-export default function SliderItem({ image, alt, href }) {
+export default function SliderItem({
+  image,
+  alt,
+  href,
+  mobileImage,
+  title,
+  subtitle,
+  ctaText,
+}) {
+  const desktopSrc = image ?? "/images/default.png";
+  const mobileSrc = mobileImage ?? desktopSrc;
+  const hasContent = Boolean(title || subtitle || ctaText);
+
   return (
-    <Link href={href} aria-label="تصویر 3 از اسلایدر فروشگاه">
-      <div className="lg:h-100 h-50 flex justify-center items-center">
+    <Link href={href} aria-label={alt} className="group block">
+      <div className="relative mx-auto h-[200px] w-full  overflow-hidden sm:h-[550px] ">
         <Image
-          width={1280}
-          height={360}
-          src={image ?? "/images/default.png"}
-          className="h-full object-cover w-full"
+          fill
+          src={desktopSrc}
+          className="hidden object-cover lg:block w-full"
           loading="lazy"
           alt={alt}
+          // sizes="(min-width: 1024px) 1908px, 406px"
         />
+        <Image
+          fill
+          src={mobileSrc}
+          className="object-cover lg:hidden"
+          loading="lazy"
+          alt={alt}
+          // sizes="(max-width: 406px) 100vw, 406px"
+        />
+        {hasContent ? (
+          <div className="absolute inset-0 flex items-end bg-linear-to-t from-black/60 via-black/10 to-transparent">
+            <div className="w-full px-5 pb-6 text-white sm:px-12 sm:pb-14">
+              {title ? (
+                <h2 className="max-w-2xl text-lg font-black leading-8 sm:text-4xl sm:leading-12">
+                  {title}
+                </h2>
+              ) : null}
+              {subtitle ? (
+                <p className="mt-2 max-w-xl text-xs font-semibold leading-6 text-white/90 sm:text-lg sm:leading-8">
+                  {subtitle}
+                </p>
+              ) : null}
+              {ctaText ? (
+                <span className="mt-4 inline-flex items-center rounded-md bg-primary px-4 py-2 text-xs font-bold text-white transition-colors group-hover:bg-primary/90 sm:px-5 sm:text-sm">
+                  {ctaText}
+                </span>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
       </div>
     </Link>
   );

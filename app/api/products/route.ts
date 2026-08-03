@@ -2,25 +2,14 @@
 // این API route برای infinite scroll توسط client استفاده میشه
 
 import { NextRequest, NextResponse } from "next/server";
-import { getProductListFromSearchParams } from "@/src/services/product/product.server";
-import type { SortOrder } from "@/src/lib/types/productTypes";
-import { allBrandSlugParams } from "@/src/lib/helper/productListHelpers";
-
-const SORT_ORDERS: SortOrder[] = [
-  "newest",
-  "oldest",
-  "priceAsc",
-  "priceDesc",
-  "bestSelling",
-  "mostRated",
-];
-
-const SORT_ORDER_ALIASES: Record<string, SortOrder> = {
-  priceAsc: "priceAsc",
-  priceDesc: "priceDesc",
-  bestSelling: "bestSelling",
-  mostRated: "mostRated",
-};
+import {
+  getProductListFromSearchParams,
+  ProductServiceError,
+} from "@/src/services/product/product.server";
+import {
+  allBrandSlugParams,
+  parseSortOrder,
+} from "@/src/lib/helper/productListHelpers";
 
 function searchParamsToRecord(
   sp: URLSearchParams,
@@ -54,12 +43,7 @@ export async function GET(request: NextRequest) {
   const inStock = sp.get("inStock") === "true" ? true : undefined;
   const onSaleOnly = sp.get("onSaleOnly") === "true" ? true : undefined;
 
-  const sort =
-    sortRaw && SORT_ORDER_ALIASES[sortRaw]
-      ? SORT_ORDER_ALIASES[sortRaw]
-      : SORT_ORDERS.includes(sortRaw as SortOrder)
-        ? (sortRaw as SortOrder)
-        : undefined;
+  const sort = parseSortOrder(sortRaw);
 
   const hasCategoryId = !!categoryId;
   const isAllProductsPath = !slug || slug === "products";
@@ -67,7 +51,7 @@ export async function GET(request: NextRequest) {
   try {
     const result = await getProductListFromSearchParams(
       {
-        CategoryId: hasCategoryId ? categoryId : undefined,
+        CategoryId: hasCategoryId ? categoryId : null,
         CategorySlug: hasCategoryId ? slug : undefined,
         PathBrandSlug:
           !hasCategoryId && !isAllProductsPath && queryBrands.length === 0
@@ -91,6 +75,14 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("API products error:", error);
+
+    if (error instanceof ProductServiceError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.status },
+      );
+    }
+
     return NextResponse.json(
       { error: "خطا در دریافت محصولات" },
       { status: 500 },

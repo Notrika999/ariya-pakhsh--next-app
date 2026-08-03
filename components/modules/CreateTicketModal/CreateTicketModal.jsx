@@ -11,6 +11,29 @@ import { FieldError, fieldClass } from "@/src/utils/form.validation";
 import CustomSelect from "@/components/modules/UserProfile/CustomSelect";
 import OrderAutocomplete from "@/components/modules/UserProfile/OrderAutocomplete";
 
+const ticketAttachmentKey = (file) =>
+  `${file.name}-${file.size}-${file.lastModified}`;
+
+const formatFileSize = (size) => {
+  if (!Number.isFinite(size) || size <= 0) return "0 KB";
+  if (size < 1024 * 1024) {
+    return `${new Intl.NumberFormat("fa-IR").format(Math.ceil(size / 1024))} KB`;
+  }
+
+  return `${new Intl.NumberFormat("fa-IR", {
+    maximumFractionDigits: 1,
+  }).format(size / (1024 * 1024))} MB`;
+};
+
+const ORDER_REQUIRED_TICKET_CATEGORIES = [
+  DEFAULT_TICKET_CATEGORY,
+  "paymentIssue",
+  "returnRequest",
+  "damageProduct",
+  "shippingDelay",
+  "changeAddress",
+];
+
 export default function CreateTicketModal({
   isOpen,
   onClose,
@@ -23,14 +46,10 @@ export default function CreateTicketModal({
   const [messageBody, setMessageBody] = useState("");
   const [orderId, setOrderId] = useState("");
   const [orderNumber, setOrderNumber] = useState("");
+  const [attachmentFiles, setAttachmentFiles] = useState([]);
   const [errors, setErrors] = useState({});
 
-  const isOrderTracking =
-    category === DEFAULT_TICKET_CATEGORY ||
-    category === "paymentIssue" ||
-    category === "returnRequest" ||
-    category === "damageProduct" ||
-    category === "shippingDelay";
+  const isOrderTracking = ORDER_REQUIRED_TICKET_CATEGORIES.includes(category);
 
   if (!isOpen) return null;
 
@@ -70,6 +89,7 @@ export default function CreateTicketModal({
     setMessageBody("");
     setOrderId("");
     setOrderNumber("");
+    setAttachmentFiles([]);
     setErrors({});
   };
 
@@ -84,6 +104,7 @@ export default function CreateTicketModal({
       body: messageBody.trim(),
       orderId: orderId.trim(),
       orderNumber: orderNumber.trim(),
+      attachmentFiles,
     };
 
     const ok = await onSubmit?.(payload);
@@ -98,18 +119,9 @@ export default function CreateTicketModal({
   };
 
   const handleCategoryChange = (nextCategory) => {
-    console.log("payload", payload);
     setCategory(nextCategory);
     clearError("category");
-    if (
-      ![
-        DEFAULT_TICKET_CATEGORY,
-        "paymentIssue",
-        "returnRequest",
-        "damageProduct",
-        "shippingDelay",
-      ].includes(nextCategory)
-    ) {
+    if (!ORDER_REQUIRED_TICKET_CATEGORIES.includes(nextCategory)) {
       clearError("orderId");
     }
   };
@@ -121,6 +133,34 @@ export default function CreateTicketModal({
     clearError("orderNumber");
   };
 
+  const handleAttachmentChange = (event) => {
+    const selectedFiles = Array.from(event.target.files ?? []);
+    if (selectedFiles.length === 0) return;
+
+    setAttachmentFiles((prev) => {
+      const existingKeys = new Set(prev.map(ticketAttachmentKey));
+      const nextFiles = [...prev];
+
+      selectedFiles.forEach((file) => {
+        const key = ticketAttachmentKey(file);
+        if (!existingKeys.has(key)) {
+          existingKeys.add(key);
+          nextFiles.push(file);
+        }
+      });
+
+      return nextFiles;
+    });
+
+    event.target.value = "";
+  };
+
+  const removeAttachment = (fileKey) => {
+    setAttachmentFiles((prev) =>
+      prev.filter((file) => ticketAttachmentKey(file) !== fileKey),
+    );
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
@@ -128,7 +168,7 @@ export default function CreateTicketModal({
         onClick={handleClose}
       />
 
-      <div className="relative z-10 w-full max-w-lg rounded-xl bg-white p-6 shadow-xl dark:bg-custom-dark">
+      <div className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-6 shadow-xl dark:bg-custom-dark">
         <h2 className="mb-4 text-lg font-semibold text-gray-800 dark:text-gray-200">
           ایجاد تیکت جدید
         </h2>
@@ -157,7 +197,10 @@ export default function CreateTicketModal({
             </label>
             <CustomSelect
               className="mt-1"
-              buttonClassName={fieldClass(errors.category)}
+              buttonClassName={[
+                fieldClass(errors.category),
+                "flex items-center justify-between gap-2 text-start",
+              ].join(" ")}
               options={TICKET_CATEGORIES}
               value={category}
               onChange={handleCategoryChange}
@@ -220,6 +263,86 @@ export default function CreateTicketModal({
               placeholder="متن تیکت را وارد کنید..."
             />
             <FieldError message={errors.messageBody} />
+          </div>
+
+          <div>
+            <label className="text-sm text-gray-600 dark:text-gray-400">
+              پیوست‌ها{" "}
+              <span className="text-xs text-gray-400 dark:text-gray-500">
+                (اختیاری)
+              </span>
+            </label>
+
+            <label
+              htmlFor="ticket-attachments"
+              className={[
+                "mt-1 flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-3 text-sm transition",
+                "hover:border-primary hover:bg-primary/5 dark:border-gray-700 dark:bg-zinc-800/60 dark:hover:border-primary/80",
+                loading ? "cursor-not-allowed opacity-60" : "",
+              ].join(" ")}
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-primary shadow-sm dark:bg-zinc-900">
+                <i className="far fa-paperclip"></i>
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block font-medium text-gray-800 dark:text-gray-200">
+                  انتخاب فایل
+                </span>
+                <span className="mt-0.5 block text-xs text-gray-500 dark:text-gray-400">
+                  {attachmentFiles.length > 0
+                    ? `${new Intl.NumberFormat("fa-IR").format(attachmentFiles.length)} فایل انتخاب شده`
+                    : "فایلی انتخاب نشده است"}
+                </span>
+              </span>
+              <span className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 dark:border-gray-700 dark:bg-zinc-900 dark:text-gray-300">
+                افزودن
+              </span>
+            </label>
+
+            <input
+              id="ticket-attachments"
+              type="file"
+              multiple
+              disabled={loading}
+              onChange={handleAttachmentChange}
+              className="sr-only"
+            />
+
+            {attachmentFiles.length > 0 && (
+              <ul className="mt-3 space-y-2">
+                {attachmentFiles.map((file) => {
+                  const fileKey = ticketAttachmentKey(file);
+
+                  return (
+                    <li
+                      key={fileKey}
+                      className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-zinc-900"
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                        <i className="far fa-file"></i>
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-gray-800 dark:text-gray-200">
+                          {file.name}
+                        </span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {formatFileSize(file.size)}
+                        </span>
+                      </span>
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() => removeAttachment(fileKey)}
+                        aria-label={`حذف ${file.name}`}
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-400 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+                      >
+                        <i className="far fa-xmark"></i>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
 
           <div className="mt-6 flex justify-end gap-3">

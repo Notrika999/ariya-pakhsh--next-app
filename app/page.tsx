@@ -1,6 +1,12 @@
 // app/page.tsx
 import { getProducts } from "@/src/services/product/product.server";
 import { getAmazingProducts } from "@/src/services/promotion/promotion.server";
+import {
+  getHomeLayout,
+  mapHomeLayoutCarousel,
+  mapHomeLayoutPromoCards,
+  mapHomeLayoutStories,
+} from "@/src/services/home/home-layout.server";
 
 import Story from "@/components/ui/Home/Story/Story";
 import Slider from "@/components/ui/Home/Slider/Slider";
@@ -8,7 +14,6 @@ import AmazingProducts from "@/components/ui/Home/AmazingProducts/AmazingProduct
 import BestSellingProducts from "@/components/ui/Home/BestSellingProducts/BestSellingProducts";
 import Category from "@/components/ui/Home/Category/Category";
 import Banner from "@/components/ui/Home/Banner/Banner";
-import UserLatestViews from "@/components/ui/Home/CategoryProductBox/CategoryProductBox";
 import Brand from "@/components/ui/Home/Brand/Brand";
 
 import { getBrands } from "@/src/services/brand/brand.server";
@@ -107,7 +112,12 @@ export default async function Home() {
   const amazingProducts = await getAmazingProducts({
     includeDealTimer: false,
   });
+  const homeLayout = await getHomeLayout();
+  const stories = mapHomeLayoutStories(homeLayout.sections);
+  const homeCarouselSlides = mapHomeLayoutCarousel(homeLayout.sections);
+  const homePromoCards = mapHomeLayoutPromoCards(homeLayout.sections);
   const newestProducts = homeData.newestProducts ?? [];
+
   const featuredProducts = homeData.featuredProducts ?? [];
   const topCategoriesMap = (homeData.topCategories ?? []).map((cat) => ({
     id: cat.categoryId,
@@ -121,41 +131,26 @@ export default async function Home() {
     3,
   );
 
-  // fake banners data
-  const bannersData = [
-    {
-      id: 1,
-      image: "/images/banner/banner-1.png",
-      alt: "تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 1",
-      slug: "/products?category=1",
-    },
-    {
-      id: 2,
-      image: "/images/banner/banner-2.png",
-      alt: "تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 2",
-      slug: "/products?category=2",
-    },
-    {
-      id: 3,
-      image: "/images/banner/banner-3.png",
-      alt: "تصویر تبلیغاتی اسلایدر فروشگاه - محصول ویژه 3",
-      slug: "/products?category=3",
-    },
-  ];
+  const bannerItems = homePromoCards;
+  const carouselSliders = homeCarouselSlides;
 
   return (
     <main>
       {/* <!-- START STORY SECTION --> */}
-      {/* <SectionContainer>
-        <Story stories={stories} />
-      </SectionContainer> */}
+      {stories.length > 0 ? (
+        <SectionContainer>
+          <Story stories={stories} />
+        </SectionContainer>
+      ) : null}
       {/* <!-- END STORY SECTION --> */}
 
-      {/* <!-- SLIDER SECTION --> */}
-      {/* <SectionContainer fullWidth>
-        <Slider sliders={sliders} />
-      </SectionContainer> */}
-      {/* <!-- END SLIDER SECTION --> */}
+      {/* <!-- Carousel SECTION --> */}
+      {carouselSliders.length > 0 ? (
+        <SectionContainer fullWidth>
+          <Slider sliders={carouselSliders} />
+        </SectionContainer>
+      ) : null}
+      {/* <!-- END Carousel SECTION --> */}
 
       {/* <!-- START AMAZING SECTION --> */}
       {amazingProducts.length > 0 && (
@@ -189,9 +184,11 @@ export default async function Home() {
       </SectionContainer>
 
       {/* <!-- START BANNER SECTION --> */}
-      <SectionContainer>
-        <Banner banners={bannersData} title="تبلیغات فروشگاه" />
-      </SectionContainer>
+      {bannerItems.length > 0 ? (
+        <SectionContainer>
+          <Banner banners={bannerItems} title="تبلیغات فروشگاه" />
+        </SectionContainer>
+      ) : null}
       {/* <!-- END BANNER SECTION --> */}
 
       {/* <!-- START Recommended CATEGORY SECTION --> */}

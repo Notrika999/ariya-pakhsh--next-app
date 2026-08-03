@@ -10,7 +10,7 @@ import React, {
   useState,
   useTransition,
 } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import DescriptionCategory from "./DescriptionCategory/DescriptionCategory";
 import CategoriesSlider, {
@@ -35,21 +35,76 @@ import { CheckCircle, AlertCircle } from "lucide-react";
 
 type BreadcrumbItem = CategoryBreadcrumbItem & { link?: string };
 type CategoryImageInput = Parameters<typeof getCategoryImage>[0];
+type SidebarCategoryOption =
+  ProductListResponse["filterOptions"]["categories"][number] & {
+    children?: SidebarCategoryOption[];
+  };
 
 const SORT_OPTIONS: SortOption[] = [
-  "default",
-  "newest",
-  "priceAsc",
-  "priceDesc",
-  "bestSelling",
-  "mostRated",
-  "discountDesc",
+  "Default",
+  "Newest",
+  "PriceAsc",
+  "PriceDesc",
+  "BestSelling",
+  "MostViewed",
+  "DiscountDesc",
+  "MostRated",
 ];
 
+const SORT_QUERY_TO_OPTION: Record<string, SortOption> = {
+  default: "Default",
+  newest: "Newest",
+  oldest: "Default",
+  priceAsc: "PriceAsc",
+  priceDesc: "PriceDesc",
+  bestSelling: "BestSelling",
+  mostViewed: "MostViewed",
+  discountDesc: "DiscountDesc",
+  mostRated: "MostRated",
+  Default: "Default",
+  Newest: "Newest",
+  PriceAsc: "PriceAsc",
+  PriceDesc: "PriceDesc",
+  BestSelling: "BestSelling",
+  MostViewed: "MostViewed",
+  DiscountDesc: "DiscountDesc",
+  MostRated: "MostRated",
+};
+
 function parseSortOption(value: string | null): SortOption {
+  if (value && SORT_QUERY_TO_OPTION[value]) return SORT_QUERY_TO_OPTION[value];
+
   return SORT_OPTIONS.includes(value as SortOption)
     ? (value as SortOption)
-    : "default";
+    : "Default";
+}
+
+function mapCategoryToFilterOption(
+  category: MenuCategory,
+): SidebarCategoryOption {
+  const categoryId = category.id ?? category.categoryId;
+
+  return {
+    categoryId,
+    name: category.name,
+    slug: category.slug,
+    count: 0,
+    children: category.children?.map(mapCategoryToFilterOption) ?? [],
+  };
+}
+
+function getCategoryId(category: MenuCategory | null): string | undefined {
+  return (category?.id ?? category?.categoryId)?.trim() || undefined;
+}
+
+function getProductListItemKey(product: ProductListItem): string {
+  return (
+    product.productId ||
+    product.defaultVariantId ||
+    product.publicCode ||
+    product.slug ||
+    product.name
+  );
 }
 
 interface Props {
@@ -62,6 +117,7 @@ interface Props {
     totalCount: number;
   };
   filterOptions: ProductListResponse["filterOptions"];
+  errorMessage?: string | null;
 }
 
 export default function CategoryProductListPage({
@@ -70,35 +126,70 @@ export default function CategoryProductListPage({
   initialProducts,
   pagination,
   filterOptions,
+  errorMessage = null,
 }: Props) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const searchKey = searchParams.toString();
 
   // وضعیت لودینگ برای فیلتر/مرتب‌سازی: از لحظه شروع ناوبری تا رسیدن داده جدید سرور
-  const [isNavigating, setIsNavigating] = useState(false);
-
   const handleStartTransition = useCallback<typeof startTransition>(
     (callback) => {
-      setIsNavigating(true);
       startTransition(callback);
     },
     [startTransition],
   );
 
-  const [priceLimit] = useState({
-    min: filterOptions?.minPrice ?? 0,
-    max: filterOptions?.maxPrice ?? 0,
-  });
+  const handleCategoryNavigate = useCallback(
+    (href: string) => {
+      handleStartTransition(() => {
+        router.push(href);
+      });
+    },
+    [handleStartTransition, router],
+  );
+
+  const priceLimit = useMemo(
+    () => ({
+      min: filterOptions?.minPrice ?? 0,
+      max: filterOptions?.maxPrice ?? 0,
+    }),
+    [filterOptions?.minPrice, filterOptions?.maxPrice],
+  );
+
+  const sidebarFilterOptions = useMemo(() => {
+    if ((filterOptions.categories?.length ?? 0) > 0) {
+      return filterOptions;
+    }
+
+    if (!category?.children?.length) {
+      return filterOptions;
+    }
+
+    return {
+      ...filterOptions,
+      categories: category.children.map(mapCategoryToFilterOption),
+    };
+  }, [category, filterOptions]);
 
   const listKey = useMemo(
     () =>
       JSON.stringify({
         pathname,
-        search: searchParams.toString(),
+        search: searchKey,
         page: pagination.page,
+        totalCount: pagination.totalCount,
+        products: initialProducts.map(getProductListItemKey),
       }),
-    [pathname, searchParams, pagination.page],
+    [
+      pathname,
+      searchKey,
+      pagination.page,
+      pagination.totalCount,
+      initialProducts,
+    ],
   );
 
   const [loadedList, setLoadedList] = useState<{
@@ -116,35 +207,13 @@ export default function CategoryProductListPage({
   }));
 
   // همگام‌سازی لیست با داده سرور
-  useEffect(() => {
-    setLoadedList({
-      key: listKey,
-      items: initialProducts,
-      page: pagination.page,
-      totalPages: pagination.totalPages,
-      totalCount: pagination.totalCount,
-    });
-  }, [
-    listKey,
-    initialProducts,
-    pagination.page,
-    pagination.totalPages,
-    pagination.totalCount,
-  ]);
-
   // پایان transition ناوبری → خاموش کردن لودینگ (حتی اگر totalCount تغییر نکرده باشد)
-  useEffect(() => {
-    if (!isPending) {
-      setIsNavigating(false);
-    }
-  }, [isPending]);
-
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [loadMoreError, setLoadMoreError] = useState<string | null>(null);
 
   const sentinelRef = useRef<HTMLDivElement>(null);
   const inFlightPageRef = useRef<number | null>(null);
-  const routeCategoryId = category?.id ? String(category.id) : undefined;
+  const routeCategoryId = getCategoryId(category);
   const categoryId = searchParams.get("categoryId") ?? routeCategoryId;
 
   const slug = useMemo(() => {
@@ -185,7 +254,7 @@ export default function CategoryProductListPage({
     setLoadMoreError(null);
 
     try {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = new URLSearchParams(searchKey);
       params.set("page", String(nextPage));
       params.set("slug", slug);
 
@@ -194,7 +263,6 @@ export default function CategoryProductListPage({
       }
 
       const res = await fetch(`/api/products?${params.toString()}`);
-
 
       if (!res.ok) {
         throw new Error("Failed to fetch products");
@@ -229,7 +297,7 @@ export default function CategoryProductListPage({
     currentPage,
     totalPages,
     isFetchingMore,
-    searchParams,
+    searchKey,
     slug,
     categoryId,
     listKey,
@@ -292,6 +360,8 @@ export default function CategoryProductListPage({
           : searchParams.getAll("brandId"),
     minPrice: Number(searchParams.get("minPrice") ?? priceLimit.min),
     maxPrice: Number(searchParams.get("maxPrice") ?? priceLimit.max),
+    inStock: searchParams.get("inStock") === "true",
+    onSaleOnly: searchParams.get("onSaleOnly") === "true",
     sort: parseSortOption(searchParams.get("sort")),
   };
 
@@ -303,19 +373,24 @@ export default function CategoryProductListPage({
         <>
           <SectionTitle title="دسته بندی ها" />
           <div className="pb-10">
-            <CategoriesSlider categories={sliderCategories} />
+            <CategoriesSlider
+              categories={sliderCategories}
+              onNavigate={handleCategoryNavigate}
+            />
           </div>
         </>
       )}
 
       <ProductListSection
+        key={listKey}
         filters={filters}
         pagination={{ page: currentPage, totalPages, totalCount }}
-        filterOptions={filterOptions}
+        filterOptions={sidebarFilterOptions}
         minLimit={priceLimit.min}
         maxLimit={priceLimit.max}
         products={products}
-        isLoading={isPending || isNavigating}
+        errorMessage={errorMessage}
+        isLoading={isPending}
         startTransition={handleStartTransition}
       />
 
@@ -356,7 +431,7 @@ export default function CategoryProductListPage({
         </div>
       )}
 
-      {category && <DescriptionCategory />}
+      <DescriptionCategory />
     </SectionContainer>
   );
 }

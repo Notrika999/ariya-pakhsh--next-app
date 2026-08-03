@@ -63,6 +63,7 @@ export interface ProductDetailPromotion {
 
 export interface ProductDetailVariant {
   variantId: string;
+  publicCode?: string;
   name: string;
   karmaProductId?: string;
   isDefault: boolean;
@@ -70,6 +71,10 @@ export interface ProductDetailVariant {
   price: number;
   compareAtPrice?: number | null;
   salePrice?: number | null;
+  finalPrice?: number | null;
+  basePrice?: number | null;
+  originalPrice?: number | null;
+  discountPercent?: number | null;
   isOnSale: boolean;
   currencyCode: string;
   availableQuantity: number;
@@ -77,6 +82,9 @@ export interface ProductDetailVariant {
   allowBackorder: boolean;
   isVirtual: boolean;
   isAmazingOffer?: boolean;
+  campaignLabel?: string | null;
+  campaignEndAt?: string | null;
+  campaignRemainingSeconds?: number | null;
   images: ProductDetailImage[];
   attributes: ProductDetailAttribute[];
 }
@@ -89,7 +97,18 @@ export interface RelatedProduct {
   price?: number;
   compareAtPrice?: number;
   salePrice?: number | null;
+  finalPrice?: number | null;
+  basePrice?: number | null;
+  originalPrice?: number | null;
+  discountPercent?: number | null;
   isOnSale?: boolean;
+  isAmazingOffer?: boolean;
+  campaignLabel?: string | null;
+  campaignTitle?: string | null;
+  campaignName?: string | null;
+  campaignEndAt?: string | null;
+  campaignRemainingSeconds?: number | null;
+  promotion?: ProductDetailPromotion | null;
   currencyCode?: string;
   inStock?: boolean;
   availableQuantity?: number;
@@ -133,6 +152,9 @@ export interface ProductDetail {
   brands: ProductDetailBrand[];
   isInWishlist?: boolean;
   isAmazingOffer?: boolean;
+  campaignLabel?: string | null;
+  campaignEndAt?: string | null;
+  campaignRemainingSeconds?: number | null;
   promotion?: ProductDetailPromotion | null;
   variants: ProductDetailVariant[];
   attributes: ProductDetailAttribute[];

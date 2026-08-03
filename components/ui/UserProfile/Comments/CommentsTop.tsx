@@ -1,7 +1,17 @@
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
 import React from "react";
 
-export default function CommentsTop() {
+type CommentsTopProps = {
+  reviewsCount: number;
+  questionsCount: number;
+};
+
+export default function CommentsTop({
+  reviewsCount,
+  questionsCount,
+}: CommentsTopProps) {
+  const numberFormatter = new Intl.NumberFormat("fa-IR");
+
   return (
     <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -19,7 +29,17 @@ export default function CommentsTop() {
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 تعداد کل نظرات
               </p>
-              <span className="text-lg font-bold text-primary">۱۵</span>
+              <span className="text-lg font-bold text-primary">
+                {numberFormatter.format(reviewsCount)}
+              </span>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                تعداد کل پرسش‌ها
+              </p>
+              <span className="text-lg font-bold text-primary">
+                {numberFormatter.format(questionsCount)}
+              </span>
             </div>
           </div>
         </div>

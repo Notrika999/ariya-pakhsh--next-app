@@ -1,3 +1,4 @@
+// app/user-profile/gift-cart/page.jsx
 import GiftCart from "@/components/ui/UserProfile/GiftCart/GiftCart";
 import React from "react";
 

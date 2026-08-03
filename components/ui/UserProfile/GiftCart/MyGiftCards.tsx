@@ -1,40 +1,94 @@
 import GiftCardItem from "@/components/modules/GiftCardItem/GiftCardItem";
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
-
-import { GiftCard } from "@/src/lib/types/userpanel/GiftCard";
+import type { GiftCard } from "@/src/lib/types/userpanel/GiftCard";
 
 interface MyGiftCardsProps {
-  data: GiftCard[];
+  activeCards: GiftCard[];
+  usedCards: GiftCard[];
+  loading?: boolean;
+  error?: string | null;
+  onRetry?: () => void;
+  onDetails?: (id: string) => void;
 }
 
-export default function MyGiftCards({ data }: MyGiftCardsProps) {
-  const activeCards = data.filter((c) => c.type === "active");
-  const usedCards = data.filter(
-    (c) => c.type === "used" || c.type === "expired",
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
+      {message}
+    </div>
   );
+}
 
+function CardsSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div
+          key={index}
+          className="h-72 animate-pulse rounded-2xl bg-gray-100 dark:bg-zinc-800"
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function MyGiftCards({
+  activeCards,
+  usedCards,
+  loading = false,
+  error = null,
+  onRetry,
+  onDetails,
+}: MyGiftCardsProps) {
   return (
     <div id="my-gift-cards" className="tab-content space-y-6">
-      {/* Active Cards */}
-      <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
+      {error ? (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <span>{error}</span>
+            {onRetry ? (
+              <button
+                type="button"
+                onClick={onRetry}
+                className="rounded-lg bg-red-600 px-4 py-2 text-white transition hover:bg-red-700"
+              >
+                تلاش مجدد
+              </button>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <TitleAfter title="کارت‌های هدیه فعال" tag={false} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {activeCards.map((card) => (
-            <GiftCardItem key={card.id} card={card} />
-          ))}
-        </div>
+        {loading ? (
+          <CardsSkeleton />
+        ) : activeCards.length > 0 ? (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {activeCards.map((card) => (
+              <GiftCardItem key={card.id} card={card} onDetails={onDetails} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState message="کارت هدیه فعالی برای نمایش وجود ندارد." />
+        )}
       </div>
 
-      {/* Used / Expired Cards */}
-      <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
-        <TitleAfter title="کارت‌های هدیه استفاده شده" tag={false} />
+      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+        <TitleAfter title="کارت‌های هدیه استفاده‌شده" tag={false} />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {usedCards.map((card) => (
-            <GiftCardItem key={card.id} card={card} />
-          ))}
-        </div>
+        {loading ? (
+          <CardsSkeleton />
+        ) : usedCards.length > 0 ? (
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {usedCards.map((card) => (
+              <GiftCardItem key={card.id} card={card} onDetails={onDetails} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState message="کارت هدیه استفاده‌شده‌ای برای نمایش وجود ندارد." />
+        )}
       </div>
     </div>
   );

@@ -13,6 +13,7 @@ import {
   uploadAvatar,
 } from "@/src/services/auth/auth.client";
 import { notify } from "@/src/utils/toast";
+import { getProductImage } from "@/src/utils/product-image";
 
 const DEFAULT_AVATAR = "/images/user/profile-img.jpg";
 const MAX_AVATAR_SIZE_MB = 5;
@@ -22,16 +23,10 @@ function resolveAvatarSrc(avatarUrl) {
   if (!avatarUrl || typeof avatarUrl !== "string") return DEFAULT_AVATAR;
   const trimmed = avatarUrl.trim();
   if (!trimmed) return DEFAULT_AVATAR;
-  if (
-    trimmed.startsWith("http://") ||
-    trimmed.startsWith("https://") ||
-    trimmed.startsWith("blob:") ||
-    trimmed.startsWith("data:") ||
-    trimmed.startsWith("/")
-  ) {
+  if (trimmed.startsWith("blob:") || trimmed.startsWith("data:")) {
     return trimmed;
   }
-  return `/${trimmed.replace(/^\//, "")}`;
+  return getProductImage(trimmed);
 }
 
 export default function UserSidebar() {
@@ -53,8 +48,6 @@ export default function UserSidebar() {
   const avatarSrc = previewUrl || resolveAvatarSrc(user?.avatarUrl);
   const hasCustomAvatar = Boolean(user?.avatarUrl);
 
-  console.log("avatarSrc => ", avatarSrc);
-
   const userPanelMenu = [
     {
       id: 1,
@@ -75,7 +68,7 @@ export default function UserSidebar() {
       title: "سفارش های برگشتی",
       link: "/user-profile/orders-return",
       icon: "far fa-rotate-left",
-      disabled: true,
+      disabled: false,
     },
     {
       id: 4,
@@ -91,13 +84,13 @@ export default function UserSidebar() {
       icon: "far fa-ticket",
       disabled: false,
     },
-    {
-      id: 6,
-      title: "پیام ها",
-      link: "/user-profile/notification",
-      icon: "far fa-envelope",
-      disabled: true,
-    },
+    // {
+    //   id: 6,
+    //   title: "پیام ها",
+    //   link: "/user-profile/notification",
+    //   icon: "far fa-envelope",
+    //   disabled: true,
+    // },
     {
       id: 7,
       title: "علاقمندی",
@@ -110,14 +103,14 @@ export default function UserSidebar() {
       title: "کارت هدیه",
       link: "/user-profile/gift-cart",
       icon: "far fa-gift",
-      disabled: true,
+      disabled: false,
     },
     {
       id: 9,
       title: "تخفیف",
       link: "/user-profile/discount-points",
       icon: "far fa-tags",
-      disabled: true,
+      disabled: false,
     },
     {
       id: 10,
@@ -131,14 +124,14 @@ export default function UserSidebar() {
       title: "تاریخچه فعالیت‌",
       link: "/user-profile/activity-history",
       icon: "far fa-receipt",
-      disabled: true,
+      disabled: false,
     },
     {
       id: 12,
       title: "نظرات",
       link: "/user-profile/comments",
       icon: "far fa-comment",
-      disabled: true,
+      disabled: false,
     },
     {
       id: 13,
@@ -184,12 +177,6 @@ export default function UserSidebar() {
     event.target.value = "";
     if (!file) return;
 
-    console.log("[UserSidebar] selected avatar file =>", {
-      name: file.name,
-      type: file.type,
-      size: file.size,
-    });
-
     if (!ACCEPTED_TYPES.includes(file.type)) {
       notify.error("فقط تصویرهای JPG، PNG، WEBP یا GIF مجاز است");
       return;
@@ -216,9 +203,6 @@ export default function UserSidebar() {
 
       const freshUser = await refreshUserFromMe(result.avatarUrl);
       notify.success(result.message || "آواتار با موفقیت به‌روزرسانی شد");
-      console.log("[UserSidebar] avatar uploaded =>", {
-        avatarUrl: freshUser?.avatarUrl ?? result.avatarUrl,
-      });
     } catch (error) {
       console.error("[UserSidebar] upload avatar failed =>", error);
       notify.error(getAuthErrorMessage(error));
@@ -247,7 +231,6 @@ export default function UserSidebar() {
         setUser({ ...(freshUser ?? user), avatarUrl: null });
       }
       notify.success(result.message || "آواتار حذف شد");
-      console.log("[UserSidebar] avatar deleted");
     } catch (error) {
       console.error("[UserSidebar] delete avatar failed =>", error);
       notify.error(getAuthErrorMessage(error));
@@ -273,6 +256,7 @@ export default function UserSidebar() {
           <path d="M230 0H0V10C26.2258 10.6605 43.6909 20.4901 52.0499 27.9356C60.4088 35.3811 84.5186 61.9259 84.5186 61.9259C101.038 79.219 128.627 79.219 145.146 61.9259C145.146 61.9259 169.146 35.4578 177.549 28.0042C185.953 20.5506 203.675 10.6625 230 10V0Z"></path>
         </svg>
 
+      {/* Avatar */}
         <div className="absolute inset-e-0 inset-s-0 top-[-10px] mx-auto h-[73px] w-[73px]">
           <Image
             width={100}

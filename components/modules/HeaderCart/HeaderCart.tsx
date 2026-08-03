@@ -5,6 +5,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import CartSynchronizationModal from "@/components/ui/Cart/CartSynchronizationModal";
+import { useCartSynchronization } from "@/components/ui/Cart/useCartSynchronization";
 import { useCart } from "@/src/context/CartContext";
 import { formatPrice } from "@/src/utils/formatPrice";
 import { notify } from "@/src/utils/toast";
@@ -15,8 +17,13 @@ interface HeaderCartProps {
 }
 
 export default function HeaderCart({ open, onClose }: HeaderCartProps) {
-  const { items, totalPrice, removeItem, updateQty, clearCart } = useCart();
+  const { items, totalPrice, removeItem, updateQty, clearCart, refreshCart } = useCart();
   const [clearing, setClearing] = React.useState(false);
+  const [busyId, setBusyId] = React.useState<string | null>(null);
+  const cartSync = useCartSynchronization({
+    enabled: open && items.length > 0,
+    refreshCart,
+  });
 
   const handleClearCart = async () => {
     if (items.length === 0 || clearing) return;
@@ -38,8 +45,20 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
     }
   };
 
+  const handleUpdateQty = async (id: string | number, quantity: number) => {
+    const itemId = String(id);
+    setBusyId(itemId);
+    try {
+      await updateQty(itemId, quantity);
+    } finally {
+      setBusyId((current) => (current === itemId ? null : current));
+    }
+  };
+
   return (
-    <div
+    <>
+      <CartSynchronizationModal {...cartSync.modalProps} />
+      <div
       className={`fixed top-0 inset-e-0 sm:w-100 w-[80%] h-full bg-white dark:bg-[#0d1117]
       text-gray-900 dark:text-gray-100 border-s border-gray-200 dark:border-gray-800 shadow-xl
       transform transition-all duration-300 z-50
@@ -94,7 +113,10 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
             <p className="text-sm">سبد خرید شما خالی است</p>
           </div>
         ) : (
-          items.map((item) => (
+          items.map((item) => {
+            const isBusy = busyId === String(item.id);
+
+            return (
             <div key={item.id} className="py-3 last:mb-35">
               <div className="flex flex-wrap items-center">
                 {/* Product Image */}
@@ -139,18 +161,28 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
                     {/* Quantity Controls */}
                     <div className="flex items-center gap-2 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                       <button
-                        onClick={() => void updateQty(item.id, item.quantity - 1)}
-                        className="px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        onClick={() =>
+                          void handleUpdateQty(item.id, item.quantity - 1)
+                        }
+                        disabled={isBusy}
+                        className="px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:cursor-wait disabled:opacity-50"
                         aria-label="کاهش تعداد"
                       >
                         <i className="far fa-minus text-xs"></i>
                       </button>
-                      <span className="text-sm font-medium w-6 text-center">
-                        {item.quantity}
+                      <span className="flex w-6 items-center justify-center text-sm font-medium">
+                        {isBusy ? (
+                          <i className="far fa-spinner-third animate-spin text-xs" />
+                        ) : (
+                          item.quantity
+                        )}
                       </span>
                       <button
-                        onClick={() => void updateQty(item.id, item.quantity + 1)}
-                        className="px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                        onClick={() =>
+                          void handleUpdateQty(item.id, item.quantity + 1)
+                        }
+                        disabled={isBusy}
+                        className="px-2 py-1 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:cursor-wait disabled:opacity-50"
                         aria-label="افزایش تعداد"
                       >
                         <i className="far fa-plus text-xs"></i>
@@ -160,16 +192,17 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
                     {/* Remove Button */}
                     <button
                       onClick={() => void removeItem(item.id)}
-                      className="bg-red-100 hover:bg-red-200 dark:bg-custom-dark dark:hover:bg-[#1f242c] text-red-800 dark:text-gray-200 border border-transparent dark:border-gray-700 p-2 rounded-lg transition-colors duration-200"
+                      className="cursor-pointer text-red-800 dark:text-gray-200 border border-transparent dark:border-gray-700 p-1 rounded-lg transition-colors duration-200"
                       aria-label="حذف محصول از سبد خرید"
                     >
-                      <i className="far fa-x text-sm"></i>
+                      <i className="far fa-trash-can text-sm"></i>
                     </button>
                   </div>
                 </div>
               </div>
             </div>
-          ))
+            );
+          })
         )}
       </main>
 
@@ -189,19 +222,37 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
               </h3>
             </div>
             <div className="text-end">
-              <Link
-                href="/checkout"
-                onClick={onClose}
-                className="bg-primary dark:bg-primary-500 hover:bg-primary-600 dark:hover:bg-primary-400 text-white py-2 px-4 rounded-lg shadow-sm transition-colors duration-200"
-                role="button"
-                aria-label="تکمیل فرایند خرید"
-              >
-                تکمیل خرید
-              </Link>
+              {cartSync.canCheckout ? (
+                <Link
+                  href="/checkout"
+                  onClick={onClose}
+                  className="bg-primary dark:bg-primary-500 hover:bg-primary-600 dark:hover:bg-primary-400 text-white py-2 px-4 rounded-lg shadow-sm transition-colors duration-200"
+                  role="button"
+                  aria-label="تکمیل فرایند خرید"
+                >
+                  تکمیل خرید
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-gray-300 px-4 py-2 text-gray-600 shadow-sm dark:bg-gray-700 dark:text-gray-300"
+                  aria-label="بررسی وضعیت سبد خرید"
+                >
+                  {cartSync.checking ? (
+                    <i
+                      className="far fa-spinner-third animate-spin"
+                      aria-hidden="true"
+                    />
+                  ) : null}
+                  {cartSync.checking ? "بررسی سبد" : "نیازمند تأیید"}
+                </button>
+              )}
             </div>
           </div>
         </footer>
       )}
-    </div>
+      </div>
+    </>
   );
 }

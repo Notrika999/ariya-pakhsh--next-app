@@ -9,6 +9,7 @@ import FilterResponsive from "../Categories/FilterResponsive/FilterResponsive";
 import Filter from "../Categories/Filter/Filter";
 import SortList from "@/components/modules/sortOptions/sortOptions";
 import { ProductCardsSkeletonGrid } from "../Categories/ProductListPageSkeleton";
+import ErrorState from "./ErrorState";
 import { normalizeProduct } from "@/src/lib/mappers/product.mapper";
 import type {
   ProductCardModel,
@@ -24,6 +25,8 @@ type ProductListFilters = {
   brands: string[];
   minPrice: number;
   maxPrice: number;
+  inStock: boolean;
+  onSaleOnly: boolean;
   sort: SortOption;
 };
 
@@ -38,11 +41,29 @@ interface Props {
   minLimit: number;
   maxLimit: number;
   products: Array<ProductListItem | ProductCardModel>;
+  errorMessage?: string | null;
   isLoading?: boolean;
   startTransition: TransitionStartFunction;
+  timer?: boolean;
+  sortOptions?: SortOption[];
+  sortQueryParam?: string;
+  sortOptionToQuery?: Partial<Record<SortOption, string | null>>;
+  clearSortQueryParams?: string[];
 }
 
 const SKELETON_COUNT = 8;
+
+const SORT_OPTION_TO_QUERY: Record<SortOption, string | null> = {
+  Default: null,
+  BestDiscount: "bestDiscount",
+  Newest: "newest",
+  PriceAsc: "priceAsc",
+  PriceDesc: "priceDesc",
+  BestSelling: "bestSelling",
+  MostViewed: "mostViewed",
+  DiscountDesc: "discountDesc",
+  MostRated: "mostRated",
+};
 
 function toCardProduct(
   product: ProductListItem | ProductCardModel,
@@ -64,8 +85,14 @@ export default function ProductListSection({
   maxLimit,
   products,
   filterOptions,
+  errorMessage = null,
   isLoading = false,
+  timer,
   startTransition,
+  sortOptions,
+  sortQueryParam = "sort",
+  sortOptionToQuery,
+  clearSortQueryParams = [],
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
@@ -73,7 +100,15 @@ export default function ProductListSection({
 
   const handleSortChange = (newSort: SortOption) => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set("sort", newSort);
+    const sortQueryValue =
+      sortOptionToQuery?.[newSort] ?? SORT_OPTION_TO_QUERY[newSort];
+
+    if (!sortQueryValue) {
+      params.delete(sortQueryParam);
+    } else {
+      params.set(sortQueryParam, sortQueryValue);
+    }
+    clearSortQueryParams.forEach((key) => params.delete(key));
     params.delete("page");
 
     startTransition(() => {
@@ -93,7 +128,6 @@ export default function ProductListSection({
       />
 
       <div className="grid grid-cols-12 gap-5 mt-6">
-
         {/* <!-- START FILTER SECTION --> */}
         <aside className="lg:col-span-3 hidden lg:block">
           <div className="sticky top-6">
@@ -121,11 +155,17 @@ export default function ProductListSection({
             <SortList
               currentSort={filters.sort}
               onSortChange={handleSortChange}
+              options={sortOptions}
             />
           </div>
 
           {isLoading ? (
             <ProductCardsSkeletonGrid count={SKELETON_COUNT} />
+          ) : errorMessage ? (
+            <ErrorState
+              message={errorMessage}
+              onRetry={() => router.refresh()}
+            />
           ) : (
             <div className="mt-4 grid grid-cols-12 gap-4">
               {products.length === 0 ? (
@@ -138,7 +178,11 @@ export default function ProductListSection({
                     key={getProductKey(product)}
                     className="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-3"
                   >
-                    <ProductCard product={toCardProduct(product)} />
+                    {timer ? (
+                      <ProductCard product={toCardProduct(product)} />
+                    ) : (
+                      <ProductCard product={toCardProduct(product)} noTimer />
+                    )}
                   </div>
                 ))
               )}

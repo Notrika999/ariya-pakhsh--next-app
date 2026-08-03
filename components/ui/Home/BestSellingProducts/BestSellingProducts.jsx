@@ -39,6 +39,7 @@ export default function BestSellingProducts({
           1024: { slidesPerView: 4 },
         }}
         className="my-swiper"
+        // dir="rtl"
       >
         {bestSellingProducts.map((product) => (
           <SwiperSlide key={product.id}>

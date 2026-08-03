@@ -22,6 +22,7 @@ export type ProductReview = {
   isBuyer: boolean;
   likesCount: number;
   dislikesCount: number;
+  userVote?: ReviewVoteType | null;
   createdAt: string;
   replies: ProductReviewReply[];
 };

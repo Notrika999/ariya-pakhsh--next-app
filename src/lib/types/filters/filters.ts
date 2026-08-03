@@ -54,9 +54,9 @@ export interface ProductFilterState {
 export interface AttributeOption {
   optionId: string;
   value: string;
-  /** Human-readable label for UI / SEO query (`color_palette`) */
+  /** Human-readable label for UI / SEO query (`color_palettes`) */
   displayText?: string;
-  count: number;
+  count?: number;
   colorCodes?: string;
   hex?: string;
 }
@@ -64,15 +64,17 @@ export interface AttributeOption {
 export interface AttributeFilter {
   attributeId: string;
   attributeName: string;
+  attributeType?: number;
   options: AttributeOption[];
 }
 
 export type SortOption =
-  | "default"
-  | "newest"
-  | "priceAsc"
-  | "priceDesc"
-  | "bestSelling"
-  | "mostRated"
-  | "discountDesc";
-
+  | "Default"
+  | "BestDiscount"
+  | "Newest"
+  | "PriceAsc"
+  | "PriceDesc"
+  | "BestSelling"
+  | "MostViewed"
+  | "DiscountDesc"
+  | "MostRated";

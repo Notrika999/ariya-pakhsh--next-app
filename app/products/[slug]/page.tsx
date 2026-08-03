@@ -4,12 +4,17 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import CategoryProductListPage from "@/components/ui/Categories/ProductListPage";
-import { ApiError } from "@/src/lib/http/api-client";
 import {
+  CategoryServiceError,
   getCategoryBreadcrumb,
   getCategoryBySlug,
+  getMegaMenu,
 } from "@/src/services/category/category.server";
-import { getProductListFromSearchParams } from "@/src/services/product/product.server";
+import {
+  createEmptyProductListResponse,
+  getProductListFromSearchParams,
+  ProductServiceError,
+} from "@/src/services/product/product.server";
 
 import type { Category as CategoryType } from "@/src/lib/types/categories/menuType";
 import type { ProductListResponse } from "@/src/lib/types/productTypes";
@@ -42,9 +47,62 @@ type Props = {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+function getCategoryId(category: CategoryType | null): string | undefined {
+  return (category?.id ?? category?.categoryId)?.trim() || undefined;
+}
+
+function getProductListErrorMessage(error: unknown): string {
+  if (error instanceof CategoryServiceError) {
+    return error.message;
+  }
+
+  if (error instanceof ProductServiceError) {
+    return error.message;
+  }
+
+  return "امکان دریافت محصولات این دسته‌بندی وجود ندارد.";
+}
+
+function normalizeSlug(rawSlug: string): string {
+  return decodeURIComponent(rawSlug).trim();
+}
+
+function shouldFallbackToMegaMenu(error: unknown): boolean {
+  return !(error instanceof CategoryServiceError) || error.status === 404;
+}
+
+function findCategoryBySlug(
+  categories: CategoryType[],
+  slug: string,
+): CategoryType | null {
+  for (const category of categories) {
+    if (category.slug === slug) {
+      return category;
+    }
+
+    const child = findCategoryBySlug(category.children ?? [], slug);
+    if (child) {
+      return child;
+    }
+  }
+
+  return null;
+}
+
+async function getCategoryFromMegaMenu(
+  slug: string,
+): Promise<CategoryType | null> {
+  try {
+    const categories = await getMegaMenu();
+    return findCategoryBySlug(categories, slug);
+  } catch {
+    return null;
+  }
+}
+
 async function CategoryPage({ params, searchParams }: Props) {
   const { slug: rawSlug } = await params;
-  const slug = decodeURIComponent(rawSlug);
+  const slug = normalizeSlug(rawSlug);
 
   if (!slug) notFound();
 
@@ -61,37 +119,43 @@ async function CategoryPage({ params, searchParams }: Props) {
 
   // ── Category ──────────────────────────────────────────────────────────────
   let category: CategoryType | null = null;
+  let categoryLookupError: unknown = null;
+  let shouldBlockBrandFallback = false;
 
   try {
     category = await getCategoryBySlug(slug);
 
-    console.log("category", category);
-  } catch {
-    // اگه category پیدا نشد (404) یا هر خطای دیگه‌ای،
-    // فرض میکنیم slug مربوط به برند است
-    category = null;
+  } catch (error) {
+    categoryLookupError = error;
+
+    if (shouldFallbackToMegaMenu(error)) {
+      category = await getCategoryFromMegaMenu(slug);
+    } else {
+      shouldBlockBrandFallback = true;
+    }
   }
 
   // ── Breadcrumb ────────────────────────────────────────────────────────────
-  const breadcrumbRaw = category
-    ? await getCategoryBreadcrumb({ slug, includeHome: true })
-    : null;
-
-  const breadcrumb = breadcrumbRaw ?? createFallbackBreadcrumb(slug);
+  const breadcrumbPromise = category
+    ? getCategoryBreadcrumb({ slug, includeHome: true })
+    : Promise.resolve(null);
 
   // ── Products ──────────────────────────────────────────────────────────────
   let productLists: ProductListResponse;
+  let productListError: string | null = null;
 
   const queryBrands = allBrandSlugParams(resolvedSearchParams);
   const selectedCategoryId = Array.isArray(categoryId)
     ? categoryId[0]
     : categoryId;
+  const effectiveCategoryId = selectedCategoryId || getCategoryId(category);
 
-  try {
-    productLists = await getProductListFromSearchParams(
+  const productListsPromise = shouldBlockBrandFallback && !category
+    ? Promise.reject(categoryLookupError)
+    : getProductListFromSearchParams(
       {
-        CategoryId: selectedCategoryId ?? category?.id,
-        CategorySlug: selectedCategoryId ? undefined : category ? slug : undefined,
+        CategoryId: effectiveCategoryId,
+        CategorySlug: effectiveCategoryId ? undefined : category ? slug : undefined,
         // صفحه برند (بدون دسته): slug مسیر فقط وقتی ?brand= نداریم
         PathBrandSlug: category || queryBrands.length > 0 ? undefined : slug,
         Page: parseNumber(page) ?? 1,
@@ -103,9 +167,35 @@ async function CategoryPage({ params, searchParams }: Props) {
       },
       resolvedSearchParams,
     );
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 404) notFound();
-    throw error;
+
+  const [breadcrumbRaw, productListsResult] = await Promise.all([
+    breadcrumbPromise,
+    productListsPromise.then(
+      (value) => ({ ok: true as const, value }),
+      (error: unknown) => ({ ok: false as const, error }),
+    ),
+  ]);
+
+  const breadcrumb = breadcrumbRaw ?? createFallbackBreadcrumb(slug);
+
+  if (productListsResult.ok) {
+    productLists = productListsResult.value;
+  } else {
+    if (
+      productListsResult.error instanceof ProductServiceError &&
+      productListsResult.error.status === 404
+    ) {
+      notFound();
+    }
+
+    console.error("[products/category] product list failed", {
+      slug,
+      categoryId: effectiveCategoryId,
+      error: productListsResult.error,
+    });
+
+    productListError = getProductListErrorMessage(productListsResult.error);
+    productLists = createEmptyProductListResponse(parseNumber(page) ?? 1);
   }
 
   return (
@@ -119,6 +209,7 @@ async function CategoryPage({ params, searchParams }: Props) {
         totalCount: productLists.totalCount,
       }}
       filterOptions={productLists.filterOptions}
+      errorMessage={productListError}
     />
   );
 }
@@ -130,7 +221,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  const slug = normalizeSlug(rawSlug);
 
   let category: CategoryType | null = null;
 

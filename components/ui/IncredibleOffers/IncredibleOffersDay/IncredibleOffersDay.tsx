@@ -1,6 +1,7 @@
 "use client";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
+// components/ui/IncredibleOffers/IncredibleOffersDay/IncredibleOffersDay.tsx
+import { useMemo } from "react";
+import AmazingProducts from "@/components/ui/Home/AmazingProducts/AmazingProducts";
 import { ProductCardModel } from "@/src/lib/types/productTypes";
 
 interface IncredibleOffersDayProps {
@@ -10,20 +11,9 @@ interface IncredibleOffersDayProps {
 export default function IncredibleOffersDay({
   products,
 }: IncredibleOffersDayProps) {
-  return (
-    <section className="bg-brand-gradient p-4 rounded-2xl">
-      <h2 className="text-white text-2xl font-bold mb-6">
-        پیشنهادهای شگفت‌انگیز
-      </h2>
-      <Swiper slidesPerView={4} spaceBetween={8}>
-        {products.map((p) => (
-          <SwiperSlide key={p.id} className="bg-white rounded-xl p-4">
-            <div className="h-40 bg-gray-200 mb-4 rounded-lg" />
-            <h3 className="font-semibold">{p.title}</h3>
-            <p className="text-red-500 font-bold">{p.price} تومان</p>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </section>
-  );
+  const limitedProducts = useMemo(() => products.slice(0, 10), [products]);
+
+  if (limitedProducts.length === 0) return null;
+
+  return <AmazingProducts products={limitedProducts} noTimer={true} noFirstSlide={true} />;
 }

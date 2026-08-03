@@ -1,6 +1,7 @@
 // src/services/category/category.server.ts
 import "server-only";
 
+import { cache } from "react";
 import { proxyToBackend } from "@/src/lib/http/server-http";
 import {
   Category,
@@ -16,6 +17,42 @@ interface ApiResponse<T> {
   data: T;
   success: boolean;
   message?: string;
+  errorMessage?: string;
+  error?: string;
+  title?: string;
+}
+
+export class CategoryServiceError extends Error {
+  constructor(
+    public readonly status: number,
+    message: string,
+    public readonly data?: unknown,
+  ) {
+    super(message);
+    this.name = "CategoryServiceError";
+  }
+}
+
+function getApiMessage(data: unknown, fallback: string): string {
+  if (!data || typeof data !== "object") return fallback;
+
+  const record = data as Record<string, unknown>;
+  const nested =
+    record.data && typeof record.data === "object"
+      ? (record.data as Record<string, unknown>)
+      : undefined;
+
+  for (const source of [record, nested]) {
+    if (!source) continue;
+    for (const key of ["message", "errorMessage", "error", "title"]) {
+      const value = source[key];
+      if (typeof value === "string" && value.trim()) {
+        return value.trim();
+      }
+    }
+  }
+
+  return fallback;
 }
 
 export type CategoryFilterType = "all" | "recommended" | "featured";
@@ -25,35 +62,49 @@ export interface PromotedParams {
   maxCount?: number;
 }
 
-export async function getMegaMenu(): Promise<Category[]> {
+export const getMegaMenu = cache(async function getMegaMenu(): Promise<Category[]> {
   const response = await proxyToBackend<MegaMenuResponse>({
     method: "GET",
     path: "/api/v1/Categories/mega-menu",
     cache: "no-store",
+    timeout: 5_000,
+    retries: 0,
   });
 
   if (!response.ok) {
     throw new Error("Failed to fetch mega menu");
   }
 
-  return response.data.data.rootCategories;
-}
+  const payload = response.data as MegaMenuResponse & {
+    rootCategories?: Category[];
+  };
 
-export async function getCategoryBySlug(slug: string): Promise<Category> {
+  return payload.data?.rootCategories ?? payload.rootCategories ?? [];
+});
+
+export const getCategoryBySlug = cache(async function getCategoryBySlug(
+  slug: string,
+): Promise<Category> {
   const response = await proxyToBackend<ApiResponse<Category>>({
     method: "GET",
     path: `/api/v1/Categories/${slug}`,
     cache: "no-store",
+    timeout: 5_000,
+    retries: 0,
   });
 
-  console.log("response", response);
-
   if (!response.ok) {
-    throw new Error("Failed to fetch category");
+    throw new CategoryServiceError(
+      response.status,
+      getApiMessage(response.data, "Failed to fetch category"),
+      response.data,
+    );
   }
 
-  return response.data.data;
-}
+  const payload = response.data as ApiResponse<Category> & Category;
+
+  return payload.data ?? payload;
+});
 
 export async function getPromotedCategories(
   params: PromotedParams = {},
@@ -93,6 +144,8 @@ export async function getCategoryBreadcrumb(
         includeHome: params.includeHome ?? true,
       },
       cache: "no-store",
+      timeout: 4_000,
+      retries: 0,
     });
 
     if (!response.ok) return null;

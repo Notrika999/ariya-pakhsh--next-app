@@ -49,7 +49,9 @@ export default async function StorePage({ searchParams }: Props) {
 
   const productLists = await getProductListFromSearchParams(
     {
-      CategoryId: Array.isArray(categoryId) ? categoryId[0] : categoryId,
+      CategoryId: Array.isArray(categoryId)
+        ? categoryId[0]
+        : categoryId ?? null,
       Page: parseNumber(page) ?? 1,
       MinPrice: parseNumber(minPrice),
       MaxPrice: parseNumber(maxPrice),

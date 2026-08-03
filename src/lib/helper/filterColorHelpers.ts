@@ -4,11 +4,13 @@ import { getColorOptionLabel } from "@/src/lib/helper/productListHelpers";
 
 import type { CSSProperties } from "react";
 
+const MAX_SWATCH_COLORS = 4;
+
 export type ColorFilterOption = {
   optionId: string;
-  value: string;
+  value?: string;
   displayText?: string;
-  count: number;
+  count?: number;
   colorCodes?: string;
   hex?: string;
 };
@@ -31,7 +33,16 @@ export function isColorFilterAttribute(attr: {
   attributeId?: string;
   attributeName?: string;
 }): boolean {
-  return attr.attributeName === "رنگ" || attr.attributeId === "color";
+  const attributeId = String(attr.attributeId ?? "").trim().toLowerCase();
+  const attributeName = String(attr.attributeName ?? "").trim().toLowerCase();
+
+  return (
+    attributeId === "color" ||
+    attributeName === "رنگ" ||
+    attributeName === "color" ||
+    attributeName.includes("رنگ") ||
+    attributeName.includes("color")
+  );
 }
 
 export function parseColorCodes(option: {
@@ -42,7 +53,8 @@ export function parseColorCodes(option: {
     return option.colorCodes
       .split(",")
       .map((code) => code.trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .slice(0, MAX_SWATCH_COLORS);
   }
   if (option.hex) return [option.hex];
   return [];
@@ -51,24 +63,9 @@ export function parseColorCodes(option: {
 export function parseColorLabels(option: {
   displayText?: string;
   value?: string;
-  colorCodes?: string;
 }): string[] {
   const text = String(option.displayText ?? option.value ?? "").trim();
-  if (!text) return [];
-
-  const parts = text
-    .split(/[/|,،|]/)
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  if (parts.length > 1) return parts;
-
-  const codeCount = parseColorCodes(option).length;
-  if (codeCount > 1) {
-    return Array.from({ length: codeCount }, (_, index) => parts[0] || `رنگ ${index + 1}`);
-  }
-
-  return parts;
+  return text ? [text] : [];
 }
 
 function itemFromSingleOption(
@@ -84,12 +81,6 @@ function itemFromSingleOption(
   const codes = parseColorCodes(option);
   const resolvedCodes = codes.length > 0 ? codes : ["#e5e7eb"];
 
-  if (resolvedCodes.length > labels.length && labels.length === 1) {
-    labels = resolvedCodes.map((_, index) =>
-      index === 0 ? labels[0] : `${labels[0]} ${index + 1}`,
-    );
-  }
-
   return {
     key: option.optionId,
     attributeIds: [attributeId],
@@ -99,12 +90,6 @@ function itemFromSingleOption(
   };
 }
 
-/**
- * Builds swatches for filter sidebar.
- * - Multiple top-level color attributes → one combined split swatch.
- * - One attribute with multiple options → one combined split swatch.
- * - Single option with multiple colorCodes → split swatch with joined titles.
- */
 export function buildColorFilterItems(
   attributes: ColorFilterAttribute[] | undefined,
 ): ColorFilterItem[] {
@@ -141,8 +126,9 @@ export function colorSwatchStyle(codes: string[]): CSSProperties {
     };
   }
 
-  const step = 100 / codes.length;
-  const stops = codes
+  const visibleCodes = codes.slice(0, MAX_SWATCH_COLORS);
+  const step = 100 / visibleCodes.length;
+  const stops = visibleCodes
     .map((code, index) => {
       const start = step * index;
       const end = step * (index + 1);

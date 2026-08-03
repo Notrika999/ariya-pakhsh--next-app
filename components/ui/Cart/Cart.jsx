@@ -5,6 +5,8 @@ import React, { useMemo, useState } from "react";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 import Link from "next/link";
 import CartEmpty from "./CartEmpty";
+import CartSynchronizationModal from "./CartSynchronizationModal";
+import { useCartSynchronization } from "./useCartSynchronization";
 import { useCart } from "@/src/context/CartContext";
 import { formatPrice } from "@/src/utils/formatPrice";
 import { notify } from "@/src/utils/toast";
@@ -28,6 +30,10 @@ export default function Cart() {
   } = useCart();
   const [clearing, setClearing] = useState(false);
   const [busyId, setBusyId] = useState(null);
+  const cartSync = useCartSynchronization({
+    enabled: !loading && !syncing && items.length > 0,
+    refreshCart,
+  });
 
   const discountTotal = useMemo(
     () =>
@@ -78,21 +84,30 @@ export default function Cart() {
 
   if (loading || syncing) {
     return (
-      <SectionContainer>
-        <div className="space-y-4 py-10">
-          <div className="h-40 animate-pulse rounded-2xl bg-gray-100 dark:bg-zinc-800" />
-          <div className="h-64 animate-pulse rounded-2xl bg-gray-100 dark:bg-zinc-800" />
-        </div>
-      </SectionContainer>
+      <>
+        <CartSynchronizationModal {...cartSync.modalProps} />
+        <SectionContainer>
+          <div className="space-y-4 py-10">
+            <div className="h-40 animate-pulse rounded-2xl bg-gray-100 dark:bg-zinc-800" />
+            <div className="h-64 animate-pulse rounded-2xl bg-gray-100 dark:bg-zinc-800" />
+          </div>
+        </SectionContainer>
+      </>
     );
   }
 
   if (items.length === 0) {
-    return <CartEmpty />;
+    return (
+      <>
+        <CartSynchronizationModal {...cartSync.modalProps} />
+        <CartEmpty />
+      </>
+    );
   }
 
   return (
     <SectionContainer>
+      <CartSynchronizationModal {...cartSync.modalProps} />
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Right section - Shopping cart products */}
         <div className="lg:col-span-2">
@@ -207,9 +222,13 @@ export default function Cart() {
                           >
                             -
                           </button>
-                          <span className="px-3 py-1 text-gray-800 dark:text-white">
-                            {new Intl.NumberFormat("fa-IR").format(
-                              item.quantity,
+                          <span className="flex min-w-12 items-center justify-center px-3 py-1 text-gray-800 dark:text-white">
+                            {isBusy ? (
+                              <i className="far fa-spinner-third animate-spin text-sm" />
+                            ) : (
+                              new Intl.NumberFormat("fa-IR").format(
+                                item.quantity,
+                              )
                             )}
                           </span>
                           <button
@@ -309,13 +328,31 @@ export default function Cart() {
               </div>
             </div>
 
-            <Link
-              href="/checkout"
-              className="flex w-full items-center justify-center rounded-lg bg-primary px-4 py-3 font-medium text-white transition-colors duration-200 hover:bg-primary-600"
-            >
-              <i className="far fa-credit-card me-1"></i>
-              ادامه فرآیند پرداخت
-            </Link>
+            {cartSync.canCheckout ? (
+              <Link
+                href="/checkout"
+                className="flex w-full items-center justify-center rounded-lg bg-primary px-4 py-3 font-medium text-white transition-colors duration-200 hover:bg-primary-600"
+              >
+                <i className="far fa-credit-card me-1"></i>
+                ادامه فرآیند پرداخت
+              </Link>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-gray-300 px-4 py-3 font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+              >
+                {cartSync.checking ? (
+                  <i
+                    className="far fa-spinner-third animate-spin"
+                    aria-hidden="true"
+                  />
+                ) : null}
+                {cartSync.checking
+                  ? "در حال بررسی سبد خرید"
+                  : "ابتدا وضعیت سبد را تأیید کنید"}
+              </button>
+            )}
           </div>
         </div>
       </div>

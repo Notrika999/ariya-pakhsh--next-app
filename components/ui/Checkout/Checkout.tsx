@@ -8,11 +8,15 @@ import { SectionContainer } from "@/components/modules/SectionContainer/SectionC
 import GatewayRedirectConfirmation from "@/components/modules/GatewayRedirectConfirmation/GatewayRedirectConfirmation";
 import CheckoutDeliveryAddress from "./CheckoutDeliveryAddress";
 import { useCart } from "@/src/context/CartContext";
+import type { CartItem } from "@/src/lib/types/cart/cartTypes";
 import type { CustomerAddressDto } from "@/src/lib/types/address/address.type";
 import type {
   CheckoutCouponDiscount,
   CheckoutPaymentMethod,
+  CheckoutShippingGroupItem,
   CheckoutShippingMethod,
+  CheckoutShippingOptionsResult,
+  PlaceOrderShippingSelection,
 } from "@/src/lib/types/checkout/checkout.types";
 import {
   applyCheckoutCoupon,
@@ -24,6 +28,7 @@ import {
 } from "@/src/services/checkout/checkout.client";
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
 import { notify } from "@/src/utils/toast";
+import { rememberPendingPaymentOrder } from "@/src/utils/paymentRetryStorage";
 
 const formatMoney = (value: number) =>
   `${new Intl.NumberFormat("fa-IR").format(Math.max(0, Math.round(value)))} تومان`;
@@ -32,6 +37,13 @@ const formatShippingPrice = (method: CheckoutShippingMethod) =>
   method.formattedPrice ?? (method.price > 0 ? formatMoney(method.price) : "رایگان");
 
 const GATEWAY_REDIRECT_SECONDS = 30;
+
+function getRenderableImageSrc(value?: string | null): string | null {
+  const src = value?.trim();
+  if (!src) return null;
+  if (src.startsWith("/") || /^https?:\/\//i.test(src)) return src;
+  return null;
+}
 
 type PendingGatewayPayment = {
   orderId?: string;
@@ -102,6 +114,54 @@ const PAYMENT_ICON_STYLES = [
   },
 ] as const;
 
+const BANK_GATEWAY_ICON_STYLE = {
+  wrap: "bg-primary-100 dark:bg-zinc-800",
+  icon: "far fa-building-columns text-primary-600 dark:text-primary-400 text-xl",
+} as const;
+
+type ShippingClassGroup = {
+  key: string;
+  title: string;
+  totalWeightGrams: number;
+  itemCount: number;
+  items: CheckoutShippingGroupItem[];
+  methods: CheckoutShippingMethod[];
+};
+
+function getCartItemUnitPrice(item: CartItem): number {
+  return item.unitPrice ?? item.price;
+}
+
+function getCartItemLineTotal(item: CartItem): number {
+  return item.price * item.quantity;
+}
+
+function findCartItemForShippingItem(
+  shippingItem: CheckoutShippingGroupItem,
+  cartItems: CartItem[],
+): CartItem | undefined {
+  const productId = shippingItem.productId.trim();
+  return cartItems.find((item) => {
+    if (productId && item.productId === productId) return true;
+    return item.title.trim() === shippingItem.productName.trim();
+  });
+}
+
+function isBankGatewayPaymentMethod(method: CheckoutPaymentMethod): boolean {
+  if (isGiftCardPaymentMethod(method)) return false;
+
+  const value = `${method.code} ${method.title} ${method.description}`.toLowerCase();
+  return (
+    method.providers.length > 0 ||
+    value.includes("gateway") ||
+    value.includes("online") ||
+    value.includes("bank") ||
+    value.includes("درگاه") ||
+    value.includes("آنلاین") ||
+    value.includes("بانک")
+  );
+}
+
 export default function Checkout() {
   const router = useRouter();
   const { items, totalItems, totalPrice, clearCart } = useCart();
@@ -119,18 +179,18 @@ export default function Checkout() {
   const [paymentMethods, setPaymentMethods] = useState<CheckoutPaymentMethod[]>(
     [],
   );
-  const [shippingMethods, setShippingMethods] = useState<
-    CheckoutShippingMethod[]
-  >([]);
+  const [shippingOptionsResult, setShippingOptionsResult] =
+    useState<CheckoutShippingOptionsResult | null>(null);
   const [selectedPaymentCode, setSelectedPaymentCode] = useState<string | null>(
     null,
   );
   const [selectedProviderCode, setSelectedProviderCode] = useState<string | null>(
     null,
   );
-  const [selectedShippingId, setSelectedShippingId] = useState<string | null>(
-    null,
-  );
+  const [selectedShippingIdsByClass, setSelectedShippingIdsByClass] = useState<
+    Record<string, string>
+  >({});
+  const [summaryStickyTop, setSummaryStickyTop] = useState(24);
   const [submitting, setSubmitting] = useState(false);
   const [pendingGatewayPayment, setPendingGatewayPayment] =
     useState<PendingGatewayPayment | null>(null);
@@ -184,7 +244,7 @@ export default function Checkout() {
       } catch {
         if (!cancelled) {
           setPaymentMethods([]);
-          setShippingMethods([]);
+          setShippingOptionsResult(null);
         }
       }
     }
@@ -195,10 +255,57 @@ export default function Checkout() {
     };
   }, []);
 
-  const handleShippingOptionsChange = useCallback((methods: CheckoutShippingMethod[]) => {
-    const availableMethods = methods.filter((item) => item.isAvailable);
-    setShippingMethods(availableMethods);
-    setSelectedShippingId(availableMethods[0]?.id ?? null);
+  useEffect(() => {
+    const header = document.querySelector("body > header");
+
+    const updateStickyTop = () => {
+      const headerHeight = header?.getBoundingClientRect().height ?? 0;
+      setSummaryStickyTop(headerHeight + 16);
+    };
+
+    updateStickyTop();
+    window.addEventListener("resize", updateStickyTop);
+
+    const resizeObserver =
+      header && "ResizeObserver" in window
+        ? new ResizeObserver(updateStickyTop)
+        : null;
+    if (header) {
+      resizeObserver?.observe(header);
+    }
+
+    return () => {
+      window.removeEventListener("resize", updateStickyTop);
+      resizeObserver?.disconnect();
+    };
+  }, []);
+
+  const handleShippingOptionsChange = useCallback((result: CheckoutShippingOptionsResult | null) => {
+    const groups = result?.groups ?? [];
+    setShippingOptionsResult(result);
+    setSelectedShippingIdsByClass((prev) => {
+      const next: Record<string, string> = {};
+
+      for (const group of groups) {
+        const availableMethods = group.options.filter((item) => item.isAvailable);
+        if (availableMethods.length === 0) continue;
+        const classKey = group.shippingClassId;
+        const previousSelection = prev[classKey];
+        if (
+          previousSelection &&
+          availableMethods.some(
+            (item) => item.id === previousSelection,
+          )
+        ) {
+          next[classKey] = previousSelection;
+          continue;
+        }
+
+        next[classKey] = availableMethods[0].id;
+      }
+
+      return next;
+    });
   }, []);
 
   const handleSelectAddress = useCallback((address: CustomerAddressDto | null) => {
@@ -206,10 +313,59 @@ export default function Checkout() {
     setCouponDiscount(null);
   }, []);
 
-  const selectedShipping = useMemo(
+  const selectShippingMethod = useCallback(
+    (classKey: string, methodId: string) => {
+      setSelectedShippingIdsByClass((prev) => ({
+        ...prev,
+        [classKey]: methodId,
+      }));
+      setCouponDiscount(null);
+    },
+    [],
+  );
+
+  const shippingClassGroups = useMemo<ShippingClassGroup[]>(() => {
+    return (shippingOptionsResult?.groups ?? [])
+      .map((group, index) => ({
+        key: group.shippingClassId,
+        title: group.shippingClassName || `گروه ارسال ${index + 1}`,
+        totalWeightGrams: group.totalWeightGrams,
+        itemCount: group.itemCount,
+        items: group.items,
+        methods: group.options.filter((method) => method.isAvailable),
+      }))
+      .filter((group) => group.methods.length > 0);
+  }, [shippingOptionsResult]);
+
+  const selectedShippingMethods = useMemo(
     () =>
-      shippingMethods.find((item) => item.id === selectedShippingId) ?? null,
-    [shippingMethods, selectedShippingId],
+      shippingClassGroups
+        .map((group) => {
+          const selectedId = selectedShippingIdsByClass[group.key];
+          return (
+            group.methods.find((method) => method.id === selectedId) ??
+            group.methods[0] ??
+            null
+          );
+        })
+        .filter(
+          (method): method is CheckoutShippingMethod => Boolean(method),
+        ),
+    [selectedShippingIdsByClass, shippingClassGroups],
+  );
+
+  const selectedShippingMethodId =
+    selectedShippingMethods[0]?.shippingMethodId ?? null;
+
+  const shippingSelections = useMemo<PlaceOrderShippingSelection[]>(
+    () =>
+      selectedShippingMethods
+        .filter((method) => Boolean(method.shippingClassId))
+        .map((method) => ({
+          shippingClassId: method.shippingClassId as string,
+          shippingMethodId: method.shippingMethodId,
+        })),
+    [selectedShippingMethods],
   );
 
   const selectedPayment = useMemo(
@@ -231,6 +387,13 @@ export default function Checkout() {
     [selectedPayment],
   );
 
+  const selectedAvailableProviders = useMemo(
+    () =>
+      selectedPayment?.providers.filter((provider) => provider.isAvailable) ??
+      [],
+    [selectedPayment],
+  );
+
   const selectedPaymentTitle = useMemo(
     () =>
       [selectedPayment?.title, selectedIsGiftCardPayment ? null : selectedProvider?.title]
@@ -246,16 +409,19 @@ export default function Checkout() {
 
   const buildCouponPayload = useCallback(() => {
     const code = couponCode.trim();
-    if (!code || !selectedAddress || !selectedShippingId) return null;
+    if (!code || !selectedAddress || !selectedShippingMethodId) return null;
 
     return {
       couponCode: code,
-      shippingMethodId: selectedShippingId,
+      shippingMethodId: selectedShippingMethodId,
       shippingAddress: toShippingAddress(selectedAddress),
     };
-  }, [couponCode, selectedAddress, selectedShippingId]);
+  }, [couponCode, selectedAddress, selectedShippingMethodId]);
 
-  const shippingCost = selectedShipping?.price ?? 0;
+  const shippingCost = selectedShippingMethods.reduce(
+    (sum, method) => sum + method.price,
+    0,
+  );
   const discountAmount = couponDiscount?.couponIsApplicable
     ? couponDiscount.discount || couponDiscount.couponTotalDiscount
     : 0;
@@ -263,6 +429,17 @@ export default function Checkout() {
     couponDiscount?.couponIsApplicable && couponDiscount.payableAmount > 0
       ? couponDiscount.payableAmount
       : Math.max(0, totalPrice + shippingCost - discountAmount);
+  const summarySubtotal =
+    couponDiscount && couponDiscount.itemsSubtotal > 0
+      ? couponDiscount.itemsSubtotal
+      : totalPrice;
+  const summaryShippingLabel =
+    selectedShippingMethods.length === 0 &&
+    shippingOptionsResult?.formattedCheapestTotalCost
+      ? shippingOptionsResult.formattedCheapestTotalCost
+      : selectedShippingMethods.length === 1
+        ? formatShippingPrice(selectedShippingMethods[0])
+        : formatMoney(shippingCost);
 
   useEffect(() => {
     const payload = buildCouponPayload();
@@ -311,7 +488,7 @@ export default function Checkout() {
       notify.error("لطفاً آدرس تحویل را انتخاب کنید");
       return;
     }
-    if (!selectedShippingId) {
+    if (selectedShippingMethods.length === 0) {
       notify.error("لطفاً روش ارسال را انتخاب کنید");
       return;
     }
@@ -335,6 +512,7 @@ export default function Checkout() {
     }
   };
 
+  // handlePlaceOrder is a function that places an order and redirects to the payment gateway
   const handlePlaceOrder = async () => {
     if (items.length === 0) {
       notify.error("سبد خرید خالی است");
@@ -344,8 +522,12 @@ export default function Checkout() {
       notify.error("لطفاً آدرس تحویل را انتخاب کنید");
       return;
     }
-    if (!selectedShippingId) {
+    if (selectedShippingMethods.length === 0 || !selectedShippingMethodId) {
       notify.error("لطفاً روش ارسال را انتخاب کنید");
+      return;
+    }
+    if (shippingSelections.length !== selectedShippingMethods.length) {
+      notify.error("اطلاعات کلاس ارسال کامل نیست. لطفاً آدرس را دوباره انتخاب کنید.");
       return;
     }
     if (!selectedPaymentCode) {
@@ -381,7 +563,8 @@ export default function Checkout() {
       }
 
       const result = await placeCheckoutOrder({
-        shippingMethodId: selectedShippingId,
+        shippingMethodId: selectedShippingMethodId,
+        shippingSelections,
         shippingAddress: toShippingAddress(selectedAddress),
         paymentMethodCode: selectedPaymentCode,
         providerCode: selectedIsGiftCardPayment
@@ -452,6 +635,10 @@ export default function Checkout() {
     }
 
     if (pendingGatewayPayment.directPaymentUrl) {
+      rememberPendingPaymentOrder(
+        pendingGatewayPayment.orderId,
+        pendingGatewayPayment.orderNumber,
+      );
       window.location.href = pendingGatewayPayment.directPaymentUrl;
       return;
     }
@@ -474,6 +661,10 @@ export default function Checkout() {
         return;
       }
 
+      rememberPendingPaymentOrder(
+        payment.orderId || pendingGatewayPayment.orderId,
+        payment.orderNumber || pendingGatewayPayment.orderNumber,
+      );
       window.location.href = payment.redirectUrl;
     } catch (err) {
       console.error("[Checkout] start payment failed =>", err);
@@ -604,7 +795,7 @@ export default function Checkout() {
                 <i className="far fa-user"></i>
                 اطلاعات شخصی
               </h2>
-              <div className="space-y-4">
+              <div className="flex flex-wrap gap-4">
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -676,67 +867,214 @@ export default function Checkout() {
               <div className="grid grid-cols-2 gap-3" />
             </div>
 
-            {/* Sending method */}
+            {/* Order items and shipping */}
             <div className="mb-8">
               <h2 className="mb-4 flex items-center text-xl font-bold text-gray-800 dark:text-white">
                 <i className="far fa-truck me-2 text-sm text-primary-500"></i>
-                روش ارسال
+                اقلام سفارش و ارسال
               </h2>
 
-              <div className="space-y-4">
-                {shippingMethods.map((method, index) => {
-                  const isSelected = selectedShippingId === method.id;
-                  const style =
-                    SHIPPING_ICON_STYLES[index % SHIPPING_ICON_STYLES.length];
-
-                  return (
-                    <div
-                      key={method.id}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => setSelectedShippingId(method.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          setSelectedShippingId(method.id);
-                        }
-                      }}
-                      className={[
-                        "shipping-method cursor-pointer rounded-lg border p-4 transition-all",
-                        isSelected
-                          ? "selected border-primary-500 bg-blue-50 dark:bg-zinc-800"
-                          : "border-gray-300 hover:border-primary-500 dark:border-gray-600",
-                      ].join(" ")}
-                      data-shipping-id={method.id}
-                      data-shipping-cost={method.price}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
+              <div className="space-y-5">
+                {shippingClassGroups.length === 0 ? (
+                  <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-4 dark:border-gray-700 dark:bg-zinc-900/40">
+                    <div className="space-y-3">
+                      {items.map((item) => {
+                        const unitPrice = getCartItemUnitPrice(item);
+                        return (
                           <div
-                            className={`me-3 flex h-12 w-12 items-center justify-center rounded-lg ${style.wrap}`}
+                            key={item.id}
+                            className="flex items-center justify-between gap-4 rounded-lg bg-white p-3 dark:bg-zinc-900"
                           >
-                            <i className={style.icon}></i>
+                            <div className="flex min-w-0 items-center gap-3">
+                              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100 dark:bg-zinc-800">
+                                <Image
+                                  width={56}
+                                  height={56}
+                                  src={item.image || "/images/default.png"}
+                                  alt={item.title}
+                                  className="h-14 w-14 object-contain"
+                                />
+                              </div>
+                              <div className="min-w-0">
+                                <h3 className="truncate font-medium text-gray-800 dark:text-white">
+                                  {item.title}
+                                </h3>
+                                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                  تعداد: {new Intl.NumberFormat("fa-IR").format(item.quantity)}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="shrink-0 text-left text-sm">
+                              <div className="text-gray-500 dark:text-gray-400">
+                                {formatMoney(unitPrice)}
+                              </div>
+                              <div className="font-bold text-gray-800 dark:text-white">
+                                {formatMoney(getCartItemLineTotal(item))}
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <h3 className="font-medium text-gray-800 dark:text-white">
-                              {method.title}
-                            </h3>
-                            {method.description ? (
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                {method.description}
-                              </p>
-                            ) : null}
-                          </div>
-                        </div>
-                        <div className="text-left">
-                          <div className="font-bold text-gray-800 dark:text-white">
-                            {formatShippingPrice(method)}
-                          </div>
+                        );
+                      })}
+                    </div>
+                    <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                      پس از انتخاب آدرس، گزینه‌های ارسال هر گروه کالا نمایش داده می‌شود.
+                    </p>
+                  </div>
+                ) : (
+                  shippingClassGroups.map((group, groupIndex) => (
+                    <section
+                      key={group.key}
+                      className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-zinc-900/40"
+                    >
+                      <div className="mb-4 flex flex-col gap-2 border-b border-gray-200 pb-4 dark:border-gray-700 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <h3 className="font-bold text-gray-800 dark:text-white">
+                            {group.title}
+                          </h3>
+                          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            {new Intl.NumberFormat("fa-IR").format(group.itemCount)} کالا
+                            {group.totalWeightGrams > 0
+                              ? " • " + new Intl.NumberFormat("fa-IR").format(group.totalWeightGrams) + " گرم"
+                              : ""}
+                          </p>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+
+                      <div className="space-y-3">
+                        {group.items.map((shippingItem) => {
+                          const cartItem = findCartItemForShippingItem(shippingItem, items);
+                          const quantity = shippingItem.quantity || cartItem?.quantity || 0;
+                          const unitPrice = cartItem ? getCartItemUnitPrice(cartItem) : 0;
+                          const lineTotal = unitPrice * quantity;
+
+                          return (
+                            <div
+                              key={group.key + "-" + (shippingItem.productId || shippingItem.productName)}
+                              className="grid grid-cols-1 gap-3 rounded-lg border border-gray-100 p-3 dark:border-gray-800 sm:grid-cols-[1fr_auto]"
+                            >
+                              <div className="flex min-w-0 items-center gap-3">
+                                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gray-100 dark:bg-zinc-800">
+                                  <Image
+                                    width={56}
+                                    height={56}
+                                    src={cartItem?.image || "/images/default.png"}
+                                    alt={cartItem?.title || shippingItem.productName}
+                                    className="h-14 w-14 object-contain"
+                                  />
+                                </div>
+                                <div className="min-w-0">
+                                  <h4 className="truncate font-medium text-gray-800 dark:text-white">
+                                    {cartItem?.title || shippingItem.productName}
+                                  </h4>
+                                  <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                    تعداد: {new Intl.NumberFormat("fa-IR").format(quantity)}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-2 gap-3 text-sm sm:min-w-48">
+                                <div>
+                                  <span className="block text-gray-500 dark:text-gray-400">
+                                    قیمت واحد
+                                  </span>
+                                  <span className="font-medium text-gray-800 dark:text-gray-100">
+                                    {unitPrice > 0 ? formatMoney(unitPrice) : "?"}
+                                  </span>
+                                </div>
+                                <div className="text-left">
+                                  <span className="block text-gray-500 dark:text-gray-400">
+                                    قیمت کل
+                                  </span>
+                                  <span className="font-bold text-gray-900 dark:text-white">
+                                    {lineTotal > 0 ? formatMoney(lineTotal) : "?"}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div className="mt-5">
+                        <h4 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          روش ارسال این بخش
+                        </h4>
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                          {group.methods.map((method, methodIndex) => {
+                            const isSelected = selectedShippingIdsByClass[group.key] === method.id;
+                            const style =
+                              SHIPPING_ICON_STYLES[
+                                (groupIndex + methodIndex) % SHIPPING_ICON_STYLES.length
+                              ];
+
+                            return (
+                              <div
+                                key={method.id}
+                                role="button"
+                                tabIndex={0}
+                                onClick={() => selectShippingMethod(group.key, method.id)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" || e.key === " ") {
+                                    e.preventDefault();
+                                    selectShippingMethod(group.key, method.id);
+                                  }
+                                }}
+                                className={[
+                                  "shipping-method flex aspect-square cursor-pointer flex-col justify-between rounded-lg border p-4 transition-all",
+                                  isSelected
+                                    ? "selected border-primary-500 bg-blue-50 ring-2 ring-primary-500/20 dark:bg-zinc-800"
+                                    : "border-gray-300 hover:border-primary-500 dark:border-gray-600",
+                                ].join(" ")}
+                                data-shipping-id={method.shippingMethodId}
+                                data-shipping-class-id={method.shippingClassId}
+                                data-shipping-cost={method.price}
+                              >
+                                <div className="min-w-0">
+                                  <div className="mb-3 flex items-start justify-between gap-2">
+                                    <div
+                                      className={["flex h-11 w-11 shrink-0 items-center justify-center rounded-lg", style.wrap].join(" ")}
+                                    >
+                                      <i className={style.icon}></i>
+                                    </div>
+                                    {isSelected ? (
+                                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs text-white">
+                                        <i className="far fa-check"></i>
+                                      </span>
+                                    ) : null}
+                                  </div>
+                                  <h3 className="line-clamp-2 min-h-8 font-bold leading-6 text-gray-800 dark:text-white">
+                                    {method.title}
+                                  </h3>
+                                  {method.description ? (
+                                    <p className="mt-1 line-clamp-2 text-xs leading-5 text-gray-600 dark:text-gray-400">
+                                      {method.description}
+                                    </p>
+                                  ) : null}
+                                </div>
+                                <div>
+                                  <div className="mb-3 flex flex-wrap gap-2 text-[11px]">
+                                    {method.estimatedDeliveryDays ? (
+                                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-600 dark:bg-zinc-800 dark:text-gray-300">
+                                        {new Intl.NumberFormat("fa-IR").format(method.estimatedDeliveryDays)} روز کاری
+                                      </span>
+                                    ) : null}
+                                    {method.cashOnDelivery ? (
+                                      <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">
+                                        پرداخت در محل
+                                      </span>
+                                    ) : null}
+                                  </div>
+                                  <div className="font-bold text-gray-900 dark:text-white">
+                                    {formatShippingPrice(method)}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </section>
+                  ))
+                )}
               </div>
             </div>
 
@@ -747,21 +1085,23 @@ export default function Checkout() {
                 روش پرداخت
               </h2>
 
-              <div className="space-y-4">
+              <div className="flex flex-wrap gap-4">
                 {paymentMethods.map((method, index) => {
-                
                   const isSelected = selectedPaymentCode === method.code;
+                  const isBankGateway = isBankGatewayPaymentMethod(method);
                   const style =
-                    PAYMENT_ICON_STYLES[index % PAYMENT_ICON_STYLES.length];
-                  const availableProviders = method.providers.filter(
-                    (provider) => provider.isAvailable,
-                  );
+                    isBankGateway
+                      ? BANK_GATEWAY_ICON_STYLE
+                      : PAYMENT_ICON_STYLES[index % PAYMENT_ICON_STYLES.length];
+                  const methodImageSrc = isBankGateway
+                    ? null
+                    : getRenderableImageSrc(method.imageUrl);
 
                   return (
                     <div
                       key={method.code}
                       className={[
-                        "payment-method rounded-lg border p-4 transition-all",
+                        "payment-method flex h-[200px] w-[200px] max-w-full rounded-lg border p-4 transition-all",
                         isSelected
                           ? "selected border-primary-500 bg-blue-50 dark:bg-zinc-800"
                           : "border-gray-300 hover:border-primary-500 dark:border-gray-600",
@@ -778,14 +1118,25 @@ export default function Checkout() {
                             selectPaymentMethod(method);
                           }
                         }}
-                        className="flex cursor-pointer items-center"
+                        className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-3 text-center"
                       >
                         <div
-                          className={`me-3 flex h-12 w-12 items-center justify-center rounded-lg ${style.wrap}`}
+                          className={`flex h-14 w-14 items-center justify-center rounded-lg ${style.wrap}`}
                         >
-                          <i className={style.icon}></i>
+                          {methodImageSrc ? (
+                            <Image
+                              src={methodImageSrc}
+                              alt={method.title}
+                              width={56}
+                              height={56}
+                              unoptimized
+                              className="h-12 w-12 object-contain"
+                            />
+                          ) : (
+                            <i className={style.icon}></i>
+                          )}
                         </div>
-                        <div>
+                        <div className="space-y-1">
                           <h3 className="font-medium text-gray-800 dark:text-white">
                             {method.title}
                           </h3>
@@ -794,57 +1145,58 @@ export default function Checkout() {
                           </p>
                         </div>
                       </div>
-
-                      {isSelected &&
-                      !selectedIsGiftCardPayment &&
-                      availableProviders.length > 0 ? (
-                        <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">
-                          <p className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
-                            بانک مقصد
-                          </p>
-                          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                            {availableProviders.map((provider) => {
-                              const isProviderSelected =
-                                selectedProviderCode === provider.code;
-
-                              return (
-                                <button
-                                  key={provider.code}
-                                  type="button"
-                                  onClick={() =>
-                                    setSelectedProviderCode(provider.code)
-                                  }
-                                  className={[
-                                    "flex flex-col items-center justify-center gap-2 rounded-lg border p-3 text-center transition-all",
-                                    isProviderSelected
-                                      ? "border-primary-500 bg-white ring-2 ring-primary-500/30 dark:bg-zinc-900"
-                                      : "border-gray-300 bg-white hover:border-primary-500 dark:border-gray-600 dark:bg-zinc-900",
-                                  ].join(" ")}
-                                >
-                                  {provider.logoUrl ? (
-                                    <Image
-                                      src={provider.logoUrl}
-                                      alt={provider.title}
-                                      width={40}
-                                      height={40}
-                                      className="h-10 w-10 object-contain"
-                                    />
-                                  ) : (
-                                    <i className="far fa-building-columns text-lg text-primary-500"></i>
-                                  )}
-                                  <span className="text-xs font-medium text-gray-800 dark:text-gray-200">
-                                    {provider.title}
-                                  </span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      ) : null}
                     </div>
                   );
                 })}
               </div>
+
+              {!selectedIsGiftCardPayment &&
+              selectedAvailableProviders.length > 0 ? (
+                <div className="mt-4 border-t border-gray-200 pt-4 dark:border-gray-700">
+                  <p className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+                    بانک مقصد
+                  </p>
+                  <div className="flex flex-wrap gap-4">
+                    {selectedAvailableProviders.map((provider) => {
+                      const isProviderSelected =
+                        selectedProviderCode === provider.code;
+                      const providerImageSrc = getRenderableImageSrc(
+                        provider.imageUrl ?? provider.logoUrl,
+                      );
+
+                      return (
+                        <button
+                          key={provider.code}
+                          type="button"
+                          onClick={() => setSelectedProviderCode(provider.code)}
+                          className={[
+                            "flex h-[200px] w-[200px] max-w-full flex-col items-center justify-center gap-3 rounded-lg border p-4 text-center transition-all",
+                            isProviderSelected
+                              ? "border-primary-500 bg-white ring-2 ring-primary-500/30 dark:bg-zinc-900"
+                              : "border-gray-300 bg-white hover:border-primary-500 dark:border-gray-600 dark:bg-zinc-900",
+                          ].join(" ")}
+                        >
+                          {providerImageSrc ? (
+                            <Image
+                              src={providerImageSrc}
+                              alt={provider.title}
+                              width={72}
+                              height={72}
+                              unoptimized
+                              className="h-16 w-16 object-contain"
+                            />
+                          ) : (
+                            <i className="far fa-building-columns text-2xl text-primary-500"></i>
+                          )}
+                          <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                            {provider.title}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
 
               {selectedIsGiftCardPayment ? (
                 <div className="mt-4">
@@ -865,159 +1217,25 @@ export default function Checkout() {
                 </div>
               ) : null}
             </div>
+
           </div>
         </div>
 
         {/* Left Section - Summary */}
         <div>
-          <div className="sticky top-0 z-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-custom-dark">
+          <aside
+            className="sticky z-10 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-custom-dark"
+            style={{ top: summaryStickyTop }}
+          >
             <h2
-              className="relative mb-4 pb-4 text-lg font-black text-gray-900 dark:text-gray-200
+              className="relative mb-6 pb-4 text-lg font-black text-gray-900 dark:text-gray-200
                 before:absolute before:inset-s-0 before:bottom-0 before:size-2 before:rounded-full before:bg-primary
                 after:absolute after:inset-s-4 after:bottom-0 after:h-2 after:w-40 after:rounded-lg after:bg-primary"
             >
               خلاصه سفارش
             </h2>
 
-            <div className="mb-6 space-y-4">
-              {items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-700"
-                >
-                  <div className="flex items-center">
-                    <div className="me-3 flex h-16 w-16 items-center justify-center overflow-hidden rounded-lg bg-gray-200 dark:bg-zinc-800">
-                      <Image
-                        width={56}
-                        height={56}
-                        src={item.image || "/images/default.png"}
-                        alt={item.title}
-                        className="h-14 w-14 object-contain"
-                      />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-gray-800 dark:text-gray-200">
-                        {item.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {new Intl.NumberFormat("fa-IR").format(item.quantity)}{" "}
-                        عدد
-                      </p>
-                    </div>
-                  </div>
-                  <span className="font-medium text-gray-800 dark:text-gray-200">
-                    {formatMoney(item.price * item.quantity)}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div className="mb-6 space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">جمع کل:</span>
-                <span className="text-gray-800 dark:text-gray-200" id="subtotal">
-                  {formatMoney(totalPrice)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">تخفیف:</span>
-                <span
-                  className="text-green-600 dark:text-green-400"
-                  id="discount"
-                >
-                  {formatMoney(discountAmount)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">
-                  هزینه ارسال:
-                </span>
-                <span
-                  className="text-gray-800 dark:text-gray-200"
-                  id="shipping-cost"
-                >
-                  {selectedShipping
-                    ? formatShippingPrice(selectedShipping)
-                    : formatMoney(0)}
-                </span>
-              </div>
-              <div
-                className="hidden justify-between"
-                id="delivery-time-cost-container"
-              >
-                <span className="text-gray-600 dark:text-gray-400">
-                  هزینه زمان تحویل:
-                </span>
-                <span
-                  className="text-gray-800 dark:text-gray-200"
-                  id="delivery-time-cost"
-                >
-                  {formatMoney(0)}
-                </span>
-              </div>
-              <div className="border-t border-gray-300 pt-3 dark:border-gray-700">
-                <div className="flex justify-between">
-                  <span className="font-bold text-gray-800 dark:text-gray-200">
-                    مبلغ قابل پرداخت:
-                  </span>
-                  <span
-                    className="text-lg font-bold text-gray-800 dark:text-gray-200"
-                    id="total-cost"
-                  >
-                    {formatMoney(payable)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
-              <h3 className="mb-2 font-medium text-blue-800 dark:text-blue-300">
-                جزئیات انتخاب‌ها
-              </h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-blue-700 dark:text-blue-300">
-                    روش ارسال:
-                  </span>
-                  <span
-                    className="text-blue-800 dark:text-blue-200"
-                    id="selected-shipping"
-                  >
-                    {selectedShipping?.title ?? ""}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-blue-700 dark:text-blue-300">
-                    زمان تحویل:
-                  </span>
-                  <span
-                    className="text-blue-800 dark:text-blue-200"
-                    id="selected-delivery-time"
-                  >
-                    {selectedShipping?.estimatedDeliveryDays
-                      ? `${new Intl.NumberFormat("fa-IR").format(
-                          selectedShipping.estimatedDeliveryDays,
-                        )} روز`
-                      : ""}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-blue-700 dark:text-blue-300">
-                    روش پرداخت:
-                  </span>
-                  <span
-                    className="text-blue-800 dark:text-blue-200"
-                    id="selected-payment"
-                  >
-                    {[selectedPayment?.title, selectedProvider?.title]
-                      .filter(Boolean)
-                      .join(" - ")}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="mb-6">
+            <div className="mb-6 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-zinc-900/60">
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 کد تخفیف
               </label>
@@ -1026,26 +1244,26 @@ export default function Checkout() {
                   type="text"
                   value={couponCode}
                   onChange={(e) => handleCouponCodeChange(e.target.value)}
-                  className="flex-1 rounded-s-lg border border-gray-300 px-4 py-3  dark:border-gray-700 dark:bg-zinc-800 dark:text-gray-200"
-                  placeholder="کد تخفیف را وارد کنید"
+                  className="min-w-0 flex-1 rounded-s-lg border border-gray-300 bg-white px-3 py-3 text-sm dark:border-gray-700 dark:bg-zinc-800 dark:text-gray-200"
+                  placeholder="کد تخفیف"
                 />
                 <button
                   type="button"
                   disabled={couponApplying || couponPreviewing}
                   onClick={() => void handleApplyCoupon()}
-                  className="rounded-e-lg bg-blue-600 px-4 py-3 text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="shrink-0 rounded-e-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {couponApplying
-                    ? "در حال اعمال..."
+                    ? "اعمال..."
                     : couponPreviewing
-                      ? "در حال محاسبه..."
+                      ? "محاسبه..."
                       : "اعمال"}
                 </button>
               </div>
               {couponDiscount ? (
                 <p
                   className={[
-                    "mt-2 text-sm",
+                    "mt-2 text-sm leading-6",
                     couponDiscount.couponIsApplicable
                       ? "text-green-600 dark:text-green-400"
                       : "text-red-600 dark:text-red-400",
@@ -1059,6 +1277,46 @@ export default function Checkout() {
               ) : null}
             </div>
 
+            <div className="mb-6 space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">جمع کالاها:</span>
+                <span className="font-medium text-gray-800 dark:text-gray-200" id="subtotal">
+                  {formatMoney(summarySubtotal)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">هزینه ارسال:</span>
+                <span className="font-medium text-gray-800 dark:text-gray-200" id="shipping-cost">
+                  {summaryShippingLabel}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600 dark:text-gray-400">تخفیف:</span>
+                <span className="font-medium text-green-600 dark:text-green-400" id="discount">
+                  {formatMoney(discountAmount)}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-500 dark:text-gray-400">تعداد کالا:</span>
+                <span className="text-gray-700 dark:text-gray-300">
+                  {new Intl.NumberFormat("fa-IR").format(totalItems)}
+                </span>
+              </div>
+              <div className="border-t border-gray-300 pt-4 dark:border-gray-700">
+                <div className="flex justify-between gap-4">
+                  <span className="font-bold text-gray-800 dark:text-gray-200">
+                    مبلغ قابل پرداخت:
+                  </span>
+                  <span
+                    className="text-lg font-bold text-gray-900 dark:text-white"
+                    id="total-cost"
+                  >
+                    {formatMoney(payable)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
             <button
               type="button"
               disabled={submitting}
@@ -1069,31 +1327,16 @@ export default function Checkout() {
             </button>
 
             <p className="mt-3 text-center text-xs text-gray-500 dark:text-gray-400">
-              با کلیک بر روی دکمه پرداخت،
+              با تکمیل سفارش،{" "}
               <Link
                 href="/rules"
                 className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-500"
               >
                 قوانین و شرایط
-              </Link>
-              را پذیرفته‌اید.
+              </Link>{" "}
+              را می‌پذیرید.
             </p>
-          </div>
-
-          <div className="mt-6 rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
-            <div className="flex items-start">
-              <i className="fas fa-shield-alt me-2 mt-1 text-blue-500 dark:text-blue-300"></i>
-              <div>
-                <h3 className="font-medium text-blue-800 dark:text-blue-300">
-                  پرداخت امن
-                </h3>
-                <p className="mt-1 text-sm text-blue-700 dark:text-blue-200">
-                  اطلاعات شما نزد ما کاملا محفوظ است و پرداخت از طریق درگاه امن
-                  بانکی انجام می‌شود.
-                </p>
-              </div>
-            </div>
-          </div>
+          </aside>
         </div>
       </div>
     </SectionContainer>

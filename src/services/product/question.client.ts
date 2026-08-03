@@ -30,6 +30,10 @@ function logApiError(label: string, error: unknown) {
   }
 }
 
+function normalizeQuestionVote(value: unknown): QuestionVoteType | null {
+  return value === "like" || value === "dislike" ? value : null;
+}
+
 function mapAnswer(value: unknown): ProductQuestionAnswer {
   const record = getRecord(value);
   return {
@@ -41,6 +45,9 @@ function mapAnswer(value: unknown): ProductQuestionAnswer {
     isOfficial: Boolean(record.isOfficial),
     likesCount: Number(record.likesCount ?? 0),
     dislikesCount: Number(record.dislikesCount ?? 0),
+    userVote: normalizeQuestionVote(
+      record.userVote ?? record.currentUserVote ?? record.myVote,
+    ),
     createdAt: String(record.createdAt ?? ""),
   };
 }
@@ -137,10 +144,7 @@ export async function createQuestionAnswer(
       `/Questions/${questionId}/answers`,
       body,
     );
-    console.log(
-      "[question.client] createQuestionAnswer response =>",
-      response.data,
-    );
+
     return response.data;
   } catch (error) {
     logApiError("createQuestionAnswer", error);

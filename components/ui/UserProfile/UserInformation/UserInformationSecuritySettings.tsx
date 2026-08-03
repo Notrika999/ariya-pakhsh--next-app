@@ -81,10 +81,7 @@ export default function UserInformationSecuritySettings({
   }, [user?.twoFactorEnabled, user?.isEmailVerified]);
 
   const handleTwoFactorToggle = async (checked: boolean) => {
-    console.log("[UserInformationSecuritySettings] handleTwoFactorToggle =>", {
-      checked,
-      current: user?.twoFactorEnabled,
-    });
+  
 
     const previous = Boolean(user?.twoFactorEnabled);
     setTwoFactorLoading(true);
@@ -94,10 +91,7 @@ export default function UserInformationSecuritySettings({
 
     try {
       const result = checked ? await enableTwoFactor() : await disableTwoFactor();
-      console.log(
-        "[UserInformationSecuritySettings] handleTwoFactorToggle success =>",
-        result,
-      );
+  
 
       const freshUser = await getMe();
       if (user?.userId) {
@@ -146,7 +140,7 @@ export default function UserInformationSecuritySettings({
   ) => apiOtpSentTo || apiMasked || apiEmail || email || apiMessage || null;
 
   const sendVerificationCode = async () => {
-    console.log("[UserInformationSecuritySettings] sendVerificationCode => start");
+  
     setEmailLoading(true);
     setEmailError(null);
     setEmailSuccess(null);
@@ -161,10 +155,7 @@ export default function UserInformationSecuritySettings({
         result.message,
       );
 
-      console.log("[UserInformationSecuritySettings] sendVerificationCode => success", {
-        target,
-        message: result.message,
-      });
+   
 
       setVerificationTarget(target);
       setVerificationMessage(result.message ?? null);
@@ -189,11 +180,6 @@ export default function UserInformationSecuritySettings({
   };
 
   const handleEmailToggle = async (checked: boolean) => {
-    console.log("[UserInformationSecuritySettings] handleEmailToggle =>", {
-      checked,
-      isEmailVerified,
-      email: user?.email,
-    });
 
     if (isEmailVerified) return;
 
@@ -219,9 +205,7 @@ export default function UserInformationSecuritySettings({
     e.preventDefault();
     const code = verificationCode.trim();
 
-    console.log("[UserInformationSecuritySettings] handleVerifyEmailCode =>", {
-      codeLength: code.length,
-    });
+
 
     if (!code) {
       setEmailError("کد تایید را وارد کنید.");
@@ -234,10 +218,7 @@ export default function UserInformationSecuritySettings({
 
     try {
       const result = await verifyEmail(code);
-      console.log(
-        "[UserInformationSecuritySettings] handleVerifyEmailCode => success",
-        result,
-      );
+
 
       const freshUser = await getMe();
       setUser({
@@ -263,13 +244,11 @@ export default function UserInformationSecuritySettings({
   };
 
   const handleResendVerificationCode = async () => {
-    console.log("[UserInformationSecuritySettings] handleResendVerificationCode =>");
     setVerificationCode("");
     await sendVerificationCode();
   };
 
   const handleCancelEmailVerification = () => {
-    console.log("[UserInformationSecuritySettings] handleCancelEmailVerification =>");
     setShowEmailVerification(false);
     setVerificationCode("");
     setVerificationTarget(null);
@@ -339,7 +318,7 @@ export default function UserInformationSecuritySettings({
         </div>
 
         {/* Password Change */}
-        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+        {/* <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
           <div className="flex justify-between items-center">
             <div>
               <h3 className="font-medium text-gray-800 dark:text-gray-200">
@@ -436,7 +415,7 @@ export default function UserInformationSecuritySettings({
               </form>
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* Two-Factor Authentication */}
         <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
@@ -646,9 +625,9 @@ export default function UserInformationSecuritySettings({
                 آخرین ورود: {formatDate(currentSessionStartedAt)}
               </p>
             </div>
-            <button className="text-primary hover:text-primary/80 font-medium">
+            {/* <button className="text-primary hover:text-primary/80 font-medium">
               مشاهده همه
-            </button>
+            </button> */}
           </div>
 
           <div className="mt-4 space-y-3">

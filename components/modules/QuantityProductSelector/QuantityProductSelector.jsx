@@ -1,5 +1,13 @@
-const QuantitySelector = ({ value, onChange, min = 1, max }) => {
+const QuantitySelector = ({
+  value,
+  onChange,
+  min = 1,
+  max,
+  loading = false,
+  disabled = false,
+}) => {
   const increment = () => {
+    if (loading || disabled) return;
     onChange((prev) => {
       if (max !== undefined && prev >= max) return prev;
       return prev + 1;
@@ -7,6 +15,7 @@ const QuantitySelector = ({ value, onChange, min = 1, max }) => {
   };
 
   const decrement = () => {
+    if (loading || disabled) return;
     onChange((prev) => {
       if (prev <= min) return prev;
       return prev - 1;
@@ -18,17 +27,25 @@ const QuantitySelector = ({ value, onChange, min = 1, max }) => {
       <button
         type="button"
         onClick={increment}
-        className="size-10 rounded-full flex items-center justify-center dark:text-white"
+        disabled={loading || disabled}
+        className="size-10 rounded-full flex items-center justify-center dark:text-white disabled:cursor-wait disabled:opacity-60"
       >
         +
       </button>
 
-      <span className="px-5 text-lg dark:text-white">{value}</span>
+      <span className="flex min-w-14 items-center justify-center px-5 text-lg dark:text-white">
+        {loading ? (
+          <i className="far fa-spinner-third animate-spin text-base" />
+        ) : (
+          value
+        )}
+      </span>
 
       <button
         type="button"
         onClick={decrement}
-        className="size-10 rounded-full flex items-center justify-center dark:text-white"
+        disabled={loading || disabled}
+        className="size-10 rounded-full flex items-center justify-center dark:text-white disabled:cursor-wait disabled:opacity-60"
       >
         −
       </button>

@@ -79,19 +79,27 @@ async function handleCallback(request: NextRequest) {
   const result = classifyMellatResult(params);
   const redirectUrl = new URL(RESULT_PATH, request.url);
 
-  console.log("[mellat/callback route] incoming callback", {
-    method: request.method,
-    pathname: request.nextUrl.pathname,
-    params: Object.fromEntries(params.entries()),
-    expectedBackendApi: "/api/v1/Payments/mellat/callback",
-  });
-
   redirectUrl.searchParams.set("status", result.status);
   redirectUrl.searchParams.set("message", result.message);
 
   const passthrough: Record<string, string[]> = {
     code: ["ResCode", "resCode", "code"],
-    orderId: ["SaleOrderId", "saleOrderId", "orderId", "OrderId"],
+    orderNumber: [
+      "publicOrderNumber",
+      "PublicOrderNumber",
+      "orderNumber",
+      "OrderNumber",
+    ],
+    orderId: [
+      "SaleOrderId",
+      "saleOrderId",
+      "SaleOrderID",
+      "saleOrderID",
+      "orderId",
+      "OrderId",
+      "orderID",
+      "OrderID",
+    ],
     transactionId: [
       "SaleReferenceId",
       "saleReferenceId",
@@ -105,11 +113,6 @@ async function handleCallback(request: NextRequest) {
   Object.entries(passthrough).forEach(([targetKey, sourceKeys]) => {
     const value = getFirstValue(params, sourceKeys);
     if (value) redirectUrl.searchParams.set(targetKey, value);
-  });
-
-  console.log("[mellat/callback route] redirecting to result page", {
-    status: result.status,
-    redirectTo: redirectUrl.toString(),
   });
 
   return NextResponse.redirect(redirectUrl, 303);

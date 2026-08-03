@@ -68,8 +68,7 @@ export default function TransactionCard({ item }: TransactionCardProps) {
         <div className="flex items-center space-x-6">
           <div className="text-left md:text-right">
             <p className={`font-bold text-lg ${amountColor}`}>
-              {isIncome ? "+" : "-"}
-              {item.amount.toLocaleString()} تومان
+              {item.amount.toLocaleString()} {isIncome ? "+" : "-"} تومان
             </p>
 
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">

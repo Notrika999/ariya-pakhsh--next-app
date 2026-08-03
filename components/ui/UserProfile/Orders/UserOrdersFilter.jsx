@@ -6,7 +6,10 @@ const STATUS_OPTIONS = [
   { value: "", label: "همه وضعیت‌ها" },
   { value: "pending", label: "در انتظار پرداخت" },
   { value: "order.payment_review_required", label: "نیاز به بررسی پرداخت" },
+  { value: "order.paid", label: "پرداخت شده" },
+  { value: "order.payment_failed", label: "پرداخت ناموفق" },
   { value: "order.processing", label: "در حال پردازش" },
+  { value: "order.confirmed", label: "تأیید شده" },
   { value: "order.shipped", label: "در حال ارسال" },
   { value: "order.delivered", label: "تحویل شده" },
   { value: "order.cancelled", label: "لغو شده" },
@@ -33,41 +36,7 @@ export default function UserOrdersFilter({
   return (
     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-col gap-3 sm:flex-row">
-        {/* <div className="relative">
-          <select
-            className="w-full appearance-none rounded-lg border px-4 py-2 pe-10 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary dark:border-gray-600 dark:bg-zinc-800 dark:text-white "
-            value={status}
-            onChange={(e) => onStatusChange?.(e.target.value)}
-          >
-            <option value="">همه وضعیت‌ها</option>
-            <option value="pending">در انتظار پرداخت</option>
-            <option value="processing">در حال پردازش</option>
-            <option value="shipped">در حال ارسال</option>
-            <option value="delivered">تحویل شده</option>
-            <option value="cancelled">لغو شده</option>
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
-            <i className="far fa-angle-down"></i>
-          </div>
-        </div>
-
-        <div className="relative">
-          <select
-            className="w-full appearance-none rounded-lg border px-4 py-2 pe-10 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary dark:border-gray-600 dark:bg-zinc-800 dark:text-white"
-            value={dateRange}
-            onChange={(e) => onDateRangeChange?.(e.target.value)}
-          >
-            <option value="">همه زمان‌ها</option>
-            <option value="7">۷ روز گذشته</option>
-            <option value="30">۳۰ روز گذشته</option>
-            <option value="90">۳ ماه گذشته</option>
-            <option value="365">یک سال گذشته</option>
-          </select>
-          <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center px-2 text-gray-700 dark:text-gray-300">
-            <i className="far fa-angle-down"></i>
-          </div>
-        </div> */}
-
+      
         <CustomSelect
           className="sm:w-48"
           options={STATUS_OPTIONS}
@@ -75,12 +44,12 @@ export default function UserOrdersFilter({
           onChange={onStatusChange}
         />
 
-        <CustomSelect
+        {/* <CustomSelect
           className="sm:w-48"
           options={DATE_RANGE_OPTIONS}
           value={dateRange}
           onChange={onDateRangeChange}
-        />
+        /> */}
       </div>
 
       <form

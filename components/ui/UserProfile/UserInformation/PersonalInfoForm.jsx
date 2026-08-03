@@ -63,7 +63,7 @@ export default function PersonalInfoForm({ user }) {
   const [statusMessage, setStatusMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  console.log("User => ", user);
+
   useEffect(() => {
     queueMicrotask(() => {
       setForm(createFormState(user));

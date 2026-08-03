@@ -8,7 +8,6 @@ import {
 } from "@/src/lib/types/products/productDetail.types";
 import { useCart } from "@/src/context/CartContext";
 import { getProductImage } from "@/src/utils/product-image";
-import Link from "next/link";
 
 interface Props {
   product: ProductDetail;
@@ -19,6 +18,7 @@ interface Props {
 export default function Action({ product, variant, isOutOfStock }: Props) {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [quantityUpdating, setQuantityUpdating] = useState(false);
 
   const { addItem, updateQty, items } = useCart();
 
@@ -73,11 +73,24 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
     setAdded(true);
   };
 
-  const handleQtyChange = (newQty: number) => {
-    setQuantity(newQty);
-    if (added && variant) {
-      void updateQty(variant.variantId, newQty);
+  const handleQtyChange = (
+    nextValue: number | ((previousQuantity: number) => number),
+  ) => {
+    const resolvedQuantity =
+      typeof nextValue === "function" ? nextValue(quantity) : nextValue;
+    const nextQty = Math.min(Math.max(resolvedQuantity, 1), maxQty);
+
+    if (nextQty === quantity) return;
+
+    if (!added || !variant) {
+      setQuantity(nextQty);
+      return;
     }
+
+    setQuantityUpdating(true);
+    void updateQty(variant.variantId, nextQty).finally(() => {
+      setQuantityUpdating(false);
+    });
   };
 
   return (
@@ -200,6 +213,8 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
             onChange={handleQtyChange}
             min={1}
             max={maxQty}
+            loading={quantityUpdating}
+            disabled={quantityUpdating}
           />
         )}
 
@@ -236,11 +251,12 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
         <div className="flex items-center justify-center">
           <button
             onClick={handleAddToCart}
+            disabled={quantityUpdating}
             className={`ms-auto mt-3 text-white font-semibold rounded-xl px-6 py-4 text-sm cursor-pointer transition-colors ${
               added
                 ? "bg-green-500 hover:bg-green-600 shadow-green-500/30"
                 : "bg-primary hover:bg-primary-600 shadow-primary-500"
-            }`}
+            } disabled:cursor-wait disabled:opacity-70`}
           >
             {added ? "✓ افزوده شد" : "افزودن به سبد خرید"}
           </button>

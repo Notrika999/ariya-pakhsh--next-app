@@ -26,6 +26,7 @@ type CommentsProps = {
 };
 
 const PAGE_SIZE = 10;
+const DEFAULT_REVIEW_RATING = 5;
 
 const REPORT_REASONS = [
   "محتوای نامناسب",
@@ -142,6 +143,9 @@ function ReviewCard({
   onDeleted: (reviewId: string) => void;
 }) {
   const [voting, setVoting] = useState(false);
+  const [userVote, setUserVote] = useState<ReviewVoteType | null>(
+    review.userVote ?? null,
+  );
   const [deleting, setDeleting] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [reportReason, setReportReason] = useState(REPORT_REASONS[0]);
@@ -154,22 +158,29 @@ function ReviewCard({
 
   const handleVote = async (voteType: ReviewVoteType) => {
     if (voting) return;
+    if (userVote === voteType) return;
+
     setVoting(true);
     try {
+      const previousVote = userVote;
+
       await voteProductReview(review.id, voteType);
+      setUserVote(voteType);
       onChanged(review.id, {
+        userVote: voteType,
         likesCount:
-          voteType === "like" ? review.likesCount + 1 : review.likesCount,
+          review.likesCount +
+          (voteType === "like" ? 1 : 0) -
+          (previousVote === "like" ? 1 : 0),
         dislikesCount:
-          voteType === "dislike"
-            ? review.dislikesCount + 1
-            : review.dislikesCount,
+          review.dislikesCount +
+          (voteType === "dislike" ? 1 : 0) -
+          (previousVote === "dislike" ? 1 : 0),
       });
       notify.success(
         voteType === "like" ? "رأی مثبت ثبت شد" : "رأی منفی ثبت شد",
       );
 
-      console.log(voteType)
     } catch (error) {
       console.error("[Comments] vote failed =>", error);
       notify.error(getAuthErrorMessage(error));
@@ -325,8 +336,13 @@ function ReviewCard({
             <button
               type="button"
               onClick={() => handleVote("like")}
-              disabled={voting}
-              className="flex items-center gap-1 text-gray-500 transition hover:text-green-500 disabled:opacity-60 dark:text-gray-400 dark:hover:text-green-400"
+              disabled={voting || userVote === "like"}
+              aria-pressed={userVote === "like"}
+              className={`flex items-center gap-1 transition hover:text-green-500 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:text-green-400 ${
+                userVote === "like"
+                  ? "text-green-600 dark:text-green-400"
+                  : "text-gray-500 dark:text-gray-400"
+              }`}
             >
               <i className="far fa-thumbs-up" />
               <span className="text-sm font-medium">
@@ -336,8 +352,13 @@ function ReviewCard({
             <button
               type="button"
               onClick={() => handleVote("dislike")}
-              disabled={voting}
-              className="flex items-center gap-1 text-gray-500 transition hover:text-red-500 disabled:opacity-60 dark:text-gray-400 dark:hover:text-red-400"
+              disabled={voting || userVote === "dislike"}
+              aria-pressed={userVote === "dislike"}
+              className={`flex items-center gap-1 transition hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:text-red-400 ${
+                userVote === "dislike"
+                  ? "text-red-600 dark:text-red-400"
+                  : "text-gray-500 dark:text-gray-400"
+              }`}
             >
               <i className="far fa-thumbs-down" />
               <span className="text-sm font-medium">
@@ -425,7 +446,6 @@ export default function Comments({
   const [summary, setSummary] = useState<ProductReviewsSummary | null>(null);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(reviewCount ?? 0);
-  const [totalPages, setTotalPages] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [sort, setSort] = useState("newest");
   const [loading, setLoading] = useState(true);
@@ -433,7 +453,7 @@ export default function Comments({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState(DEFAULT_REVIEW_RATING);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [advantages, setAdvantages] = useState<string[]>([]);
@@ -497,7 +517,6 @@ export default function Comments({
         );
         setPage(result.pageNumber || pageNumber);
         setTotalCount(result.totalCount);
-        setTotalPages(result.totalPages);
         setHasNextPage(
           result.hasNextPage || result.pageNumber < result.totalPages,
         );
@@ -515,8 +534,12 @@ export default function Comments({
   );
 
   useEffect(() => {
-    void loadReviews(1, false);
-    void loadSummary();
+    const timer = window.setTimeout(() => {
+      void loadReviews(1, false);
+      void loadSummary();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, [loadReviews, loadSummary]);
 
   const handleLoadMore = () => {
@@ -525,7 +548,7 @@ export default function Comments({
   };
 
   const resetForm = () => {
-    setRating(0);
+    setRating(DEFAULT_REVIEW_RATING);
     setTitle("");
     setBody("");
     setAdvantages([]);

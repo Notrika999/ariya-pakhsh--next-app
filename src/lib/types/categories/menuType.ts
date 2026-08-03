@@ -1,5 +1,6 @@
 export type Category = {
   id: string;
+  categoryId?: string;
   parentId?: string;
   name: string;
   slug: string;
@@ -16,6 +17,7 @@ export type Category = {
     url?: string | null;
     path?: string | null;
   } | null;
+  imageUrl?: string | null;
   src?: string;
   seoTitle: string;
   seoDescription: string;

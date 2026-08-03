@@ -1,33 +1,87 @@
-export type CommentStatus = "approved" | "pending";
+export type CommunityReviewStatus = "approved" | "pending" | "rejected" | string;
+export type CommunityQuestionStatus =
+  | "answered"
+  | "pending"
+  | "rejected"
+  | string;
 
-export interface CommentItem {
-  id: number;
-  productImage: string;
-  productTitle: string;
-  rating: number; // 1–5
-  status: CommentStatus;
-  statusLabel: string; // برای نمایش فارسی
-  statusColor: string; // رنگ پس‌زمینه و متن
-  text: string;
-  date: string;
-  helpfulCount: number;
-}
+export type CommunitySummary = {
+  reviewsCount: number;
+  questionsCount: number;
+};
 
-export type QuestionStatus = "answered" | "pending";
-
-export interface QuestionItem {
-  id: number;
-  productImage: string;
-  productTitle: string;
+export type MyReviewItem = {
+  id: string;
+  productId: string;
+  productName: string;
+  productSlug: string;
   productCode: string;
-  questionText: string;
-  questionDate: string;
-
-  status: QuestionStatus;
+  productImageUrl: string;
+  rating: number;
+  title: string;
+  body: string;
+  advantages: string[];
+  disadvantages: string[];
+  recommendStatus: "neutral" | "recommended" | "notRecommended" | string;
+  status: CommunityReviewStatus;
   statusLabel: string;
-  statusColor: string;
+  likesCount: number;
+  canEdit: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
 
-  // فقط اگر answered بود:
-  answerText?: string;
-  answerDateTime?: string; // Example: "۱۴۰۲/۱۰/۲۲ - ۱۴:۳۰"
-}
+export type MyReviewsPage = {
+  items: MyReviewItem[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+};
+
+export type UpdateMyReviewRequest = {
+  rating: number;
+  title: string;
+  body: string;
+  advantages: string[];
+  disadvantages: string[];
+  recommendStatus: MyReviewItem["recommendStatus"];
+};
+
+export type MyQuestionAnswer = {
+  id: string;
+  body: string;
+  createdAt: string;
+};
+
+export type MyQuestionItem = {
+  id: string;
+  productId: string;
+  productName: string;
+  productSlug: string;
+  productCode: string;
+  productImageUrl: string;
+  body: string;
+  status: CommunityQuestionStatus;
+  displayStatus: string;
+  displayStatusLabel: string;
+  createdAt: string;
+  officialAnswer: MyQuestionAnswer | null;
+};
+
+export type MyQuestionsPage = {
+  items: MyQuestionItem[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+};
+
+export type CommunityPageParams = {
+  page?: number;
+  pageSize?: number;
+};

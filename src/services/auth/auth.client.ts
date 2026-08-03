@@ -103,17 +103,8 @@ function pickNumber(
 
 function unwrapApiData<T>(payload: unknown, label: string): T {
   const debug = label === "register";
-  if (debug) {
-    console.log(`[auth.client] unwrapApiData(${label}) => input`, payload);
-  }
 
   if (!payload || typeof payload !== "object") {
-    if (debug) {
-      console.error(`[auth.client] unwrapApiData(${label}) => invalid payload`, {
-        payload,
-        type: typeof payload,
-      });
-    }
     throw new Error(`${label}: پاسخ سرور نامعتبر است`);
   }
 
@@ -133,17 +124,9 @@ function unwrapApiData<T>(payload: unknown, label: string): T {
       "userInfoDto" in inner ||
       "accessToken" in inner
     ) {
-      if (debug) {
-        console.log(`[auth.client] unwrapApiData(${label}) => using record.data`);
-      }
       return record.data as T;
     }
     if ("data" in inner && inner.data) {
-      if (debug) {
-        console.log(
-          `[auth.client] unwrapApiData(${label}) => using nested data.data`,
-        );
-      }
       return inner.data as T;
     }
   }
@@ -158,9 +141,6 @@ function unwrapApiData<T>(payload: unknown, label: string): T {
     "userInfoDto" in record ||
     "accessToken" in record
   ) {
-    if (debug) {
-      console.log(`[auth.client] unwrapApiData(${label}) => using root payload`);
-    }
     return payload as T;
   }
 
@@ -260,19 +240,12 @@ export function attachSessionToUser(
 export async function completeUserFromMe(
   user: UserInfoDto,
 ): Promise<UserInfoDto> {
-  console.log("[auth.client] completeUserFromMe => start", {
-    userId: user.userId ?? user.id ?? null,
-    hasBirthDate: Boolean(user.birthDate),
-  });
+
 
   if (user.birthDate) return user;
 
   try {
     const me = await getMe();
-    console.log("[auth.client] completeUserFromMe => getMe ok", {
-      userId: me.userId ?? me.id ?? null,
-      hasBirthDate: Boolean(me.birthDate),
-    });
     return me;
   } catch (error) {
     console.warn(
@@ -431,36 +404,17 @@ export const register = async (
       : null,
   };
 
-  console.log("[auth.client] register => request", {
-    path: CUSTOMER_AUTH_CLIENT_PATHS.REGISTER,
-    payload: safePayload,
-  });
-
   try {
     const response = await apiClient.post(
       CUSTOMER_AUTH_CLIENT_PATHS.REGISTER,
       data,
     );
 
-    console.log("[auth.client] register => raw response", {
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers,
-      data: response.data,
-    });
+
 
     const parsed = unwrapApiData<RegisterResponse>(response.data, "register");
 
-    console.log("[auth.client] register => parsed", {
-      success: parsed?.success,
-      errorMessage: parsed?.errorMessage,
-      errorCode: parsed?.errorCode,
-      hasUserInfo: Boolean(parsed?.userInfoDto),
-      hasSessionInfo: Boolean(parsed?.sessionInfoDto),
-      userId: parsed?.userInfoDto?.userId ?? parsed?.userInfoDto?.id ?? null,
-      hasAccessToken: Boolean(parsed?.accessToken),
-      hasRefreshToken: Boolean(parsed?.refreshToken),
-    });
+
 
     return parsed;
   } catch (error) {
@@ -756,10 +710,6 @@ export const uploadAvatar = async (
 };
 
 export const deleteAvatar = async (): Promise<AvatarUploadResponse> => {
-  console.log("[auth.client] deleteAvatar =>", {
-    path: CUSTOMER_AUTH_CLIENT_PATHS.ME_AVATAR,
-    method: "DELETE",
-  });
 
   try {
     const response = await apiClient.delete(

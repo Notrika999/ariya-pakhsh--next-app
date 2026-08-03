@@ -47,8 +47,7 @@ export default function StepMobile({ mobile, setMobile, onNext }: StepMobileProp
       const fingerprint = await getBrowserFingerprint();
       const deviceFingerPrint = fingerprint?.visitorId ?? "device-id";
 
-      console.log("Finger Print => ", fingerprint)
-      console.log("Device Finger Print => ", deviceFingerPrint)
+
 
       const response = await startPhoneAuth({
         phoneNumber: mobile,
@@ -56,7 +55,7 @@ export default function StepMobile({ mobile, setMobile, onNext }: StepMobileProp
         
       });
 
-      console.log(response)
+  
 
       if (!response.success) {
         setError(response.errorMessage ?? "خطایی رخ داد");

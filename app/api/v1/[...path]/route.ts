@@ -101,12 +101,6 @@ async function handleProxy(
     const backendPath = buildBackendPath(path);
 
     if (backendPath === "/api/v1/Payments/mellat/callback") {
-      console.log("[api/v1 proxy] Payments mellat callback request", {
-        method: request.method,
-        frontendPath: request.nextUrl.pathname,
-        backendPath,
-        query: getQueryParams(request),
-      });
     }
 
     if (request.method === "POST") {

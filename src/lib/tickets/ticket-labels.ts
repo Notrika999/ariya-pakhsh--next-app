@@ -31,7 +31,7 @@ export const TICKET_PRIORITIES: Array<{
   label: string;
 }> = [
   { value: "low", label: "کم" },
-  { value: "medium", label: "متوسط" },
+  { value: "normal", label: "متوسط" },
   { value: "high", label: "بالا" },
   { value: "urgent", label: "فوری" },
 ];

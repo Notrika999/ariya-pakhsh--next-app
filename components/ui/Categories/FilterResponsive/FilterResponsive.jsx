@@ -12,7 +12,7 @@ export default function FilterResponsive({
   ...filterProps
 }) {
   const [open, setOpen] = useState(false);
-  const resolvedBrands = brands ?? availableBrands ?? [];
+  const resolvedBrands = brands ?? filterProps.availableBrands ?? [];
 
   return (
     <div className="lg:hidden block">

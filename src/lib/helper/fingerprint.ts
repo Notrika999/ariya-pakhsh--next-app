@@ -90,14 +90,11 @@ export async function getBrowserFingerprint() {
     const cachedFingerprint = getFingerprintFromStorage()
 
     if (cachedFingerprint) {
-      // console.log('✅ Fingerprint loaded from LocalStorage (permanent)')/
       return cachedFingerprint
     }
 
     // اگه نبود، تولید کن
-    // console.log('🔄 Generating new fingerprint...')
     const newFingerprint = await generateNewFingerprint()
-    // console.log('✅ New fingerprint generated and saved permanently')
 
     return newFingerprint
   } catch (error) {
@@ -111,7 +108,6 @@ export async function getBrowserFingerprint() {
  */
 export async function refreshFingerprint(): Promise<CachedFingerprint | null> {
   try {
-    // console.log('🔄 Force refreshing fingerprint...')
     clearFingerprintFromStorage()
     fpPromise = null
 

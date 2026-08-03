@@ -1,6 +1,6 @@
 "use client";
-
-import React, { useEffect, useRef, useState } from "react";
+// components/ui/Home/Story/Story.jsx
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FreeMode } from "swiper/modules";
 import StoryItem from "./StoryItem";
@@ -12,56 +12,127 @@ import "swiper/css/navigation";
 import storyStyle from "./Story.module.css";
 import Image from "next/image";
 import Link from "next/link";
+import {
+  disableNativePictureInPicture,
+  getStoryActionText,
+  resolveStoryHref,
+} from "./story-links";
+import { Pause, Play } from "lucide-react";
+
+const STORY_MINIMIZE_EVENT = "home-story:minimize";
+const VIDEO_CONTROLS_VISIBLE_MS = 2200;
 
 export default function Story({ stories }) {
   const [open, setOpen] = useState(false);
-  const [index, setIndex] = useState(0);
+  const [storyIndex, setStoryIndex] = useState(0);
+  const [frameIndex, setFrameIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [videoCurrentTime, setVideoCurrentTime] = useState(0);
+  const [videoLoading, setVideoLoading] = useState(false);
+  const [videoPaused, setVideoPaused] = useState(false);
+  const [videoControlsVisible, setVideoControlsVisible] = useState(true);
   const [seen, setSeen] = useState(new Set());
-  const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const timerRef = useRef(null);
   const startTs = useRef(0);
   const touchStartX = useRef(0);
   const videoRef = useRef(null);
 
-  const current = stories[index];
-  const isVideo = current?.type === "video";
-  const duration = current?.duration ?? 5000;
+  const storyList = useMemo(
+    () => (Array.isArray(stories) ? stories : []),
+    [stories],
+  );
+  const storyCount = storyList.length;
+  const currentStory = storyList[storyIndex] ?? null;
+  const frames = currentStory?.frames ?? [];
+  const currentFrame = frames[frameIndex] ?? null;
+  const isVideo = currentFrame?.mediaType === "Video";
+  const duration = currentFrame?.durationMs ?? 5000;
+  const actionLink = currentFrame?.link ?? currentStory?.link;
+  const actionHref = resolveStoryHref(actionLink);
 
-   // باز کردن استوری از روی آیتم
-  const openStory = (idx) => {
-    setIndex(idx);
-    setOpen(true);
+  const resetFrameState = useCallback(() => {
     setProgress(0);
     setVideoCurrentTime(0);
-  };
+    setVideoLoading(true);
+    setVideoPaused(false);
+    setVideoControlsVisible(true);
+  }, []);
 
-    // ناوبري با دکمه‌ها
-  const goPrev = () => {
-      const prev = (index - 1 + stories.length) % stories.length;
-    setIndex(prev);
-    setProgress(0);
-    setVideoCurrentTime(0);
-  };
-  const goNext = () => {
-    const next = (index + 1) % stories.length;
-    setIndex(next);
-    setProgress(0);
-  };
+  const openStory = useCallback(
+    (idx) => {
+      setStoryIndex(idx);
+      setFrameIndex(0);
+      setOpen(true);
+      resetFrameState();
+    },
+    [resetFrameState],
+  );
 
-  const close = () => {
+  const goPrev = useCallback(() => {
+    if (storyCount === 0) return;
+
+    if (frameIndex > 0) {
+      setFrameIndex((prev) => prev - 1);
+      resetFrameState();
+      return;
+    }
+
+    const prevStoryIndex = (storyIndex - 1 + storyCount) % storyCount;
+    const prevFramesCount = storyList[prevStoryIndex]?.frames?.length ?? 1;
+    setStoryIndex(prevStoryIndex);
+    setFrameIndex(Math.max(prevFramesCount - 1, 0));
+    resetFrameState();
+  }, [frameIndex, resetFrameState, storyCount, storyIndex, storyList]);
+
+  const goNext = useCallback(() => {
+    if (storyCount === 0) return;
+
+    if (frameIndex < frames.length - 1) {
+      setFrameIndex((prev) => prev + 1);
+      resetFrameState();
+      return;
+    }
+
+    if (currentStory?.id) {
+      setSeen((prev) => new Set(prev).add(currentStory.id));
+    }
+
+    const nextStoryIndex = (storyIndex + 1) % storyCount;
+    setStoryIndex(nextStoryIndex);
+    setFrameIndex(0);
+    resetFrameState();
+  }, [
+    currentStory,
+    frameIndex,
+    frames.length,
+    resetFrameState,
+    storyCount,
+    storyIndex,
+  ]);
+
+  const close = useCallback(() => {
     setOpen(false);
-    setProgress(0);
-  };
+    resetFrameState();
+  }, [resetFrameState]);
 
-  // تایمر و پیشرفت هر استوری
-   // تایمر برای تصاویر (در صورتی که ویدیو نباشد)
+  const minimize = useCallback(() => {
+    if (!currentStory || !currentFrame) return;
+
+    window.dispatchEvent(
+      new CustomEvent(STORY_MINIMIZE_EVENT, {
+        detail: {
+          story: currentStory,
+          frame: currentFrame,
+          link: actionLink,
+        },
+      }),
+    );
+    setOpen(false);
+  }, [actionLink, currentFrame, currentStory]);
+
   useEffect(() => {
-    if (!open || isVideo) return;
+    if (!open || !currentFrame || isVideo) return;
 
-    setProgress(0);
     startTs.current = performance.now();
 
     let rafId = null;
@@ -71,7 +142,6 @@ export default function Story({ stories }) {
       setProgress(p);
 
       if (p >= 1) {
-        setSeen((prev) => new Set(prev).add(index));
         goNext();
       } else {
         rafId = requestAnimationFrame(step);
@@ -80,19 +150,24 @@ export default function Story({ stories }) {
 
     rafId = requestAnimationFrame(step);
     return () => cancelAnimationFrame(rafId);
-  }, [open, index, isVideo]);
+  }, [currentFrame, duration, goNext, isVideo, open]);
 
-  // به کار افتادن دوباره تایمر وقتی index یا open تغییر می‌کند
   useEffect(() => {
-    if (!open) return;
-    setProgress(0);
-    startTs.current = performance.now();
-  }, [index, open]);
+    if (!open || !isVideo) return;
 
-  // swipe با تاچ
+    if (videoLoading || videoPaused || !videoControlsVisible) return;
+
+    const timer = window.setTimeout(() => {
+      setVideoControlsVisible(false);
+    }, VIDEO_CONTROLS_VISIBLE_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [isVideo, open, videoControlsVisible, videoLoading, videoPaused]);
+
   const onTouchStart = (e) => {
     touchStartX.current = e.touches[0].clientX;
   };
+
   const onTouchEnd = (e) => {
     const dx = e.changedTouches[0].clientX - touchStartX.current;
     if (Math.abs(dx) > 50) {
@@ -101,18 +176,48 @@ export default function Story({ stories }) {
     }
   };
 
+  const setVideoNode = useCallback((node) => {
+    videoRef.current = node;
+    disableNativePictureInPicture(node);
+  }, []);
+
+  const showVideoControls = useCallback(() => {
+    if (!isVideo) return;
+    setVideoControlsVisible(true);
+  }, [isVideo]);
+
+  const toggleVideoPlayback = useCallback(async () => {
+    const video = videoRef.current;
+    if (!video || !isVideo) return;
+
+    setVideoControlsVisible(true);
+
+    if (video.paused) {
+      try {
+        await video.play();
+        setVideoPaused(false);
+      } catch {
+        setVideoPaused(true);
+      }
+      return;
+    }
+
+    video.pause();
+    setVideoPaused(true);
+  }, [isVideo]);
+
+  if (storyCount === 0) return null;
+
   return (
-    // <!-- STORY SECTION -->
     <>
-      <h2 className="sr-only">استوری های فروشگاه</h2>
-      {/* <!-- for seo --> */}
+      <h2 className="sr-only">استوری‌های فروشگاه</h2>
 
       <div
         className={`${storyStyle.storiesContainer} mx-auto`}
         role="region"
         aria-labelledby="stories-title"
       >
-        <h3 className="sr-only">استوری های فروشگاه</h3>
+        <h3 className="sr-only">استوری‌های فروشگاه</h3>
         <Swiper
           className={`my-swiper ${storyStyle.storySwiper}`}
           modules={[FreeMode]}
@@ -120,23 +225,24 @@ export default function Story({ stories }) {
           centeredSlides={false}
           slidesPerView="auto"
           allowTouchMove={true}
-          spaceBetween={24}
+          spaceBetween={2}
         >
-          {stories.map((story, idx) => (
-            <SwiperSlide className={storyStyle.storySlide} key={idx}>
+          {storyList.map((story, idx) => (
+            <SwiperSlide className={storyStyle.storySlide} key={story.id}>
               <StoryItem
-                image={story.avatar}
+                image={story.thumbnailUrl}
                 title={story.title}
                 onOpen={() => openStory(idx)}
                 index={idx}
-                viewed={seen.has(idx)}
+                viewed={seen.has(story.id)}
+                hasVideo={story.frames?.some((frame) => frame.mediaType === "Video")}
               />
             </SwiperSlide>
           ))}
         </Swiper>
       </div>
 
-      {open && (
+      {open && currentStory && currentFrame ? (
         <div
           className={storyStyle.overlay}
           onMouseDown={(e) => e.target === e.currentTarget && close()}
@@ -156,6 +262,13 @@ export default function Story({ stories }) {
               ×
             </button>
             <button
+              className={storyStyle.minimizeBtn}
+              onClick={minimize}
+              aria-label="کوچک کردن"
+            >
+              −
+            </button>
+            <button
               className={storyStyle.prevBtn}
               onClick={goPrev}
               aria-label="قبلی"
@@ -170,167 +283,124 @@ export default function Story({ stories }) {
               ›
             </button>
 
+            <div className={storyStyle.progressBar}>
+              {frames.map((frame, idx) => (
+                <div
+                  key={frame.id}
+                  className={`${storyStyle.progressItem} ${
+                    idx === frameIndex ? storyStyle.active : ""
+                  } ${idx < frameIndex ? storyStyle.seen : ""}`}
+                  style={{
+                    width: `${100 / frames.length}%`,
+                    "--progress":
+                      idx === frameIndex ? `${progress * 100}%` : "0%",
+                  }}
+                />
+              ))}
+            </div>
+
             <div className={storyStyle.storyContent}>
-              {/* MEDIA */}
-              <div className={storyStyle.imageHolder}>
-                {current.type === "video" ? (
+              <div
+                className={storyStyle.imageHolder}
+                onClick={showVideoControls}
+              >
+                {isVideo ? (
                   <video
-                    ref={videoRef}
-                    src={current.url}
+                    ref={setVideoNode}
+                    src={currentFrame.videoUrl}
+                    poster={currentFrame.posterUrl ?? currentStory.thumbnailUrl}
                     className={storyStyle.storyImage}
                     autoPlay
                     playsInline
+                    disablePictureInPicture
+                    disableRemotePlayback
+                    controlsList="nodownload nofullscreen noremoteplayback noplaybackrate"
+                    onLoadStart={() => setVideoLoading(true)}
+                    onWaiting={() => setVideoLoading(true)}
+                    onCanPlay={() => setVideoLoading(false)}
+                    onPlaying={() => {
+                      setVideoLoading(false);
+                      setVideoPaused(false);
+                    }}
+                    onPause={() => setVideoPaused(true)}
                     onTimeUpdate={(e) => {
                       const el = e.target;
                       if (el.duration > 0) {
+                        setVideoCurrentTime(el.currentTime);
                         setProgress(el.currentTime / el.duration);
                       }
                     }}
-                    onEnded={() => {
-                      setSeen((prev) => {
-                        const s = new Set(prev);
-                        s.add(index);
-                        return s;
-                      });
-
-                      const next = (index + 1) % stories.length;
-                      setIndex(next);
-                    }}
+                    onEnded={goNext}
                   />
                 ) : (
                   <Image
                     width={1027}
                     height={740}
-                    src={current.url}
-                    alt={current.user}
+                    src={currentFrame.imageUrl}
+                    alt={currentStory.title}
                     className={storyStyle.storyImage}
                   />
                 )}
+                {isVideo && videoLoading ? (
+                  <div className={storyStyle.videoLoadingOverlay}>
+                    <span className={storyStyle.pauseLoader} aria-hidden="true">
+                      <i />
+                      <i />
+                    </span>
+                  </div>
+                ) : null}
+                {isVideo &&
+                !videoLoading &&
+                (videoPaused || videoControlsVisible) ? (
+                  <button
+                    type="button"
+                    className={storyStyle.videoToggleBtn}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      void toggleVideoPlayback();
+                    }}
+                    aria-label={videoPaused ? "پخش ویدیو" : "توقف ویدیو"}
+                  >
+                    {videoPaused ? (
+                      <Play size={34} fill="currentColor" strokeWidth={2.4} />
+                    ) : (
+                      <Pause size={34} fill="currentColor" strokeWidth={2.4} />
+                    )}
+                  </button>
+                ) : null}
               </div>
 
-              {/* TOP INFO */}
-              {/* <div className={storyStyle.topOverlay}>
-                <div className={storyStyle.storyUser}>
-                  <Image
-                    src={current.avatar}
-                    alt={current.user}
-                    width={44}
-                    height={44}
-                    className={storyStyle.userAvatar}
-                  />
-
-                  <div>
-                    <h3>{current.title}</h3>
-                    <p>{current.user}</p>
-                  </div>
-                </div>
-              </div> */}
-
-              {/* CENTER TEXT */}
               <div className={storyStyle.centerCaption}>
-                <h2>{current.title}</h2>
-                <p>{current.description}</p>
+                <h2>{currentStory.title}</h2>
+                {currentStory.subtitle ? <p>{currentStory.subtitle}</p> : null}
               </div>
 
-              {/* VIDEO TIME */}
-              <div className={storyStyle.videoTime}>
-                {videoRef.current
-                  ? Math.floor(videoRef.current.currentTime)
-                  : 0}
-                s
-              </div>
+              {isVideo ? (
+                <div className={storyStyle.videoTime}>
+                  {Math.floor(videoCurrentTime)}s
+                </div>
+              ) : null}
 
-              {/* PRODUCT CARD */}
-              {current.product && (
-                <button
-                  type="button"
-                  onClick={() => setSelectedProduct(current.product)}
-                  className={storyStyle.productCard}
-                >
+              {actionHref ? (
+                <Link href={actionHref} className={storyStyle.productCard}>
                   <div className={storyStyle.productInfo}>
-                    <h4>{current.product.title}</h4>
-                    <span>{current.product.price}</span>
+                    <h4>{currentStory.title}</h4>
+                    <span>{getStoryActionText(currentStory, actionLink)}</span>
                   </div>
 
                   <Image
-                    src={current.product.image}
-                    alt={current.product.title}
+                    src={currentStory.thumbnailUrl}
+                    alt={currentStory.title}
                     width={80}
                     height={80}
                     className={storyStyle.productImage}
                   />
-                </button>
-              )}
+                </Link>
+              ) : null}
             </div>
           </div>
         </div>
-      )}
-
-      {selectedProduct && (
-        <div
-          className={storyStyle.productModalOverlay}
-          onClick={() => setSelectedProduct(null)}
-        >
-          <div
-            className={storyStyle.productModal}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* HEADER */}
-            <div className={storyStyle.modalHeader}>
-              <button
-                onClick={() => setSelectedProduct(null)}
-                className={storyStyle.modalClose}
-              >
-                ×
-              </button>
-            </div>
-
-            {/* IMAGE */}
-            <div className={storyStyle.modalImageWrapper}>
-              <Image
-                src={selectedProduct.image}
-                alt={selectedProduct.title}
-                width={320}
-                height={320}
-                className={storyStyle.modalImage}
-              />
-            </div>
-
-            {/* CONTENT */}
-            <div className={storyStyle.modalContent}>
-              <h3>{selectedProduct.title}</h3>
-
-              <div className={storyStyle.modalMeta}>
-                <span>⭐ 4.5</span>
-                <span>(۴۵ خریدار)</span>
-              </div>
-
-              <div className={storyStyle.modalColor}>
-                <span className={storyStyle.colorDot}></span>
-                رنگ: خاکستری
-              </div>
-
-              <Link href="/product" className={storyStyle.moreBtn}>
-                مشاهده اطلاعات کامل محصول
-              </Link>
-            </div>
-
-            {/* FOOTER */}
-            <div className={storyStyle.modalFooter}>
-              <div>
-                <span className={storyStyle.oldPrice}>۱۶,۹۰۰,۰۰۰</span>
-
-                <div className={storyStyle.price}>{selectedProduct.price}</div>
-              </div>
-
-              <button className={storyStyle.addToCartBtn}>
-                افزودن به سبد خرید
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      ) : null}
     </>
-    // <!-- END STORY SECTION -->
   );
 }

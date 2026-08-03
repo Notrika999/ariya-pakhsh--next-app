@@ -5,7 +5,6 @@ import { apiClient, ApiError } from "@/src/lib/http/api-client";
 import type {
   CancelOrderItemPayload,
   CancelOrderItemResult,
-  CreateOrderReturnPayload,
   CreateOrderReturnResult,
   GetMyOrdersParams,
   MyOrderDetail,
@@ -26,6 +25,7 @@ import type {
 import { getProductImage } from "@/src/utils/product-image";
 
 const BASE = "/me/orders";
+const FRONT_API_BASE = "/api/v1/me/orders";
 
 function getRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object"
@@ -34,7 +34,8 @@ function getRecord(value: unknown): Record<string, unknown> {
 }
 
 function toNumber(value: unknown, fallback = 0): number {
-  if (typeof value === "number") return Number.isFinite(value) ? value : fallback;
+  if (typeof value === "number")
+    return Number.isFinite(value) ? value : fallback;
   if (typeof value === "string" && value.trim()) {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : fallback;
@@ -56,11 +57,48 @@ function assertSuccess(payload: unknown, fallback: string) {
   if (ok === false) {
     throw new ApiError(
       400,
-      typeof root.message === "string" && root.message ? root.message : fallback,
+      typeof root.message === "string" && root.message
+        ? root.message
+        : fallback,
       typeof root.code === "string" ? root.code : undefined,
       payload,
     );
   }
+}
+
+function getHeaderValue(
+  headers: unknown,
+  key: string,
+): string | undefined {
+  if (!headers || typeof headers !== "object") return undefined;
+
+  const record = headers as Record<string, unknown>;
+  const direct = record[key] ?? record[key.toLowerCase()];
+  if (typeof direct === "string") return direct;
+
+  const getter = (headers as { get?: (name: string) => unknown }).get;
+  if (typeof getter === "function") {
+    const value = getter.call(headers, key);
+    return typeof value === "string" ? value : undefined;
+  }
+
+  return undefined;
+}
+
+function getInvoiceFileName(contentDisposition?: string): string {
+  if (!contentDisposition) return "invoice.pdf";
+
+  const utfMatch = contentDisposition.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utfMatch?.[1]) {
+    try {
+      return decodeURIComponent(utfMatch[1].replace(/["']/g, ""));
+    } catch {
+      return utfMatch[1].replace(/["']/g, "");
+    }
+  }
+
+  const plainMatch = contentDisposition.match(/filename="?([^";]+)"?/i);
+  return plainMatch?.[1]?.trim() || "invoice.pdf";
 }
 
 function mapOrderListItem(value: unknown): MyOrderListItem {
@@ -86,7 +124,10 @@ function mapOrderListItem(value: unknown): MyOrderListItem {
     expiresAt: toNullableString(item.expiresAt),
     paidAt: toNullableString(item.paidAt),
     canRetryPayment: Boolean(item.canRetryPayment),
-    canRequestReturn: Boolean(item.canRequestReturn),
+    canRequestReturn:
+      item.canRequestReturn === undefined || item.canRequestReturn === null
+        ? undefined
+        : Boolean(item.canRequestReturn),
   };
 }
 
@@ -120,7 +161,9 @@ function unwrapOrder(payload: unknown): MyOrderListItem {
 }
 
 function pickImagePath(item: Record<string, unknown>): string | null {
-  const nestedImage = getRecord(item.image ?? item.productImage ?? item.thumbnail);
+  const nestedImage = getRecord(
+    item.image ?? item.productImage ?? item.thumbnail,
+  );
   const candidates = [
     item.imageUrl,
     item.thumbnailUrl,
@@ -200,6 +243,7 @@ function mapOrderItem(value: unknown): MyOrderItem | null {
     statusKey: toString(item.statusKey) || undefined,
     statusTitleFa: toString(item.statusTitleFa) || undefined,
     promotionTitle: toNullableString(item.promotionTitle),
+    canRequestReturn: Boolean(item.canRequestReturn),
     imageUrl: imagePath ? getProductImage(imagePath) : getProductImage(null),
     sku: toString(item.sku) || toString(item.productCode) || null,
   };
@@ -384,15 +428,21 @@ function unwrapOrderDetail(payload: unknown): MyOrderDetail {
     cancelledAt: toNullableString(data.cancelledAt),
     closedAt: toNullableString(data.closedAt),
     canRequestReturn: Boolean(data.canRequestReturn),
-    shipments: Array.isArray(data.shipments) ? data.shipments.map(mapShipment) : [],
-    discounts: Array.isArray(data.discounts) ? data.discounts.map(mapDiscount) : [],
+    shipments: Array.isArray(data.shipments)
+      ? data.shipments.map(mapShipment)
+      : [],
+    discounts: Array.isArray(data.discounts)
+      ? data.discounts.map(mapDiscount)
+      : [],
     payments: Array.isArray(data.payments) ? data.payments.map(mapPayment) : [],
     notes: Array.isArray(data.notes) ? data.notes.map(mapNote) : [],
     returns: Array.isArray(data.returns) ? data.returns.map(mapReturn) : [],
   };
 }
 
-function cleanParams(params: GetMyOrdersParams): Record<string, string | number> {
+function cleanParams(
+  params: GetMyOrdersParams,
+): Record<string, string | number> {
   const query: Record<string, string | number> = {};
 
   if (params.pageNumber != null) query.pageNumber = params.pageNumber;
@@ -415,12 +465,9 @@ export async function getMyOrders(
 ): Promise<MyOrdersPage> {
   const query = cleanParams(params);
 
-  console.log("[Orders] GET /me/orders params =>", query);
-
   const response = await apiClient.get(BASE, { params: query });
 
-  console.log("[Orders] GET /me/orders raw =>", response.data);
-
+  console.log("getMyOrders: ", response.data);
   assertSuccess(response.data, "دریافت سفارش‌ها ناموفق بود");
   return unwrapOrdersPage(response.data);
 }
@@ -430,11 +477,9 @@ export async function getMyOrderByNumber(
 ): Promise<MyOrderListItem> {
   const encoded = encodeURIComponent(publicOrderNumber.trim());
 
-  console.log("[Orders] GET /me/orders/by-number =>", encoded);
-
   const response = await apiClient.get(`${BASE}/by-number/${encoded}`);
 
-  console.log("[Orders] GET by-number raw =>", response.data);
+  console.log("getMyOrderByNumber: ", response.data);
 
   assertSuccess(response.data, "سفارش با این شماره پیدا نشد");
   return unwrapOrder(response.data);
@@ -443,11 +488,7 @@ export async function getMyOrderByNumber(
 export async function getMyOrderById(orderId: string): Promise<MyOrderDetail> {
   const encoded = encodeURIComponent(orderId.trim());
 
-  console.log("[Orders] GET /me/orders/{orderId} =>", encoded);
-
   const response = await apiClient.get(`${BASE}/${encoded}`);
-
-  console.log("[Orders] GET order detail raw =>", response.data);
 
   assertSuccess(response.data, "دریافت جزئیات سفارش ناموفق بود");
   return unwrapOrderDetail(response.data);
@@ -458,11 +499,7 @@ export async function retryMyOrderPayment(
 ): Promise<RetryPaymentResult> {
   const encoded = encodeURIComponent(orderId.trim());
 
-  console.log("[Orders] POST retry-payment =>", encoded);
-
   const response = await apiClient.post(`${BASE}/${encoded}/retry-payment`);
-
-  console.log("[Orders] retry-payment raw =>", response.data);
 
   assertSuccess(response.data, "پرداخت مجدد ناموفق بود");
 
@@ -483,17 +520,39 @@ export async function retryMyOrderPayment(
   };
 }
 
+export async function downloadMyOrderInvoice(
+  orderId: string,
+): Promise<{ blob: Blob; fileName: string }> {
+  const encoded = encodeURIComponent(orderId.trim());
+
+  const response = await apiClient.get(`${FRONT_API_BASE}/${encoded}/invoice`, {
+    responseType: "blob",
+    headers: {
+      Accept: "application/pdf,application/octet-stream,*/*",
+    },
+  });
+
+  const contentDisposition = getHeaderValue(
+    response.headers,
+    "content-disposition",
+  );
+
+  return {
+    blob: response.data as Blob,
+    fileName: getInvoiceFileName(contentDisposition),
+  };
+}
+
 export async function createMyOrderReturn(
   orderId: string,
-  payload: CreateOrderReturnPayload,
+  payload: FormData,
 ): Promise<CreateOrderReturnResult> {
   const encoded = encodeURIComponent(orderId.trim());
 
-  console.log("[Orders] POST /me/orders/{orderId}/returns =>", encoded, payload);
-
-  const response = await apiClient.post(`${BASE}/${encoded}/returns`, payload);
-
-  console.log("[Orders] POST returns raw =>", response.data);
+  const response = await apiClient.post(
+    `${BASE}/${encoded}/returns`,
+    payload,
+  );
 
   assertSuccess(response.data, "ثبت درخواست مرجوعی ناموفق بود");
 
@@ -518,18 +577,10 @@ export async function cancelMyOrderItem(
   const encodedOrderId = encodeURIComponent(orderId.trim());
   const encodedOrderItemId = encodeURIComponent(orderItemId.trim());
 
-  console.log("[Orders] POST /me/orders/{orderId}/items/{orderItemId}/cancel =>", {
-    orderId: encodedOrderId,
-    orderItemId: encodedOrderItemId,
-    payload,
-  });
-
   const response = await apiClient.post(
     `${BASE}/${encodedOrderId}/items/${encodedOrderItemId}/cancel`,
     payload,
   );
-
-  console.log("[Orders] cancel item raw =>", response.data);
 
   assertSuccess(response.data, "لغو آیتم سفارش ناموفق بود");
 

@@ -31,7 +31,7 @@ export default function MenuItem({
         <div className="flex items-center">
           <i className="fas fa-home text-gray-500"></i>
           <div className="ms-1">
-            <p className="text-xs">{title}</p>
+            <p className="text-xs text-gray-900 dark:text-gray-100 font-bold">{title}</p>
           </div>
         </div>
         <i className="fa-solid fa-chevron-left  text-sm ms-2 text-gray-500"></i>

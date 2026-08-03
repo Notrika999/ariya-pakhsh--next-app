@@ -1,25 +1,122 @@
-import ProductPriceChart from "@/components/modules/ProductPriceChart/ProductPriceChart";
-import { useMemo, useState } from "react";
+// components/ui/ProductPageClient/Gallery/ChartModal.tsx
+"use client";
+
+import ProductPriceChart, {
+  type PriceChartItem,
+} from "@/components/modules/ProductPriceChart/ProductPriceChart";
+import { apiClient } from "@/src/lib/http/api-client";
+import { useEffect, useMemo, useState } from "react";
 type Variant = { id: string; label: string };
+
+function getRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object"
+    ? (value as Record<string, unknown>)
+    : null;
+}
+
+function getChartPoints(root: unknown, selectedVariantId: string) {
+  if (Array.isArray(root)) return root as PriceChartItem[];
+
+  const rootRecord = getRecord(root);
+  const dataRecord = getRecord(rootRecord?.data);
+  const payload = dataRecord ?? rootRecord;
+
+  if (!payload) return [];
+
+  if (Array.isArray(payload.points)) {
+    return payload.points as PriceChartItem[];
+  }
+
+  const variants = Array.isArray(payload.variants) ? payload.variants : [];
+  const selectedVariant = variants
+    .map(getRecord)
+    .find((variant) => variant?.variantId === selectedVariantId);
+
+  if (Array.isArray(selectedVariant?.points)) {
+    return selectedVariant.points as PriceChartItem[];
+  }
+
+  const variantDataMap = getRecord(payload.variantDataMap);
+  const selectedVariantKey =
+    typeof selectedVariant?.key === "string"
+      ? selectedVariant.key
+      : typeof selectedVariant?.name === "string"
+        ? selectedVariant.name
+        : "";
+
+  const mappedPoints = selectedVariantKey
+    ? variantDataMap?.[selectedVariantKey]
+    : undefined;
+
+  return Array.isArray(mappedPoints) ? (mappedPoints as PriceChartItem[]) : [];
+}
 
 export default function ChartModal({
   open,
   onClose,
+  productId,
   variants,
-  variantDataMap, // Record<string, PriceChartItem[]>
+  initialVariantId,
 }: {
   open: boolean;
   onClose: () => void;
+  productId: string;
   variants: Variant[];
-  variantDataMap: Record<string, any[]>;
+  initialVariantId?: string;
 }) {
-  const [selectedVariantId, setSelectedVariantId] = useState(variants?.[0]?.id);
+  const defaultVariantId = useMemo(() => {
+    if (initialVariantId && variants.some((v) => v.id === initialVariantId)) {
+      return initialVariantId;
+    }
 
-  const data = useMemo(() => {
-    return selectedVariantId && variantDataMap[selectedVariantId]
-      ? variantDataMap[selectedVariantId]
-      : [];
-  }, [selectedVariantId, variantDataMap]);
+    return variants?.[0]?.id ?? "";
+  }, [initialVariantId, variants]);
+
+  const [selectedVariantId, setSelectedVariantId] = useState(defaultVariantId);
+  const [data, setData] = useState<PriceChartItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    if (!open || !productId || !selectedVariantId) return;
+
+    let cancelled = false;
+
+    async function loadPriceChart() {
+      setLoading(true);
+      setErrorMessage("");
+
+      try {
+        const response = await apiClient.get<unknown>(
+          `/Products/${encodeURIComponent(productId)}/price-chart`,
+          {
+            params: {
+              variantId: selectedVariantId,
+            },
+          },
+        );
+
+        if (!cancelled) {
+          setData(getChartPoints(response.data, selectedVariantId));
+        }
+      } catch {
+        if (!cancelled) {
+          setData([]);
+          setErrorMessage("دریافت تاریخچه قیمت انجام نشد.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadPriceChart();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, productId, selectedVariantId]);
 
   if (!open) return null;
 
@@ -68,7 +165,21 @@ export default function ChartModal({
 
         {/* CHART */}
         <div className="relative">
-          <ProductPriceChart data={data} />
+          {loading ? (
+            <div className="flex h-[430px] items-center justify-center bg-white p-5 text-sm text-gray-500 dark:bg-zinc-900 dark:text-gray-400">
+              در حال دریافت تاریخچه قیمت...
+            </div>
+          ) : errorMessage ? (
+            <div className="flex h-[430px] items-center justify-center bg-white p-5 text-sm text-red-500 dark:bg-zinc-900">
+              {errorMessage}
+            </div>
+          ) : data.length > 0 ? (
+            <ProductPriceChart data={data} />
+          ) : (
+            <div className="flex h-[430px] items-center justify-center bg-white p-5 text-sm text-gray-500 dark:bg-zinc-900 dark:text-gray-400">
+              تاریخچه قیمتی برای این ورینت ثبت نشده است.
+            </div>
+          )}
         </div>
       </div>
     </div>

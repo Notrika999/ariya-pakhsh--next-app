@@ -15,12 +15,38 @@ import { getProductImage } from "@/src/utils/product-image";
 import { guestSession } from "@/src/utils/guestSession";
 
 const BASE = "/cart";
+const CART_SYNC_ENDPOINT = "/api/v1/me/cart/synchronization";
+const CART_ACCEPT_CHANGES_ENDPOINT = "/api/v1/me/cart/accept-changes";
 
 /** Header forwarded by BFF to backend for guest carts */
 export const GUEST_SESSION_HEADER = "X-Guest-Session-Id";
 
 /** Common merge strategies; backend accepts string. */
 export const CART_MERGE_STRATEGY = "Merge";
+
+export type CartSynchronizationIssue = {
+  issueType: string;
+  severity: string;
+  message: string;
+  oldValue: string | null;
+  newValue: string | null;
+};
+
+export type CartSynchronizationItem = {
+  productId: string;
+  variantId: string;
+  productName: string;
+  currentPrice: number;
+  acceptedUnitPrice: number;
+  quantity: number;
+  issues: CartSynchronizationIssue[];
+};
+
+export type CartSynchronizationData = {
+  hasErrors: boolean;
+  hasWarnings: boolean;
+  items: CartSynchronizationItem[];
+};
 
 function getRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object"
@@ -63,8 +89,8 @@ function mapCartApiItem(value: unknown): CartApiItem | null {
   const variantId = String(item.variantId ?? "").trim();
   if (!variantId) return null;
 
-  const unitPrice = Number(item.unitPriceSnapshot ?? item.unitPrice ?? 0) || 0;
-  const campaignRaw = item.campaignPriceSnapshot;
+  const unitPrice = Number(item.unitPrice ?? item.unitPriceSnapshot ?? 0) || 0;
+  const campaignRaw = item.campaignPrice ?? item.campaignPriceSnapshot;
   const campaignPrice =
     campaignRaw === null || campaignRaw === undefined
       ? null
@@ -83,6 +109,8 @@ function mapCartApiItem(value: unknown): CartApiItem | null {
     quantity: Math.max(1, Number(item.quantity ?? 1) || 1),
     unitPriceSnapshot: unitPrice,
     campaignPriceSnapshot: campaignPrice,
+    unitPrice,
+    campaignPrice,
     lineTotal:
       Number(item.lineTotal ?? 0) ||
       (campaignPrice != null && campaignPrice > 0
@@ -117,6 +145,61 @@ function unwrapCart(payload: unknown): CartDto {
   };
 }
 
+function mapCartSynchronizationIssue(value: unknown): CartSynchronizationIssue {
+  const issue = getRecord(value);
+
+  return {
+    issueType: String(issue.issueType ?? ""),
+    severity: String(issue.severity ?? ""),
+    message: String(issue.message ?? ""),
+    oldValue:
+      issue.oldValue === null || issue.oldValue === undefined
+        ? null
+        : String(issue.oldValue),
+    newValue:
+      issue.newValue === null || issue.newValue === undefined
+        ? null
+        : String(issue.newValue),
+  };
+}
+
+function mapCartSynchronizationItem(value: unknown): CartSynchronizationItem | null {
+  const item = getRecord(value);
+  const productId = String(item.productId ?? "").trim();
+  const variantId = String(item.variantId ?? "").trim();
+
+  if (!productId && !variantId) return null;
+
+  const issues = Array.isArray(item.issues)
+    ? item.issues.map(mapCartSynchronizationIssue)
+    : [];
+
+  return {
+    productId,
+    variantId,
+    productName: String(item.productName ?? item.title ?? "محصول"),
+    currentPrice: Number(item.currentPrice ?? 0) || 0,
+    acceptedUnitPrice: Number(item.acceptedUnitPrice ?? 0) || 0,
+    quantity: Number(item.quantity ?? 0) || 0,
+    issues,
+  };
+}
+
+function unwrapCartSynchronization(payload: unknown): CartSynchronizationData {
+  const root = getRecord(payload);
+  const data = getRecord(root.data ?? root);
+  const itemsRaw = Array.isArray(data.items) ? data.items : [];
+  const items = itemsRaw
+    .map(mapCartSynchronizationItem)
+    .filter((item): item is CartSynchronizationItem => Boolean(item));
+
+  return {
+    hasErrors: Boolean(data.hasErrors),
+    hasWarnings: Boolean(data.hasWarnings),
+    items,
+  };
+}
+
 export function mapCartDtoToItems(cart: CartDto): CartItem[] {
   return cart.items.map((item) => {
     const price =
@@ -141,6 +224,8 @@ export function mapCartDtoToItems(cart: CartDto): CartItem[] {
         item.unitPriceSnapshot > item.campaignPriceSnapshot
           ? item.unitPriceSnapshot
           : undefined,
+      unitPrice: item.unitPrice ?? item.unitPriceSnapshot,
+      campaignPrice: item.campaignPrice ?? item.campaignPriceSnapshot,
       href: item.productId
         ? `/product/${item.productId}`
         : "#",
@@ -152,23 +237,45 @@ export function mapCartDtoToItems(cart: CartDto): CartItem[] {
 export async function getCart(): Promise<CartDto> {
   
   const response = await apiClient.get(BASE, cartRequestConfig());
-  
+
+
   assertSuccess(response.data, "دریافت سبد خرید ناموفق بود");
   const cart = unwrapCart(response.data);
   rememberGuestSession(cart);
   return cart;
 }
 
+export async function synchronizeCart(): Promise<CartSynchronizationData> {
+  const response = await apiClient.get(
+    CART_SYNC_ENDPOINT,
+    cartRequestConfig(),
+  );
+
+  assertSuccess(response.data, "همگام‌سازی سبد خرید ناموفق بود");
+  return unwrapCartSynchronization(response.data);
+}
+
+export async function acceptCartChanges(productIds: string[]): Promise<void> {
+  const response = await apiClient.post(
+    CART_ACCEPT_CHANGES_ENDPOINT,
+    {
+      productIds: Array.from(
+        new Set(productIds.map((id) => id.trim()).filter(Boolean)),
+      ),
+    },
+    cartRequestConfig(),
+  );
+  assertSuccess(response.data, "ثبت تغییرات سبد خرید ناموفق بود");
+}
+
 export async function addCartItem(
   payload: AddCartItemPayload,
 ): Promise<CartDto> {
-  console.log("[Cart] POST /cart/items =>", payload);
   const response = await apiClient.post(
     `${BASE}/items`,
     payload,
     cartRequestConfig(),
   );
-  console.log("[Cart] POST items raw =>", response.data);
   assertSuccess(response.data, "افزودن به سبد ناموفق بود");
   const cart = unwrapCart(response.data);
   rememberGuestSession(cart);
@@ -180,13 +287,11 @@ export async function updateCartItem(
   payload: UpdateCartItemPayload,
 ): Promise<CartDto> {
   const encoded = encodeURIComponent(variantId.trim());
-  console.log("[Cart] PUT /cart/items/{variantId} =>", encoded, payload);
   const response = await apiClient.put(
     `${BASE}/items/${encoded}`,
     payload,
     cartRequestConfig(),
   );
-  console.log("[Cart] PUT items raw =>", response.data);
   assertSuccess(response.data, "به‌روزرسانی سبد ناموفق بود");
   const cart = unwrapCart(response.data);
   rememberGuestSession(cart);
@@ -195,12 +300,10 @@ export async function updateCartItem(
 
 export async function removeCartItem(variantId: string): Promise<CartDto | null> {
   const encoded = encodeURIComponent(variantId.trim());
-  console.log("[Cart] DELETE /cart/items/{variantId} =>", encoded);
   const response = await apiClient.delete(
     `${BASE}/items/${encoded}`,
     cartRequestConfig(),
   );
-  console.log("[Cart] DELETE item raw =>", response.data);
   assertSuccess(response.data, "حذف از سبد ناموفق بود");
 
   const root = getRecord(response.data);
@@ -211,14 +314,11 @@ export async function removeCartItem(variantId: string): Promise<CartDto | null>
 }
 
 export async function clearCartApi(): Promise<void> {
-  console.log("[Cart] DELETE /cart");
   const response = await apiClient.delete(BASE, cartRequestConfig());
-  console.log("[Cart] DELETE cart raw =>", response.data);
   assertSuccess(response.data, "خالی کردن سبد ناموفق بود");
 }
 
 export async function mergeCart(payload: MergeCartPayload): Promise<CartDto | null> {
-  console.log("[Cart] POST /cart/merge =>", payload);
   const response = await apiClient.post(
     `${BASE}/merge`,
     payload,
@@ -228,7 +328,6 @@ export async function mergeCart(payload: MergeCartPayload): Promise<CartDto | nu
       },
     },
   );
-  console.log("[Cart] POST merge raw =>", response.data);
   assertSuccess(response.data, "ادغام سبد خرید ناموفق بود");
 
   const root = getRecord(response.data);

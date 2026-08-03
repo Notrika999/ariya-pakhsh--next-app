@@ -42,21 +42,28 @@ export default function ReturnProducts({
           const selection = selections[item.orderItemId] ?? {
             checked: false,
             quantity: 1,
-            condition: "unopened",
+            condition: "sealed_unused",
           };
           const maxQty = Math.max(1, Number(item.quantity) || 1);
+          const canRequestReturn = item.canRequestReturn !== false;
 
           return (
             <div
               key={item.orderItemId}
-              className="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+              className={`rounded-xl border p-4 transition ${
+                canRequestReturn && selection.checked
+                  ? "border-primary bg-primary/5 ring-1 ring-primary/20 dark:bg-primary/10"
+                  : canRequestReturn
+                    ? "border-gray-200 bg-white hover:border-primary/40 hover:bg-gray-50 dark:border-gray-700 dark:bg-zinc-900/40 dark:hover:bg-zinc-800"
+                    : "border-amber-200 bg-amber-50/50 dark:border-amber-800/70 dark:bg-amber-950/20"
+              }`}
             >
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-col gap-4 md:flex-row md:items-start">
                 <input
                   type="checkbox"
                   id={`return-item-${item.orderItemId}`}
-                  checked={Boolean(selection.checked)}
-                  disabled={disabled}
+                  checked={canRequestReturn && Boolean(selection.checked)}
+                  disabled={disabled || !canRequestReturn}
                   onChange={(e) =>
                     onChange(item.orderItemId, {
                       ...selection,
@@ -71,37 +78,50 @@ export default function ReturnProducts({
                 />
                 <label
                   htmlFor={`return-item-${item.orderItemId}`}
-                  className="flex-1 cursor-pointer"
+                  className={`min-w-0 flex-1 ${
+                    canRequestReturn ? "cursor-pointer" : "cursor-not-allowed"
+                  }`}
                 >
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center gap-4">
                     <Image
                       width={80}
                       height={80}
                       src={item.imageUrl || "/images/default.png"}
-                      className="h-16 w-16 rounded-lg object-cover"
+                      className="h-20 w-20 rounded-xl border border-gray-100 bg-white object-cover dark:border-gray-700 dark:bg-zinc-900"
                       alt={item.productName}
                     />
-                    <div className="flex-1">
+                    <div className="min-w-0 flex-1">
                       <h4 className="font-medium text-gray-800 dark:text-gray-200">
                         {item.productName}
                       </h4>
-                      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        {item.variantName
-                          ? `${item.variantName} • `
-                          : ""}
-                        تعداد: {toFa(item.quantity)} عدد
-                      </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {formatMoney(item.unitPrice)}
-                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2 text-xs font-bold text-gray-500 dark:text-gray-400">
+                        {item.variantName ? (
+                          <span className="rounded-full bg-gray-100 px-2.5 py-1 dark:bg-zinc-800">
+                            {item.variantName}
+                          </span>
+                        ) : null}
+                        <span className="rounded-full bg-gray-100 px-2.5 py-1 dark:bg-zinc-800">
+                          تعداد سفارش: {toFa(item.quantity)}
+                        </span>
+                        <span className="rounded-full bg-gray-100 px-2.5 py-1 dark:bg-zinc-800">
+                          قیمت واحد: {formatMoney(item.unitPrice)}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </label>
+
+                {!canRequestReturn && (
+                  <div className="ms-auto flex max-w-[180px] shrink-0 items-center gap-2 rounded-full border border-amber-200 bg-white px-3 py-1.5 text-xs font-bold text-amber-700 shadow-sm dark:border-amber-800/70 dark:bg-zinc-900 dark:text-amber-300">
+                    <i className="fa-regular fa-circle-info"></i>
+                    <span>این کالا قابل مرجوعی نیست</span>
+                  </div>
+                )}
               </div>
 
               <div
-                className={`product-details mt-4 pe-9 ${
-                  selection.checked ? "" : "hidden"
+                className={`product-details mt-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-zinc-900 ${
+                  canRequestReturn && selection.checked ? "" : "hidden"
                 }`}
               >
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -135,7 +155,7 @@ export default function ReturnProducts({
                       وضعیت محصول
                     </label>
                     <select
-                      value={selection.condition || "unopened"}
+                      value={selection.condition || "sealed_unused"}
                       disabled={disabled}
                       onChange={(e) =>
                         onChange(item.orderItemId, {
@@ -145,10 +165,13 @@ export default function ReturnProducts({
                       }
                       className="w-full appearance-none rounded-lg border px-4 py-2 pe-10 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary dark:border-gray-600 dark:bg-zinc-800 dark:text-white"
                     >
-                      <option value="unopened">دربسته و استفاده نشده</option>
-                      <option value="opened">باز شده اما سالم</option>
+                      <option value="sealed_unused">
+                        دربسته و استفاده نشده
+                      </option>
+                      <option value="opened_intact">باز شده اما سالم</option>
                       <option value="used">استفاده شده</option>
-                      <option value="defective">معیوب و ناقص</option>
+                      <option value="defective_incomplete">معیوب و ناقص</option>
+                      <option value="partially_used">با ذکر صلوات</option>
                     </select>
                   </div>
                 </div>

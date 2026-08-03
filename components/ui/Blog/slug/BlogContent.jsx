@@ -1,472 +1,123 @@
+// components/ui/Blog/slug/BlogContent.jsx
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import BlogTop from "../BlogTop";
 import BlogVideoSidebar from "../BlogVideoSidebar";
 import BlogSidebar from "../BlogSidebar";
+import { blogPosts, getBlogHref } from "../blogData";
 
-export default function BlogContent() {
+export default function BlogContent({ post }) {
+  const relatedPosts = blogPosts
+    .filter((item) => item.id !== post.id)
+    .slice(0, 2);
+
   return (
     <div className="grid grid-cols-4 gap-4">
-      {/* <!-- Post --> */}
-      <div className="xl:col-span-3 col-span-4 bg-white rounded-xl shadow-md overflow-hidden">
-        {/* <!--The main image of the article--> */}
+      <article className="xl:col-span-3 col-span-4 bg-white dark:bg-custom-dark rounded-xl shadow-md overflow-hidden">
         <Image
           width={1052}
           height={384}
-          src="/images/blog/cover.jpg"
-          // src=?? "/images/default.png"
-          alt="گوشی‌های هوشمند"
+          src={post.image}
+          alt={post.title}
           className="w-full h-64 md:h-96 object-cover"
         />
 
-        {/* <!--Header of the article--> */}
-        <div className="p-6 md:p-8 dark:bg-custom-dark">
-          <div className="flex flex-wrap items-center justify-between mb-6">
-            <div className="flex items-center space-x-2">
-              <span className="bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                تکنولوژی
-              </span>
-              <span className="text-sm text-gray-500">15 خرداد 1402</span>
-              <span className="text-sm text-gray-500">•</span>
-              <span className="text-sm text-gray-500">5 دقیقه مطالعه</span>
-            </div>
+        <div className="p-6 md:p-8">
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            <span className="bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-0.5 rounded">
+              {post.keyword}
+            </span>
+            <span className="text-sm text-gray-500">{post.date}</span>
+            <span className="text-sm text-gray-500">{post.readTime}</span>
           </div>
 
           <h1 className="text-2xl md:text-3xl font-black text-gray-800 mb-6 dark:text-white">
-            راهنمای خرید بهترین گوشی هوشمند در سال 1402
+            {post.title}
           </h1>
 
-          {/* <!--Author information--> */}
-          <div className="flex items-center mb-8 pb-6 border-b border-gray-200">
-            <Image
-              width={100}
-              height={100}
-              src="/images/user/profile-Image.jpg"
-              // src=?? "/images/default.png"
-              alt="نویسنده"
-              className="w-12 h-12 rounded-full object-cover"
-            />
-            <div className="ms-4">
-              <h4 className="font-medium text-gray-800 dark:text-gray-300">
-                محمد رضایی
-              </h4>
-              <p className="text-sm text-gray-500">کارشناس فناوری اطلاعات</p>
-            </div>
-          </div>
+          <div className="article-content text-gray-700 dark:text-gray-300 space-y-5 leading-8">
+            <p>{post.description}</p>
 
-          {/* <!--Content of the article--> */}
-          <div className="article-content text-gray-700 dark:text-gray-300">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
+              معیارهای اصلی انتخاب {post.keyword}
+            </h2>
             <p>
-              در دنیای امروز که گوشی‌های هوشمند به بخش جدایی‌ناپذیر زندگی ما
-              تبدیل شده‌اند، انتخاب یک مدل مناسب می‌تواند چالش برانگیز باشد. در
-              این مقاله به بررسی معیارهای انتخاب یک گوشی هوشمند مناسب و معرفی
-              بهترین مدل‌های سال 1402 می‌پردازیم.
+              برای خرید {post.keyword} باید ابتدا سازگاری با خودرو، کیفیت ساخت،
+              دوام در استفاده روزمره و ارزش خرید را بررسی کنید. انتخاب دقیق در
+              این دسته باعث کاهش هزینه‌های تکراری و افزایش ایمنی یا راحتی
+              رانندگی می‌شود.
             </p>
 
-            <h2>معیارهای انتخاب گوشی هوشمند</h2>
-
-            <p>
-              قبل از پرداختن به مدل‌های خاص، بهتر است معیارهای کلی برای انتخاب
-              یک گوشی مناسب را بررسی کنیم:
-            </p>
-
-            <ul>
-              <li>
-                <strong>بودجه:</strong> محدوده قیمتی که برای خرید در نظر دارید
-                مهمترین عامل است.
-              </li>
-              <li>
-                <strong>سیستم عامل:</strong> انتخاب بین اندروید و iOS بستگی به
-                ترجیحات و نیازهای شما دارد.
-              </li>
-              <li>
-                <strong>کارایی پردازنده:</strong> برای کاربری سنگین مانند گیمینگ
-                یا ویرایش ویدئو اهمیت دارد.
-              </li>
-              <li>
-                <strong>کیفیت دوربین:</strong> برای عکاسان حرفه‌ای یا
-                علاقه‌مندان به شبکه‌های اجتماعی حیاتی است.
-              </li>
-              <li>
-                <strong>طول عمر باتری:</strong> برای کاربرانی که زیاد از گوشی
-                استفاده می‌کنند بسیار مهم است.
-              </li>
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
+              نکات کاربردی قبل از خرید
+            </h2>
+            <ul className="list-disc space-y-2 pe-5">
+              <li>مدل خودرو و ابعاد قطعه یا اکسسوری را با محصول تطبیق دهید.</li>
+              <li>به جنس، مقاومت، ضمانت و کیفیت نصب توجه کنید.</li>
+              <li>محصولی را انتخاب کنید که نگهداری و نظافت آسان‌تری داشته باشد.</li>
+              <li>برای قطعات نوری، استاندارد نوردهی و هماهنگی برقی مهم است.</li>
             </ul>
 
-            <h2>بهترین گوشی‌های اندرویدی 1402</h2>
-
-            <p>
-              در رده‌بندی گوشی‌های اندرویدی سال جاری، مدل‌های زیر به عنوان
-              بهترین‌ها شناخته شده‌اند:
-            </p>
-
-            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mt-6 mb-3">
-              1. سامسونگ گلکسی S23 اولترا
-            </h3>
-
-            <p>
-              این گوشی با پردازنده قدرتمند اسنپدراگون 8 نسل 2، صفحه نمایش 6.8
-              اینچی داینامیک AMOLED 2X و سیستم چهار دوربین 200 مگاپیکسلی، یکی از
-              بهترین انتخاب‌ها برای کاربران حرفه‌ای است.
-            </p>
-
             <Image
-              width={100}
-              height={100}
-              src="/images/blog/blog-5.jpg"
-              // src=?? "/images/default.png"
-              alt="سامسونگ گلکسی S23 اولترا"
-              className="w-full h-auto my-6 rounded-lg"
+              width={760}
+              height={360}
+              src="/images/default.png"
+              alt={`نمونه ${post.keyword}`}
+              className="w-full h-72 object-cover rounded-xl"
             />
 
-            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mt-6 mb-3">
-              2. شیائومی 13 پرو
-            </h3>
-
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
+              جمع‌بندی
+            </h2>
             <p>
-              با قیمتی مناسب‌تر نسبت به رقبای پرچمدار، این مدل شیائومی پردازنده
-              قدرتمند، صفحه نمایش 120 هرتز و سیستم سه دوربین لایکا را ارائه
-              می‌دهد.
-            </p>
-
-            <h2>بهترین آیفون‌های 1402</h2>
-
-            <p>برای طرفداران اپل، انتخاب‌های سال جاری شامل موارد زیر است:</p>
-
-            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mt-6 mb-3">
-              1. آیفون 14 پرو مکس
-            </h3>
-
-            <p>
-              با تراشه A16 بایونیک، صفحه نمایش همیشه روشن و سیستم دوربین
-              پیشرفته، این مدل همچنان یکی از قدرتمندترین گوشی‌های بازار محسوب
-              می‌شود.
-            </p>
-
-            {/* <Image
-                  width={100}
-                  height={100}
-                  src="https://images.unsplash.com/photo-1664478546384-d57ffe74a78c?ixlib=rb-1.2.1&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80"
-                  alt="آیفون 14 پرو مکس"
-                  className="w-full h-auto my-6 rounded-lg"
-                /> */}
-
-            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mt-6 mb-3">
-              2. آیفون SE 2022
-            </h3>
-
-            <p>
-              گزینه‌ای مقرون‌به‌صرفه با تراشه A15 همانند آیفون 13، اما با طراحی
-              قدیمی‌تر و صفحه نمایش کوچک‌تر.
-            </p>
-
-            <h2 className="dark:text-gray-200">نتیجه‌گیری</h2>
-
-            <p>
-              انتخاب بهترین گوشی هوشمند به نیازها و بودجه شما بستگی دارد.
-              مدل‌های معرفی شده در این مقاله هر کدام در رده خود بهترین عملکرد را
-              ارائه می‌دهند. پیشنهاد می‌کنیم قبل از خرید، حتما گوشی مورد نظر را
-              از نزدیک بررسی کنید.
+              اگر هدف شما خرید مطمئن {post.keyword} است، فقط به ظاهر محصول
+              اکتفا نکنید. سازگاری، کیفیت متریال و کارکرد واقعی محصول در خودرو
+              باید مبنای تصمیم‌گیری باشد.
             </p>
           </div>
 
-          {/* <!--Article tags--> */}
-          <div className="mt-8 pt-6 border-t border-gray-200">
-            <div className="flex flex-wrap gap-2">
-              <Link
-                href="#"
-                className="bg-gray-100 dark:bg-zinc-800 dark:hover:bg-zinc-700/50 dark:text-white hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm transition duration-300"
-              >
-                گوشی هوشمند
-              </Link>
-              <Link
-                href="#"
-                className="bg-gray-100 dark:bg-zinc-800 dark:hover:bg-zinc-700/50 dark:text-white hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm transition duration-300"
-              >
-                راهنمای خرید
-              </Link>
-              <Link
-                href="#"
-                className="bg-gray-100 dark:bg-zinc-800 dark:hover:bg-zinc-700/50 dark:text-white hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm transition duration-300"
-              >
-                تکنولوژی
-              </Link>
-              <Link
-                href="#"
-                className="bg-gray-100 dark:bg-zinc-800 dark:hover:bg-zinc-700/50 dark:text-white hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm transition duration-300"
-              >
-                اندروید
-              </Link>
-              <Link
-                href="#"
-                className="bg-gray-100 dark:bg-zinc-800 dark:hover:bg-zinc-700/50 dark:text-white hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-full text-sm transition duration-300"
-              >
-                آیفون
-              </Link>
-            </div>
-          </div>
-
-          {/* <!--Sharing--> */}
-          <div className="mt-8 dark:bg-zinc-800 bg-custom-light p-4 rounded-lg">
-            <h3 className="text-lg font-medium text-gray-800 mb-3 dark:text-white">
-              این مقاله را با دوستان خود به اشتراک بگذارید
+          <div className="mt-10 border-t border-gray-200 dark:border-gray-700 pt-6">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
+              مقاله‌های مرتبط
             </h3>
-            <div className="flex space-x-3">
-              <Link
-                href="#"
-                className="flex items-center w-10 h-10 justify-center bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full"
-              >
-                <i className="fab fa-facebook-f text-lg"></i>
-              </Link>
-              <Link
-                href="#"
-                className="flex items-center w-10 h-10 justify-center bg-blue-400 hover:bg-blue-500 text-white p-2 rounded-full"
-              >
-                <i className="fab fa-twitter text-lg"></i>
-              </Link>
-              <Link
-                href="#"
-                className="flex items-center w-10 h-10 justify-center bg-red-600 hover:bg-red-700 text-white p-2 rounded-full"
-              >
-                <i className="fab fa-square-instagram text-lg"></i>
-              </Link>
-              <Link
-                href="#"
-                className="flex items-center w-10 h-10 justify-center bg-gray-800 hover:bg-gray-900 text-white p-2 rounded-full"
-              >
-               <i className="fab fa-square-linkedin text-lg"></i>
-              </Link>
-            </div>
-          </div>
-
-          {/* <!-- the author --> */}
-          <div className="mt-8 bg-custom-light dark:bg-zinc-800 p-6 rounded-lg">
-            <div className="flex items-center">
-              <Image
-                width={100}
-                height={100}
-                src="/images/user/user.jpg"
-                // src=?? "/images/default.png"
-                alt="نویسنده"
-                className="w-16 h-16 rounded-full object-cover"
-              />
-              <div className="ms-4">
-                <h4 className="text-lg font-bold text-gray-800 dark:text-gray-300">
-                  محمد رضایی
-                </h4>
-                <p className="text-gray-600 mb-2 dark:text-gray-400">
-                  کارشناس فناوری اطلاعات با 10 سال سابقه در حوزه موبایل و گجت‌ها
-                </p>
-                <div className="flex space-x-3">
-                  <Link
-                    href="#"
-                    className="text-gray-500 dark:text-gray-300 hover:text-blue-500"
-                  >
-                    <i className="fab fa-facebook-f text-xl"></i>
-                  </Link>
-                  <Link
-                    href="#"
-                    className="text-gray-500 dark:text-gray-300 hover:text-blue-400"
-                  >
-                   <i className="fab fa-twitter text-xl"></i>
-                  </Link>
-                  <Link
-                    href="#"
-                    className="text-gray-500 dark:text-gray-300 hover:text-gray-500"
-                  >
-                    <i className="fab fa-square-linkedin text-xl"></i>
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <p className="mt-4 text-gray-700 dark:text-gray-400">
-              محمد رضایی متخصص حوزه فناوری و نویسنده دائمی وبلاگ فروشگاه ما است.
-              او با بیش از 10 سال سابقه در بررسی و تحلیل گجت‌های دیجیتال،
-              راهنمای‌های تخصصی برای خریداران تهیه می‌کند.
-            </p>
-          </div>
-
-          {/* <!--Related articles--> */}
-          <div className="mt-12">
-            <h3 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-200 dark:text-gray-300">
-              مقالات مرتبط
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Link href="#" className="flex items-start space-x-3 group">
-                <Image
-                  width={100}
-                  height={100}
-                  src="/images/blog/blog-5.jpg"
-                  // src=?? "/images/default.png"
-                  alt="مقاله مرتبط"
-                  className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
-                />
-                <div>
-                  <h4 className="font-medium text-gray-800 group-hover:text-primary-600 dark:text-gray-300">
-                    مقایسه پردازنده‌های موبایل در سال 1402
-                  </h4>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    12 اردیبهشت 1402 • 4 دقیقه
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {relatedPosts.map((item) => (
+                <Link
+                  key={item.id}
+                  href={getBlogHref(item)}
+                  className="flex gap-3 border border-gray-200 dark:border-gray-700 rounded-xl p-3 hover:border-primary transition"
+                >
+                  <Image
+                    width={96}
+                    height={80}
+                    src={item.image}
+                    alt={item.title}
+                    className="w-24 h-20 object-cover rounded"
+                  />
+                  <span>
+                    <span className="block text-xs text-primary">
+                      {item.keyword}
+                    </span>
+                    <span className="block text-sm font-medium text-gray-800 dark:text-gray-200 line-clamp-2 mt-1">
+                      {item.title}
+                    </span>
+                    <span className="block text-xs text-gray-500 dark:text-gray-400 line-clamp-2 mt-1">
+                      {item.description}
+                    </span>
                   </span>
-                </div>
-              </Link>
-              <Link href="#" className="flex items-start space-x-3 group">
-                <Image
-                  width={100}
-                  height={100}
-                  src="/images/blog/blog-3.jpg"
-                  // src=?? "/images/default.png"
-                  alt="مقاله مرتبط"
-                  className="w-20 h-20 object-cover rounded-lg flex-shrink-0"
-                />
-                <div>
-                  <h4 className="font-medium text-gray-800 group-hover:text-primary-600 dark:text-gray-300">
-                    راهنمای خرید تبلت برای دانشجویان
-                  </h4>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    5 اردیبهشت 1402 • 6 دقیقه
-                  </span>
-                </div>
-              </Link>
-            </div>
-          </div>
-
-          {/* <!-- Comments --> */}
-          <div className="mt-12">
-            <h3 className="text-xl font-bold text-gray-800 mb-6 pb-2 border-b border-gray-200 dark:text-gray-300">
-              نظرات کاربران (4)
-            </h3>
-
-            <form className="mb-8">
-              <textarea
-                placeholder="نظر خود را بنویسید..."
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                rows="3"
-              ></textarea>
-              <button
-                type="submit"
-                className="mt-3 bg-primary-600 hover:bg-primary-700 text-white py-2 px-6 rounded-lg transition duration-300"
-              >
-                ارسال نظر
-              </button>
-            </form>
-
-            <div className="space-y-6">
-              {/* <!--Comment 1--> */}
-              <div className="flex items-start space-x-3">
-                <Image
-                  width={100}
-                  height={100}
-                  src="/images/user/profile-img.jpg"
-                  // src=?? "/images/default.png"
-                  alt="کاربر"
-                  className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                />
-                <div className="w-full">
-                  <div className="bg-custom-light dark:bg-zinc-800 p-4 rounded-lg">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-medium text-gray-800 dark:text-gray-300">
-                        نازنین محمدی
-                      </h4>
-                      <span className="text-xs text-gray-500 dark:text-gray-300">
-                        2 روز پیش
-                      </span>
-                    </div>
-                    <p className="mt-1 text-gray-700 dark:text-gray-300">
-                      مقاله بسیار مفیدی بود. ممنون از راهنمایی‌های تخصصی‌تون. من
-                      خودم گلکسی S23 دارم و واقعا راضیم.
-                    </p>
-                  </div>
-                  <div className="mt-2 flex space-x-4 text-sm">
-                    <button className="text-gray-500 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-400">
-                      پاسخ
-                    </button>
-                    <button className="text-gray-500 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-400">
-                      پسندیدم (5)
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* <!--Comment 2--> */}
-              <div className="flex items-start space-x-3">
-                <Image
-                  width={100}
-                  height={100}
-                  src="/images/user/profile-img-2.jpg"
-                  // src=?? "/images/default.png"
-                  alt="کاربر"
-                  className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                />
-                <div>
-                  <div className="bg-custom-light dark:bg-zinc-800 p-4 rounded-lg">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-medium text-gray-800 dark:text-gray-300">
-                        امیرحسین رضایی
-                      </h4>
-                      <span className="text-xs text-gray-500 dark:text-gray-300">
-                        1 هفته پیش
-                      </span>
-                    </div>
-                    <p className="mt-1 text-gray-700 dark:text-gray-300">
-                      آیا مدل‌های چینی مثل شیائومی و اوپو هم گزینه مناسبی هستند؟
-                      به نظر من کیفیت ساخت این برندها در سال‌های اخیر خیلی بهتر
-                      شده.
-                    </p>
-                  </div>
-                  <div className="mt-2 flex space-x-4 text-sm">
-                    <button className="text-gray-500 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-400">
-                      پاسخ
-                    </button>
-                    <button className="text-gray-500 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-400">
-                      پسندیدم (2)
-                    </button>
-                  </div>
-
-                  {/* <!--Reply to comment 2--> */}
-                  <div className="mt-4 flex items-start space-x-3 ps-4">
-                    <Image
-                      width={100}
-                      height={100}
-                      src="/images/user/user.png"
-                      // src=?? "/images/default.png"
-                      alt="نویسنده"
-                      className="w-8 h-8 rounded-full object-cover flex-shrink-0"
-                    />
-                    <div>
-                      <div className="bg-primary-50 dark:bg-zinc-700 p-3 rounded-lg">
-                        <div className="flex justify-between items-start">
-                          <h4 className="font-medium text-gray-800  dark:text-gray-300">
-                            محمد رضایی (نویسنده)
-                          </h4>
-                          <span className="text-xs text-gray-500 dark:text-gray-300">
-                            5 روز پیش
-                          </span>
-                        </div>
-                        <p className="mt-1 text-gray-700 dark:text-gray-300">
-                          بله کاملا درست می‌فرمایید. برندهای چینی در سال‌های
-                          اخیر پیشرفت چشمگیری داشته‌اند. به خصوص در زمینه دوربین
-                          و باتری عملکرد بسیار خوبی ارائه می‌دهند.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                </Link>
+              ))}
             </div>
           </div>
         </div>
-      </div>
-      {/* <!-- Sidebar --> */}
-      <div className="xl:col-span-1 col-span-4">
+      </article>
+
+      <aside className="xl:col-span-1 col-span-4">
         <div className="sticky top-0 space-y-4">
-          {/* <!-- Category --> */}
           <BlogSidebar />
-          {/* <!-- Latest post --> */}
           <BlogVideoSidebar />
         </div>
-      </div>
+      </aside>
     </div>
   );
 }

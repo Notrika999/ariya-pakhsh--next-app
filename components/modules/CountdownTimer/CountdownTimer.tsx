@@ -37,7 +37,10 @@ function getTimeLeft(targetDate: string | Date): TimeLeft {
 }
 
 function pad(n: number): string {
-  return String(n).padStart(2, "0");
+  return new Intl.NumberFormat("fa-IR", {
+    minimumIntegerDigits: 2,
+    useGrouping: false,
+  }).format(n);
 }
 
 export default function CountdownTimer({
@@ -89,7 +92,7 @@ export default function CountdownTimer({
   }
 
   if (!timeLeft) {
-    return <span className="text-xs text-amber-600 font-mono">00:00:00</span>;
+    return <span className="text-xs text-amber-600">۰۰:۰۰:۰۰</span>;
   }
   // ─── Hero variant ───────────────────────────────────────────────
   if (variant === "hero") {
@@ -103,7 +106,7 @@ export default function CountdownTimer({
           <div key={label} className="flex items-center gap-3">
             <div className="flex flex-col items-center">
               <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2 min-w-[64px] text-center">
-                <span className="text-3xl font-bold text-white tabular-nums font-mono">
+                <span className="text-3xl font-bold text-white tabular-nums">
                   {pad(value)}
                 </span>
               </div>
@@ -122,10 +125,13 @@ export default function CountdownTimer({
 
   // ─── Card variant ───────────────────────────────────────────────
   const isUrgent = timeLeft.hours === 0 && timeLeft.minutes < 30;
+  const shouldShowDays = timeLeft.hours > 72;
+  const days = Math.floor(timeLeft.hours / 24);
+  const remainingHours = shouldShowDays ? timeLeft.hours % 24 : timeLeft.hours;
 
   return (
     <div
-      className={`flex items-center gap-1 text-xs font-mono font-bold dir-ltr ${
+      className={`flex items-center gap-1 text-xs font-bold dir-ltr ${
         isUrgent ? "text-red-500" : "text-amber-600"
       }`}
       dir="ltr"
@@ -139,8 +145,14 @@ export default function CountdownTimer({
         <circle cx="12" cy="12" r="10" strokeWidth="2" />
         <polyline points="12 6 12 12 16 14" strokeWidth="2" />
       </svg>
+      {shouldShowDays && (
+        <span className="flex items-center gap-0.5">
+          <span>{pad(days)}</span>
+          <span className="text-[10px] font-normal font-sans">روز</span>
+        </span>
+      )}
       <span>
-        {pad(timeLeft.hours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
+        {pad(remainingHours)}:{pad(timeLeft.minutes)}:{pad(timeLeft.seconds)}
       </span>
       {isUrgent && (
         <span className="text-red-500 font-normal text-[10px] mr-1 font-sans">

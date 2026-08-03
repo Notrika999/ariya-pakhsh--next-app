@@ -53,9 +53,7 @@ function mapTransaction(value: unknown): WalletTransaction {
     reason: String(item.reason ?? ""),
     referenceType: String(item.referenceType ?? ""),
     referenceId: item.referenceId ? String(item.referenceId) : null,
-    createdByUserId: item.createdByUserId
-      ? String(item.createdByUserId)
-      : null,
+    createdByUserId: item.createdByUserId ? String(item.createdByUserId) : null,
     createdAt: String(item.createdAt ?? ""),
   };
 }
@@ -78,7 +76,9 @@ function unwrapTransactionsPage(payload: unknown): WalletTransactionsPage {
 
   return {
     items,
-    pageNumber: Number(data.pageNumber ?? root.pageNumber ?? 1),
+    pageNumber: Number(
+      data.page ?? data.pageNumber ?? root.page ?? root.pageNumber ?? 1,
+    ),
     pageSize: Number(data.pageSize ?? root.pageSize ?? (items.length || 10)),
     totalCount: Number(data.totalCount ?? root.totalCount ?? items.length),
     totalPages: Number(data.totalPages ?? root.totalPages ?? 1),
@@ -91,18 +91,21 @@ function cleanParams(
   params: GetWalletTransactionsParams,
 ): Record<string, string | number> {
   const query: Record<string, string | number> = {};
-  if (params.pageNumber != null) query.pageNumber = params.pageNumber;
+  const page = params.page ?? params.pageNumber;
+  const transactionType = params.transactionType ?? params.type;
+
+  if (page != null) query.page = page;
   if (params.pageSize != null) query.pageSize = params.pageSize;
-  if (params.type?.trim()) query.type = params.type.trim();
+  if (params.search?.trim()) query.search = params.search.trim();
+  if (params.period?.trim()) query.period = params.period.trim();
+  if (transactionType?.trim()) query.transactionType = transactionType.trim();
   if (params.fromDate?.trim()) query.fromDate = params.fromDate.trim();
   if (params.toDate?.trim()) query.toDate = params.toDate.trim();
   return query;
 }
 
 export async function getMyWallet(): Promise<WalletInfo> {
-  console.log("[Wallet] GET /me/wallet");
   const response = await apiClient.get(BASE);
-  console.log("[Wallet] GET wallet raw =>", response.data);
   assertSuccess(response.data, "دریافت کیف پول ناموفق بود");
   return unwrapWallet(response.data);
 }
@@ -111,20 +114,22 @@ export async function getMyWalletTransactions(
   params: GetWalletTransactionsParams = {},
 ): Promise<WalletTransactionsPage> {
   const query = cleanParams(params);
-  console.log("[Wallet] GET /me/wallet/transactions params =>", query);
 
-  const response = await apiClient.get(`${BASE}/transactions`, { params: query });
-  console.log("[Wallet] GET transactions raw =>", response.data);
+  const response = await apiClient.get(`${BASE}/transactions`, {
+    params: query,
+  });
+
+  console.log("query => ", query);
+  console.log("getMyWalletTransactions => ", response.data);
 
   assertSuccess(response.data, "دریافت تراکنش‌ها ناموفق بود");
   return unwrapTransactionsPage(response.data);
 }
 
-export async function topUpMyWallet(amount: number): Promise<WalletTopUpResult> {
-  console.log("[Wallet] POST /me/wallet/top-up =>", { amount });
-
+export async function topUpMyWallet(
+  amount: number,
+): Promise<WalletTopUpResult> {
   const response = await apiClient.post(`${BASE}/top-up`, { amount });
-  console.log("[Wallet] top-up raw =>", response.data);
 
   assertSuccess(response.data, "افزایش اعتبار ناموفق بود");
 

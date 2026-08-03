@@ -1,3 +1,4 @@
+// components/ui/Contact/Map.jsx
 import React from "react";
 
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
@@ -8,14 +9,14 @@ export default function Map() {
         <TitleAfter title={"موقعیت ما روی نقشه"} />
       </div>
 
-      <div className="h-[450px] bg-gray-300 relative">
+      <div className="h-[450px] w-full overflow-hidden rounded-lg">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3239.676621075215!2d51.38882131526982!3d35.7323439801875!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzXCsDQzJzU2LjQiTiA1McKwMjMnMjMuNiJF!5e0!3m2!1sen!2s!4v1620000000000!5m2!1sen!2s"
-          className="w-full h-full border-0"
-          allowFullScreen=""
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3204.6401899455964!2d53.120506616776986!3d36.562787696132276!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3f853e6f91b80863%3A0x292fdd1805ec199c!2zSDQ2OStHUDnYjCDYs9in2LHbjNiMINin2LPYqtin2YYg2YXYp9iy2YbYr9ix2KfZhtiMINin24zYsdin2YY!5e0!3m2!1sfa!2s!4v1784608927581!5m2!1sfa!2s"
+          className="h-full w-full border-0"
+          allowFullScreen
           loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        ></iframe>
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
       </div>
     </div>
   );

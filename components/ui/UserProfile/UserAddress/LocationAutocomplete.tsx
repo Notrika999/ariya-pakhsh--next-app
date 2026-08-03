@@ -3,10 +3,16 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { FieldError, fieldClass } from "@/src/utils/form.validation";
 
+export type LocationAutocompleteOption = {
+  id: string;
+  name: string;
+  parentId?: string;
+};
+
 type LocationAutocompleteProps = {
   label: string;
   value: string;
-  options: string[];
+  options: readonly LocationAutocompleteOption[];
   onChange: (value: string) => void;
   placeholder?: string;
   required?: boolean;
@@ -27,19 +33,14 @@ export default function LocationAutocomplete({
   onClearError,
 }: LocationAutocompleteProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [inputValue, setInputValue] = useState(value);
   const containerRef = useRef<HTMLDivElement>(null);
   const listId = useId();
 
-  useEffect(() => {
-    setInputValue(value);
-  }, [value]);
-
   const filteredOptions = useMemo(() => {
-    const query = inputValue.trim();
+    const query = value.trim();
     if (!query) return options;
-    return options.filter((option) => option.includes(query));
-  }, [inputValue, options]);
+    return options.filter((option) => option.name.includes(query));
+  }, [value, options]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -52,9 +53,8 @@ export default function LocationAutocomplete({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const selectOption = (option: string) => {
-    setInputValue(option);
-    onChange(option);
+  const selectOption = (option: LocationAutocompleteOption) => {
+    onChange(option.name);
     setIsOpen(false);
   };
 
@@ -66,10 +66,9 @@ export default function LocationAutocomplete({
       </label>
       <input
         type="text"
-        value={inputValue}
+        value={value}
         onChange={(e) => {
           const nextValue = e.target.value;
-          setInputValue(nextValue);
           onChange(nextValue);
           onClearError?.();
           setIsOpen(true);
@@ -96,18 +95,18 @@ export default function LocationAutocomplete({
           className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-zinc-900"
         >
           {filteredOptions.map((option) => (
-            <li key={option}>
+            <li key={option.id}>
               <button
                 type="button"
                 role="option"
-                aria-selected={option === value}
+                aria-selected={option.name === value}
                 onMouseDown={(event) => {
                   event.preventDefault();
                   selectOption(option);
                 }}
                 className="w-full px-4 py-2 text-start text-sm text-gray-700 transition hover:bg-primary/10 dark:text-gray-200 dark:hover:bg-primary/20"
               >
-                {option}
+                {option.name}
               </button>
             </li>
           ))}

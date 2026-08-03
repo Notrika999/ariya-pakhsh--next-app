@@ -29,6 +29,10 @@ function logApiError(label: string, error: unknown) {
   }
 }
 
+function normalizeReviewVote(value: unknown): ReviewVoteType | null {
+  return value === "like" || value === "dislike" ? value : null;
+}
+
 function unwrapReviewsPage(payload: unknown): ProductReviewsPage {
   const root = getRecord(payload);
   const data = getRecord(root.data ?? root);
@@ -59,6 +63,9 @@ function unwrapReviewsPage(payload: unknown): ProductReviewsPage {
       isBuyer: Boolean(record.isBuyer),
       likesCount: Number(record.likesCount ?? 0),
       dislikesCount: Number(record.dislikesCount ?? 0),
+      userVote: normalizeReviewVote(
+        record.userVote ?? record.currentUserVote ?? record.myVote,
+      ),
       createdAt: String(record.createdAt ?? ""),
       replies: Array.isArray(record.replies)
         ? record.replies.map((reply) => {
@@ -174,7 +181,6 @@ export async function voteProductReview(
 
   try {
     const response = await apiClient.post(`/Reviews/${reviewId}/vote`, body);
-    console.log("[review.client] voteProductReview response =>", response.data);
     return response.data;
   } catch (error) {
     logApiError("voteProductReview", error);
@@ -190,10 +196,6 @@ export async function reportProductReview(
 
   try {
     const response = await apiClient.post(`/Reviews/${reviewId}/report`, body);
-    console.log(
-      "[review.client] reportProductReview response =>",
-      response.data,
-    );
     return response.data;
   } catch (error) {
     logApiError("reportProductReview", error);
@@ -206,10 +208,6 @@ export async function deleteProductReview(reviewId: string): Promise<unknown> {
 
   try {
     const response = await apiClient.delete(`/Reviews/${reviewId}`);
-    console.log(
-      "[review.client] deleteProductReview response =>",
-      response.data,
-    );
     return response.data;
   } catch (error) {
     logApiError("deleteProductReview", error);

@@ -13,6 +13,17 @@ export type TicketStatus = "open" | "pending" | "answered" | "closed" | string;
 
 export type TicketSenderType = "customer" | "agent" | "system" | string;
 
+export type TicketAttachment = {
+  id: string;
+  messageId: string;
+  mediaId: string;
+  fileName: string;
+  url: string;
+  contentType: string;
+  fileSizeBytes: number;
+  createdAt: string;
+};
+
 export type TicketListItem = {
   id: string;
   ticketNumber: string;
@@ -33,6 +44,7 @@ export type TicketMessageItem = {
   body: string;
   isInternalNote: boolean;
   createdAt: string;
+  attachments: TicketAttachment[];
 };
 
 export type TicketDetail = {
@@ -51,6 +63,7 @@ export type TicketDetail = {
   createdAt: string;
   closedAt: string | null;
   messages: TicketMessageItem[];
+  attachments: TicketAttachment[];
 };
 
 export type TicketsPage = {
@@ -70,6 +83,7 @@ export type CreateTicketRequest = {
   priority: TicketPriority;
   orderId?: string | null;
   orderNumber?: string | null;
+  attachmentFiles?: File[];
 };
 
 export type CreateTicketResponse = {

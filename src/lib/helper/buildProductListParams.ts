@@ -17,6 +17,10 @@ export default function buildProductListParams(params: ProductListParams) {
     searchParams.append("CategoryIds", JSON.stringify(params.CategoryIds));
   }
 
+  if (params.ColorOptionIds?.length) {
+    searchParams.append("ColorOptionIds", JSON.stringify(params.ColorOptionIds));
+  }
+
   if (params.MinPrice) searchParams.append("MinPrice", String(params.MinPrice));
 
   if (params.MaxPrice) searchParams.append("MaxPrice", String(params.MaxPrice));

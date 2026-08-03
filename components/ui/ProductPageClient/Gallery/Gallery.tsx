@@ -1,6 +1,6 @@
 "use client";
 // components/ui/ProductPageClient/Gallery/Gallery.tsx
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 // swiper
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -29,18 +29,16 @@ import {
 } from "@/src/services/wishlist/wishlist.client";
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
 import { notify } from "@/src/utils/toast";
-import { ProductDetailPromotion } from "@/src/lib/types/products/productDetail.types";
-
-export type PriceChartItem = {
-  date: string;
-  price: number; // قیمت فروش فعلی
-  originalPrice?: number; // قیمت بدون تخفیف (اختیاری)
-  isAvailable: boolean; // موجود/ناموجود
-};
+import type {
+  ProductDetailPromotion,
+  ProductDetailVariant,
+} from "@/src/lib/types/products/productDetail.types";
 
 type GalleryImage = {
   imgSrc?: string;
   thumbSrc?: string;
+  variantId?: string;
+  isPrimary?: boolean;
 };
 
 interface GalleryProps {
@@ -48,9 +46,14 @@ interface GalleryProps {
   isOutOfStock: boolean;
   productName: string;
   productId: string;
+  variants?: ProductDetailVariant[];
+  selectedVariantId?: string;
   initialIsInWishlist?: boolean;
   isAmazingOffer?: boolean;
   promotion?: ProductDetailPromotion | null;
+  campaignLabel?: string | null;
+  campaignEndAt?: string | null;
+  campaignRemainingSeconds?: number | null;
   /** ISO یا ثانیه باقی‌مانده — اختیاری */
   countdownTarget?: string | number | null;
 }
@@ -60,10 +63,14 @@ export default function Gallery({
   isOutOfStock,
   productName,
   productId,
+  variants: productVariants = [],
+  selectedVariantId,
   initialIsInWishlist = false,
   isAmazingOffer = false,
   promotion = null,
-  countdownTarget = "2026-10-01T15:30:00.000Z",
+  campaignLabel,
+  campaignEndAt,
+  campaignRemainingSeconds,
 }: GalleryProps) {
   const [shareOpen, setShareOpen] = useState(false);
   const [chartOpen, setChartOpen] = useState(false);
@@ -78,8 +85,15 @@ export default function Gallery({
   const isAuthBootstrapping = useIsAuthBootstrapping();
   const showFilledHeart = isAuthenticated && isInWishlist;
   const promotionTitle =
-    promotion?.promotionTypeDisplayName || promotion?.typeLabel || "فروش ویژه";
-  const promotionCountdownTarget = promotion?.promotionEndAt ?? countdownTarget;
+    campaignLabel?.trim() ||
+    promotion?.promotionTypeDisplayName ||
+    promotion?.typeLabel ||
+    "فروش ویژه";
+  const promotionCountdownTarget =
+    campaignRemainingSeconds ??
+    campaignEndAt ??
+    promotion?.remainingSeconds ??
+    promotion?.promotionEndAt;
 
   useEffect(() => {
     if (!productId || isAuthBootstrapping || !isAuthenticated) {
@@ -158,215 +172,43 @@ export default function Gallery({
     [thumbsSwiper],
   );
 
-  const variants = [
-    { id: "black", label: "مشکی" },
-    { id: "white", label: "سفید" },
-  ];
+  const variants = useMemo(
+    () =>
+      productVariants.flatMap((variant) => {
+        const id = variant.variantId?.trim();
+        if (!id) return [];
 
-  const variantDataMap = {
-    black: [
-      {
-        date: "1 اردیبهشت",
-        price: 7100000,
-        originalPrice: 7100000,
-        isAvailable: true,
-      },
-      {
-        date: "2 اردیبهشت",
-        price: 7100000,
-        originalPrice: 7100000,
-        isAvailable: true,
-      },
-      {
-        date: "3 اردیبهشت",
-        price: 7100000,
-        originalPrice: 7100000,
-        isAvailable: true,
-      },
-      {
-        date: "4 اردیبهشت",
-        price: 5200000,
-        originalPrice: 5700000,
-        isAvailable: true,
-      },
-      {
-        date: "5 اردیبهشت",
-        price: 5200000,
-        originalPrice: 5700000,
-        isAvailable: true,
-      },
-      {
-        date: "6 اردیبهشت",
-        price: 5200000,
-        originalPrice: 5700000,
-        isAvailable: false,
-      },
-      {
-        date: "7 اردیبهشت",
-        price: 5200000,
-        originalPrice: 5700000,
-        isAvailable: false,
-      },
-      {
-        date: "8 اردیبهشت",
-        price: 5200000,
-        originalPrice: 5700000,
-        isAvailable: false,
-      },
-      {
-        date: "9 اردیبهشت",
-        price: 5200000,
-        originalPrice: 5700000,
-        isAvailable: false,
-      },
-      {
-        date: "10 اردیبهشت",
-        price: 7000000,
-        originalPrice: 7000000,
-        isAvailable: true,
-      },
-      {
-        date: "11 اردیبهشت",
-        price: 7125000,
-        originalPrice: 7125000,
-        isAvailable: true,
-      },
-      {
-        date: "12 اردیبهشت",
-        price: 7250000,
-        originalPrice: 7250000,
-        isAvailable: true,
-      },
-      {
-        date: "13 اردیبهشت",
-        price: 7375000,
-        originalPrice: 7375000,
-        isAvailable: true,
-      },
-      {
-        date: "14 اردیبهشت",
-        price: 7500000,
-        originalPrice: 7500000,
-        isAvailable: true,
-      },
-      {
-        date: "15 اردیبهشت",
-        price: 7625000,
-        originalPrice: 7625000,
-        isAvailable: true,
-      },
-      {
-        date: "16 اردیبهشت",
-        price: 7750000,
-        originalPrice: 7750000,
-        isAvailable: true,
-      },
-      {
-        date: "17 اردیبهشت",
-        price: 7875000,
-        originalPrice: 7875000,
-        isAvailable: true,
-      },
-      {
-        date: "18 اردیبهشت",
-        price: 8000000,
-        originalPrice: 8000000,
-        isAvailable: true,
-      },
-      {
-        date: "19 اردیبهشت",
-        price: 8125000,
-        originalPrice: 8125000,
-        isAvailable: true,
-      },
-      {
-        date: "20 اردیبهشت",
-        price: 7500000,
-        originalPrice: 7500000,
-        isAvailable: false,
-      },
-      {
-        date: "21 اردیبهشت",
-        price: 7320000,
-        originalPrice: 7320000,
-        isAvailable: false,
-      },
-      {
-        date: "22 اردیبهشت",
-        price: 7140000,
-        originalPrice: 7140000,
-        isAvailable: false,
-      },
-      {
-        date: "23 اردیبهشت",
-        price: 6960000,
-        originalPrice: 6960000,
-        isAvailable: false,
-      },
-      {
-        date: "24 اردیبهشت",
-        price: 6780000,
-        originalPrice: 6780000,
-        isAvailable: false,
-      },
-      {
-        date: "25 اردیبهشت",
-        price: 6600000,
-        originalPrice: 6600000,
-        isAvailable: true,
-      },
-      {
-        date: "26 اردیبهشت",
-        price: 6180000,
-        originalPrice: 6200000,
-        isAvailable: true,
-      },
-      {
-        date: "27 اردیبهشت",
-        price: 5960000,
-        originalPrice: 6800000,
-        isAvailable: true,
-      },
-      {
-        date: "28 اردیبهشت",
-        price: 5400000,
-        originalPrice: 5640000,
-        isAvailable: true,
-      },
-      {
-        date: "29 اردیبهشت",
-        price: 5000000,
-        originalPrice: 5320000,
-        isAvailable: true,
-      },
-      {
-        date: "30 اردیبهشت",
-        price: 5000000,
-        originalPrice: 5000000,
-        isAvailable: true,
-      },
-      {
-        date: "31 اردیبهشت",
-        price: 5000000,
-        originalPrice: 5000000,
-        isAvailable: true,
-      },
-    ],
-    white: [
-      {
-        date: "1 اردیبهشت",
-        price: 6_900_000,
-        originalPrice: 7_300_000,
-        isAvailable: false,
-      },
-      {
-        date: "1 خرداد",
-        price: 4_900_000,
-        originalPrice: 4_900_000,
-        isAvailable: true,
-      },
-    ],
-  };
+        return [
+          {
+            id,
+            label: variant.name?.trim() || id,
+          },
+        ];
+      }),
+    [productVariants],
+  );
+
+  const selectedVariantImageIndex = useMemo(() => {
+    const variantId = selectedVariantId?.trim();
+    if (!variantId) return 0;
+
+    const primaryImageIndex = images.findIndex(
+      (image) => image.variantId === variantId && image.isPrimary,
+    );
+
+    if (primaryImageIndex >= 0) return primaryImageIndex;
+
+    const firstImageIndex = images.findIndex(
+      (image) => image.variantId === variantId,
+    );
+
+    return firstImageIndex >= 0 ? firstImageIndex : 0;
+  }, [images, selectedVariantId]);
+
+  useEffect(() => {
+    mainSwiperRef.current?.slideTo(selectedVariantImageIndex);
+    thumbsSwiper?.slideTo(selectedVariantImageIndex);
+  }, [selectedVariantImageIndex, thumbsSwiper]);
 
   return (
     <section className="xl:col-span-4 mt-7 col-span-12 pb-10 w-full">
@@ -377,7 +219,7 @@ export default function Gallery({
           </h3>
           <DiscountCountdown target={promotionCountdownTarget} />
         </div>
-       )} 
+      )}
 
       {/* <!-- Out of Stock Badge --> */}
       {isOutOfStock && (
@@ -442,17 +284,21 @@ export default function Gallery({
           title={productName}
         />
 
-        <ChartModal
-          open={chartOpen}
-          onClose={() => setChartOpen(false)}
-          variants={variants}
-          variantDataMap={variantDataMap}
-        />
+        {chartOpen && (
+          <ChartModal
+            open={chartOpen}
+            onClose={() => setChartOpen(false)}
+            productId={productId}
+            variants={variants}
+            initialVariantId={selectedVariantId}
+          />
+        )}
 
         {/* <!-- Gallery --> */}
         <Swiper
           onSwiper={(swiper) => {
             mainSwiperRef.current = swiper;
+            swiper.slideTo(selectedVariantImageIndex);
           }}
           onSlideChange={(swiper) => setLightboxIndex(swiper.activeIndex)}
           modules={[Navigation, Pagination, Thumbs, Zoom]}

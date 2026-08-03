@@ -1,22 +1,44 @@
+// app/blog/[slug]/page.jsx
 import React from "react";
 import Breadcrumb from "@/components/modules/Breadcrumb/Breadcrumb";
-import Image from "next/image";
-import Link from "next/link";
 import BlogContent from "@/components/ui/Blog/slug/BlogContent";
+import {
+  blogPosts,
+  getBlogPostBySlug,
+} from "@/components/ui/Blog/blogData";
 
-export default function BlogPage() {
+export function generateStaticParams() {
+  return blogPosts.map((post) => ({
+    slug: post.slug,
+  }));
+}
+
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const post = getBlogPostBySlug(slug);
+
+  return {
+    title: post.title,
+    description: post.description,
+  };
+}
+
+export default async function BlogPage({ params }) {
+  const { slug } = await params;
+  const post = getBlogPostBySlug(slug);
+
   return (
     <section className="py-5">
       <div className="container mx-auto">
-        {/* <!-- Breadcrumb --> */}
         <Breadcrumb
-          title={"بلاگ"}
-          href={"#"}
-          active={"گوشی موبایل اپل مدل iPhone 13 Pro Max دو سیم کارت"}
+          items={[
+            { id: "home", name: "خانه", slug: "", depth: -1 },
+            { id: "blog", name: "بلاگ", slug: "blog", depth: -2 },
+            { id: post.slug, name: post.keyword, slug: post.slug, depth: -2 },
+          ]}
         />
 
-        {/* <!-- Content --> */}
-        <BlogContent />
+        <BlogContent post={post} />
       </div>
     </section>
   );

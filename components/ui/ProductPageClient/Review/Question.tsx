@@ -1,5 +1,5 @@
 "use client";
-
+// components/ui/ProductPageClient/Review/Question.tsx
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   createProductQuestion,
@@ -49,19 +49,30 @@ function AnswerCard({
   onVoted: (answerId: string, patch: Partial<ProductQuestionAnswer>) => void;
 }) {
   const [voting, setVoting] = useState(false);
+  const [userVote, setUserVote] = useState<QuestionVoteType | null>(
+    answer.userVote ?? null,
+  );
 
   const handleVote = async (voteType: QuestionVoteType) => {
     if (voting) return;
+    if (userVote === voteType) return;
+
     setVoting(true);
     try {
+      const previousVote = userVote;
+
       await voteQuestionAnswer(answer.id, voteType);
+      setUserVote(voteType);
       onVoted(answer.id, {
+        userVote: voteType,
         likesCount:
-          voteType === "like" ? answer.likesCount + 1 : answer.likesCount,
+          answer.likesCount +
+          (voteType === "like" ? 1 : 0) -
+          (previousVote === "like" ? 1 : 0),
         dislikesCount:
-          voteType === "dislike"
-            ? answer.dislikesCount + 1
-            : answer.dislikesCount,
+          answer.dislikesCount +
+          (voteType === "dislike" ? 1 : 0) -
+          (previousVote === "dislike" ? 1 : 0),
       });
       notify.success(
         voteType === "like" ? "رأی مثبت ثبت شد" : "رأی منفی ثبت شد",
@@ -116,8 +127,13 @@ function AnswerCard({
           <button
             type="button"
             onClick={() => handleVote("like")}
-            disabled={voting}
-            className="flex items-center gap-1 text-gray-500 transition hover:text-green-500 disabled:opacity-60 dark:text-gray-400 dark:hover:text-green-400"
+            disabled={voting || userVote === "like"}
+            aria-pressed={userVote === "like"}
+            className={`flex items-center gap-1 transition hover:text-green-500 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:text-green-400 ${
+              userVote === "like"
+                ? "text-green-600 dark:text-green-400"
+                : "text-gray-500 dark:text-gray-400"
+            }`}
           >
             <i className="far fa-thumbs-up" />
             <span className="text-sm font-medium">
@@ -127,8 +143,13 @@ function AnswerCard({
           <button
             type="button"
             onClick={() => handleVote("dislike")}
-            disabled={voting}
-            className="flex items-center gap-1 text-gray-500 transition hover:text-red-500 disabled:opacity-60 dark:text-gray-400 dark:hover:text-red-400"
+            disabled={voting || userVote === "dislike"}
+            aria-pressed={userVote === "dislike"}
+            className={`flex items-center gap-1 transition hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:text-red-400 ${
+              userVote === "dislike"
+                ? "text-red-600 dark:text-red-400"
+                : "text-gray-500 dark:text-gray-400"
+            }`}
           >
             <i className="far fa-thumbs-down" />
             <span className="text-sm font-medium">

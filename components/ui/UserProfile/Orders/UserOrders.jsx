@@ -6,6 +6,7 @@ import UserOrdersFilter from "./UserOrdersFilter";
 import UserOrdersList from "./UserOrdersList";
 import GatewayRedirectConfirmation from "@/components/modules/GatewayRedirectConfirmation/GatewayRedirectConfirmation";
 import {
+  downloadMyOrderInvoice,
   getMyOrderById,
   getMyOrderByNumber,
   getMyOrders,
@@ -13,6 +14,7 @@ import {
 } from "@/src/services/orders/orders.client";
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
 import { notify } from "@/src/utils/toast";
+import { rememberPendingPaymentOrder } from "@/src/utils/paymentRetryStorage";
 
 const PAGE_SIZE = 10;
 const UUID_RE =
@@ -41,6 +43,8 @@ export default function UserOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [retryingOrderId, setRetryingOrderId] = useState(null);
+  const [downloadingInvoiceOrderId, setDownloadingInvoiceOrderId] =
+    useState(null);
   const [pendingRetryOrder, setPendingRetryOrder] = useState(null);
 
   const [page, setPage] = useState(1);
@@ -166,6 +170,10 @@ export default function UserOrders() {
     try {
       const result = await retryMyOrderPayment(pendingRetryOrder.orderId);
       if (result.paymentUrl) {
+        rememberPendingPaymentOrder(
+          pendingRetryOrder.orderId,
+          pendingRetryOrder.publicOrderNumber,
+        );
         window.location.href = result.paymentUrl;
         return;
       }
@@ -177,6 +185,30 @@ export default function UserOrders() {
       setRetryingOrderId(null);
     }
   }, [pendingRetryOrder, retryingOrderId]);
+
+  const handleDownloadInvoice = useCallback(async (order) => {
+    if (!order?.orderId || downloadingInvoiceOrderId) return;
+
+    setDownloadingInvoiceOrderId(order.orderId);
+    try {
+      const { blob, fileName } = await downloadMyOrderInvoice(order.orderId);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download =
+        fileName ||
+        `invoice-${order.publicOrderNumber || order.orderId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      notify.success("فاکتور سفارش دانلود شد");
+    } catch (error) {
+      notify.error(getAuthErrorMessage(error));
+    } finally {
+      setDownloadingInvoiceOrderId(null);
+    }
+  }, [downloadingInvoiceOrderId]);
 
   if (pendingRetryOrder) {
     return (
@@ -243,6 +275,7 @@ export default function UserOrders() {
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}
         retryingOrderId={retryingOrderId}
+        downloadingInvoiceOrderId={downloadingInvoiceOrderId}
         onPrevPage={() => {
           if (searchMode || !hasPreviousPage) return;
           void loadOrders(page - 1);
@@ -256,6 +289,7 @@ export default function UserOrders() {
           void loadOrders(pageNumber);
         }}
         onRetryPayment={handleRetryPayment}
+        onDownloadInvoice={handleDownloadInvoice}
         onBuyAgain={() => {
           notify.info("قابلیت خرید مجدد به‌زودی فعال می‌شود");
         }}

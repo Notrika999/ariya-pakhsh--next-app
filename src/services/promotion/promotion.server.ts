@@ -1,7 +1,8 @@
 import "server-only";
-
+// src/services/promotion/promotion.server.ts
 import { proxyToBackend } from "@/src/lib/http/server-http";
 import { ProductCardModel } from "@/src/lib/types/productTypes";
+import { getProductImage } from "@/src/utils/product-image";
 
 interface AmazingPromotion {
   campaignId: string;
@@ -9,6 +10,8 @@ interface AmazingPromotion {
   variantId: string;
   promotionType: number;
   typeLabel: string;
+  promotionTypeValue?: string;
+  promotionTypeDisplayName?: string;
   basePrice: number;
   finalPrice: number;
   discountAmount: number;
@@ -40,6 +43,7 @@ interface AmazingProductDto {
   imageUrl?: string;
   thumbnailUrl?: string;
   thumbnailPath?: string;
+  mediumPath?: string;
   image?: string;
 }
 
@@ -104,12 +108,12 @@ interface AmazingFilterResponse {
 }
 
 function pickImage(item: AmazingProductDto): string {
-  return (
+  return getProductImage(
     item.thumbnailUrl ??
-    item.imageUrl ??
-    item.thumbnailPath ??
-    item.image ??
-    "/images/default.png"
+      item.imageUrl ??
+      item.thumbnailPath ??
+      item.mediumPath ??
+      item.image,
   );
 }
 
@@ -118,6 +122,10 @@ function mapAmazingProduct(
   options?: { includeDealTimer?: boolean },
 ): ProductCardModel {
   const promotion = item.promotion;
+  const promotionLabel =
+    promotion.promotionTypeDisplayName?.trim() ||
+    promotion.typeLabel?.trim() ||
+    "پیشنهاد ویژه";
 
   return {
     id: item.productId,
@@ -127,7 +135,7 @@ function mapAmazingProduct(
     imageSlider: [],
     brandId: item.brandId,
     primaryBrandName: item.brandName,
-    categoryName: promotion.typeLabel ?? "",
+    categoryName: promotionLabel,
     currency: "IRR",
     price: promotion.finalPrice,
     oldPrice: promotion.basePrice,
@@ -143,6 +151,14 @@ function mapAmazingProduct(
     href: `/product/${item.slug}`,
     discount: promotion.discountPercent,
     discountPercent: promotion.discountPercent,
+    showSaleBadge: {
+      label: promotionLabel,
+      promotionType: promotion.promotionType,
+      promotionTypeValue: promotion.promotionTypeValue,
+      discountPercent: promotion.discountPercent,
+      endsAt: promotion.promotionEndAt,
+      remainingSeconds: promotion.remainingSeconds,
+    },
     isFeatured: true,
     specialSale: true,
     offer: true,
@@ -195,6 +211,8 @@ export async function getAmazingFilteredProducts(
     cache: "no-store",
   });
 
+  console.log("getAmazingFilteredProducts => ", response);
+
   const empty: AmazingFilterResult = {
     products: [],
     totalCount: 0,
@@ -245,7 +263,9 @@ export async function getAmazingFilteredProducts(
   };
 }
 
-export async function getSpecialPromotionProducts(): Promise<ProductCardModel[]> {
+export async function getSpecialPromotionProducts(): Promise<
+  ProductCardModel[]
+> {
   const response = await proxyToBackend<AmazingProductsResponse>({
     method: "GET",
     path: "/api/v1/Promotion/special",

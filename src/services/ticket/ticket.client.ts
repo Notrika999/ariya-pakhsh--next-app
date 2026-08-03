@@ -5,6 +5,7 @@ import type {
   CreateTicketRequest,
   CreateTicketResponse,
   SendTicketMessageRequest,
+  TicketAttachment,
   TicketDetail,
   TicketListItem,
   TicketMessageItem,
@@ -29,6 +30,27 @@ function logApiError(label: string, error: unknown) {
   }
 }
 
+function isFile(value: unknown): value is File {
+  return typeof File !== "undefined" && value instanceof File;
+}
+
+function createTicketFormData(
+  payload: Record<string, string>,
+  attachmentFiles: File[],
+) {
+  const formData = new FormData();
+
+  Object.entries(payload).forEach(([key, value]) => {
+    formData.append(key, value);
+  });
+
+  attachmentFiles.forEach((file) => {
+    formData.append("AttachmentFiles", file, file.name);
+  });
+
+  return formData;
+}
+
 function mapTicketListItem(value: unknown): TicketListItem {
   const record = getRecord(value);
   return {
@@ -44,8 +66,26 @@ function mapTicketListItem(value: unknown): TicketListItem {
   };
 }
 
+function mapAttachment(value: unknown): TicketAttachment {
+  const record = getRecord(value);
+  return {
+    id: String(record.id ?? ""),
+    messageId: String(record.messageId ?? ""),
+    mediaId: String(record.mediaId ?? ""),
+    fileName: String(record.fileName ?? ""),
+    url: String(record.url ?? ""),
+    contentType: String(record.contentType ?? ""),
+    fileSizeBytes: Number(record.fileSizeBytes ?? 0),
+    createdAt: String(record.createdAt ?? ""),
+  };
+}
+
 function mapMessage(value: unknown): TicketMessageItem {
   const record = getRecord(value);
+  const attachmentsRaw = Array.isArray(record.attachments)
+    ? record.attachments
+    : [];
+
   return {
     id: String(record.id ?? ""),
     senderUserId: String(record.senderUserId ?? ""),
@@ -54,6 +94,7 @@ function mapMessage(value: unknown): TicketMessageItem {
     body: String(record.body ?? ""),
     isInternalNote: Boolean(record.isInternalNote),
     createdAt: String(record.createdAt ?? ""),
+    attachments: attachmentsRaw.map(mapAttachment).filter((item) => item.url),
   };
 }
 
@@ -83,6 +124,7 @@ function unwrapTicketDetail(payload: unknown): TicketDetail {
   const root = getRecord(payload);
   const data = getRecord(root.data ?? root);
   const messagesRaw = Array.isArray(data.messages) ? data.messages : [];
+  const attachmentsRaw = Array.isArray(data.attachments) ? data.attachments : [];
 
   return {
     id: String(data.id ?? ""),
@@ -106,6 +148,7 @@ function unwrapTicketDetail(payload: unknown): TicketDetail {
     messages: messagesRaw
       .map(mapMessage)
       .filter((message) => !message.isInternalNote),
+    attachments: attachmentsRaw.map(mapAttachment).filter((item) => item.url),
   };
 }
 
@@ -122,7 +165,6 @@ export async function getMyTickets(params?: {
 
   try {
     const response = await apiClient.get("/Tickets/my", { params: query });
-    console.log("[ticket.client] getMyTickets response =>", response.data);
     return unwrapTicketsPage(response.data);
   } catch (error) {
     logApiError("getMyTickets", error);
@@ -135,7 +177,6 @@ export async function getTicketById(ticketId: string): Promise<TicketDetail> {
 
   try {
     const response = await apiClient.get(`/Tickets/${ticketId}`);
-    console.log("[ticket.client] getTicketById response =>", response.data);
     return unwrapTicketDetail(response.data);
   } catch (error) {
     logApiError("getTicketById", error);
@@ -161,11 +202,13 @@ export async function createTicket(
 
 
 
+  const attachmentFiles = (request.attachmentFiles ?? []).filter(isFile);
+
   try {
-    const response = await apiClient.post("/Tickets", payload, {
-      headers: { "Content-Type": "application/json" },
-    });
- 
+    const response = await apiClient.post(
+      "/Tickets",
+      createTicketFormData(payload, attachmentFiles),
+    );
 
     const root = getRecord(response.data);
     const data = getRecord(root.data ?? root);

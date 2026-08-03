@@ -9,6 +9,7 @@ import {
   getMyOrderById,
 } from "@/src/services/orders/orders.client";
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
+import { canRequestReturnForOrder } from "@/src/lib/helper/orderReturnEligibility";
 import { notify } from "@/src/utils/toast";
 
 function formatMoney(value) {
@@ -45,6 +46,60 @@ function statusBadgeClass(statusKey = "") {
   return "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300";
 }
 
+function canDownloadInvoice(order) {
+  const statusKey = String(order?.statusKey ?? "").toLowerCase();
+  const paymentStatusKey = String(order?.paymentStatusKey ?? "").toLowerCase();
+  const fulfillmentStatusKey = String(
+    order?.fulfillmentStatusKey ?? "",
+  ).toLowerCase();
+  const statusTitle = String(order?.statusTitleFa ?? "");
+  const fulfillmentTitle = String(order?.fulfillmentStatusTitleFa ?? "");
+  const paymentTitle = String(order?.paymentStatusTitleFa ?? "");
+  const combinedKey = `${statusKey} ${paymentStatusKey} ${fulfillmentStatusKey}`;
+  const combinedTitle = `${statusTitle} ${paymentTitle} ${fulfillmentTitle}`;
+  const isRejected =
+    combinedKey.includes("fail") ||
+    combinedKey.includes("cancel") ||
+    combinedKey.includes("expire") ||
+    combinedTitle.includes("ناموفق") ||
+    combinedTitle.includes("لغو") ||
+    combinedTitle.includes("منقضی");
+
+  if (isRejected) return false;
+
+  return (
+    statusKey === "order.paid" ||
+    statusKey === "order.confirmed" ||
+    statusKey === "order.shipped" ||
+    statusKey === "order.delivered" ||
+    paymentStatusKey.includes("paid") ||
+    paymentStatusKey.includes("success") ||
+    fulfillmentStatusKey.includes("shipped") ||
+    fulfillmentStatusKey.includes("delivered") ||
+    statusTitle.includes("پرداخت شده") ||
+    statusTitle.includes("تأیید") ||
+    statusTitle.includes("تایید") ||
+    statusTitle.includes("ارسال") ||
+    statusTitle.includes("تحویل") ||
+    paymentTitle.includes("پرداخت شده") ||
+    fulfillmentTitle.includes("ارسال") ||
+    fulfillmentTitle.includes("تحویل")
+  );
+}
+
+function isClosedOrder(order) {
+  const statusKey = String(order?.statusKey ?? "").toLowerCase();
+  return statusKey === "order.expired" || statusKey === "order.cancelled";
+}
+
+function canCancelOrder(order) {
+  return !isClosedOrder(order);
+}
+
+function canTrackOrder(order) {
+  return !isClosedOrder(order);
+}
+
 export default function UserOrdersList({
   orders = [],
   loading = false,
@@ -55,12 +110,14 @@ export default function UserOrdersList({
   hasPreviousPage = false,
   hasNextPage = false,
   retryingOrderId = null,
+  downloadingInvoiceOrderId = null,
   onPrevPage,
   onNextPage,
   onGoToPage,
   onRetryPayment,
   onBuyAgain,
   onTrackOrder,
+  onDownloadInvoice,
   onCancelSuccess,
 }) {
   const from = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
@@ -79,6 +136,7 @@ export default function UserOrdersList({
 
   const openCancelPanel = async (order) => {
     if (!order?.orderId) return;
+    if (!canCancelOrder(order)) return;
 
     if (cancelDetail?.orderId === order.orderId) {
       closeCancelPanel();
@@ -227,13 +285,13 @@ export default function UserOrdersList({
                           </p>
                         </div>
                       </div>
-                      <button
+                      {/* <button
                         type="button"
                         onClick={() => onTrackOrder?.(order)}
                         className="text-sm font-medium text-primary hover:text-primary/80 dark:text-primary-200"
                       >
                         رهگیری
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 ) : null}
@@ -253,26 +311,41 @@ export default function UserOrdersList({
                           : "پرداخت مجدد"}
                       </button>
                     ) : null}
+                    {canDownloadInvoice(order) ? (
+                      <button
+                        type="button"
+                        disabled={downloadingInvoiceOrderId === order.orderId}
+                        onClick={() => onDownloadInvoice?.(order)}
+                        className="flex items-center text-sm font-medium text-emerald-600 hover:text-emerald-500 disabled:opacity-60 dark:text-emerald-400"
+                      >
+                        <i className="far fa-file-lines me-1"></i>
+                        {downloadingInvoiceOrderId === order.orderId
+                          ? "در حال دانلود..."
+                          : "دانلود فاکتور"}
+                      </button>
+                    ) : null}
                     <button
                       type="button"
                       onClick={() => onTrackOrder?.(order)}
-                      className="flex items-center text-sm font-medium text-primary hover:text-primary/80 dark:text-primary-200"
+                      className={`${canTrackOrder(order) ? "flex" : "hidden"} items-center text-sm font-medium text-primary hover:text-primary/80 dark:text-primary-200`}
                     >
                       <i className="far fa-location-dot me-1"></i>
                       رهگیری سفارش
                     </button>
-                    <Link
-                      href={`/user-profile/orders-return?orderId=${order.orderId}`}
-                      className="flex items-center text-sm font-medium text-red-600 hover:text-red-500 dark:text-red-400"
-                    >
-                      <i className="far fa-square-arrow-up-left me-1"></i>
-                      درخواست مرجوعی
-                    </Link>
+                    {canRequestReturnForOrder(order) ? (
+                      <Link
+                        href={`/user-profile/orders-return?orderId=${order.orderId}`}
+                        className="flex items-center text-sm font-medium text-red-600 hover:text-red-500 dark:text-red-400"
+                      >
+                        <i className="far fa-square-arrow-up-left me-1"></i>
+                        درخواست مرجوعی
+                      </Link>
+                    ) : null}
                     <button
                       type="button"
                       disabled={cancelLoadingOrderId === order.orderId}
                       onClick={() => void openCancelPanel(order)}
-                      className="flex items-center text-sm font-medium text-red-600 hover:text-red-500 disabled:opacity-60 dark:text-red-400"
+                      className={`${canCancelOrder(order) ? "flex" : "hidden"} items-center text-sm font-medium text-red-600 hover:text-red-500 disabled:opacity-60 dark:text-red-400`}
                     >
                       <i className="far fa-ban me-1"></i>
                       {cancelLoadingOrderId === order.orderId

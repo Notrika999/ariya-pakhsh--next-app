@@ -27,6 +27,7 @@ export async function getMegaMenu(): Promise<Category[]> {
         megaMenuRequest = null;
         throw error;
       });
+      
   }
 
   return megaMenuRequest;

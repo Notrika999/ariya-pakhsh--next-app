@@ -10,6 +10,8 @@ export type CartApiItem = {
   quantity: number;
   unitPriceSnapshot: number;
   campaignPriceSnapshot: number | null;
+  unitPrice?: number;
+  campaignPrice?: number | null;
   lineTotal: number;
   addedAt: string;
   updatedAt: string;

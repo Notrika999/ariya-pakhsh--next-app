@@ -4,24 +4,53 @@ import { SortOption } from "@/src/lib/types/filters/filters";
 import React from "react";
 
 const sortOptions: { label: string; value: SortOption }[] = [
-  { label: "پیش‌فرض", value: "default" },
-  { label: "جدیدترین", value: "newest" },
-  { label: "ارزان‌ترین", value: "priceAsc" },
-  { label: "گران‌ترین", value: "priceDesc" },
-  { label: "پرفروش", value: "bestSelling" },
-  { label: "پربازدید", value: "mostRated" },
-  { label: "پرتخفیف", value: "discountDesc" },
+  { label: "پیش‌فرض", value: "Default" },
+  { label: "جدیدترین", value: "Newest" },
+  { label: "ارزان‌ترین", value: "PriceAsc" },
+  { label: "گران‌ترین", value: "PriceDesc" },
+  { label: "پرفروش", value: "BestSelling" },
+  { label: "پربازدید", value: "MostViewed" },
+  { label: "پرتخفیف", value: "DiscountDesc" },
+  { label: "امتیاز", value: "MostRated" },
 ];
 
 interface Props {
-  currentSort: SortOption;
+  currentSort: SortOption | null;
   onSortChange: (value: SortOption) => void;
+  options?: SortOption[];
 }
 
-export default function SortList({ currentSort, onSortChange }: Props) {
+function resolveSortOption(value: SortOption) {
+  const option = sortOptions.find((item) => item.value === value);
+  if (option) return option;
+
+  if (value === "BestDiscount") {
+    const discountOption = sortOptions.find(
+      (item) => item.value === "DiscountDesc",
+    );
+
+    return discountOption
+      ? { ...discountOption, value: "BestDiscount" as const }
+      : null;
+  }
+
+  return null;
+}
+
+export default function SortList({
+  currentSort,
+  onSortChange,
+  options,
+}: Props) {
+  const visibleOptions = options
+    ? options
+        .map(resolveSortOption)
+        .filter((option): option is NonNullable<typeof option> => option !== null)
+    : sortOptions;
+
   return (
     <div className="flex items-center overflow-x-auto  text-sm py-2">
-      {sortOptions.map((option) => {
+      {visibleOptions.map((option) => {
         const isActive = currentSort === option.value;
 
         return (

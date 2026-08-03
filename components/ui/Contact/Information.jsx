@@ -16,7 +16,7 @@ export default function Information() {
           آدرس ما
         </h3>
         <p className="text-gray-600 dark:text-gray-400">
-          تهران، خیابان ولیعصر، پلاک ۱۲۳۴، طبقه ۳
+          مازندران-ساری، بلوار امام رضا (ع) 
         </p>
       </div>
 
@@ -32,8 +32,8 @@ export default function Information() {
         <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200 mb-2">
           تلفن تماس
         </h3>
-        <p className="text-gray-600 dark:text-gray-400 mb-1">۰۲۱-۱۲۳۴۵۶۷۸</p>
-        <p className="text-gray-600 dark:text-gray-400">۰۹۱۲-۱۲۳-۴۵۶۷</p>
+        <p className="text-gray-600 dark:text-gray-400 mb-1">90007824</p>
+        <p className="text-gray-600 dark:text-gray-400 " dir="ltr">۰۹۱1-xxx-xxxx</p>
       </div>
 
       {/* <!-- Card 3 --> */}
@@ -49,10 +49,10 @@ export default function Information() {
           ایمیل
         </h3>
         <p className="text-gray-600 dark:text-gray-400 mb-1">
-          info@parsistore.com
+          info@carup24.com
         </p>
         <p className="text-gray-600 dark:text-gray-400">
-          support@parsistore.com
+          support@carup24.com
         </p>
       </div>
 

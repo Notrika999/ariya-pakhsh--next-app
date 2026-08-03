@@ -6,6 +6,10 @@ export type CheckoutPaymentProvider = {
   description?: string;
   isAvailable: boolean;
   isDefault?: boolean;
+  gatewayType?: string;
+  minAmount?: number;
+  maxAmount?: number;
+  imageUrl?: string | null;
   logoUrl?: string | null;
 };
 
@@ -14,18 +18,52 @@ export type CheckoutPaymentMethod = {
   title: string;
   description: string;
   isAvailable: boolean;
+  imageUrl?: string | null;
   providers: CheckoutPaymentProvider[];
+};
+
+export type CheckoutApiErrorItem = {
+  field?: string;
+  message?: string;
+  code?: string;
 };
 
 export type CheckoutShippingMethod = {
   id: string;
+  shippingMethodId: string;
+  shippingClassId?: string;
+  shippingClassTitle?: string;
   title: string;
   description: string;
   price: number;
   formattedPrice?: string;
   methodType?: string;
   estimatedDeliveryDays?: number;
+  cashOnDelivery?: boolean;
+  isShippingPayAtDelivery?: boolean;
   isAvailable: boolean;
+};
+
+export type CheckoutShippingGroupItem = {
+  productId: string;
+  productName: string;
+  quantity: number;
+};
+
+export type CheckoutShippingGroup = {
+  shippingClassId: string;
+  shippingClassName: string;
+  totalWeightGrams: number;
+  itemCount: number;
+  items: CheckoutShippingGroupItem[];
+  options: CheckoutShippingMethod[];
+};
+
+export type CheckoutShippingOptionsResult = {
+  groups: CheckoutShippingGroup[];
+  cheapestTotalCost: number;
+  formattedCheapestTotalCost: string;
+  raw: unknown;
 };
 
 export type PlaceOrderShippingAddress = {
@@ -37,8 +75,14 @@ export type PlaceOrderShippingAddress = {
   addressLine: string;
 };
 
+export type PlaceOrderShippingSelection = {
+  shippingClassId: string;
+  shippingMethodId: string;
+};
+
 export type PlaceOrderPayload = {
   shippingMethodId: string;
+  shippingSelections: PlaceOrderShippingSelection[];
   shippingAddress: PlaceOrderShippingAddress;
   paymentMethodCode: string;
   couponCode?: string;
@@ -48,6 +92,11 @@ export type PlaceOrderPayload = {
 };
 
 export type PlaceOrderResult = {
+  success?: boolean;
+  code?: string;
+  errors?: CheckoutApiErrorItem[];
+  timestamp?: string;
+  traceId?: string;
   orderId?: string;
   orderNumber?: string;
   paymentId?: string;

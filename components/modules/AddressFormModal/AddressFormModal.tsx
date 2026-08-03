@@ -1,6 +1,6 @@
 "use client";
 // components/modules/AddressFormModal/AddressFormModal.tsx
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import LocationAutocomplete from "@/components/ui/UserProfile/UserAddress/LocationAutocomplete";
@@ -11,9 +11,8 @@ import {
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
 import { CustomerAddressPayload } from "@/src/lib/types/address/address.type";
 import {
-  getCitiesByProvince,
-  getIranProvinceNames,
-  resolveIranProvince,
+  getCityOptionsByProvince,
+  getIranProvinceOptions,
 } from "@/src/lib/data/iran-locations";
 import {
   buildAddressPayload,
@@ -48,30 +47,24 @@ interface AddressFormModalProps {
   showDefaultCheckbox?: boolean;
 }
 
-export default function AddressFormModal({
-  isOpen,
+function AddressFormModalContent({
   onClose,
   editingId = null,
   initialData,
   onSuccess,
   showDefaultCheckbox = true,
 }: AddressFormModalProps) {
-  const [formData, setFormData] =
-    useState<CustomerAddressPayload>(EMPTY_ADDRESS_FORM);
+  const [formData, setFormData] = useState<CustomerAddressPayload>(
+    () => initialData ?? EMPTY_ADDRESS_FORM,
+  );
   const [fieldErrors, setFieldErrors] = useState<AddressFieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
 
-  const provinceOptions = useMemo(() => getIranProvinceNames(), []);
+  const provinceOptions = useMemo(() => getIranProvinceOptions(), []);
   const cityOptions = useMemo(
-    () => getCitiesByProvince(resolveIranProvince(formData.province)),
+    () => getCityOptionsByProvince(formData.province),
     [formData.province],
   );
-
-  useEffect(() => {
-    if (!isOpen) return;
-    setFormData(initialData ?? EMPTY_ADDRESS_FORM);
-    setFieldErrors({});
-  }, [isOpen, initialData]);
 
   const clearFieldError = (field: keyof AddressFieldErrors) => {
     setFieldErrors((prev) => {
@@ -130,8 +123,6 @@ export default function AddressFormModal({
       setSubmitting(false);
     }
   };
-
-  if (!isOpen || typeof document === "undefined") return null;
 
   return createPortal(
     <div className="fixed inset-0 z-9999 flex items-start justify-center overflow-y-auto bg-black/40 p-4 pt-16 backdrop-blur-sm sm:pt-20">
@@ -391,5 +382,16 @@ export default function AddressFormModal({
       </div>
     </div>,
     document.body,
+  );
+}
+
+export default function AddressFormModal(props: AddressFormModalProps) {
+  if (!props.isOpen || typeof document === "undefined") return null;
+
+  return (
+    <AddressFormModalContent
+      key={props.editingId ?? "new-address"}
+      {...props}
+    />
   );
 }

@@ -1,5 +1,5 @@
+// app/cart/page.jsx
 import Cart from "@/components/ui/Cart/Cart";
-import React from "react";
 
 function CartPage() {
   return <Cart />;

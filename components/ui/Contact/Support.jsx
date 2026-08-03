@@ -5,7 +5,6 @@ import React from "react";
 export default function Support() {
   return (
     <div className="bg-white space-y-4 dark:bg-custom-dark border-gray-200  border dark:border-gray-700 rounded-2xl shadow-lg p-8">
-      
       <TitleAfter title={"پشتیبانی فوری"} />
 
       <p className="mb-6 opacity-90">
@@ -14,7 +13,7 @@ export default function Support() {
 
       <div className="bg-primary text-white rounded-xl p-4 mb-6 shadow text-center">
         <div className="text-2xl font-black tracking-wide">
-          <Link href="">۰۲۱-۱۲۳۴۵۶۷۸</Link>
+          <Link href="">90007824</Link>
         </div>
       </div>
 

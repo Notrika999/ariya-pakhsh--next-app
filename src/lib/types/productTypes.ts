@@ -58,10 +58,12 @@ export interface ProductIndexData {
 
 // Products List Category
 export interface ProductListParams {
-  CategoryId?: string;
+  CategoryId?: string | null;
   BrandId?: string;
   CategoryIds?: string[];
   BrandIds?: string[];
+  ColorOptionIds?: string[];
+  VehicleIds?: string[];
 
   CategorySlug?: string;
   /** Single brand slug only — use BrandIds for multi-select */
@@ -98,9 +100,35 @@ export interface ProductListItem {
   price: number;
   compareAtPrice?: number;
   salePrice?: number;
+  finalPrice?: number;
+  basePrice?: number;
+  originalPrice?: number;
 
   isOnSale: boolean;
   discountPercent?: number | null;
+  discountAmount?: number | null;
+  campaignId?: string | null;
+  campaignLabel?: string | null;
+  campaignTitle?: string | null;
+  campaignName?: string | null;
+  campaignEndAt?: string | null;
+  campaignRemainingSeconds?: number | null;
+  isAmazingOffer?: boolean;
+  promotion?: {
+    campaignId?: string | null;
+    promotionType?: number;
+    promotionTypeValue?: string | null;
+    promotionTypeDisplayName?: string | null;
+    typeLabel?: string | null;
+    basePrice?: number;
+    finalPrice?: number;
+    discountPercent?: number | null;
+    promotionEndAt?: string | null;
+    remainingSeconds?: number | null;
+    remainingStock?: number;
+    soldCount?: number;
+    variantId?: string | null;
+  } | null;
 
   currencyCode: string;
 
@@ -142,7 +170,9 @@ export type SortOrder =
   | "priceAsc"
   | "priceDesc"
   | "bestSelling"
-  | "mostRated";
+  | "mostViewed"
+  | "mostRated"
+  | "discountDesc";
 
 export interface Brand {
   id: number | string;
@@ -192,6 +222,14 @@ export interface ProductCardModel {
   href: string;
   discount?: string | number;
   discountPercent?: number;
+  showSaleBadge?: {
+    label: string;
+    promotionType?: number;
+    promotionTypeValue?: string;
+    discountPercent?: number;
+    endsAt?: string;
+    remainingSeconds?: number;
+  };
   isFeatured?: boolean;
   specialSale?: boolean;
   dealEndsAt?: string | Date;
@@ -216,16 +254,48 @@ export interface ProductListResponse {
 
   totalPages: number;
 
-  filterOptions: {
-    brands: BrandFilterOption[];
+  filterOptions: ProductFilterOptions;
+}
 
-    categories: CategoryFilterOption[];
+export interface ProductFilterOptions {
+  categoryId?: string;
+  categoryName?: string;
+  categorySlug?: string;
 
-    attributes: AttributeFilter[];
+  brands: BrandFilterOption[];
 
-    minPrice: number;
-    maxPrice: number;
-  };
+  categories: CategoryFilterOption[];
+
+  attributes: AttributeFilter[];
+
+  colors?: ProductFilterColorOption[];
+
+  vehicles?: ProductFilterVehicleOption[];
+
+  minPrice: number;
+  maxPrice: number;
+}
+
+export interface ProductFilterColorOption {
+  optionId: string;
+  attributeId: string;
+  attributeName: string;
+  value: string;
+  displayText?: string;
+  colorCodes?: string;
+}
+
+export interface ProductFilterVehicleOption {
+  id: string;
+  parentId?: string | null;
+  name: string;
+  englishName?: string;
+  company?: string;
+  depth?: number;
+  sortOrder?: number;
+  isLeaf?: boolean;
+  hasChildren?: boolean;
+  children?: ProductFilterVehicleOption[] | string[];
 }
 
 export interface ApiError {

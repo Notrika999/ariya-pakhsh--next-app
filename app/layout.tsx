@@ -1,6 +1,6 @@
 
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+
 import Footer from "@/components/layout/Footer/Footer";
 import Header from "@/components/layout/Header/Header";
 import NavMobile from "@/components/layout/NavMobile/NavMobile";
@@ -11,16 +11,9 @@ import { SerwistProvider } from "@/components/modules/providers/SerwistProvider"
 import { CartProvider } from "@/src/context/CartContext";
 import AuthInitializer from "@/components/modules/AuthInitializer/AuthInitializer";
 import { SITE_NAME, SITE_URL } from "@/src/lib/seo/site";
+import StoryMiniPlayer from "@/components/ui/Home/Story/StoryMiniPlayer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -53,7 +46,7 @@ export default function RootLayout({
     <html
       lang="fa"
       dir="rtl"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={` h-full antialiased`}
     >
       <body className="relative bg-custom-light dark:bg-[#0d1117] text-gray-900 dark:text-gray-100 transition-colors duration-300">
         <SerwistProvider swUrl="/serwist/sw.js">
@@ -64,6 +57,7 @@ export default function RootLayout({
             <Footer />
             <NavMobile />
             <BackToTopButton />
+            <StoryMiniPlayer />
             <ToastProvider />
           </CartProvider>
         </SerwistProvider>

@@ -112,18 +112,6 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
     setLoading(true);
     setErrors({});
 
-    console.log("[StepRegister] submit start", {
-      hasRegistrationToken: Boolean(registrationToken),
-      registrationTokenPreview: `${registrationToken.slice(0, 8)}…`,
-      deviceFingerPrint: deviceFingerPrint
-        ? `${deviceFingerPrint.slice(0, 12)}…`
-        : null,
-      firstName: form.firstName.trim(),
-      lastName: form.lastName.trim(),
-      email: form.email.trim() || null,
-      passwordLength: form.password.length,
-    });
-
     try {
       const result = await register({
         registrationToken,
@@ -133,15 +121,6 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
         password: form.password,
         confirmPassword: form.confirmPassword,
         deviceFingerPrint: deviceFingerPrint ?? "device-id",
-      });
-
-      console.log("[StepRegister] register result", {
-        success: result.success,
-        errorMessage: result.errorMessage,
-        errorCode: result.errorCode,
-        hasUserInfo: Boolean(result.userInfoDto),
-        hasSessionInfo: Boolean(result.sessionInfoDto),
-        userId: result.userInfoDto?.userId ?? result.userInfoDto?.id ?? null,
       });
 
       if (!result.success) {
@@ -156,10 +135,6 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
       }
 
       const freshUser = await completeUserFromMe(result.userInfoDto);
-      console.log("[StepRegister] completeUserFromMe done", {
-        userId: freshUser.userId ?? freshUser.id ?? null,
-        hasBirthDate: Boolean(freshUser.birthDate),
-      });
 
       setUser(attachSessionToUser(freshUser, result.sessionInfoDto));
       clearAuthFlow();

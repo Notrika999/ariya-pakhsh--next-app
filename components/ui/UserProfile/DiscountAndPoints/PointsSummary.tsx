@@ -1,6 +1,13 @@
 import React from "react";
+import type { LoyaltyPointsSummary } from "@/src/lib/types/userpanel/loyalty";
 
-export default function PointsSummary() {
+type PointsSummaryProps = {
+  summary: LoyaltyPointsSummary;
+};
+
+export default function PointsSummary({ summary }: PointsSummaryProps) {
+  const numberFormatter = new Intl.NumberFormat("fa-IR");
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* <!-- Total Points --> */}
@@ -12,7 +19,9 @@ export default function PointsSummary() {
         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
           امتیاز کل
         </h3>
-        <p className="text-3xl font-bold text-primary">۱,۲۵۰</p>
+        <p className="text-3xl font-bold text-primary">
+          {numberFormatter.format(summary.totalPoints)}
+        </p>
       </div>
 
       {/* <!-- Available Points --> */}
@@ -24,7 +33,7 @@ export default function PointsSummary() {
           امتیاز قابل استفاده
         </h3>
         <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-          ۸۵۰
+          {numberFormatter.format(summary.usablePoints)}
         </p>
       </div>
 
@@ -37,7 +46,7 @@ export default function PointsSummary() {
           امتیاز استفاده شده
         </h3>
         <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-          ۴۰۰
+          {numberFormatter.format(summary.usedPoints)}
         </p>
       </div>
     </div>

@@ -9,6 +9,8 @@ export interface CartItem {
   image: string;
   price: number;
   oldPrice?: number;
+  unitPrice?: number;
+  campaignPrice?: number | null;
   href: string;
   quantity: number;
 }

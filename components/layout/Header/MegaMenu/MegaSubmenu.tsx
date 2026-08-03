@@ -1,11 +1,24 @@
-// MegaSubmenu.jsx
+// components/layout/Header/MegaMenu/MegaSubmenu.tsx
 import { Category } from "@/src/lib/types/categories/menuType";
+import { getProductImage } from "@/src/utils/product-image";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-export default function MegaSubmenu({ sections }: { sections: Category[] }) {
+type MegaSubmenuProps = {
+  sections: Category[];
+  thumbnailUrl?: string | null;
+  thumbnailAlt?: string;
+};
+
+export default function MegaSubmenu({
+  sections,
+  thumbnailUrl,
+  thumbnailAlt,
+}: MegaSubmenuProps) {
   const thumbItem = sections.find((s) => s?.src);
+  const rawBannerSrc = thumbnailUrl || thumbItem?.src;
+  const bannerSrc = rawBannerSrc ? getProductImage(rawBannerSrc) : null;
   const list = sections.filter((s) => !s?.src);
 
   // دسته بندی
@@ -30,7 +43,10 @@ export default function MegaSubmenu({ sections }: { sections: Category[] }) {
                 </Link>
               ) : (
                 <>
-                  <Link href={`/products/${sec.slug}`} className="text-sm font-bold">
+                  <Link
+                    href={`/products/${sec.slug}`}
+                    className="text-sm font-bold"
+                  >
                     {sec.name}
                   </Link>
 
@@ -53,20 +69,20 @@ export default function MegaSubmenu({ sections }: { sections: Category[] }) {
       </div>
 
       {/* menu thumbnail banner، همیشه در ستون اول */}
-      {/* <div className="col-span-2">
-        {thumbItem && (
+      <div className="col-span-2">
+        {bannerSrc && (
           <div>
             <Image
               width={160}
               height={120}
-              src={thumbItem.src ?? "/images/default.png"}
-              alt="banner"
+              src={bannerSrc}
+              alt={thumbnailAlt || "banner"}
               className="w-full rounded-lg"
               loading="lazy"
             />
           </div>
         )}
-      </div> */}
+      </div>
     </div>
   );
 }

@@ -81,12 +81,7 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
           code,
           deviceFingerPrint: deviceFingerPrint ?? "device-id",
         };
-        console.log(
-          "[StepOtp] login 2FA request body =>",
-          verifyBody,
-          "\nendpoint:",
-          "/api/v1/CustomerAuth/login/verify-2fa",
-        );
+
         const result = await verifyLoginTwoFactor(verifyBody);
 
         if (!result.success) {
@@ -215,7 +210,6 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
       setSuccessMessage(null);
 
       try {
-        console.log("[StepOtp] resend login 2FA OTP =>");
         const result = await resendLoginTwoFactorOtp(loginTwoFactorToken);
 
         if (!result.success) {
@@ -257,8 +251,6 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
 
     try {
       const result = await resendOtp({ token: flowToken });
-
-      console.log("Result Resend => ", result)
 
       if (!result.success) {
         setError(result.errorMessage ?? result.message ?? "ارسال مجدد کد انجام نشد");

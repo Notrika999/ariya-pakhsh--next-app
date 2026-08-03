@@ -2,6 +2,7 @@
 // components/ui/UserProfile/Orders/OrderDetails.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
 import { getMyOrderById } from "@/src/services/orders/orders.client";
@@ -101,7 +102,6 @@ export default function OrderDetails() {
       try {
         const data = await getMyOrderById(orderId);
 
-        console.log("[OrderDetails] data =>", data);
         if (!cancelled) setOrder(data);
       } catch (error) {
         if (!cancelled) {
@@ -180,7 +180,15 @@ export default function OrderDetails() {
               ثبت شده در {formatDate(order.createdAt)}
             </p>
           </div>
+          {/* show status and payment status */}
           <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/user-profile/orders"
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:border-primary hover:text-primary dark:border-gray-700 dark:text-gray-200 dark:hover:border-primary dark:hover:text-primary"
+            >
+              <i className="far fa-arrow-right text-xs"></i>
+              بازگشت
+            </Link>
             <span
               className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusBadgeClass(order.statusKey)}`}
             >

@@ -10,6 +10,7 @@ import Link from "next/link";
 import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
 
 export default function Brand({ brands, title, href }) {
+
   return (
     <>
       {/* <!-- for seo --> */}
@@ -53,9 +54,7 @@ export default function Brand({ brands, title, href }) {
                     {/* <!-- thumbnail --> */}
                     <figure>
                       <Image
-                        src={
-                          brand.image?.logoMdUrl || "/images/placeholder.png"
-                        }
+                        src={brand.image || "/images/default.png"}
                         alt={brand.name}
                         width={100}
                         height={100}

@@ -213,12 +213,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
       const guestSessionId = guestSession.peek() || guestSession.get();
 
-      console.log("[Cart] merge start =>", {
-        guestSessionId,
-        localCount: localItems.length,
-        strategy: CART_MERGE_STRATEGY,
-      });
-
+   
       try {
         await mergeCart({
           guestSessionId,

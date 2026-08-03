@@ -6,7 +6,10 @@ import "swiper/css";
 import ProductCard from "@/components/modules/ProductCard/ProductCard";
 import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
-import type { RelatedProduct } from "@/src/lib/types/products/productDetail.types";
+import type {
+  ProductDetailVariant,
+  RelatedProduct,
+} from "@/src/lib/types/products/productDetail.types";
 import type { ProductCardModel } from "@/src/lib/types/productTypes";
 import { getProductImage } from "@/src/utils/product-image";
 
@@ -14,6 +17,168 @@ interface ConsumerProductsProps {
   products?: RelatedProduct[] | null;
   title?: string;
   noClick?: boolean;
+}
+
+function getStringField(value: unknown, keys: string[]): string | undefined {
+  if (!value || typeof value !== "object") return undefined;
+
+  const record = value as Record<string, unknown>;
+  for (const key of keys) {
+    const fieldValue = record[key];
+    if (typeof fieldValue === "string" && fieldValue.trim()) {
+      return fieldValue.trim();
+    }
+  }
+
+  return undefined;
+}
+
+function getNumberField(value: unknown, keys: string[]): number | undefined {
+  if (!value || typeof value !== "object") return undefined;
+
+  const record = value as Record<string, unknown>;
+  for (const key of keys) {
+    const parsed = Number(record[key]);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
+
+  return undefined;
+}
+
+function getRelatedPricing(
+  product: RelatedProduct,
+  defaultVariant?: ProductDetailVariant,
+) {
+  const promotion = product.promotion;
+  const finalPrice =
+    product.salePrice ??
+    product.finalPrice ??
+    defaultVariant?.salePrice ??
+    defaultVariant?.finalPrice ??
+    promotion?.finalPrice;
+  const price =
+    finalPrice && finalPrice > 0
+      ? finalPrice
+      : (product.price ?? defaultVariant?.price ?? 0);
+  const oldPrice =
+    product.compareAtPrice && product.compareAtPrice > price
+      ? product.compareAtPrice
+      : product.originalPrice && product.originalPrice > price
+        ? product.originalPrice
+        : product.basePrice && product.basePrice > price
+          ? product.basePrice
+          : defaultVariant?.compareAtPrice && defaultVariant.compareAtPrice > price
+            ? defaultVariant.compareAtPrice
+            : defaultVariant?.originalPrice && defaultVariant.originalPrice > price
+              ? defaultVariant.originalPrice
+              : defaultVariant?.basePrice && defaultVariant.basePrice > price
+                ? defaultVariant.basePrice
+                : promotion?.basePrice && promotion.basePrice > price
+                  ? promotion.basePrice
+                  : product.compareAtPrice ?? product.price ?? defaultVariant?.price ?? price;
+  const explicitDiscount =
+    product.discountPercent && product.discountPercent > 0
+      ? product.discountPercent
+      : defaultVariant?.discountPercent && defaultVariant.discountPercent > 0
+        ? defaultVariant.discountPercent
+        : promotion?.discountPercent;
+  const discountPercent =
+    explicitDiscount && explicitDiscount > 0
+      ? Math.round(explicitDiscount)
+      : oldPrice > price && price > 0
+        ? Math.round(((oldPrice - price) / oldPrice) * 100)
+        : 0;
+
+  return {
+    price,
+    oldPrice,
+    discountPercent,
+    isOnSale:
+      Boolean(product.isOnSale) ||
+      Boolean(defaultVariant?.isOnSale) ||
+      discountPercent > 0 ||
+      oldPrice > price,
+  };
+}
+
+function getRelatedSaleBadge(
+  product: RelatedProduct,
+  defaultVariant?: ProductDetailVariant,
+  discountPercent = 0,
+) {
+  const promotion = product.promotion;
+  const label =
+    getStringField(product, [
+      "campaignLabel",
+      "campaignTitle",
+      "campaignName",
+      "promotionLabel",
+      "promotionTitle",
+      "promotionTypeDisplayName",
+      "typeLabel",
+    ]) ??
+    getStringField(defaultVariant, [
+      "campaignLabel",
+      "campaignTitle",
+      "campaignName",
+      "promotionLabel",
+      "promotionTitle",
+      "promotionTypeDisplayName",
+      "typeLabel",
+    ]) ??
+    getStringField(promotion, [
+      "promotionTypeDisplayName",
+      "typeLabel",
+      "campaignLabel",
+      "campaignTitle",
+      "campaignName",
+    ]);
+
+  if (!label) return undefined;
+
+  return {
+    label,
+    promotionType:
+      getNumberField(product, ["promotionType"]) ??
+      getNumberField(defaultVariant, ["promotionType"]) ??
+      promotion?.promotionType,
+    promotionTypeValue:
+      getStringField(product, ["promotionTypeValue"]) ??
+      getStringField(defaultVariant, ["promotionTypeValue"]) ??
+      promotion?.promotionTypeValue,
+    discountPercent,
+    endsAt:
+      getStringField(product, ["campaignEndAt", "promotionEndAt"]) ??
+      getStringField(defaultVariant, ["campaignEndAt", "promotionEndAt"]) ??
+      promotion?.promotionEndAt,
+    remainingSeconds:
+      product.campaignRemainingSeconds ??
+      defaultVariant?.campaignRemainingSeconds ??
+      promotion?.remainingSeconds,
+  };
+}
+
+function getRelatedInStock(
+  product: RelatedProduct,
+  defaultVariant?: ProductDetailVariant,
+): boolean | undefined {
+  const availableQuantity =
+    product.availableQuantity ?? defaultVariant?.availableQuantity;
+
+  if (
+    typeof availableQuantity === "number" &&
+    availableQuantity <= 0 &&
+    !defaultVariant?.allowBackorder
+  ) {
+    return false;
+  }
+
+  if (typeof product.inStock === "boolean") return product.inStock;
+  if (typeof defaultVariant?.inStock === "boolean") return defaultVariant.inStock;
+
+  return typeof availableQuantity === "number" ? availableQuantity > 0 : undefined;
 }
 
 function mapRelatedToCard(product: RelatedProduct): ProductCardModel {
@@ -27,25 +192,13 @@ function mapRelatedToCard(product: RelatedProduct): ProductCardModel {
     defaultVariant?.images?.[0]?.mediumPath ??
     defaultVariant?.images?.[0]?.thumbnailPath;
 
-  const price =
-    product.salePrice && product.salePrice > 0
-      ? product.salePrice
-      : (product.price ?? defaultVariant?.price ?? 0);
-
-  const oldPrice =
-    product.compareAtPrice && product.compareAtPrice > 0
-      ? product.compareAtPrice
-      : (product.price ?? defaultVariant?.price ?? price);
-
-  const isOnSale =
-    Boolean(product.isOnSale) ||
-    Boolean(defaultVariant?.isOnSale) ||
-    (oldPrice > price && price > 0);
-
-  const discountPercent =
-    isOnSale && oldPrice > price
-      ? Math.round(((oldPrice - price) / oldPrice) * 100)
-      : undefined;
+  const pricing = getRelatedPricing(product, defaultVariant);
+  const saleBadge = getRelatedSaleBadge(
+    product,
+    defaultVariant,
+    pricing.discountPercent,
+  );
+  const quantity = product.availableQuantity ?? defaultVariant?.availableQuantity ?? 0;
 
   return {
     id: product.productId,
@@ -58,18 +211,23 @@ function mapRelatedToCard(product: RelatedProduct): ProductCardModel {
     primaryBrandSlug: product.primaryBrandSlug,
     categoryName: product.primaryCategoryName ?? "",
     currency: product.currencyCode ?? defaultVariant?.currencyCode ?? "IRT",
-    price,
-    oldPrice,
+    price: pricing.price,
+    oldPrice: pricing.oldPrice,
+    originalPrice: pricing.oldPrice,
+    discountedPrice: pricing.price,
     rating: product.averageRating ?? 0,
     reviewCount: product.reviewCount ?? 0,
     colors: [],
-    quantity: product.availableQuantity ?? defaultVariant?.availableQuantity ?? 0,
+    quantity,
     soldCount: product.soldCount ?? 0,
-    inStock: product.inStock ?? defaultVariant?.inStock ?? true,
-    isOnSale,
+    inStock: getRelatedInStock(product, defaultVariant),
+    isOnSale: pricing.isOnSale,
     href: `/product/${product.publicCode}/${product.slug}`,
-    discountPercent,
+    discountPercent: pricing.discountPercent,
+    showSaleBadge: saleBadge,
+    specialSale: Boolean(saleBadge || product.isAmazingOffer),
     variantId: defaultVariant?.variantId,
+    ...(saleBadge?.endsAt ? { dealEndsAt: saleBadge.endsAt } : {}),
   };
 }
 
@@ -103,7 +261,7 @@ export default function ConsumerProducts({
           >
             {cards.map((product) => (
               <SwiperSlide key={product.id}>
-                <ProductCard product={product} noClick={noClick} />
+                <ProductCard product={product} noClick={noClick} noTimer />
               </SwiperSlide>
             ))}
           </Swiper>

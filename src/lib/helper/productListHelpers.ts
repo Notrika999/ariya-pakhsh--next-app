@@ -31,14 +31,26 @@ const SORT_ORDERS: SortOrder[] = [
   "priceAsc",
   "priceDesc",
   "bestSelling",
+  "mostViewed",
   "mostRated",
+  "discountDesc",
 ];
 
 const SORT_ORDER_ALIASES: Record<string, SortOrder> = {
+  Newest: "newest",
+  Oldest: "oldest",
+  PriceAsc: "priceAsc",
+  PriceDesc: "priceDesc",
+  BestSelling: "bestSelling",
+  MostViewed: "mostViewed",
+  MostRated: "mostRated",
+  DiscountDesc: "discountDesc",
   priceAsc: "priceAsc",
   priceDesc: "priceDesc",
   bestSelling: "bestSelling",
+  mostViewed: "mostViewed",
   mostRated: "mostRated",
+  discountDesc: "discountDesc",
 };
 
 // ─── Parse Helpers ────────────────────────────────────────────────────────────
@@ -170,6 +182,7 @@ export function parseNumber(value?: string): number | undefined {
 }
 
 export function parseSortOrder(value?: string): SortOrder | undefined {
+  if (value === "default") return undefined;
   if (value && SORT_ORDER_ALIASES[value]) {
     return SORT_ORDER_ALIASES[value];
   }
@@ -180,23 +193,103 @@ export function parseSortOrder(value?: string): SortOrder | undefined {
 
 export function parseAttributeFilters(
   searchParams: Record<string, string | string[] | undefined>,
-): Array<{ attributeId: string; optionIds: string[] }> {
-  const result: Array<{ attributeId: string; optionIds: string[] }> = [];
+): Array<{
+  attributeId: string;
+  optionIds?: string[];
+  value?: string;
+  boolValue?: boolean;
+}> {
+  const filtersByAttribute = new Map<
+    string,
+    {
+      attributeId: string;
+      optionIds?: string[];
+      value?: string;
+      boolValue?: boolean;
+    }
+  >();
+
+  const getFilter = (attributeId: string) => {
+    const normalizedAttributeId = attributeId.trim();
+    const existing = filtersByAttribute.get(normalizedAttributeId);
+    if (existing) return existing;
+
+    const next: {
+      attributeId: string;
+      optionIds?: string[];
+      value?: string;
+      boolValue?: boolean;
+    } = { attributeId: normalizedAttributeId };
+    filtersByAttribute.set(normalizedAttributeId, next);
+    return next;
+  };
 
   for (const [key, value] of Object.entries(searchParams)) {
+    if (key.startsWith("attr_value_")) {
+      const attributeId = key.replace("attr_value_", "");
+      const textValue = (Array.isArray(value) ? value[0] : value)?.trim();
+      if (attributeId && textValue) {
+        getFilter(attributeId).value = textValue;
+      }
+      continue;
+    }
+
+    if (key.startsWith("attr_bool_")) {
+      const attributeId = key.replace("attr_bool_", "");
+      const rawValue = (Array.isArray(value) ? value[0] : value)
+        ?.trim()
+        .toLowerCase();
+      if (attributeId && (rawValue === "true" || rawValue === "false")) {
+        getFilter(attributeId).boolValue = rawValue === "true";
+      }
+      continue;
+    }
+
     if (!key.startsWith("attr_")) continue;
     const attributeId = key.replace("attr_", "");
-    const optionIds = Array.isArray(value) ? value : value ? [value] : [];
+    if (!attributeId || attributeId === "color") continue;
+
+    const optionIds = (Array.isArray(value) ? value : value ? [value] : [])
+      .map((item) => item.trim())
+      .filter(Boolean);
+
     if (optionIds.length > 0) {
-      result.push({ attributeId, optionIds });
+      getFilter(attributeId).optionIds = [...new Set(optionIds)];
     }
   }
 
-  return result;
+  return Array.from(filtersByAttribute.values()).filter(
+    (filter) =>
+      Boolean(filter.attributeId) &&
+      ((filter.optionIds?.length ?? 0) > 0 ||
+        Boolean(filter.value) ||
+        typeof filter.boolValue === "boolean"),
+  );
 }
 
 /** Query key for SEO-friendly color filter values (`displayText`). */
-export const COLOR_PALETTE_PARAM = "color_palette";
+export const COLOR_PALETTES_PARAM = "color_palettes";
+export const LEGACY_COLOR_PALETTE_PARAM = "color_palette";
+export const COLOR_PALETTE_PARAM = COLOR_PALETTES_PARAM;
+export const COLOR_OPTION_ID_PARAM = "colorOptionId";
+
+function expandSearchParamValue(value: string): string[] {
+  const trimmed = value.trim();
+  if (!trimmed) return [];
+
+  if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        return parsed.map((item) => String(item).trim()).filter(Boolean);
+      }
+    } catch {
+      return [trimmed];
+    }
+  }
+
+  return [trimmed];
+}
 
 export function listSearchParamValues(
   searchParams:
@@ -207,15 +300,38 @@ export function listSearchParamValues(
   if (searchParams instanceof URLSearchParams) {
     return searchParams
       .getAll(key)
-      .map((value) => value.trim())
+      .flatMap(expandSearchParamValue)
       .filter(Boolean);
   }
 
   const raw = searchParams[key];
   if (!raw) return [];
   return (Array.isArray(raw) ? raw : [raw])
-    .map((value) => value.trim())
+    .flatMap(expandSearchParamValue)
     .filter(Boolean);
+}
+
+export function colorOptionIdParams(
+  searchParams:
+    | URLSearchParams
+    | Record<string, string | string[] | undefined>,
+): string[] {
+  return [
+    ...listSearchParamValues(searchParams, COLOR_OPTION_ID_PARAM),
+    ...listSearchParamValues(searchParams, "colorOptionIds"),
+    ...listSearchParamValues(searchParams, "ColorOptionIds"),
+  ].filter((value, index, array) => value && array.indexOf(value) === index);
+}
+
+export function colorPaletteParams(
+  searchParams:
+    | URLSearchParams
+    | Record<string, string | string[] | undefined>,
+): string[] {
+  return [
+    ...listSearchParamValues(searchParams, COLOR_PALETTES_PARAM),
+    ...listSearchParamValues(searchParams, LEGACY_COLOR_PALETTE_PARAM),
+  ].filter((value, index, array) => value && array.indexOf(value) === index);
 }
 
 export function getColorOptionLabel(option: {

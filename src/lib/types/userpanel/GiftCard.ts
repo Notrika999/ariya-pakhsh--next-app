@@ -1,8 +1,24 @@
+export type GiftCardStatus = "active" | "used";
+
 export interface GiftCard {
-  id: number;
-  type: "active" | "used" | "expired";
-  title: string;
-  amount: string;
+  id: string;
+  type: GiftCardStatus;
   code: string;
-  date: string; // تاریخ انقضا یا تاریخ استفاده
+  title: string;
+  amount: number;
+  remainingBalance: number;
+  currency: string;
+  expiresAt: string | null;
+  statusKey: string;
+  statusTitle: string;
+}
+
+export interface GiftCardsPage {
+  items: GiftCard[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
 }

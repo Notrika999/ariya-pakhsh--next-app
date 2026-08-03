@@ -32,10 +32,10 @@ export default function MenuClient({ menu }: { menu: Category[] }) {
       </span>
 
       {megaOpen && (
-        <div className="bg-white dark:bg-custom-dark dark:border dark:border-gray-700 container z-50 top-[95%] left-0 right-0 drop-shadow-sm dark:shadow-[0_2px_6px_rgba(0,0,0,0.4)] absolute mt-1 me-10 rounded-b-md transition-colors duration-300">
+        <div className="bg-custom-light dark:bg-[#0d1117] text-gray-900 dark:text-gray-100 container z-50 top-[95%] left-0 right-0 drop-shadow-sm dark:shadow-[0_2px_6px_rgba(0,0,0,0.4)] absolute mt-1 me-10 rounded-b-md transition-colors duration-300">
           <div className="grid grid-cols-12">
             {/* left menu */}
-            <div className="col-span-2 h-100 overflow-y-scroll border-e border-gray-400">
+            <div className="col-span-2 h-100 overflow-y-scroll border-e border-gray-400 ">
               <ul className="my-2 space-y-1">
                 {menu.map((category) => (
                   <MenuItem
@@ -53,7 +53,11 @@ export default function MenuClient({ menu }: { menu: Category[] }) {
             {/* right menu */}
             <div className="col-span-10 bg-white dark:bg-zinc-900">
               {activeCategory && (
-                <MegaSubmenu sections={activeCategory.children} />
+                <MegaSubmenu
+                  sections={activeCategory.children}
+                  thumbnailUrl={activeCategory.imageUrl}
+                  thumbnailAlt={activeCategory.name}
+                />
               )}
             </div>
           </div>

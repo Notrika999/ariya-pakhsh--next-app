@@ -1,8 +1,8 @@
 "use client";
-import React from "react";
 
+import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, FreeMode } from "swiper/modules";
+import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import Link from "next/link";
 import Image from "next/image";
@@ -11,14 +11,9 @@ import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
 export default function LastBlogs({ lastBlogLits }) {
   return (
     <>
-      {/* <!-- for seo --> */}
-      <h2 className="sr-only">مطالب وبلاگ</h2>
+      <h2 className="sr-only">مقالات وبلاگ لوازم خودرو</h2>
 
-      {/* <!-- header --> */}
-
-      <SectionHeader title={"آخرین مقالات وبلاگ"} href={"#"} />
-
-      {/* <!-- blog posts swiper --> */}
+      <SectionHeader title={"مقالات دسته‌بندی محصولات خودرو"} href={"/blog"} />
 
       <Swiper
         modules={[Autoplay]}
@@ -32,8 +27,8 @@ export default function LastBlogs({ lastBlogLits }) {
         spaceBetween={10}
         slidesPerView={5}
         breakpoints={{
-          320: { slidesPerView: 2 },
-          640: { slidesPerView: 3 },
+          320: { slidesPerView: 1 },
+          640: { slidesPerView: 2 },
           1024: { slidesPerView: 4 },
         }}
         className="my-swiper"
@@ -46,7 +41,6 @@ export default function LastBlogs({ lastBlogLits }) {
                           space-y-4 p-4 rounded-2xl transition-all duration-300
                           hover:shadow-lg hover:scale-[1.02] hover:bg-gray-50 dark:hover:bg-[#13171c]"
               >
-                {/* <!-- Thumbnail --> */}
                 <figure className="overflow-hidden rounded-xl">
                   <Image
                     className="h-40 w-full object-cover rounded-xl transition-transform duration-300 group-hover:scale-105"
@@ -57,12 +51,18 @@ export default function LastBlogs({ lastBlogLits }) {
                   />
                 </figure>
 
-                {/* <!-- Title --> */}
-                <h2 className="font-bold text-gray-900 dark:text-gray-100 text-base h-12 leading-6 line-clamp-2">
-                  {blog.title}
-                </h2>
+                <div>
+                  <span className="text-xs font-medium text-primary">
+                    {blog.keyword}
+                  </span>
+                  <h2 className="font-bold text-gray-900 dark:text-gray-100 text-base h-12 leading-6 line-clamp-2 mt-1">
+                    {blog.title}
+                  </h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 h-12 leading-6 line-clamp-2 mt-2">
+                    {blog.description}
+                  </p>
+                </div>
 
-                {/* <!-- Date and link --> */}
                 <div className="flex items-center justify-between text-gray-600 dark:text-gray-400">
                   <h4 className="text-sm">{blog.date}</h4>
 

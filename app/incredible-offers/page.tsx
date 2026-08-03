@@ -1,3 +1,5 @@
+// app/incredible-offers/page.tsx
+
 import DealsClient from "@/components/ui/IncredibleOffers/DealsClient/DealsClient";
 import {
   AmazingFilterParams,
@@ -7,7 +9,7 @@ import {
 import { Metadata } from "next";
 import { absoluteUrl, SITE_NAME } from "@/src/lib/seo/site";
 import {
-  COLOR_PALETTE_PARAM,
+  colorPaletteParams,
   getColorOptionLabel,
   listSearchParamValues,
 } from "@/src/lib/helper/productListHelpers";
@@ -75,6 +77,29 @@ function booleanParam(
   return value === "true";
 }
 
+function sortByParam(value?: string): AmazingFilterParams["SortBy"] {
+  switch (value) {
+    case "bestDiscount":
+    case "priceAsc":
+    case "priceDesc":
+    case "newest":
+    case "bestSelling":
+      return value;
+    case "discountDesc":
+    case "default":
+    case "Default":
+      return "bestDiscount";
+    default:
+      return "bestDiscount";
+  }
+}
+
+function defaultVariantByParam(
+  value?: string,
+): AmazingFilterParams["DefaultVariantBy"] {
+  return value === "basePrice" ? "basePrice" : "finalPrice";
+}
+
 function toAmazingFilterParams(
   searchParams: PageSearchParams,
   options?: {
@@ -117,17 +142,8 @@ function toAmazingFilterParams(
     MaxPrice:
       numberParam(searchParams, "MaxPrice") ??
       numberParam(searchParams, "maxPrice"),
-    SortBy:
-      sortBy === "priceAsc" ||
-      sortBy === "priceDesc" ||
-      sortBy === "newest" ||
-      sortBy === "bestSelling"
-        ? sortBy
-        : sortBy === "discountDesc" || sortBy === "default"
-          ? "bestDiscount"
-        : "bestDiscount",
-    DefaultVariantBy:
-      defaultVariantBy === "basePrice" ? "basePrice" : "finalPrice",
+    SortBy: sortByParam(sortBy),
+    DefaultVariantBy: defaultVariantByParam(defaultVariantBy),
   };
 }
 
@@ -137,10 +153,7 @@ async function IncredibleOffersPage({
   searchParams?: Promise<PageSearchParams>;
 }) {
   const resolvedSearchParams = (await searchParams) ?? {};
-  const paletteLabels = listSearchParamValues(
-    resolvedSearchParams,
-    COLOR_PALETTE_PARAM,
-  );
+  const paletteLabels = colorPaletteParams(resolvedSearchParams);
   const brandSlugs = listSearchParamValues(resolvedSearchParams, "brand");
 
   let colorOptionIds: string[] = [];

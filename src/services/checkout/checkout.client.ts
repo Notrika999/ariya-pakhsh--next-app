@@ -3,11 +3,15 @@
 
 import { apiClient, ApiError } from "@/src/lib/http/api-client";
 import type {
+  CheckoutApiErrorItem,
   CheckoutCouponDiscount,
   CheckoutCouponPayload,
   CheckoutPaymentMethod,
   CheckoutPaymentProvider,
+  CheckoutShippingGroup,
+  CheckoutShippingGroupItem,
   CheckoutShippingMethod,
+  CheckoutShippingOptionsResult,
   PlaceOrderPayload,
   PlaceOrderResult,
   StartPaymentPayload,
@@ -52,6 +56,27 @@ function toNumber(value: unknown): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function toOptionalString(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim()
+    ? value.trim()
+    : undefined;
+}
+
+function mapApiErrors(value: unknown): CheckoutApiErrorItem[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((error) => {
+      const item = getRecord(error);
+      return {
+        field: typeof item.field === "string" ? item.field : undefined,
+        message: typeof item.message === "string" ? item.message : undefined,
+        code: typeof item.code === "string" ? item.code : undefined,
+      };
+    })
+    .filter((item) => item.field || item.message || item.code);
+}
+
 // assertSuccess یک تابع است که یک آرگومان unknown و یک آرگومان string را دریافت می کند و یک آبجکت Record<string, unknown> را برمی گرداند.
 function assertSuccess(payload: unknown, fallback: string) {
   const root = getRecord(payload);
@@ -75,6 +100,11 @@ function mapPaymentProvider(value: unknown): CheckoutPaymentProvider | null {
     item.code ?? item.providerCode ?? item.bankCode ?? item.id ?? "",
   ).trim();
   if (!code) return null;
+  const imageUrl =
+    toOptionalString(item.imageUrl) ??
+    toOptionalString(item.logoUrl) ??
+    toOptionalString(item.logo) ??
+    null;
 
   return {
     code,
@@ -82,17 +112,14 @@ function mapPaymentProvider(value: unknown): CheckoutPaymentProvider | null {
       item.titleFa ?? item.title ?? item.name ?? item.bankName ?? code,
     ),
     description:
-      typeof item.description === "string" ? item.description : undefined,
+      toOptionalString(item.descriptionFa) ?? toOptionalString(item.description),
     isAvailable: item.isAvailable !== false,
     isDefault: Boolean(item.isDefault),
-    logoUrl:
-      typeof item.logoUrl === "string"
-        ? item.logoUrl
-        : typeof item.logo === "string"
-          ? item.logo
-          : typeof item.imageUrl === "string"
-            ? item.imageUrl
-            : null,
+    gatewayType: toOptionalString(item.gatewayType),
+    minAmount: item.minAmount === undefined ? undefined : toNumber(item.minAmount),
+    maxAmount: item.maxAmount === undefined ? undefined : toNumber(item.maxAmount),
+    imageUrl,
+    logoUrl: imageUrl,
   };
 }
 
@@ -124,26 +151,67 @@ function mapPaymentMethod(value: unknown): CheckoutPaymentMethod | null {
   const providers = extractProviders(item)
     .map(mapPaymentProvider)
     .filter((provider): provider is CheckoutPaymentProvider => Boolean(provider));
+  const defaultProvider =
+    providers.find((provider) => provider.isDefault && provider.isAvailable) ??
+    providers.find((provider) => provider.isAvailable) ??
+    providers[0];
+  const imageUrl =
+    toOptionalString(item.imageUrl) ??
+    toOptionalString(item.logoUrl) ??
+    defaultProvider?.imageUrl ??
+    null;
 
   return {
     code,
     title: String(item.title ?? item.name ?? code),
     description: String(item.description ?? ""),
     isAvailable: item.isAvailable !== false,
+    imageUrl,
     providers,
   };
 }
 
 // mapShippingMethod یک تابع است که یک آرگومان unknown را دریافت می کند و یک آبجکت CheckoutShippingMethod را برمی گرداند.
-function mapShippingMethod(value: unknown): CheckoutShippingMethod | null {
+function mapShippingMethod(
+  value: unknown,
+  context?: {
+    shippingClassId?: string;
+    shippingClassTitle?: string;
+  },
+): CheckoutShippingMethod | null {
   const item = getRecord(value);
-  const id = String(
-    item.id ?? item.methodId ?? item.shippingMethodId ?? item.code ?? "",
+  const shippingClass = getRecord(item.shippingClass);
+  const shippingClassId = String(
+    item.shippingClassId ??
+      item.classId ??
+      item.productShippingClassId ??
+      shippingClass.id ??
+      shippingClass.shippingClassId ??
+      context?.shippingClassId ??
+      "",
   ).trim();
-  if (!id) return null;
+  const shippingMethodId = String(
+    item.shippingMethodId ?? item.methodId ?? item.id ?? item.code ?? "",
+  ).trim();
+  if (!shippingMethodId) return null;
 
   return {
-    id,
+    id: shippingClassId
+      ? `${shippingClassId}:${shippingMethodId}`
+      : shippingMethodId,
+    shippingMethodId,
+    shippingClassId: shippingClassId || undefined,
+    shippingClassTitle:
+      String(
+        item.shippingClassTitle ??
+          item.shippingClassName ??
+          item.classTitle ??
+          item.className ??
+          shippingClass.title ??
+          shippingClass.name ??
+          context?.shippingClassTitle ??
+          "",
+      ).trim() || undefined,
     title: String(item.methodName ?? item.name ?? item.title ?? "روش ارسال"),
     description: String(item.description ?? item.methodType ?? ""),
     price: Number(item.price ?? item.cost ?? item.shippingCost ?? 0) || 0,
@@ -155,7 +223,80 @@ function mapShippingMethod(value: unknown): CheckoutShippingMethod | null {
       typeof item.estimatedDeliveryDays === "number"
         ? item.estimatedDeliveryDays
         : undefined,
+    cashOnDelivery:
+      typeof item.cashOnDelivery === "boolean"
+        ? item.cashOnDelivery
+        : undefined,
+    isShippingPayAtDelivery:
+      typeof item.isShippingPayAtDelivery === "boolean"
+        ? item.isShippingPayAtDelivery
+        : undefined,
     isAvailable: item.isAvailable !== false,
+  };
+}
+
+function mapShippingGroupItem(value: unknown): CheckoutShippingGroupItem | null {
+  const item = getRecord(value);
+  const productId = String(item.productId ?? item.id ?? "").trim();
+  const productName = String(item.productName ?? item.name ?? item.title ?? "");
+  if (!productId && !productName) return null;
+
+  return {
+    productId,
+    productName,
+    quantity: Math.max(0, toNumber(item.quantity)),
+  };
+}
+
+function mapShippingGroup(value: unknown): CheckoutShippingGroup | null {
+  const group = getRecord(value);
+  const shippingClassId = String(group.shippingClassId ?? group.id ?? "").trim();
+  if (!shippingClassId) return null;
+
+  const shippingClassName = String(
+    group.shippingClassName ?? group.name ?? group.title ?? "",
+  );
+
+  const items = Array.isArray(group.items)
+    ? group.items
+        .map(mapShippingGroupItem)
+        .filter((item): item is CheckoutShippingGroupItem => Boolean(item))
+    : [];
+
+  const options = Array.isArray(group.options)
+    ? group.options
+        .map((option) =>
+          mapShippingMethod(option, {
+            shippingClassId,
+            shippingClassTitle: shippingClassName,
+          }),
+        )
+        .filter((item): item is CheckoutShippingMethod => Boolean(item))
+    : [];
+
+  return {
+    shippingClassId,
+    shippingClassName,
+    totalWeightGrams: toNumber(group.totalWeightGrams),
+    itemCount: toNumber(group.itemCount),
+    items,
+    options,
+  };
+}
+
+function mapShippingOptionsResult(raw: unknown): CheckoutShippingOptionsResult {
+  const data = unwrapDataObject(raw);
+  const groups = Array.isArray(data.groups)
+    ? data.groups
+        .map(mapShippingGroup)
+        .filter((group): group is CheckoutShippingGroup => Boolean(group))
+    : [];
+
+  return {
+    groups,
+    cheapestTotalCost: toNumber(data.cheapestTotalCost),
+    formattedCheapestTotalCost: String(data.formattedCheapestTotalCost ?? ""),
+    raw,
   };
 }
 
@@ -193,11 +334,7 @@ export async function getCheckoutPaymentMethods(): Promise<
   const response = await apiClient.get(`${BASE}/payment-methods`);
 
   // Debug: ساختار خام پاسخ برای انتخاب بانک مقصد / provider
-  console.log("[Checkout] payment-methods raw response =>", response.data);
-  console.log(
-    "[Checkout] payment-methods data items =>",
-    unwrapDataArray(response.data),
-  );
+
 
   assertSuccess(response.data, "دریافت روش‌های پرداخت ناموفق بود");
 
@@ -205,7 +342,6 @@ export async function getCheckoutPaymentMethods(): Promise<
     .map(mapPaymentMethod)
     .filter((item): item is CheckoutPaymentMethod => Boolean(item));
 
-  console.log("[Checkout] payment-methods mapped =>", mapped);
 
   return mapped;
 }
@@ -214,36 +350,26 @@ export async function getCheckoutPaymentMethods(): Promise<
 export async function getCheckoutShippingMethods(): Promise<
   CheckoutShippingMethod[]
 > {
-  console.log("[Checkout] GET /shipping/methods");
   const response = await apiClient.get("/shipping/methods");
-  console.log("[Checkout] shipping/methods raw =>", response.data);
 
   assertSuccess(response.data, "دریافت روش‌های ارسال ناموفق بود");
 
   const mapped = unwrapDataArray(response.data)
-    .map(mapShippingMethod)
+    .map((item) => mapShippingMethod(item))
     .filter((item): item is CheckoutShippingMethod => Boolean(item));
 
-  console.log("[Checkout] shipping/methods mapped =>", mapped);
   return mapped;
 }
 
-// getCheckoutShippingOptions یک تابع است که یک آبجکت Promise<CheckoutShippingMethod[]> را برمی گرداند.
+// Returns shipping option groups for the selected delivery address.
 export async function getCheckoutShippingOptions(payload: {
   shippingAddress: PlaceOrderPayload["shippingAddress"];
-}): Promise<CheckoutShippingMethod[]> {
-  console.log("[Checkout] POST /shipping/options payload =>", payload);
+}): Promise<CheckoutShippingOptionsResult> {
   const response = await apiClient.post("/shipping/options", payload);
-  console.log("[Checkout] shipping/options raw =>", response.data);
 
   assertSuccess(response.data, "دریافت گزینه‌های ارسال ناموفق بود");
 
-  const mapped = unwrapDataArray(response.data)
-    .map(mapShippingMethod)
-    .filter((item): item is CheckoutShippingMethod => Boolean(item));
-
-  console.log("[Checkout] shipping/options mapped =>", mapped);
-  return mapped;
+  return mapShippingOptionsResult(response.data);
 }
 
 function buildCouponPayload(payload: CheckoutCouponPayload): CheckoutCouponPayload {
@@ -258,10 +384,8 @@ export async function applyCheckoutCoupon(
   payload: CheckoutCouponPayload,
 ): Promise<CheckoutCouponDiscount> {
   const body = buildCouponPayload(payload);
-  console.log("[Checkout] POST /Checkout/apply-coupon payload =>", body);
 
   const response = await apiClient.post(`${BASE}/apply-coupon`, body);
-  console.log("[Checkout] apply-coupon raw =>", response.data);
   assertSuccess(response.data, "اعمال کد تخفیف ناموفق بود");
 
   return mapCouponDiscount(unwrapDataObject(response.data), response.data);
@@ -271,10 +395,8 @@ export async function previewCheckoutDiscount(
   payload: CheckoutCouponPayload,
 ): Promise<CheckoutCouponDiscount> {
   const body = buildCouponPayload(payload);
-  console.log("[Checkout] POST /Checkout/preview-discount payload =>", body);
 
   const response = await apiClient.post(`${BASE}/preview-discount`, body);
-  console.log("[Checkout] preview-discount raw =>", response.data);
   assertSuccess(response.data, "محاسبه تخفیف ناموفق بود");
 
   return mapCouponDiscount(unwrapDataObject(response.data), response.data);
@@ -286,6 +408,7 @@ export async function placeCheckoutOrder(
 ): Promise<PlaceOrderResult> {
   const body: PlaceOrderPayload = {
     shippingMethodId: payload.shippingMethodId,
+    shippingSelections: payload.shippingSelections,
     shippingAddress: payload.shippingAddress,
     paymentMethodCode: payload.paymentMethodCode,
   };
@@ -303,10 +426,8 @@ export async function placeCheckoutOrder(
     body.giftCardCode = payload.giftCardCode.trim();
   }
 
-  console.log("[Checkout] POST /Checkout/place-order payload =>", body);
 
   const response = await apiClient.post(`${BASE}/place-order`, body);
-  console.log("[Checkout] place-order raw =>", response.data);
   assertSuccess(response.data, "ثبت سفارش ناموفق بود");
 
   const data = unwrapDataObject(response.data);
@@ -319,6 +440,17 @@ export async function placeCheckoutOrder(
     undefined;
 
   return {
+    success:
+      typeof root.success === "boolean"
+        ? root.success
+        : typeof root.isSuccess === "boolean"
+          ? root.isSuccess
+          : undefined,
+    code: typeof root.code === "string" ? root.code : undefined,
+    errors: mapApiErrors(root.errors),
+    timestamp:
+      typeof root.timestamp === "string" ? root.timestamp : undefined,
+    traceId: typeof root.traceId === "string" ? root.traceId : undefined,
     orderId:
       typeof data.orderId === "string"
         ? data.orderId
@@ -352,14 +484,7 @@ export async function ensureServerCartHasItems(
   localItems: CartItem[],
 ): Promise<number> {
   let cart = await getCart();
-  console.log("[Checkout] server cart before sync =>", {
-    itemCount: cart.itemCount,
-    totalQuantity: cart.totalQuantity,
-    items: cart.items.map((item) => ({
-      variantId: item.variantId,
-      quantity: item.quantity,
-    })),
-  });
+
 
   if (cart.items.length > 0) {
     return cart.items.length;
@@ -369,7 +494,6 @@ export async function ensureServerCartHasItems(
     return 0;
   }
 
-  console.log("[Checkout] server cart empty — syncing local items =>", localItems);
 
   for (const item of localItems) {
     const variantId = String(item.variantId ?? item.id ?? "").trim();
@@ -389,14 +513,8 @@ export async function ensureServerCartHasItems(
   }
 
   cart = await getCart();
-  console.log("[Checkout] server cart after sync =>", {
-    itemCount: cart.itemCount,
-    totalQuantity: cart.totalQuantity,
-    items: cart.items.map((item) => ({
-      variantId: item.variantId,
-      quantity: item.quantity,
-    })),
-  });
+
+  
 
   return cart.items.length;
 }
@@ -412,10 +530,8 @@ export async function startOrderPayment(
     body.providerCode = payload.providerCode.trim();
   }
 
-  console.log("[Checkout] POST /Payments/start payload =>", body);
 
   const response = await apiClient.post("/Payments/start", body);
-  console.log("[Checkout] Payments/start raw =>", response.data);
   assertSuccess(response.data, "شروع پرداخت ناموفق بود");
 
   const data = unwrapDataObject(response.data);

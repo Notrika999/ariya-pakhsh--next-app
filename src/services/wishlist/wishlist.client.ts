@@ -115,5 +115,7 @@ export async function getMyWishlist(
       pageSize: params.pageSize ?? 12,
     },
   });
+
+  console.log("response getMyWishlist => ", response.data);
   return unwrapWishlistPage(response.data);
 }

@@ -14,11 +14,26 @@ import {
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
 import { notify } from "@/src/utils/toast";
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 20;
 const QUICK_AMOUNTS = [50000, 100000, 200000];
 
 const formatMoney = (value) =>
   `${new Intl.NumberFormat("fa-IR").format(Math.max(0, Math.round(Number(value) || 0)))} تومان`;
+
+const formatAmountInput = (value) =>
+  value ? new Intl.NumberFormat("en-US").format(Number(value)) : "";
+
+const normalizeAmountInput = (value) => {
+  const normalizedDigits = String(value)
+    .replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit)))
+    .replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit)))
+    .replace(/\D/g, "")
+    .replace(/^0+(?=\d)/, "");
+
+  return normalizedDigits;
+};
+
+const parseAmountInput = (value) => Number(normalizeAmountInput(value));
 
 const INCOME_TYPES = new Set([
   "income",
@@ -47,13 +62,39 @@ function buildDateRange(daysValue) {
   };
 }
 
+function toApiDateTime(dateValue, endOfDay = false) {
+  if (!dateValue) return undefined;
+  const time = endOfDay ? "23:59:59.999" : "00:00:00.000";
+  const date = new Date(`${dateValue}T${time}`);
+  return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
+}
+
+function buildManualDateRange(fromDate, toDate) {
+  const params = {};
+  const normalizedFromDate = toApiDateTime(fromDate);
+  const normalizedToDate = toApiDateTime(toDate, true);
+
+  if (normalizedFromDate) params.fromDate = normalizedFromDate;
+  if (normalizedToDate) params.toDate = normalizedToDate;
+
+  return params;
+}
+
 function isIncomeType(type = "", amount = 0) {
   const key = String(type).toLowerCase();
   if (INCOME_TYPES.has(key)) return true;
-  if (key.includes("credit") || key.includes("deposit") || key.includes("refund")) {
+  if (
+    key.includes("credit") ||
+    key.includes("deposit") ||
+    key.includes("refund")
+  ) {
     return true;
   }
-  if (key.includes("debit") || key.includes("purchase") || key.includes("withdraw")) {
+  if (
+    key.includes("debit") ||
+    key.includes("purchase") ||
+    key.includes("withdraw")
+  ) {
     return false;
   }
   return amount >= 0;
@@ -103,6 +144,9 @@ export default function CreditHistory() {
   const [type, setType] = useState("all");
   const [period, setPeriod] = useState("all");
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [customAmount, setCustomAmount] = useState("");
   const [selectedQuickAmount, setSelectedQuickAmount] = useState(null);
 
@@ -126,11 +170,20 @@ export default function CreditHistory() {
     async (pageNumber = 1) => {
       setLoading(true);
       try {
-        const dateParams = buildDateRange(period);
+        const manualDateParams = buildManualDateRange(fromDate, toDate);
+        const hasManualDate = Boolean(
+          manualDateParams.fromDate || manualDateParams.toDate,
+        );
+        const dateParams = hasManualDate
+          ? manualDateParams
+          : buildDateRange(period);
+
         const data = await getMyWalletTransactions({
-          pageNumber,
+          page: pageNumber,
           pageSize: PAGE_SIZE,
-          type: type !== "all" ? type : undefined,
+          search: debouncedSearch || undefined,
+          period: !hasManualDate && period !== "all" ? period : undefined,
+          transactionType: type !== "all" ? type : undefined,
           ...dateParams,
         });
 
@@ -151,8 +204,16 @@ export default function CreditHistory() {
         setLoading(false);
       }
     },
-    [period, type],
+    [debouncedSearch, fromDate, period, toDate, type],
   );
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSearch(search.trim());
+    }, 400);
+
+    return () => window.clearTimeout(timer);
+  }, [search]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -168,18 +229,28 @@ export default function CreditHistory() {
     return () => window.clearTimeout(timer);
   }, [loadTransactions]);
 
+  const handlePeriodChange = useCallback((value) => {
+    setPeriod(value);
+    setFromDate("");
+    setToDate("");
+  }, []);
+
+  const handleFromDateChange = useCallback((value) => {
+    setFromDate(value);
+    if (value) setPeriod("all");
+  }, []);
+
+  const handleToDateChange = useCallback((value) => {
+    setToDate(value);
+    if (value) setPeriod("all");
+  }, []);
+
   const cardItems = useMemo(
     () => transactions.map(mapTransactionForCard),
     [transactions],
   );
 
-  const filteredTransactions = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    if (!term) return cardItems;
-    return cardItems.filter((item) =>
-      String(item.transactionId).toLowerCase().includes(term),
-    );
-  }, [cardItems, search]);
+  const filteredTransactions = cardItems;
 
   const summary = useMemo(() => {
     let totalIncome = 0;
@@ -201,7 +272,7 @@ export default function CreditHistory() {
   }, [cardItems]);
 
   const handleTopUp = async (amountValue) => {
-    const amount = Number(amountValue);
+    const amount = parseAmountInput(amountValue);
     if (!Number.isFinite(amount) || amount <= 0) {
       notify.error("مبلغ افزایش اعتبار معتبر نیست");
       return;
@@ -300,26 +371,36 @@ export default function CreditHistory() {
               value: type,
               onChange: setType,
               options: [
-                { value: "all", label: "همه نوع تراکنش" },
-                { value: "income", label: "واریز" },
-                { value: "expense", label: "برداشت" },
+                { value: "", label: "همه نوع تراکنش" },
+                { value: "deposit", label: "واریز" },
+                { value: "withdrawal", label: "برداشت" },
                 { value: "refund", label: "عودت" },
-                { value: "bonus", label: "پاداش" },
+                { value: "reward", label: "پاداش" },
               ],
             },
             {
               key: "period",
               value: period,
-              onChange: setPeriod,
+              onChange: handlePeriodChange,
               options: [
-                { value: "all", label: "همه زمان‌ها" },
-                { value: "7", label: "۷ روز گذشته" },
-                { value: "30", label: "۳۰ روز گذشته" },
-                { value: "90", label: "۳ ماه گذشته" },
-                { value: "365", label: "یک سال گذشته" },
+                { value: "", label: "همه زمان‌ها" },
+                { value: "today", label: "امروز" },
+                { value: "last7days", label: "۷ روز گذشته" },
+                { value: "last30days", label: "۳۰ روز گذشته" },
+                { value: "thismonth", label: "ماه جاری" },
               ],
             },
           ]}
+          dateRange={{
+            fromDate,
+            toDate,
+            fromLabel: "از تاریخ",
+            toLabel: "تا تاریخ",
+            placeholder: "بازه تاریخ",
+            clearLabel: "پاک کردن بازه تاریخ",
+            onFromDateChange: handleFromDateChange,
+            onToDateChange: handleToDateChange,
+          }}
           search={{
             value: search,
             onChange: setSearch,
@@ -334,18 +415,18 @@ export default function CreditHistory() {
         </h2>
 
         <div className="space-y-4">
-          {loading ? (
-            Array.from({ length: 3 }).map((_, index) => (
-              <div
-                key={`tx-skeleton-${index}`}
-                className="h-24 animate-pulse rounded-2xl bg-gray-100 dark:bg-zinc-800"
-              />
-            ))
-          ) : filteredTransactions.length > 0 ? (
-            filteredTransactions.map((item) => (
-              <TransactionCard key={item.id} item={item} />
-            ))
-          ) : null}
+          {loading
+            ? Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={`tx-skeleton-${index}`}
+                  className="h-24 animate-pulse rounded-2xl bg-gray-100 dark:bg-zinc-800"
+                />
+              ))
+            : filteredTransactions.length > 0
+              ? filteredTransactions.map((item) => (
+                  <TransactionCard key={item.id} item={item} />
+                ))
+              : null}
         </div>
 
         <div className="mt-8 flex flex-col border-t border-gray-200 pt-6 dark:border-gray-700 sm:flex-row sm:items-center sm:justify-between">
@@ -415,7 +496,7 @@ export default function CreditHistory() {
                     disabled={topUpLoading}
                     onClick={() => {
                       setSelectedQuickAmount(amount);
-                      setCustomAmount(String(amount));
+                      setCustomAmount(formatAmountInput(amount));
                     }}
                     className={[
                       "rounded-lg py-3 text-center transition-colors",
@@ -438,11 +519,16 @@ export default function CreditHistory() {
             <div className="flex space-x-3">
               <input
                 id="custom-amount"
-                type="number"
-                min={1}
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9,]*"
+                dir="ltr"
+                autoComplete="off"
                 value={customAmount}
                 onChange={(e) => {
-                  setCustomAmount(e.target.value);
+                  setCustomAmount(
+                    formatAmountInput(normalizeAmountInput(e.target.value)),
+                  );
                   setSelectedQuickAmount(null);
                 }}
                 className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary dark:border-gray-600 dark:bg-zinc-800 dark:text-white"

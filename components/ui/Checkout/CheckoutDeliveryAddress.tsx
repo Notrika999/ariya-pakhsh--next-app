@@ -1,12 +1,12 @@
 "use client";
-
+// components/ui/Checkout/CheckoutDeliveryAddress.tsx
 import { useCallback, useEffect, useRef, useState } from "react";
 import AddressFormModal from "@/components/modules/AddressFormModal/AddressFormModal";
 import { getCustomerAddresses } from "@/src/services/address/address.client";
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
 import { CustomerAddressDto } from "@/src/lib/types/address/address.type";
 import type {
-  CheckoutShippingMethod,
+  CheckoutShippingOptionsResult,
   PlaceOrderShippingAddress,
 } from "@/src/lib/types/checkout/checkout.types";
 import {
@@ -29,7 +29,7 @@ function getAddressIcon(title: string): string {
 interface CheckoutDeliveryAddressProps {
   selectedAddressId: string | null;
   onSelectAddress: (address: CustomerAddressDto | null) => void;
-  onShippingOptionsChange: (methods: CheckoutShippingMethod[]) => void;
+  onShippingOptionsChange: (result: CheckoutShippingOptionsResult | null) => void;
   customerNote: string;
   onCustomerNoteChange: (value: string) => void;
 }
@@ -69,7 +69,7 @@ export default function CheckoutDeliveryAddress({
       onSelectAddress(address);
 
       if (!address) {
-        onShippingOptionsChange([]);
+        onShippingOptionsChange(null);
         return;
       }
 
@@ -82,7 +82,7 @@ export default function CheckoutDeliveryAddress({
       } catch (err) {
         if (shippingOptionsRequestId.current !== requestId) return;
         console.error("[CheckoutDeliveryAddress] shipping options failed =>", err);
-        onShippingOptionsChange([]);
+        onShippingOptionsChange(null);
         notify.error(getAuthErrorMessage(err));
       }
     },

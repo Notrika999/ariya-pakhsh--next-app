@@ -7,6 +7,7 @@ export type ProductQuestionAnswer = {
   isOfficial: boolean;
   likesCount: number;
   dislikesCount: number;
+  userVote?: QuestionVoteType | null;
   createdAt: string;
 };
 

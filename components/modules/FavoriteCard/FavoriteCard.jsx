@@ -62,11 +62,11 @@ export default function FavoriteCard({
         />
       </div>
 
-      {showDiscount && (
+      {/* {showDiscount && (
         <div className="absolute inset-e-3 top-3 bg-secondary-500 text-white text-xs font-bold px-2 py-1 rounded-xl rounded-bl-md shadow shadow-red-500/50 z-10">
           {discount}%
         </div>
-      )}
+      )} */}
 
       {!inStock && (
         <div className="absolute inset-e-3 top-3 z-10 rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-700 border border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800">

@@ -4,6 +4,11 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { retryMyOrderPayment } from "@/src/services/orders/orders.client";
+import {
+  clearRememberedPendingPaymentOrder,
+  getRememberedPendingPaymentOrderInfo,
+  rememberPendingPaymentOrder,
+} from "@/src/utils/paymentRetryStorage";
 
 const HOME_PATH = "/";
 const ORDERS_PATH = "/user-profile/orders";
@@ -101,18 +106,31 @@ export default function PaymentResult() {
   const [retrying, setRetrying] = useState(false);
   const [retryError, setRetryError] = useState<string | null>(null);
 
-  useEffect(() => {
-    console.log("[PaymentResult] mounted", {
-      path: "/checkout/payment-result",
-      search: searchParams.toString(),
-      expectedCallbackApi: "/api/v1/Payments/mellat/callback",
-    });
-  }, [searchParams]);
+
 
   const result = useMemo(() => {
     const params = new URLSearchParams(searchParams.toString());
     const status = resolveCallbackStatus(params);
     const copy = getResultCopy(status);
+    const rememberedOrder = getRememberedPendingPaymentOrderInfo();
+    const orderId =
+      getFirstParam(params, [
+        "orderId",
+        "OrderId",
+        "orderID",
+        "OrderID",
+        "SaleOrderId",
+        "saleOrderId",
+        "SaleOrderID",
+        "saleOrderID",
+      ]) ?? rememberedOrder?.orderId ?? null;
+    const displayOrderNumber =
+      getFirstParam(params, [
+        "publicOrderNumber",
+        "PublicOrderNumber",
+        "orderNumber",
+        "OrderNumber",
+      ]) ?? rememberedOrder?.orderNumber ?? orderId;
 
     return {
       status,
@@ -141,14 +159,16 @@ export default function PaymentResult() {
         "Authority",
         "authority",
       ]),
-      orderId: getFirstParam(params, [
-        "orderId",
-        "OrderId",
-        "orderNumber",
-        "OrderNumber",
-      ]),
+      orderId,
+      displayOrderNumber,
     };
   }, [searchParams]);
+
+  useEffect(() => {
+    if (result.status === "success") {
+      clearRememberedPendingPaymentOrder();
+    }
+  }, [result.status]);
 
   const handleRetryPayment = async () => {
     if (!result.orderId || retrying) {
@@ -168,6 +188,7 @@ export default function PaymentResult() {
         return;
       }
 
+      rememberPendingPaymentOrder(result.orderId, result.displayOrderNumber);
       window.location.assign(redirectUrl);
     } catch (error) {
       setRetryError(getErrorMessage(error));
@@ -201,13 +222,13 @@ export default function PaymentResult() {
               </div>
 
               <div className="space-y-3 rounded-xl bg-gray-50 p-4 text-sm dark:bg-gray-800/60">
-                {result.orderId ? (
+                {result.displayOrderNumber ? (
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-gray-500 dark:text-gray-400">
                       شماره سفارش
                     </span>
                     <span className="break-all font-bold text-gray-800 dark:text-white">
-                      {result.orderId}
+                      {result.displayOrderNumber}
                     </span>
                   </div>
                 ) : null}
@@ -248,7 +269,7 @@ export default function PaymentResult() {
                 </Link>
               ) : null}
 
-              {result.status === "failed" ? (
+              {result.status !== "success" ? (
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                   <button
                     type="button"
@@ -267,14 +288,6 @@ export default function PaymentResult() {
                 </div>
               ) : null}
 
-              {result.status === "cancelled" ? (
-                <Link
-                  href={HOME_PATH}
-                  className="flex w-full items-center justify-center rounded-lg bg-primary px-4 py-3 font-medium text-white transition-colors duration-200 hover:bg-primary/90"
-                >
-                  صفحه اصلی
-                </Link>
-              ) : null}
             </div>
           </div>
         </div>

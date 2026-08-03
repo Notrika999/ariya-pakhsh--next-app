@@ -2,7 +2,16 @@ import React from "react";
 
 import storyStyle from "./Story.module.css";
 import Image from "next/image";
-export default function StoryItem({ image, title, onOpen, index, viewed }) {
+import { Play } from "lucide-react";
+
+export default function StoryItem({
+  image,
+  title,
+  onOpen,
+  index,
+  viewed,
+  hasVideo,
+}) {
   return (
     <div
       className={`${storyStyle.story}`}
@@ -23,6 +32,11 @@ export default function StoryItem({ image, title, onOpen, index, viewed }) {
             e.target.src = "https://picsum.photos/70";
           }}
         />
+        {hasVideo ? (
+          <span className={storyStyle.storyPlayBadge} aria-hidden="true">
+            <Play size={18} fill="currentColor" strokeWidth={2.4} />
+          </span>
+        ) : null}
       </div>
       <div className={`dark:text-white! ${storyStyle.storyUsername}`}>
         {title}

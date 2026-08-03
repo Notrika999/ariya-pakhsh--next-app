@@ -1,5 +1,5 @@
 "use client";
-
+// components/ui/Home/AmazingProducts/AmazingProducts.jsx
 import React, { memo, useEffect, useMemo, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -18,7 +18,10 @@ const prevBtnClass = ".swiper-button-prev-amazing";
 const nextBtnClass = ".swiper-button-next-amazing";
 
 function pad(value) {
-  return String(value).padStart(2, "0");
+  return new Intl.NumberFormat("fa-IR", {
+    minimumIntegerDigits: 2,
+    useGrouping: false,
+  }).format(value);
 }
 
 const AmazingHeaderTimer = memo(function AmazingHeaderTimer({ enabled }) {
@@ -48,7 +51,7 @@ const AmazingHeaderTimer = memo(function AmazingHeaderTimer({ enabled }) {
 
   return (
     <div
-      className="flex items-center gap-1 rounded-xl bg-white/15 px-3 py-2 font-mono text-sm font-black text-white"
+      className="flex items-center gap-1 rounded-xl bg-white/15 px-3 py-2 text-sm font-black text-white"
       dir="ltr"
       aria-label="زمان باقی‌مانده پیشنهاد شگفت‌انگیز"
     >
@@ -61,7 +64,7 @@ const AmazingHeaderTimer = memo(function AmazingHeaderTimer({ enabled }) {
   );
 });
 
-export default function AmazingProductsSlider({ products }) {
+export default function AmazingProductsSlider({ products, noTimer = false, noFirstSlide = false }) {
   // products = [{id, image, title, colors, price, discount, countdownTo}, ...]
   const safeProducts = useMemo(() => products ?? [], [products]);
 
@@ -120,7 +123,7 @@ export default function AmazingProductsSlider({ products }) {
             className="amazing-swiper"
           >
             {/* AMAZING SIDE */}
-            <SwiperSlide className="hidden! xl:block! w-[260px]!">
+            {!noFirstSlide && <SwiperSlide className="hidden! xl:block! w-[260px]!">
               <div className=" text-white rounded-2xl h-full min-h-[340px] p-5 flex flex-col justify-between">
                 <div className="space-y-6 flex flex-col items-center justify-center">
                   <Image
@@ -144,13 +147,13 @@ export default function AmazingProductsSlider({ products }) {
                   </Link>
                 </div>
               </div>
-            </SwiperSlide>
+            </SwiperSlide>}
 
             {/* PRODUCTS */}
             {limitedProducts.map((p) => (
               <SwiperSlide key={p.id}>
                 <div className="mx-1">
-                  <ProductCard product={p} />
+                  <ProductCard product={p} noTimer={noTimer} />
                 </div>
               </SwiperSlide>
             ))}

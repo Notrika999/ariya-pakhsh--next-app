@@ -44,6 +44,7 @@ export type MyOrderItem = {
   statusKey?: string;
   statusTitleFa?: string;
   promotionTitle?: string | null;
+  canRequestReturn?: boolean;
   imageUrl: string | null;
   sku: string | null;
 };
@@ -199,11 +200,19 @@ export type RetryPaymentResult = {
 export type CreateOrderReturnItem = {
   orderItemId: string;
   quantity: number;
+  productCondition: string;
 };
 
 export type CreateOrderReturnPayload = {
-  reason: string;
+  orderId: string;
+  reasonCode: string;
+  description?: string;
+  refundMethod?: string;
+  isPurchaseCardOwnedByCustomer?: boolean;
   items: CreateOrderReturnItem[];
+  evidenceFiles?: File[];
+  customerNationalIdFiles?: File[];
+  cardOwnerNationalIdFiles?: File[];
 };
 
 export type CreateOrderReturnResult = {

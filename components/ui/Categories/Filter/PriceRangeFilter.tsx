@@ -2,10 +2,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ChangeEvent, FocusEvent, KeyboardEvent } from "react";
+import type { ChangeEvent, FocusEvent, KeyboardEvent, PointerEvent } from "react";
 
 const MIN_PRICE_GAP = 500;
 const PRICE_STEP = 500;
+const THUMB_SIZE = 16;
 
 type Props = {
   min: number;
@@ -15,6 +16,8 @@ type Props = {
 };
 
 export default function PriceRangeFilter({ min, max, value, onChange }: Props) {
+  type ActiveThumb = "min" | "max";
+
   const clamp = useCallback(
     (val: number) => Math.min(Math.max(val, min), max),
     [max, min],
@@ -66,7 +69,11 @@ export default function PriceRangeFilter({ min, max, value, onChange }: Props) {
     formatPrice(normalizeRange(value.min, value.max).max),
   );
   const [focusedInput, setFocusedInput] = useState<"min" | "max" | null>(null);
+  const [activeThumb, setActiveThumb] = useState<ActiveThumb | null>(null);
+  const [trackWidth, setTrackWidth] = useState(0);
 
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const activeThumbRef = useRef<ActiveThumb | null>(null);
   const isInternalChange = useRef(false);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -92,15 +99,34 @@ export default function PriceRangeFilter({ min, max, value, onChange }: Props) {
   }, [focusedInput, formatPrice, normalizeRange, value.min, value.max]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  const pushToURL = (newMin: number, newMax: number) => {
+  const pushToURL = useCallback((newMin: number, newMax: number) => {
     const normalized = normalizeRange(newMin, newMax);
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(() => {
       onChange(normalized);
     }, 500);
-  };
+  }, [normalizeRange, onChange]);
 
   const range = max - min || 1;
+
+  useEffect(() => {
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    const updateTrackWidth = () => setTrackWidth(slider.clientWidth);
+
+    updateTrackWidth();
+
+    const resizeObserver = new ResizeObserver(updateTrackWidth);
+    resizeObserver.observe(slider);
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, []);
 
   // چون dir="ltr" هست و UI فارسی:
   // چپ = گران‌ترین (max) ← راست = ارزان‌ترین (min)
@@ -111,10 +137,139 @@ export default function PriceRangeFilter({ min, max, value, onChange }: Props) {
     100 - Math.min(Math.max(((localMin - min) / range) * 100, 0), 100);
   const maxPercentFromLeft =
     100 - Math.min(Math.max(((localMax - min) / range) * 100, 0), 100);
+  const minThumbGapPercent = trackWidth ? (THUMB_SIZE / trackWidth) * 100 : 0;
+
+  let minVisualPercentFromLeft = minPercentFromLeft;
+  let maxVisualPercentFromLeft = maxPercentFromLeft;
+
+  if (minVisualPercentFromLeft - maxVisualPercentFromLeft < minThumbGapPercent) {
+    if (activeThumb === "max") {
+      maxVisualPercentFromLeft = Math.max(
+        0,
+        minVisualPercentFromLeft - minThumbGapPercent,
+      );
+
+      if (maxVisualPercentFromLeft === 0) {
+        minVisualPercentFromLeft = Math.min(100, minThumbGapPercent);
+      }
+    } else {
+      minVisualPercentFromLeft = Math.min(
+        100,
+        maxVisualPercentFromLeft + minThumbGapPercent,
+      );
+
+      if (minVisualPercentFromLeft === 100) {
+        maxVisualPercentFromLeft = Math.max(0, 100 - minThumbGapPercent);
+      }
+    }
+  }
 
   // برای input‌ها: مقدار رو invert میکنیم تا کشیدن به چپ = افزایش قیمت
   // invert: invertedVal = max + min - realVal
   const invert = (val: number) => max + min - val;
+
+  const getValueFromPointer = useCallback(
+    (clientX: number) => {
+      const slider = sliderRef.current;
+      if (!slider) return null;
+
+      const rect = slider.getBoundingClientRect();
+      if (rect.width <= 0) return null;
+
+      const percentFromLeft = Math.min(
+        Math.max(((clientX - rect.left) / rect.width) * 100, 0),
+        100,
+      );
+      const rawValue = min + ((100 - percentFromLeft) / 100) * range;
+      const steppedValue =
+        Math.round((rawValue - min) / PRICE_STEP) * PRICE_STEP + min;
+
+      return clamp(steppedValue);
+    },
+    [clamp, min, range],
+  );
+
+  const applySliderValue = useCallback(
+    (thumb: ActiveThumb, nextValue: number) => {
+      if (thumb === "min") {
+        const realVal = clampMin(nextValue, localMax);
+        isInternalChange.current = true;
+        setLocalMin(realVal);
+        if (focusedInput !== "min") setMinInputValue(formatPrice(realVal));
+        pushToURL(realVal, localMax);
+        return;
+      }
+
+      const realVal = clampMax(nextValue, localMin);
+      isInternalChange.current = true;
+      setLocalMax(realVal);
+      if (focusedInput !== "max") setMaxInputValue(formatPrice(realVal));
+      pushToURL(localMin, realVal);
+    },
+    [
+      clampMax,
+      clampMin,
+      focusedInput,
+      formatPrice,
+      localMax,
+      localMin,
+      pushToURL,
+    ],
+  );
+
+  const getClosestThumb = useCallback(
+    (clientX: number): ActiveThumb => {
+      const slider = sliderRef.current;
+      if (!slider) return "min";
+
+      const rect = slider.getBoundingClientRect();
+      if (rect.width <= 0) return "min";
+
+      const percentFromLeft = Math.min(
+        Math.max(((clientX - rect.left) / rect.width) * 100, 0),
+        100,
+      );
+      const minDistance = Math.abs(percentFromLeft - minVisualPercentFromLeft);
+      const maxDistance = Math.abs(percentFromLeft - maxVisualPercentFromLeft);
+
+      return minDistance <= maxDistance ? "min" : "max";
+    },
+    [maxVisualPercentFromLeft, minVisualPercentFromLeft],
+  );
+
+  const handleSliderPointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    const requestedThumb = (e.target as HTMLElement).dataset.thumb as
+      | ActiveThumb
+      | undefined;
+    const nextValue = getValueFromPointer(e.clientX);
+    const nextActiveThumb = requestedThumb ?? getClosestThumb(e.clientX);
+
+    if (nextValue === null) return;
+
+    activeThumbRef.current = nextActiveThumb;
+    setActiveThumb(nextActiveThumb);
+    e.currentTarget.setPointerCapture(e.pointerId);
+    applySliderValue(nextActiveThumb, nextValue);
+  };
+
+  const handleSliderPointerMove = (e: PointerEvent<HTMLDivElement>) => {
+    const currentThumb = activeThumbRef.current;
+    if (!currentThumb) return;
+
+    const nextValue = getValueFromPointer(e.clientX);
+    if (nextValue === null) return;
+
+    applySliderValue(currentThumb, nextValue);
+  };
+
+  const stopSliderPointer = (e: PointerEvent<HTMLDivElement>) => {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+
+    activeThumbRef.current = null;
+    setActiveThumb(null);
+  };
 
   // وقتی input min (که نقش ارزان‌ترین رو داره) تغییر میکنه:
   // input value = invert(localMin) → وقتی بره سمت چپ، localMin کم میشه (ارزان‌تر)
@@ -187,8 +342,6 @@ export default function PriceRangeFilter({ min, max, value, onChange }: Props) {
     }
   };
 
-  const THUMB = 16;
-
   return (
     <div className="space-y-6">
         <div>
@@ -241,16 +394,24 @@ export default function PriceRangeFilter({ min, max, value, onChange }: Props) {
         </div>
 
         {/* Slider — dir="ltr" ولی مقادیر invert شدن */}
-        <div className="relative h-2 mt-8" dir="ltr">
+        <div
+          ref={sliderRef}
+          className="relative h-5 mt-8 touch-none select-none"
+          dir="ltr"
+          onPointerDown={handleSliderPointerDown}
+          onPointerMove={handleSliderPointerMove}
+          onPointerUp={stopSliderPointer}
+          onPointerCancel={stopSliderPointer}
+        >
           {/* track خاکستری */}
-          <div className="absolute top-1 w-full h-2 bg-gray-200 rounded-full" />
+          <div className="absolute top-1/2 w-full h-2 -translate-y-1/2 bg-gray-200 rounded-full" />
 
           {/* track آبی — بین دو thumb (از maxPercentFromLeft تا minPercentFromLeft) */}
           <div
-            className="absolute top-1 h-2 bg-blue-500 rounded-full"
+            className="absolute top-1/2 h-2 -translate-y-1/2 bg-blue-500 rounded-full"
             style={{
-              left: `calc(${maxPercentFromLeft}% + ${THUMB / 2}px)`,
-              width: `calc(${minPercentFromLeft - maxPercentFromLeft}% - ${THUMB}px)`,
+              left: `calc(${maxVisualPercentFromLeft}% + ${THUMB_SIZE / 2}px)`,
+              width: `calc(${minVisualPercentFromLeft - maxVisualPercentFromLeft}% - ${THUMB_SIZE}px)`,
             }}
           />
 
@@ -262,8 +423,8 @@ export default function PriceRangeFilter({ min, max, value, onChange }: Props) {
             step={PRICE_STEP}
             value={invert(localMin)}
             onChange={handleMinChange}
-            className="range-thumb absolute w-full h-full opacity-0 cursor-pointer"
-            style={{ zIndex: localMin < min + range * 0.1 ? 5 : 3 }}
+            className="range-thumb absolute inset-0 w-full h-full opacity-0 pointer-events-none"
+            style={{ zIndex: 1 }}
           />
 
           {/* input برای localMax — مقدارش invert شده */}
@@ -274,20 +435,22 @@ export default function PriceRangeFilter({ min, max, value, onChange }: Props) {
             step={PRICE_STEP}
             value={invert(localMax)}
             onChange={handleMaxChange}
-            className="range-thumb absolute w-full h-full opacity-0 cursor-pointer"
+            className="range-thumb absolute inset-0 w-full h-full opacity-0 pointer-events-none"
             style={{ zIndex: 4 }}
           />
 
           {/* thumb بصری برای ارزان‌ترین (سمت راست) */}
           <div
-            className="absolute top-1/1 -translate-y-1/2 w-4 h-4 bg-white border-2 border-blue-500 rounded-full pointer-events-none shadow"
-            style={{ left: `calc(${minPercentFromLeft}% - 10px)` }}
+            data-thumb="min"
+            className="absolute top-1/2 z-10 h-4 w-4 -translate-y-1/2 cursor-pointer rounded-full border-2 border-blue-500 bg-white shadow"
+            style={{ left: `calc(${minVisualPercentFromLeft}% - ${THUMB_SIZE / 2}px)` }}
           />
 
           {/* thumb بصری برای گران‌ترین (سمت چپ) */}
           <div
-            className="absolute top-1/1 -translate-y-1/2 w-4 h-4 bg-blue-500 rounded-full pointer-events-none shadow"
-            style={{ left: `calc(${maxPercentFromLeft}% - 6px)` }}
+            data-thumb="max"
+            className="absolute top-1/2 z-10 h-4 w-4 -translate-y-1/2 cursor-pointer rounded-full bg-blue-500 shadow"
+            style={{ left: `calc(${maxVisualPercentFromLeft}% - ${THUMB_SIZE / 2}px)` }}
           />
         </div>
 

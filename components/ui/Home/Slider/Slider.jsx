@@ -1,7 +1,8 @@
 "use client";
-
+// components/ui/Home/Slider/Slider.jsx
 import React from "react";
 import SliderItem from "./SliderItem";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // Swiper React
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -42,71 +43,33 @@ export default function Slider({ sliders }) {
             }}
           >
             {sliders.map((slid) => (
-              <SwiperSlide key={slid.id}>
+              <SwiperSlide key={slid.id} className="w-full">
                 <SliderItem
                   image={slid.image}
                   alt={slid.alt}
-                  href={`/landing/${slid.slug}`}
+                  href={slid.href ?? slid.slug ?? "#"}
+                  mobileImage={slid.mobileImage}
+                  title={slid.title}
+                  subtitle={slid.subtitle}
+                  ctaText={slid.ctaText}
                 />
               </SwiperSlide>
             ))}
           </Swiper>
-          {/* <!-- next button --> */}
-          <div className="absolute lg:block hidden cursor-pointer custom-swiper-prev top-1/2 -translate-y-1/2 inset-s-[-0.9px] z-30! ">
-            <svg
-              width="83"
-              height="285"
-              viewBox="0 0 83 285"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                opacity="0.14"
-                d="M80.0469 7.4043V284.222V251.904C80.0469 236.962 74.4721 222.559 64.4132 211.51L30.6937 174.474C13.323 155.395 13.323 126.231 30.6937 107.152L64.4132 70.116C74.4721 59.0678 80.0469 44.664 80.0469 29.7226V7.4043Z"
-                fill="black"
-              ></path>
-              <path
-                d="M82.0469 0.404297V277.222V244.904C82.0469 229.962 76.4721 215.559 66.4132 204.51L32.6937 167.474C15.323 148.395 15.323 119.231 32.6937 100.152L66.4132 63.116C76.4721 52.0678 82.0469 37.664 82.0469 22.7226V0.404297Z"
-                fill="white"
-              ></path>
-              <path
-                d="M55.1719 141.413L60.6052 135.98C61.2469 135.338 61.2469 134.288 60.6052 133.646L55.1719 128.213"
-                stroke="#C3CDDC"
-                strokeWidth="4"
-                strokeMiterlimit="10"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              ></path>
-            </svg>
-          </div>
-          {/* <!-- back button --> */}
-          <div className="absolute lg:block hidden cursor-pointer  custom-swiper-next top-1/2 -translate-y-1/2 -inset-e-1 z-30!">
-            <svg
-              width="83"
-              height="285"
-              viewBox="0 0 83 285"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                opacity="0.14"
-                d="M2.80469 7.5332V284.351V252.033C2.80469 237.091 8.37946 222.688 18.4383 211.639L52.1578 174.603C69.5286 155.524 69.5286 126.36 52.1578 107.281L18.4383 70.2449C8.37946 59.1967 2.80469 44.7929 2.80469 29.8515V7.5332Z"
-                fill="black"
-              ></path>
-              <path
-                d="M0.804688 0.533203V277.351V245.033C0.804688 230.091 6.37946 215.688 16.4383 204.639L50.1578 167.603C67.5286 148.524 67.5286 119.36 50.1578 100.281L16.4383 63.2449C6.37946 52.1967 0.804688 37.7929 0.804688 22.8515V0.533203Z"
-                fill="white"
-              ></path>
-              <path
-                d="M27.6797 141.542L22.2464 136.108C21.6047 135.467 21.6047 134.417 22.2464 133.775L27.6797 128.342"
-                stroke="#C3CDDC"
-                strokeWidth="4"
-                strokeMiterlimit="10"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              ></path>
-            </svg>
-          </div>
+          <button
+            type="button"
+            aria-label="اسلاید قبلی"
+            className="custom-swiper-prev absolute start-4 top-1/2 z-30! hidden h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-transparent text-gray-700 transition-colors text-white hover:bg-white/85 dark:hover:text-white lg:flex dark:text-white dark:hover:bg-gray-900/70 hover:text-gray-900/70"
+          >
+            <ChevronRight size={28} strokeWidth={2.5} />
+          </button>
+          <button
+            type="button"
+            aria-label="اسلاید بعدی"
+            className="custom-swiper-next absolute end-4 top-1/2 z-30! hidden h-11 w-11 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-transparent text-gray-700 transition-colors text-white hover:bg-white/85 dark:hover:text-white lg:flex dark:text-white dark:hover:bg-gray-900/70 hover:text-gray-900/70"
+          >
+            <ChevronLeft size={28} strokeWidth={2.5} />
+          </button>
 
           {/* <!-- pagination --> */}
           <div className="swiperPaginationCustome swiper-pagination"></div>

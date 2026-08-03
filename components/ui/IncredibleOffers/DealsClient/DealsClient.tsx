@@ -1,5 +1,5 @@
 "use client";
-
+// components/ui/IncredibleOffers/DealsClient/DealsClient.tsx
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { ProductCardModel, ProductListResponse } from "@/src/lib/types/productTypes";
@@ -24,19 +24,48 @@ interface DealsClientProps {
 }
 
 const SORT_OPTIONS: SortOption[] = [
-  "default",
-  "newest",
-  "priceAsc",
-  "priceDesc",
-  "bestSelling",
-  "mostRated",
-  "discountDesc",
+  "BestDiscount",
+  "PriceAsc",
+  "PriceDesc",
+  "Newest",
+  "BestSelling",
 ];
 
+const SORT_OPTION_TO_API_QUERY: Partial<Record<SortOption, string | null>> = {
+  BestDiscount: "bestDiscount",
+  PriceAsc: "priceAsc",
+  PriceDesc: "priceDesc",
+  Newest: "newest",
+  BestSelling: "bestSelling",
+};
+
+const SORT_QUERY_TO_OPTION: Record<string, SortOption> = {
+  bestDiscount: "BestDiscount",
+  default: "BestDiscount",
+  newest: "Newest",
+  priceAsc: "PriceAsc",
+  priceDesc: "PriceDesc",
+  bestSelling: "BestSelling",
+  mostViewed: "MostViewed",
+  mostRated: "MostRated",
+  discountDesc: "BestDiscount",
+  BestDiscount: "BestDiscount",
+  Default: "BestDiscount",
+  Newest: "Newest",
+  PriceAsc: "PriceAsc",
+  PriceDesc: "PriceDesc",
+  BestSelling: "BestSelling",
+  MostViewed: "MostViewed",
+  MostRated: "MostRated",
+  DiscountDesc: "BestDiscount",
+};
+
 function parseSort(value: string | null): SortOption {
+  if (value && SORT_QUERY_TO_OPTION[value]) return SORT_QUERY_TO_OPTION[value];
+
   return SORT_OPTIONS.includes(value as SortOption)
     ? (value as SortOption)
-    : "discountDesc";
+    : "BestDiscount";
 }
 
 export default function DealsClient({
@@ -60,9 +89,13 @@ export default function DealsClient({
   );
 
   useEffect(() => {
-    if (!isPending) {
+    if (isPending) return;
+
+    const timer = window.setTimeout(() => {
       setIsNavigating(false);
-    }
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, [isPending]);
 
   const filters = useMemo(
@@ -76,7 +109,9 @@ export default function DealsClient({
             : searchParams.getAll("brandId"),
       minPrice: Number(searchParams.get("minPrice") ?? minLimit),
       maxPrice: Number(searchParams.get("maxPrice") ?? maxLimit),
-      sort: parseSort(searchParams.get("sort")),
+      inStock: searchParams.get("inStock") === "true",
+      onSaleOnly: searchParams.get("onSaleOnly") === "true",
+      sort: parseSort(searchParams.get("SortBy") ?? searchParams.get("sort")),
     }),
     [maxLimit, minLimit, searchParams],
   );
@@ -106,6 +141,11 @@ export default function DealsClient({
         products={products}
         isLoading={isPending || isNavigating}
         startTransition={handleStartTransition}
+        timer={true}
+        sortOptions={SORT_OPTIONS}
+        sortQueryParam="SortBy"
+        sortOptionToQuery={SORT_OPTION_TO_API_QUERY}
+        clearSortQueryParams={["sort"]}
       />
     </SectionContainer>
   );

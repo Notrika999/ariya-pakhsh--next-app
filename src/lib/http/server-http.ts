@@ -300,8 +300,11 @@ export async function proxyToBackend<T = unknown>(
     ...extraHeaders,
   };
 
+  const hasJsonBody =
+    body !== undefined && body !== null && method !== "GET" && method !== "HEAD";
+
   // فقط وقتی rawBody نداریم Content-Type ست می‌شود
-  if (!rawBody && !headers["Content-Type"]) {
+  if (!rawBody && hasJsonBody && !headers["Content-Type"]) {
     headers["Content-Type"] = "application/json";
   }
 
@@ -367,7 +370,7 @@ export async function proxyToBackend<T = unknown>(
 
   function buildBody(): BodyInit | undefined {
     if (rawBody) return rawBody;
-    if (body && method !== "GET" && method !== "HEAD") {
+    if (hasJsonBody) {
       return JSON.stringify(body);
     }
     return undefined;
