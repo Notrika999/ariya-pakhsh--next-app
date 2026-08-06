@@ -198,7 +198,7 @@ export const Captcha = forwardRef<CaptchaHandle, CaptchaProps>(function Captcha(
       >
         {/* Single row: input (right) | divider | canvas + refresh (left) */}
         <div
-          className="flex items-stretch w-full rounded-xl border border-slate-300 bg-slate-50 overflow-hidden"
+          className="flex sm:flex-row flex-col-reverse items-center sm:items-stretch w-full rounded-xl border border-slate-300 bg-slate-50 overflow-hidden"
           dir="rtl"
         >
           {/* Right: label + input */}
@@ -222,7 +222,7 @@ export const Captcha = forwardRef<CaptchaHandle, CaptchaProps>(function Captcha(
               disabled={expired}
               aria-invalid={inputAriaInvalid}
               aria-describedby="captcha-feedback"
-              className="ps-1 bg-transparent border-none outline-none w-full placeholder:text-xs text-slate-800 placeholder:text-slate-400 text-right disabled:opacity-50 disabled:cursor-not-allowed"
+              className="ps-1 border-t border-gray-200 bg-white rounded-md py-1.5 outline-none w-full placeholder:text-xs text-slate-800 placeholder:text-slate-400 text-right disabled:opacity-50 disabled:cursor-not-allowed "
             />
           </div>
 

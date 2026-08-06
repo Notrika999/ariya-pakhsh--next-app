@@ -1,5 +1,5 @@
-// components/ui/ProductPageClient/Review/Review.jsx
 "use client";
+// components/ui/ProductPageClient/Review/Review.jsx
 
 import React, { useEffect, useRef } from "react";
 import ProductIntroduction from "./ProductIntroduction";
@@ -47,12 +47,14 @@ export default function Review({ product, attributes, variant, isOutOfStock }) {
       tabButtons.forEach((b) => {
         b.classList.remove("bg-primary", "text-white");
         b.classList.add("bg-blue-100", "text-primary-800");
+        b.setAttribute("aria-selected", "false");
       });
 
       const activeBtn = document.querySelector(`[data-tab="${tabId}"]`);
       if (activeBtn) {
         activeBtn.classList.remove("bg-blue-100", "text-primary-800");
         activeBtn.classList.add("bg-primary", "text-white");
+        activeBtn.setAttribute("aria-selected", "true");
       }
     };
 

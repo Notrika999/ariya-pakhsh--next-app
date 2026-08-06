@@ -23,6 +23,7 @@ import {
   allBrandSlugParams,
   parseNumber,
   parseSortOrder,
+  normalizeProductSearchParams,
 } from "@/src/lib/helper/productListHelpers";
 import { absoluteUrl } from "@/src/lib/seo/site";
 
@@ -210,6 +211,7 @@ async function CategoryPage({ params, searchParams }: Props) {
       }}
       filterOptions={productLists.filterOptions}
       errorMessage={productListError}
+      serverSearchKey={normalizeProductSearchParams(resolvedSearchParams)}
     />
   );
 }

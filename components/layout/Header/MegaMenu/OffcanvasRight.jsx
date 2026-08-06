@@ -1,29 +1,9 @@
 // components/OffcanvasRight.jsx
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import CategoryNode from "./CategoryNode";
 
 export default function OffcanvasRight({ isOpen, onClose, menu }) {
-  // برای انیمیشن دو مرحله‌ای:Backdrop و Panel
-  const [showBackdrop, setShowBackdrop] = useState(false);
-  const [showPanel, setShowPanel] = useState(false);
-
-  // هماهنگی با isOpen
-  useEffect(() => {
-    if (isOpen) {
-      // بکگراند رو فوراً نمایش بده
-      setShowBackdrop(true);
-      // و بعد از یه تأخیر کوتاه پنل رو باز کن
-      const t = setTimeout(() => setShowPanel(true), 60);
-      return () => clearTimeout(t);
-    } else {
-      // وقتی بسته می‌شه، اول پنل رو خارج کن و بعد بکگراند رو پنهان کن
-      setShowPanel(false);
-      const t = setTimeout(() => setShowBackdrop(false), 250);
-      return () => clearTimeout(t);
-    }
-  }, [isOpen]);
-
   // بستن با کلید Escape
   useEffect(() => {
     const onKey = (e) => {
@@ -38,17 +18,17 @@ export default function OffcanvasRight({ isOpen, onClose, menu }) {
     <>
       {/* بکگراندی که با opacity کم نمایش داده می‌شود */}
       <div
-        className={`fixed inset-0 bg-black/25 z-40 transition-opacity duration-200 ${showBackdrop ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+        className={`fixed inset-0 z-40 bg-black/25 transition-opacity duration-200 ${isOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}
         onClick={onClose}
-        aria-hidden={!showBackdrop}
+        aria-hidden={!isOpen}
       />
 
       {/* پنل جانب راست (با انیمیشن ترجمه) */}
       <div
-        className={`fixed top-0 right-0 h-full w-[80%] bg-white dark:bg-[#0d1117] text-gray-900 dark:text-gray-100 border-e border-gray-200 dark:border-gray-800 shadow-xl transform transition-transform duration-300 z-50 ${showPanel ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 z-50 flex h-dvh w-[80%] flex-col bg-white text-gray-900 shadow-xl transform transition-transform duration-300 dark:bg-[#0d1117] dark:text-gray-100 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
         role="navigation"
         aria-labelledby="store-menu-title"
-        aria-hidden={!showPanel}
+        aria-hidden={!isOpen}
         onClick={(e) => e.stopPropagation()}
       >
         {/* header */}
@@ -67,38 +47,36 @@ export default function OffcanvasRight({ isOpen, onClose, menu }) {
 
         {/* navigation */}
         <nav
-          style={{ paddingLeft: 12 }}
-          className="relative space-y-3 divide-y divide-gray-100 dark:divide-gray-800 p-3 overflow-y-scroll h-full"
+          className="relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-3 pb-8"
           aria-label="منوی اصلی"
         >
-          <ul className="space-y-2 text-sm">
+          <ul className="space-y-2 pb-6 text-sm">
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="/" onClick={() => setIsOpen(false)}>صفحه اصلی</Link>
+              <Link href="/" onClick={onClose}>صفحه اصلی</Link>
             </li>
 
+            <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
+              <Link href="/products" onClick={onClose}>فروشگاه</Link>
+            </li>
+            
             {menu.map((cat) => (
-              <CategoryNode key={cat.id} category={cat} />
+              <CategoryNode key={cat.id} category={cat} onNavigate={onClose} />
             ))}
 
-            {/* صفحات یا آیتم‌های ثابت می‌توانید اینجا اضافه کنید اگر نیاز باشد */}
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="/products" onClick={() => setIsOpen(false)}>لیست کالا ها</Link>
+              <Link href="#" onClick={onClose}>پیگیری سفارش</Link>
             </li>
 
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="#" onClick={() => setIsOpen(false)}>پیگیری سفارش</Link>
+              <Link href="/faq" onClick={onClose}>سوالی دارید</Link>
             </li>
 
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="/faq" onClick={() => setIsOpen(false)}>سوالی دارید</Link>
+              <Link href="/blog" onClick={onClose}>بلاگ</Link>
             </li>
 
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="/blog" onClick={() => setIsOpen(false)}>بلاگ</Link>
-            </li>
-
-            <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="/contact" onClick={() => setIsOpen(false)}>تماس با ما</Link>
+              <Link href="/contact" onClick={onClose}>تماس با ما</Link>
             </li>
           </ul>
         </nav>

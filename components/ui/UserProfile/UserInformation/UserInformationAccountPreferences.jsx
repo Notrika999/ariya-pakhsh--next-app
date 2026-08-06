@@ -28,7 +28,7 @@ export default function UserInformationAccountPreferences({ user }) {
     // اگر ذخیره سرور داری اینجا بگو تا برات اضافه کنم
   };
   return (
-    <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
+    <div className= "hidden bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
       <TitleAfter title={"تنظیمات حساب"} />
       <div className="space-y-6">
         <form onSubmit={handleSubmit} className="space-y-6">

@@ -24,8 +24,8 @@ export function BackToTopButton() {
       aria-label="بازگشت به بالا"
       className="
         fixed z-50
-        bottom-7 right-6
-        md:bottom-11 md:right-8
+        bottom-13 left-2
+        md:bottom-11 md:left-8
         rounded-full
         bg-gray-900 text-white
         w-11 h-11

@@ -9,6 +9,7 @@ export default function FilterResponsive({
   minLimit,
   maxLimit,
   filterOptions,
+  onFilterNavigate,
   ...filterProps
 }) {
   const [open, setOpen] = useState(false);
@@ -59,6 +60,7 @@ export default function FilterResponsive({
               minLimit={minLimit}
               maxLimit={maxLimit}
               filterOptions={filterOptions}
+              onFilterNavigate={onFilterNavigate}
               {...filterProps}
             />
           </div>

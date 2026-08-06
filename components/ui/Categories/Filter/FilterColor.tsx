@@ -1,8 +1,8 @@
-// components/ui/Categories/Filter/FilterColor.tsx
 "use client";
+// components/ui/Categories/Filter/FilterColor.tsx
 
 import type { TransitionStartFunction } from "react";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   COLOR_PALETTE_PARAM,
@@ -21,9 +21,11 @@ import {
 type Props = {
   colorAttributes: ColorFilterAttribute[];
   startTransition?: TransitionStartFunction;
+  searchParamsOverride?: URLSearchParams;
+  onNavigate?: (params: URLSearchParams) => void;
 };
 
-const MAX_VISIBLE_COLOR_LABEL_LENGTH = 8;
+const MAX_VISIBLE_COLOR_LABEL_LENGTH = 10;
 
 function truncateColorLabel(label: string): string {
   return label.length > MAX_VISIBLE_COLOR_LABEL_LENGTH
@@ -35,7 +37,7 @@ function ColorTitle({ labels }: { labels: string[] }) {
   if (labels.length === 0) return null;
 
   return (
-    <span className="inline-flex flex-wrap items-center justify-center gap-x-1.5 gap-y-0.5 text-xs font-medium">
+    <span className="inline-flex flex-wrap items-center justify-center gap-x-1.5 text-[10px] font-semibold">
       {labels.map((label, index) => (
         <span
           key={`${label}-${index}`}
@@ -54,31 +56,30 @@ function ColorTitle({ labels }: { labels: string[] }) {
 export default function FilterColor({
   colorAttributes,
   startTransition,
+  searchParamsOverride,
+  onNavigate,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [searchTerm, setSearchTerm] = useState("");
+  const activeSearchParams = searchParamsOverride ?? searchParams;
 
   const items = useMemo(
     () => buildColorFilterItems(colorAttributes),
     [colorAttributes],
   );
-  const filteredItems = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
-    if (!term) return items;
 
-    return items.filter((item) =>
-      item.labels.some((label) => label.toLowerCase().includes(term)),
-    );
-  }, [items, searchTerm]);
-
-  const selectedColors = colorPaletteParams(searchParams);
+  const selectedColors = colorPaletteParams(activeSearchParams);
   const selectedOptionIds = useMemo(() => {
-    return new Set(colorOptionIdParams(searchParams));
-  }, [searchParams]);
+    return new Set(colorOptionIdParams(activeSearchParams));
+  }, [activeSearchParams]);
 
   const navigate = (params: URLSearchParams) => {
+    if (onNavigate) {
+      onNavigate(params);
+      return;
+    }
+
     const replaceUrl = () => {
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     };
@@ -100,7 +101,7 @@ export default function FilterColor({
   const handleToggle = (item: (typeof items)[number]) => {
     if (item.optionIds.length === 0) return;
 
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(activeSearchParams.toString());
     const selected = isItemSelected(item.labels, item.optionIds);
 
     for (const attributeId of item.attributeIds) {
@@ -139,74 +140,47 @@ export default function FilterColor({
 
   return (
     <div dir="rtl">
-      <div className="mb-4 relative">
-        <input
-          type="text"
-          placeholder="جستجوی رنگ ..."
-          className="w-full py-2 px-3 pe-9 ps-9 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-zinc-800 outline-none focus:border-cyan-500 transition-colors text-right"
-          value={searchTerm}
-          onChange={(event) => setSearchTerm(event.target.value)}
-        />
-        <i className="far fa-search absolute start-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
-        {searchTerm ? (
-          <button
-            type="button"
-            onClick={() => setSearchTerm("")}
-            className="absolute end-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full bg-gray-400 text-white text-xs hover:bg-gray-500 transition-colors"
-            aria-label="پاک کردن جستجو"
-          >
-            ×
-          </button>
-        ) : null}
-      </div>
+      <div className="max-h-80 overflow-y-auto overflow-x-hidden custom-scrollbar">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(60px,1fr))] gap-x-2 gap-y-5 px-1 py-2">
+          {items.map((item) => {
+            const selected = isItemSelected(item.labels, item.optionIds);
+            const hoverTitle = formatColorFilterTitle(item.labels);
+            const needsBorder =
+              item.codes.length > 0 && item.codes.every(isLightHex);
 
-      {filteredItems.length === 0 ? (
-        <p className="text-center text-xs text-gray-400 py-4">رنگی یافت نشد</p>
-      ) : (
-        <div className="max-h-72 overflow-y-auto custom-scrollbar">
-          <div className="flex flex-wrap gap-3 justify-center p-2">
-            {filteredItems.map((item) => {
-              const selected = isItemSelected(item.labels, item.optionIds);
-              const hoverTitle = formatColorFilterTitle(item.labels);
-              const needsBorder =
-                item.codes.length > 0 && item.codes.every(isLightHex);
-
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => handleToggle(item)}
-                  aria-pressed={selected}
-                  title={hoverTitle}
-                  className="group flex flex-col items-center gap-1.5 cursor-pointer"
+            return (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => handleToggle(item)}
+                aria-pressed={selected}
+                title={hoverTitle}
+                className="group flex min-w-0 cursor-pointer flex-col items-center gap-2 text-center outline-none"
+              >
+                <span
+                  className={`flex size-[45px] items-center justify-center rounded-[10px] bg-gray-100 transition-all duration-200 dark:bg-zinc-900 ${
+                    selected
+                      ? "border-[3px] border-primary p-0.5"
+                      : "border-2 border-[#dedfe3] p-[5px] group-hover:border-[#c7cad1] dark:border-gray-700 dark:group-hover:border-gray-600"
+                  }`}
                 >
-                  <div
-                    className={`h-14 w-14 overflow-hidden rounded-2xl transition-all duration-200 ${
-                      selected
-                        ? "scale-105 ring-2 ring-indigo-500 ring-offset-2"
-                        : "hover:scale-105"
-                    } ${
+                  <span
+                    className={`block size-[35px] overflow-hidden rounded-md ${
                       needsBorder
-                        ? "border border-gray-200 dark:border-gray-600"
+                        ? "border border-[#d9dce3] dark:border-gray-600"
                         : ""
                     }`}
                     style={colorSwatchStyle(item.codes)}
                   />
-                  <span
-                    className={`transition-colors ${
-                      selected
-                        ? "text-indigo-600 dark:text-indigo-400"
-                        : "text-gray-600 group-hover:text-gray-800 dark:text-gray-300 dark:group-hover:text-gray-100"
-                    }`}
-                  >
-                    <ColorTitle labels={item.labels} />
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+                </span>
+                <span className="min-h-3 max-w-full text-xs font-semibold text-nowrap leading-5 text-[#16264b] transition-colors group-hover:text-[#0f1c39] dark:text-gray-200 dark:group-hover:text-white">
+                  <ColorTitle labels={item.labels} />
+                </span>
+              </button>
+            );
+          })}
         </div>
-      )}
+      </div>
     </div>
   );
 }

@@ -211,7 +211,6 @@ export async function getAmazingFilteredProducts(
     cache: "no-store",
   });
 
-  console.log("getAmazingFilteredProducts => ", response);
 
   const empty: AmazingFilterResult = {
     products: [],

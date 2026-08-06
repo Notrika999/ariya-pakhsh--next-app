@@ -119,8 +119,6 @@ export async function getMyWalletTransactions(
     params: query,
   });
 
-  console.log("query => ", query);
-  console.log("getMyWalletTransactions => ", response.data);
 
   assertSuccess(response.data, "دریافت تراکنش‌ها ناموفق بود");
   return unwrapTransactionsPage(response.data);

@@ -467,7 +467,6 @@ export async function getMyOrders(
 
   const response = await apiClient.get(BASE, { params: query });
 
-  console.log("getMyOrders: ", response.data);
   assertSuccess(response.data, "دریافت سفارش‌ها ناموفق بود");
   return unwrapOrdersPage(response.data);
 }
@@ -479,7 +478,6 @@ export async function getMyOrderByNumber(
 
   const response = await apiClient.get(`${BASE}/by-number/${encoded}`);
 
-  console.log("getMyOrderByNumber: ", response.data);
 
   assertSuccess(response.data, "سفارش با این شماره پیدا نشد");
   return unwrapOrder(response.data);

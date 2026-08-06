@@ -259,8 +259,6 @@ export default function OrdersReturn() {
         });
       }
 
-      console.log("createMyOrderReturn payload: ", payload);
-
       const result = await createMyOrderReturn(selectedReturnOrderId, payload);
       notify.success(result.message || "درخواست مرجوعی با موفقیت ثبت شد");
       if (result.returnId) {

@@ -303,6 +303,67 @@ export default function Description({
       )}
 
       {/* Compatibilities */}
+      {product.compatibilities?.length > 0 ? (
+        <div className="mt-8 space-y-3">
+        <h4 className="font-bold text-lg flex items-center gap-2">
+          <i className="fas fa-car-side text-primary" aria-hidden="true" />
+          خودروهای سازگار
+        </h4>
+        <ul className="grid gap-3 lg:grid-cols-2 sm:grid-cols-2 grid-cols-1">
+          {product.compatibilities.map((item) => (
+            <li
+              key={item.carId}
+              className="flex items-center justify-between gap-3 p-3 bg-gray-200 dark:bg-zinc-800 rounded-lg"
+            >
+              <div className="min-w-0">
+                <p className="line-clamp-1 text-sm font-semibold text-gray-800 dark:text-gray-100">
+                  {item.name}
+                </p>
+                {item.model && (
+                  <p className="line-clamp-1 mt-1 text-xs text-gray-600 dark:text-gray-300">
+                    مدل: {item.model}
+                  </p>
+                )}
+              </div>
+              <span
+                className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                  item.isIranianCar
+                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
+                    : "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300"
+                }`}
+              >
+                {item.isIranianCar ? "ایرانی" : "وارداتی"}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      ) : (
+        <div className="mt-8 space-y-3">
+        <h4 className="font-bold text-lg flex items-center gap-2">
+          <i className="fas fa-car-side text-primary" aria-hidden="true" />
+          خودروهای سازگار
+        </h4>
+        <ul className="grid gap-3 lg:grid-cols-2 sm:grid-cols-2 grid-cols-1">
+    
+            <li
+            
+              className="flex items-center justify-between gap-3 p-3 bg-gray-200 dark:bg-zinc-800 rounded-lg"
+            >
+              
+              <span
+                className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium 
+              `}
+              >
+                همه خودرها
+              </span>
+            </li>
+        
+        </ul>
+      </div>
+      )}
+
+      {/* Compatibilities
       {product.compatibilities?.length > 0 && (
         <div className="mt-8 space-y-3">
           <h4 className="font-bold text-lg flex items-center gap-2">
@@ -338,7 +399,7 @@ export default function Description({
             ))}
           </ul>
         </div>
-      )}
+      )} */}
 
       {/* Attributes of selected variant (non-color) */}
       {displayAttributes.length > 0 && (

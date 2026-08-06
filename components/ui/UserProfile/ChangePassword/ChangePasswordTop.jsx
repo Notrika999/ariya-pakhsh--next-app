@@ -13,7 +13,7 @@ export default function ChangePasswordTop() {
           </p>
         </div>
         <div className="mt-4 md:mt-0">
-          <div className="flex items-center space-x-3 ">
+          {/* <div className="hidden flex items-center space-x-3 ">
             <div className="text-right">
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 آخرین تغییر
@@ -26,7 +26,7 @@ export default function ChangePasswordTop() {
               <i className="far fa-lock text-blue-600 dark:text-blue-400"></i>
               
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

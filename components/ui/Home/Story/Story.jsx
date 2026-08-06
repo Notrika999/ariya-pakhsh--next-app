@@ -18,6 +18,7 @@ import {
   resolveStoryHref,
 } from "./story-links";
 import { Pause, Play } from "lucide-react";
+import { trackHomeLayoutItemView } from "@/src/services/home/home-layout.client";
 
 const STORY_MINIMIZE_EVENT = "home-story:minimize";
 const VIDEO_CONTROLS_VISIBLE_MS = 2200;
@@ -60,12 +61,17 @@ export default function Story({ stories }) {
 
   const openStory = useCallback(
     (idx) => {
+      const story = storyList[idx];
+      if (story?.id) {
+        trackHomeLayoutItemView(story.id);
+      }
+
       setStoryIndex(idx);
       setFrameIndex(0);
       setOpen(true);
       resetFrameState();
     },
-    [resetFrameState],
+    [resetFrameState, storyList],
   );
 
   const goPrev = useCallback(() => {

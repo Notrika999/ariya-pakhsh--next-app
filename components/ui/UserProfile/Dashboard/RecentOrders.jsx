@@ -2,34 +2,58 @@ import Link from "next/link";
 import React from "react";
 import UserProfileEmptyState from "../UserProfileEmptyState";
 
-const RECENT_ORDERS = [
-  {
-    id: "ORD-7842",
-    date: "۱۴۰۲/۱۰/۱۵",
-    amount: "۱,۲۵۰,۰۰۰ تومان",
-    status: "تحویل شده",
-    statusClass:
-      "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300",
-  },
-  {
-    id: "ORD-7839",
-    date: "۱۴۰۲/۱۰/۱۲",
-    amount: "۸۵۰,۰۰۰ تومان",
-    status: "در حال ارسال",
-    statusClass:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300",
-  },
-  {
-    id: "ORD-7835",
-    date: "۱۴۰۲/۱۰/۰۸",
-    amount: "۲,۳۵۰,۰۰۰ تومان",
-    status: "در حال پردازش",
-    statusClass: "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300",
-  },
-];
+function formatMoney(value) {
+  return `${new Intl.NumberFormat("fa-IR").format(
+    Math.max(0, Math.round(Number(value) || 0)),
+  )} تومان`;
+}
 
-export default function RecentOrders() {
-  if (RECENT_ORDERS.length === 0) {
+function formatDate(value) {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+
+  return new Intl.DateTimeFormat("fa-IR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(date);
+}
+
+function statusBadgeClass(statusKey = "") {
+  const key = String(statusKey).toLowerCase();
+  if (key.includes("deliver") || key.includes("paid") || key.includes("success")) {
+    return "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300";
+  }
+  if (key.includes("ship") || key.includes("fulfill")) {
+    return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300";
+  }
+  if (key.includes("cancel") || key.includes("fail") || key.includes("expire")) {
+    return "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300";
+  }
+  if (key.includes("pending") || key.includes("wait")) {
+    return "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300";
+  }
+  return "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300";
+}
+
+function OrdersSkeleton() {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div
+          key={`recent-order-skeleton-${index}`}
+          className="h-16 animate-pulse rounded-xl bg-gray-100 dark:bg-zinc-800"
+        />
+      ))}
+    </div>
+  );
+}
+
+export default function RecentOrders({ orders = [], loading = false }) {
+  if (loading) return <OrdersSkeleton />;
+
+  if (orders.length === 0) {
     return (
       <UserProfileEmptyState
         title="سفارشی ثبت نشده است"
@@ -53,26 +77,28 @@ export default function RecentOrders() {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-          {RECENT_ORDERS.map((order) => (
+          {orders.map((order) => (
             <tr
-              key={order.id}
+              key={order.orderId}
               className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
             >
               <td className="px-5 py-4 font-bold text-gray-900 dark:text-white">
-                #{order.id}
+                #{order.publicOrderNumber || order.orderId}
               </td>
-              <td className="px-5 py-4">{order.date}</td>
-              <td className="px-5 py-4">{order.amount}</td>
+              <td className="px-5 py-4">{formatDate(order.createdAt)}</td>
+              <td className="px-5 py-4">{formatMoney(order.payableAmount)}</td>
               <td className="px-5 py-4">
                 <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs text-nowrap font-semibold ${order.statusClass}`}
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs text-nowrap font-semibold ${statusBadgeClass(
+                    order.statusKey,
+                  )}`}
                 >
-                  {order.status}
+                  {order.statusTitleFa || order.statusKey || "-"}
                 </span>
               </td>
               <td className="px-5 py-4">
                 <Link
-                  href="#"
+                  href={`/user-profile/orders/${order.orderId}`}
                   className="text-xs font-medium bg-primary text-white py-1.5 px-4 rounded-lg hover:bg-primary/90 active:scale-95 transition duration-200 shadow-sm hover:shadow dark:bg-primary/80 dark:hover:bg-primary/60 dark:text-white"
                 >
                   مشاهده

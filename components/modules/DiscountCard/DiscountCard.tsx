@@ -1,11 +1,5 @@
 "use client";
 
-import { Inter } from "next/font/google";
-
-const inter = Inter({
-  subsets: ["latin"],
-});
-
 import type { DiscountCode } from "@/src/lib/types/userpanel/Discount";
 import { notify } from "@/src/utils/toast";
 
@@ -73,6 +67,21 @@ async function copyToClipboard(text: string) {
   document.body.removeChild(textarea);
 }
 
+const PERSIAN_DIGITS = "۰۱۲۳۴۵۶۷۸۹";
+const ARABIC_DIGITS = "٠١٢٣٤٥٦٧٨٩";
+
+function toEnglishDigits(value: string) {
+  return value.replace(/[۰-۹٠-٩]/g, (char) => {
+    const persianIndex = PERSIAN_DIGITS.indexOf(char);
+    if (persianIndex !== -1) return String(persianIndex);
+
+    const arabicIndex = ARABIC_DIGITS.indexOf(char);
+    if (arabicIndex !== -1) return String(arabicIndex);
+
+    return char;
+  });
+}
+
 export default function DiscountCard({ data }: { data: DiscountCode }) {
   const isExpired = data.status === "expired";
   const isUsed = data.status === "used";
@@ -87,8 +96,12 @@ export default function DiscountCard({ data }: { data: DiscountCode }) {
     ? variantStyles[data.variant]
     : variantStyles.green;
 
+  const displayCode = toEnglishDigits(data.code);
+
   const handleCopyCode = async () => {
-    const code = data.code.trim();
+    if (isInactive) return;
+
+    const code = displayCode.trim();
     if (!code) return;
 
     try {
@@ -122,17 +135,35 @@ export default function DiscountCard({ data }: { data: DiscountCode }) {
         <button
           type="button"
           onClick={() => void handleCopyCode()}
-          className={`${inter.className} inline-block cursor-copy bg-white dark:bg-zinc-800 text-2xl font-bold px-4 py-2 rounded-lg mb-3 transition hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+          disabled={isInactive}
+          className={`inline-block bg-white dark:bg-zinc-800 text-2xl font-bold px-4 py-2 rounded-lg mb-3 transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed ${
             isInactive
               ? `${styles.inactiveText} line-through ${styles.focusRing}`
-              : `${styles.activeText} ${styles.focusRing}`
+              : `cursor-copy hover:scale-[1.02] ${styles.activeText} ${styles.focusRing}`
           }`}
           dir="ltr"
-          aria-label={`کپی کد تخفیف ${data.code}`}
-          title="کپی کد تخفیف"
+          lang="en"
+          aria-label={
+            isInactive
+              ? `کد تخفیف ${toEnglishDigits(data.code)} قابل کپی نیست`
+              : `کپی کد تخفیف ${toEnglishDigits(data.code)}`
+          }
+          title={isInactive ? "این کد قابل کپی نیست" : "کپی کد تخفیف"}
         >
-          {data.code}
+          {toEnglishDigits(data.code)}
         </button>
+
+        {data.variantLabel ? (
+          <div className="mb-3">
+            <span
+              className={`inline-flex items-center rounded-full bg-white/75 px-3 py-1 text-xs font-bold dark:bg-zinc-800/75 ${
+                isInactive ? styles.inactiveText : styles.activeText
+              }`}
+            >
+              {data.variantLabel}
+            </span>
+          </div>
+        ) : null}
 
         <h3
           className={`font-semibold mb-2 ${
@@ -158,7 +189,9 @@ export default function DiscountCard({ data }: { data: DiscountCode }) {
           }`}
         >
           <span>{dateLabel}</span>
-          <span>{data.expireDate}</span>
+          <span dir="ltr" lang="en">
+            {data.expireDate}
+          </span>
         </div>
       </div>
     </div>

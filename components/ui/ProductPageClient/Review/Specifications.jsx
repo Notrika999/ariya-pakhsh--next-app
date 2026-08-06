@@ -6,7 +6,10 @@ function attributeValue(attribute) {
 
 function normalizeListValue(value) {
   if (Array.isArray(value)) {
-    return value.map(String).map((item) => item.trim()).filter(Boolean);
+    return value
+      .map(String)
+      .map((item) => item.trim())
+      .filter(Boolean);
   }
 
   if (typeof value !== "string") return [];
@@ -20,7 +23,7 @@ function normalizeListValue(value) {
 function buildRows(product, attributes, variant) {
   const compatibleCars =
     product?.compatibilities
-      ?.map((item) => `${item.name}${item.model ? ` ${item.model}` : ""}`)
+      ?.map((item) => `${item.name ? ` ${item.name}` : ""}`)
       .filter(Boolean) ?? [];
 
   const rows = [
@@ -90,7 +93,7 @@ export default function Specifications({ product, attributes, variant }) {
 
   return (
     <>
-      <h2 className="relative pb-3 text-2xl font-black text-zinc-800 before:absolute before:bottom-0 before:right-0 before:h-1 before:w-22 before:rounded before:bg-secondary-500 dark:text-white">
+      <h2 className="relative pb-3 md:text-2xl text-lg font-black text-zinc-800 before:absolute before:bottom-0 before:right-0 before:h-1 before:w-22 before:rounded before:bg-secondary-500 dark:text-white">
         مشخصات فنی
       </h2>
 

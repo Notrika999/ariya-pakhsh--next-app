@@ -32,7 +32,7 @@ export default function Loading() {
     <main className="space-y-5 py-4">
       <SectionContainer>
         <div className="animate-pulse overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-custom-dark">
-          <div className="h-44 w-full rounded-xl bg-gray-200 dark:bg-gray-700 sm:h-56 lg:h-72" />
+          <div className="h-44 w-full rounded-xl bg-gray-200 dark:bg-gray-700 sm:h-56 lg:h-92" />
         </div>
       </SectionContainer>
 

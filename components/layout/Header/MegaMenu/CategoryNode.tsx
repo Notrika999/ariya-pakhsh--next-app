@@ -11,8 +11,10 @@ type MegaMenuCategory = {
 
 export default function CategoryNode({
   category,
+  onNavigate,
 }: {
   category: MegaMenuCategory;
+  onNavigate?: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const hasChildren = category.children && category.children.length > 0;
@@ -22,20 +24,38 @@ export default function CategoryNode({
 
   // اگر عمق 0 باشد -> دراپ‌دان
   if (category.depth === 0) {
+    const toggleSubmenu = () => {
+      if (hasChildren) setIsOpen((open) => !open);
+    };
+
     return (
       <li className="list-none my-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-custom-dark p-2 ">
         {/* لینک جدا از دکمه باز و بسته کننده */}
-        <div className="flex justify-between">
+        <div
+          className={`flex items-center justify-between gap-2 ${hasChildren ? "cursor-pointer" : ""}`}
+          onClick={toggleSubmenu}
+        >
           <Link
             href={href}
-            className="flex-1"
-            onClick={() => setIsOpen(!isOpen)}
+            className="inline-flex min-w-0"
+            onClick={(event) => {
+              event.stopPropagation();
+              onNavigate?.();
+            }}
           >
             {category.name}
           </Link>
 
           {hasChildren && (
-            <button onClick={() => setIsOpen(!isOpen)} className="p-2 ">
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                toggleSubmenu();
+              }}
+              className="p-2 "
+              aria-expanded={isOpen}
+            >
               <i
                 className={`fas fa-angle-down transition-transform ${isOpen ? "rotate-180" : ""}`}
               ></i>
@@ -46,7 +66,11 @@ export default function CategoryNode({
         {isOpen && hasChildren && (
           <ul className="mt-2 space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
             {category.children?.map((child) => (
-              <CategoryNode key={child.id} category={child} />
+              <CategoryNode
+                key={child.id}
+                category={child}
+                onNavigate={onNavigate}
+              />
             ))}
           </ul>
         )}
@@ -58,7 +82,9 @@ export default function CategoryNode({
   return (
     <li className="list-none">
       <div className="font-bold text-sm text-gray-700 dark:text-gray-300 py-1">
-        <Link href={href}>{category.name}</Link>
+        <Link href={href} onClick={onNavigate}>
+          {category.name}
+        </Link>
       </div>
       {hasChildren && (
         <ul className="space-y-1 mb-2">
@@ -67,10 +93,7 @@ export default function CategoryNode({
               key={child.id}
               className="pr-4 text-sm text-gray-600 dark:text-gray-400"
             >
-              <Link
-                href={`/products/${child.slug}`}
-                onClick={() => setIsOpen(!isOpen)}
-              >
+              <Link href={`/products/${child.slug}`} onClick={onNavigate}>
                 {child.name}
               </Link>
             </li>

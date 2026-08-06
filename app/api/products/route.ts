@@ -11,6 +11,10 @@ import {
   parseSortOrder,
 } from "@/src/lib/helper/productListHelpers";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
+
 function searchParamsToRecord(
   sp: URLSearchParams,
 ): Record<string, string | string[] | undefined> {
@@ -72,6 +76,7 @@ export async function GET(request: NextRequest) {
       page: result.page,
       totalPages: result.totalPages,
       totalCount: result.totalCount,
+      filterOptions: result.filterOptions,
     });
   } catch (error) {
     console.error("API products error:", error);

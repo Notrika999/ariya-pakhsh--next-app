@@ -6,6 +6,7 @@ import {
   parseNumber,
   parseSortOrder,
   ProductPageSearchParams,
+  normalizeProductSearchParams,
 } from "@/src/lib/helper/productListHelpers";
 import { getProductListFromSearchParams } from "@/src/services/product/product.server";
 
@@ -73,6 +74,7 @@ export default async function StorePage({ searchParams }: Props) {
         totalCount: productLists.totalCount,
       }}
       filterOptions={productLists.filterOptions}
+      serverSearchKey={normalizeProductSearchParams(resolvedSearchParams)}
     />
   );
 }

@@ -105,6 +105,7 @@ type Props = {
   maxLimit: number;
   startTransition?: TransitionStartFunction;
   filterOptions?: FilterOptions;
+  onFilterNavigate?: (params: URLSearchParams) => void;
   setFilters?: unknown;
   availableCategories?: unknown[];
   availableBadges?: unknown[];
@@ -113,17 +114,15 @@ type Props = {
 type FilterDropdownProps = {
   title: string;
   children: ReactNode;
-  defaultOpen?: boolean;
   isActive?: boolean;
 };
 
 function FilterDropdown({
   title,
   children,
-  defaultOpen = false,
   isActive = false,
 }: FilterDropdownProps) {
-  const [open, setOpen] = useState(defaultOpen);
+  const [open, setOpen] = useState(isActive);
 
   return (
     <section className="dark:bg-custom-dark dark:border-gray-700 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border overflow-hidden">
@@ -612,7 +611,7 @@ function VehicleTree({
                     }`}
                     aria-hidden="true"
                   >
-                    {">"}
+                    <i className="far fa-chevron-circle-left"></i>
                   </span>
                 ) : null}
               </button>
@@ -648,11 +647,15 @@ function VehicleTree({
 function VehicleFilter({
   vehicles,
   selectedVehicleIds,
+  allVehiclesSelected,
+  onSelectAll,
   onToggle,
   onToggleMany,
 }: {
   vehicles: VehicleOption[];
   selectedVehicleIds: string[];
+  allVehiclesSelected: boolean;
+  onSelectAll: () => void;
   onToggle: (vehicleId: string) => void;
   onToggleMany: (vehicleIds: string[], shouldSelect: boolean) => void;
 }) {
@@ -745,6 +748,32 @@ function VehicleFilter({
 
   return (
     <div dir="rtl">
+      <button
+        type="button"
+        aria-pressed={allVehiclesSelected}
+        onClick={onSelectAll}
+        className={`mb-3 flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2 text-sm font-bold transition ${
+          allVehiclesSelected
+            ? "border-primary bg-primary/10 text-primary dark:border-primary/70 dark:bg-primary/15"
+            : "border-gray-200 bg-white text-gray-700 hover:border-primary/50 hover:text-primary dark:border-gray-700 dark:bg-zinc-900 dark:text-gray-200"
+        }`}
+      >
+        <span className="flex min-w-0 items-center gap-2">
+          <i className="far fa-cars text-base" aria-hidden="true" />
+          <span className="truncate">همه خودروها</span>
+        </span>
+        <span
+          className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-[10px] ${
+            allVehiclesSelected
+              ? "border-primary bg-primary text-white"
+              : "border-gray-300 text-gray-300 dark:border-gray-600 dark:text-gray-600"
+          }`}
+          aria-hidden="true"
+        >
+          {allVehiclesSelected ? <i className="far fa-check" /> : null}
+        </span>
+      </button>
+
       {selectedVehicles.length > 0 ? (
         <div className="mb-4 rounded-xl border border-blue-100 bg-blue-50/70 p-3 dark:border-blue-900/50 dark:bg-blue-950/20">
           <div className="mb-2 flex items-center justify-between gap-2">
@@ -998,7 +1027,7 @@ function DynamicAttributeFilter({
               setDraftTextValue("");
               onTextChange(attribute.attributeId, "");
             }}
-            className="absolute start-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-gray-400 text-xs text-white transition-colors hover:bg-gray-500"
+            className="absolute end-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-gray-400 text-xs text-white transition-colors hover:bg-gray-500"
             aria-label="پاک کردن مقدار"
           >
             ×
@@ -1163,15 +1192,53 @@ export default function Filter({
   maxLimit,
   startTransition,
   filterOptions,
+  onFilterNavigate,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const searchString = searchParams.toString();
+  const [optimisticSearch, setOptimisticSearch] = useState(searchString);
+  const optimisticSearchRef = useRef(searchString);
+  const lastObservedSearchRef = useRef(searchString);
+
+  useEffect(() => {
+    const currentOptimisticSearch = optimisticSearchRef.current;
+    const lastObservedSearch = lastObservedSearchRef.current;
+    lastObservedSearchRef.current = searchString;
+
+    if (
+      currentOptimisticSearch === lastObservedSearch ||
+      currentOptimisticSearch === searchString
+    ) {
+      optimisticSearchRef.current = searchString;
+      setOptimisticSearch(searchString);
+    }
+  }, [searchString]);
+
+  const activeSearchParams = useMemo(
+    () => new URLSearchParams(optimisticSearch),
+    [optimisticSearch],
+  );
+
+  const createParams = useCallback(
+    () => new URLSearchParams(optimisticSearchRef.current),
+    [],
+  );
 
   const navigate = useCallback(
     (params: URLSearchParams) => {
+      const nextSearch = params.toString();
+      optimisticSearchRef.current = nextSearch;
+      setOptimisticSearch(nextSearch);
+
+      if (onFilterNavigate) {
+        onFilterNavigate(params);
+        return;
+      }
+
       const replaceUrl = () => {
-        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+        router.replace(`${pathname}?${nextSearch}`, { scroll: false });
       };
 
       if (startTransition) {
@@ -1181,11 +1248,11 @@ export default function Filter({
 
       replaceUrl();
     },
-    [pathname, router, startTransition],
+    [onFilterNavigate, pathname, router, startTransition],
   );
 
   const handleSearchChange = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = createParams();
     params.set("search", value);
     params.set("page", "1");
     navigate(params);
@@ -1196,14 +1263,14 @@ export default function Filter({
     (range: { min: number; max: number }) => {
       if (priceDebounce.current) clearTimeout(priceDebounce.current);
       priceDebounce.current = setTimeout(() => {
-        const params = new URLSearchParams(searchParams.toString());
+        const params = createParams();
         params.set("minPrice", String(range.min));
         params.set("maxPrice", String(range.max));
         params.set("page", "1");
         navigate(params);
       }, 400);
     },
-    [searchParams, navigate],
+    [createParams, navigate],
   );
 
   const normalizedBrands: BrandOption[] = availableBrands
@@ -1216,7 +1283,7 @@ export default function Filter({
 
   const handleBrandToggle = useCallback(
     (slug: string) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = createParams();
       const canonicalSlug = normalizeBrandParamToSlug(slug, normalizedBrands);
       const current = [
         ...params.getAll(BRAND_PARAM),
@@ -1244,7 +1311,7 @@ export default function Filter({
       params.set("page", "1");
       navigate(params);
     },
-    [searchParams, navigate, normalizedBrands],
+    [createParams, navigate, normalizedBrands],
   );
 
   const categoryTree = useMemo(
@@ -1253,13 +1320,16 @@ export default function Filter({
   );
 
   const selectedCategoryId =
-    searchParams.get("categoryId") ?? filters.categoryId ?? undefined;
-  const onlyInStock = searchParams.get("inStock") === "true" || Boolean(filters.inStock);
-  const onlyOnSale = searchParams.get("onSaleOnly") === "true" || Boolean(filters.onSaleOnly);
+    activeSearchParams.get("categoryId") ?? filters.categoryId ?? undefined;
+  const onlyInStock =
+    activeSearchParams.get("inStock") === "true" || Boolean(filters.inStock);
+  const onlyOnSale =
+    activeSearchParams.get("onSaleOnly") === "true" ||
+    Boolean(filters.onSaleOnly);
 
   const handleCategoryToggle = useCallback(
     (categoryId: string) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = createParams();
 
       if (params.get("categoryId") === categoryId) {
         params.delete("categoryId");
@@ -1270,12 +1340,12 @@ export default function Filter({
       params.set("page", "1");
       navigate(params);
     },
-    [searchParams, navigate],
+    [createParams, navigate],
   );
 
   const handleBooleanToggle = useCallback(
     (key: "inStock" | "onSaleOnly") => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = createParams();
       const isActive = params.get(key) === "true";
 
       if (isActive) {
@@ -1287,17 +1357,27 @@ export default function Filter({
       params.set("page", "1");
       navigate(params);
     },
-    [searchParams, navigate],
+    [createParams, navigate],
   );
 
   const vehicles = filterOptions?.vehicles ?? [];
-  const selectedVehicleIds = searchParams.getAll("vehicleId");
+  const selectedVehicleIds = activeSearchParams.getAll("vehicleId");
+  const allVehiclesSelected = activeSearchParams.get("vehicleMode") === "all";
+
+  const handleAllVehiclesSelect = useCallback(() => {
+    const params = createParams();
+    params.delete("vehicleId");
+    params.set("vehicleMode", "all");
+    params.set("page", "1");
+    navigate(params);
+  }, [createParams, navigate]);
 
   const handleVehicleToggle = useCallback(
     (vehicleId: string) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = createParams();
       const current = params.getAll("vehicleId").filter(Boolean);
 
+      params.delete("vehicleMode");
       params.delete("vehicleId");
 
       if (current.includes(vehicleId)) {
@@ -1313,14 +1393,15 @@ export default function Filter({
       params.set("page", "1");
       navigate(params);
     },
-    [searchParams, navigate],
+    [createParams, navigate],
   );
 
   const handleVehicleBulkToggle = useCallback(
     (vehicleIds: string[], shouldSelect: boolean) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = createParams();
       const current = new Set(params.getAll("vehicleId").filter(Boolean));
 
+      params.delete("vehicleMode");
       vehicleIds.filter(Boolean).forEach((vehicleId) => {
         if (shouldSelect) {
           current.add(vehicleId);
@@ -1335,7 +1416,7 @@ export default function Filter({
       params.set("page", "1");
       navigate(params);
     },
-    [searchParams, navigate],
+    [createParams, navigate],
   );
 
   const colorAttributes = useMemo(
@@ -1367,28 +1448,29 @@ export default function Filter({
     const selected: Record<string, string[]> = {};
 
     for (const attribute of dynamicAttributes) {
-      selected[attribute.attributeId] = searchParams
+      selected[attribute.attributeId] = activeSearchParams
         .getAll(`attr_${attribute.attributeId}`)
         .filter(Boolean);
     }
 
     return selected;
-  }, [dynamicAttributes, searchParams]);
+  }, [dynamicAttributes, activeSearchParams]);
   const selectedAttributeTextValues = useMemo(() => {
     const selected: Record<string, string> = {};
 
     for (const attribute of dynamicAttributes) {
       selected[attribute.attributeId] =
-        searchParams.get(`attr_value_${attribute.attributeId}`)?.trim() ?? "";
+        activeSearchParams.get(`attr_value_${attribute.attributeId}`)?.trim() ??
+        "";
     }
 
     return selected;
-  }, [dynamicAttributes, searchParams]);
+  }, [dynamicAttributes, activeSearchParams]);
   const selectedAttributeBoolValues = useMemo(() => {
     const selected: Record<string, boolean | null> = {};
 
     for (const attribute of dynamicAttributes) {
-      const rawValue = searchParams
+      const rawValue = activeSearchParams
         .get(`attr_bool_${attribute.attributeId}`)
         ?.trim()
         .toLowerCase();
@@ -1398,15 +1480,29 @@ export default function Filter({
     }
 
     return selected;
-  }, [dynamicAttributes, searchParams]);
+  }, [dynamicAttributes, activeSearchParams]);
 
-  const selectedBrands = Array.isArray(filters.brands) ? filters.brands : [];
+  const selectedBrands =
+    activeSearchParams.getAll(BRAND_PARAM).length > 0
+      ? activeSearchParams.getAll(BRAND_PARAM)
+      : activeSearchParams.getAll("brandSlug").length > 0
+        ? activeSearchParams.getAll("brandSlug")
+        : activeSearchParams.getAll("brandId");
+  const selectedSearch =
+    activeSearchParams.get("search") ?? filters.search ?? "";
+  const selectedMinPrice = Number(
+    activeSearchParams.get("minPrice") ?? filters.minPrice,
+  );
+  const selectedMaxPrice = Number(
+    activeSearchParams.get("maxPrice") ?? filters.maxPrice,
+  );
 
   const hasColorFilter =
-    colorOptionIdParams(searchParams).length > 0 ||
-    colorPaletteParams(searchParams).length > 0 ||
+    colorOptionIdParams(activeSearchParams).length > 0 ||
+    colorPaletteParams(activeSearchParams).length > 0 ||
     Array.from(colorAttributeIds).some(
-      (attributeId) => searchParams.getAll(`attr_${attributeId}`).length > 0,
+      (attributeId) =>
+        activeSearchParams.getAll(`attr_${attributeId}`).length > 0,
     );
   const hasDynamicAttributeFilter = dynamicAttributes.some(
     (attribute) =>
@@ -1417,10 +1513,10 @@ export default function Filter({
 
   const hasBrandFilter = selectedBrands.length > 0;
   const hasCategoryFilter = Boolean(selectedCategoryId);
-  const hasVehicleFilter = selectedVehicleIds.length > 0;
+  const hasVehicleFilter = allVehiclesSelected || selectedVehicleIds.length > 0;
 
   const hasPriceFilter =
-    filters.minPrice > minLimit || filters.maxPrice < maxLimit;
+    selectedMinPrice > minLimit || selectedMaxPrice < maxLimit;
   const hasBooleanFilter = onlyInStock || onlyOnSale;
 
   const hasActiveFilters =
@@ -1431,11 +1527,11 @@ export default function Filter({
     hasColorFilter ||
     hasDynamicAttributeFilter ||
     hasBooleanFilter ||
-    (filters.search && filters.search.trim() !== "");
+    selectedSearch.trim() !== "";
 
   const handleAttributeOptionToggle = useCallback(
     (attributeId: string, optionId: string) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = createParams();
       const key = `attr_${attributeId}`;
       const current = params.getAll(key).filter(Boolean);
 
@@ -1452,12 +1548,12 @@ export default function Filter({
       params.set("page", "1");
       navigate(params);
     },
-    [searchParams, navigate],
+    [createParams, navigate],
   );
 
   const handleAttributeTextChange = useCallback(
     (attributeId: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = createParams();
       const key = `attr_value_${attributeId}`;
       const normalizedValue = value.trim();
 
@@ -1470,12 +1566,12 @@ export default function Filter({
       params.set("page", "1");
       navigate(params);
     },
-    [searchParams, navigate],
+    [createParams, navigate],
   );
 
   const handleAttributeBoolChange = useCallback(
     (attributeId: string, value: boolean | null) => {
-      const params = new URLSearchParams(searchParams.toString());
+      const params = createParams();
       const key = `attr_bool_${attributeId}`;
 
       if (typeof value === "boolean") {
@@ -1487,7 +1583,7 @@ export default function Filter({
       params.set("page", "1");
       navigate(params);
     },
-    [searchParams, navigate],
+    [createParams, navigate],
   );
 
   const handleClearFilters = useCallback(() => {
@@ -1530,25 +1626,14 @@ export default function Filter({
         <div className="dark:bg-custom-dark bg-white rounded-lg border p-4">
           <input
             type="text"
-            value={filters.search}
+            value={selectedSearch}
             onChange={(e) => handleSearchChange(e.target.value)}
             placeholder="جستجوی محصولات ...."
           />
         </div>
       </section>
 
-      <section
-        className="dark:bg-custom-dark dark:border-gray-700 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border p-4"
-        dir="rtl"
-      >
-        <div className="mb-3 flex items-center justify-between gap-2">
-          <h3 className="text-base font-bold text-gray-800 dark:text-gray-100">
-            وضعیت کالا
-          </h3>
-          {hasBooleanFilter ? (
-            <span className="h-2 w-2 rounded-full bg-blue-500" aria-hidden="true" />
-          ) : null}
-        </div>
+      <FilterDropdown title="وضعیت کالا" isActive={hasBooleanFilter}>
         <div className="space-y-2">
           <BooleanFilterButton
             active={onlyInStock}
@@ -1563,24 +1648,25 @@ export default function Filter({
             onClick={() => handleBooleanToggle("onSaleOnly")}
           />
         </div>
-      </section>
+      </FilterDropdown>
 
       {hasColorOptions ? (
         <FilterDropdown title="رنگ ها" isActive={hasColorFilter}>
           <FilterColor
             colorAttributes={colorAttributes}
-            startTransition={startTransition}
+            searchParamsOverride={activeSearchParams}
+            onNavigate={navigate}
           />
         </FilterDropdown>
       ) : null}
 
-      <FilterDropdown title="محدوده قیمت" defaultOpen isActive={hasPriceFilter}>
+      <FilterDropdown title="محدوده قیمت" isActive={hasPriceFilter}>
         <PriceRangeFilter
           min={minLimit}
           max={maxLimit}
           value={{
-            min: filters.minPrice,
-            max: filters.maxPrice,
+            min: selectedMinPrice,
+            max: selectedMaxPrice,
           }}
           onChange={handlePriceChange}
         />
@@ -1610,7 +1696,6 @@ export default function Filter({
           <FilterDropdown
             key={attribute.attributeId}
             title={attribute.attributeName}
-            defaultOpen={isActive}
             isActive={isActive}
           >
             <DynamicAttributeFilter
@@ -1628,10 +1713,12 @@ export default function Filter({
       })}
 
       {vehicles.length > 0 ? (
-        <FilterDropdown title="خودرو" defaultOpen isActive={hasVehicleFilter}>
+        <FilterDropdown title="خودرو" isActive={hasVehicleFilter}>
           <VehicleFilter
             vehicles={vehicles}
             selectedVehicleIds={selectedVehicleIds}
+            allVehiclesSelected={allVehiclesSelected}
+            onSelectAll={handleAllVehiclesSelect}
             onToggle={handleVehicleToggle}
             onToggleMany={handleVehicleBulkToggle}
           />
@@ -1639,7 +1726,7 @@ export default function Filter({
       ) : null}
 
       {categoryTree.length > 1000 ? (
-        <FilterDropdown title="دسته‌بندی" defaultOpen isActive={hasCategoryFilter}>
+        <FilterDropdown title="دسته‌بندی" isActive={hasCategoryFilter}>
           <div className="max-h-72 overflow-y-auto custom-scrollbar" dir="rtl">
             <CategoryTree
               nodes={categoryTree}

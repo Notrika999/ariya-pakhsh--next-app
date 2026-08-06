@@ -1,5 +1,5 @@
 "use client";
-
+// components/layout/Header/Top/HeaderSearch.tsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
@@ -8,6 +8,13 @@ type FakeProduct = {
   title: string;
   href: string;
   price?: string;
+};
+
+type HeaderSearchProps = {
+  autoFocus?: boolean;
+  className?: string;
+  onNavigate?: () => void;
+  resultsId?: string;
 };
 
 const FAKE_PRODUCTS: FakeProduct[] = [
@@ -30,7 +37,12 @@ function normalizeFa(str: string) {
     .replace(/\s+/g, " ");
 }
 
-export default function HeaderSearch() {
+export default function HeaderSearch({
+  autoFocus = false,
+  className = "lg:col-span-6 lg:block lg:order-2 order-4 hidden col-span-4 w-full",
+  onNavigate,
+  resultsId = "searchResults",
+}: HeaderSearchProps) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -45,16 +57,16 @@ export default function HeaderSearch() {
     return () => clearTimeout(t);
   }, [query]);
 
+  useEffect(() => {
+    if (!autoFocus) return;
+    inputRef.current?.focus();
+  }, [autoFocus]);
+
   const results = useMemo(() => {
     const q = normalizeFa(debounced);
     if (!q) return [];
     return FAKE_PRODUCTS.filter((p) => normalizeFa(p.title).includes(q)).slice(0, 8);
   }, [debounced]);
-
-  useEffect(() => {
-    // وقتی نتایج عوض میشن، اندیس انتخاب ریست شه
-    setActiveIndex(results.length ? 0 : -1);
-  }, [results.length]);
 
   // بستن با کلیک بیرون
   useEffect(() => {
@@ -69,6 +81,8 @@ export default function HeaderSearch() {
   }, []);
 
   const showResults = open && query.trim().length > 0;
+  const selectedIndex =
+    results.length > 0 ? Math.min(Math.max(activeIndex, 0), results.length - 1) : -1;
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (!showResults) return;
@@ -87,10 +101,11 @@ export default function HeaderSearch() {
       });
     } else if (e.key === "Enter") {
       e.preventDefault();
-      const item = results[activeIndex];
+      const item = results[selectedIndex];
       if (item) {
         // اگر خواستی به جای Link، با router.push برو:
         // router.push(item.href)
+        onNavigate?.();
         window.location.href = item.href;
       }
     } else if (e.key === "Escape") {
@@ -99,7 +114,7 @@ export default function HeaderSearch() {
   }
 
   return (
-    <div className="lg:col-span-6 lg:block lg:order-2 order-4 hidden col-span-4 w-full">
+    <div className={className}>
       <div className="flex items-center w-full justify-between">
         <div className="flex w-full items-center">
           <div ref={rootRef} className="relative flex items-center w-full">
@@ -118,9 +133,11 @@ export default function HeaderSearch() {
               role="combobox"
               aria-autocomplete="list"
               aria-expanded={showResults}
-              aria-controls="searchResults"
+              aria-controls={resultsId}
               aria-activedescendant={
-                activeIndex >= 0 ? `search-item-${results[activeIndex]?.id}` : undefined
+                selectedIndex >= 0
+                  ? `${resultsId}-item-${results[selectedIndex]?.id}`
+                  : undefined
               }
             />
 
@@ -149,7 +166,7 @@ export default function HeaderSearch() {
             {/* Results */}
             {showResults && (
               <div
-                id="searchResults"
+                id={resultsId}
                 className="absolute top-[52px] end-0 start-0 z-10 bg-white dark:bg-custom-dark border border-gray-300 dark:border-gray-700 rounded-xl shadow-lg dark:shadow-[0_4px_12px_rgba(0,0,0,0.4)] overflow-hidden transition-colors duration-300"
               >
                 {results.length === 0 ? (
@@ -159,11 +176,11 @@ export default function HeaderSearch() {
                 ) : (
                   <ul role="listbox" className="max-h-80 overflow-auto">
                     {results.map((item, idx) => {
-                      const active = idx === activeIndex;
+                      const active = idx === selectedIndex;
                       return (
                         <li key={item.id} role="option" aria-selected={active}>
                           <Link
-                            id={`search-item-${item.id}`}
+                            id={`${resultsId}-item-${item.id}`}
                             href={item.href}
                             className={[
                               "flex items-center justify-between gap-3 px-4 py-3 text-sm transition-colors",
@@ -172,7 +189,10 @@ export default function HeaderSearch() {
                                 : "hover:bg-gray-50 dark:hover:bg-gray-900",
                             ].join(" ")}
                             onMouseEnter={() => setActiveIndex(idx)}
-                            onClick={() => setOpen(false)}
+                            onClick={() => {
+                              setOpen(false);
+                              onNavigate?.();
+                            }}
                           >
                             <span className="text-gray-800 dark:text-gray-100 line-clamp-1">
                               {item.title}

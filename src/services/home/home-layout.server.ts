@@ -1,5 +1,5 @@
 import "server-only";
-
+// src/services/home/home-layout.server.ts
 import { proxyToBackend } from "@/src/lib/http/server-http";
 import { ApiResponse } from "@/src/lib/types/common/api-response.types";
 import { getProductImage } from "@/src/utils/product-image";

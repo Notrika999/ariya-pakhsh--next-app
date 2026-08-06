@@ -54,7 +54,7 @@ export default function UserSidebar() {
       title: "پیشخوان",
       link: "/user-profile",
       icon: "far fa-table-cells",
-      disabled: true,
+      disabled: false,
     },
     {
       id: 2,

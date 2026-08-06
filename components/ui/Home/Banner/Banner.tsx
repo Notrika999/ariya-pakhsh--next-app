@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { trackHomeLayoutItemView } from "@/src/services/home/home-layout.client";
 
 interface BannerProps {
   banners: {
@@ -56,6 +59,7 @@ export default function Banner({ banners, title }: BannerProps) {
                 key={banner.id}
                 aria-label={banner.alt}
                 className="group relative block aspect-[415/175] overflow-hidden rounded-xl bg-gray-100 dark:bg-zinc-900"
+                onClick={() => trackHomeLayoutItemView(String(banner.id))}
               >
                 <Image
                   fill

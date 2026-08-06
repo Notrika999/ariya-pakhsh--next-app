@@ -59,7 +59,7 @@ export default function UserInformation() {
       <UserInformationSecuritySettings user={user} />
 
       {/* <!--Account Preferences--> */}
-      <UserInformationAccountPreferences key={userKey} user={user} />
+      {/* <UserInformationAccountPreferences key={userKey} user={user} /> */}
     </div>
   );
 }

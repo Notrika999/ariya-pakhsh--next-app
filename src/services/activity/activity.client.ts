@@ -164,7 +164,6 @@ function cleanPageParams(params: PageParams = {}) {
 export async function getMyActivitySummary(): Promise<ActivitySummary> {
   const response = await apiClient.get(`${BASE}/summary`);
 
-  console.log("getMyActivitySummary => ", response.data);
   return unwrapSummary(response.data);
 }
 
@@ -175,7 +174,6 @@ export async function getMyActivityVisits(
     params: cleanPageParams(params),
   });
 
-  console.log("getMyActivityVisits => ", response.data);
   return unwrapVisits(response.data);
 }
 
@@ -185,8 +183,6 @@ export async function getMyActivityFeed(
   const response = await apiClient.get(`${BASE}/feed`, {
     params: cleanPageParams(params),
   });
-
-  console.log("getMyActivityFeed => ", response.data);
   return unwrapFeed(response.data);
 }
 

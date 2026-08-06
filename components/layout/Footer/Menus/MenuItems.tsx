@@ -3,10 +3,10 @@ import React from "react";
 
 export default function MenuItems({ parentTitle, subMenus = [] }: { parentTitle: string, subMenus: { id: number, title: string, link: string, new: boolean }[] }) {
   return (
-    <div className="w-6/12 sm:w-6/12 md:w-3/12">
+    <div className="w-12/12 sm:w-6/12 md:w-3/12">
       <div className="mb-2">
         <span 
-          className="mb-2 text-gray-900 dark:text-gray-200 text-nowrap"
+          className="mb-2 text-gray-900 dark:text-gray-200 text-nowrap text-sm md:text-md"
           dangerouslySetInnerHTML={{ __html: parentTitle }}
         ></span>
 
@@ -16,7 +16,7 @@ export default function MenuItems({ parentTitle, subMenus = [] }: { parentTitle:
               <Link
                 key={subMenu.id}
                 href={subMenu.link}
-                className="py-1 text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400 text-sm flex items-center"
+                className="py-1 text-gray-700 hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400 text-xs md:text-sm flex items-center"
               >
                 {subMenu.title}
 

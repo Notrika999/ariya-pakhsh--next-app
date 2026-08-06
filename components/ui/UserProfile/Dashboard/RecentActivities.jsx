@@ -1,40 +1,123 @@
 import React from "react";
 import UserProfileEmptyState from "../UserProfileEmptyState";
 
-const RECENT_ACTIVITIES = [
-  {
-    id: 1,
-    title: "سفارش شما تحویل داده شد",
-    description: "سفارش #ORD-7842 در تاریخ ۱۴۰۲/۱۰/۱۵ تحویل داده شد.",
-    time: "۲ روز پیش",
-    iconBg: "bg-blue-100 dark:bg-blue-900",
-    iconColor: "text-blue-600 dark:text-blue-400",
-    iconPath: "M5 13l4 4L19 7",
-  },
-  {
-    id: 2,
-    title: "شارژ کیف پول",
-    description: "مبلغ ۵۰۰,۰۰۰ تومان به کیف پول شما اضافه شد.",
-    time: "۳ روز پیش",
-    iconBg: "bg-green-100 dark:bg-green-900",
-    iconColor: "text-green-600 dark:text-green-400",
-    iconPath:
-      "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z",
-  },
-  {
-    id: 3,
-    title: "افزودن به علاقه‌مندی‌ها",
-    description: "محصول گوشی موبایل سامسونگ به لیست علاقه‌مندی‌ها اضافه شد.",
-    time: "۵ روز پیش",
-    iconBg: "bg-purple-100 dark:bg-purple-900",
-    iconColor: "text-purple-600 dark:text-purple-400",
-    iconPath:
-      "M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z",
-  },
-];
+function formatDateTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
 
-export default function RecentActivities() {
-  if (RECENT_ACTIVITIES.length === 0) {
+  return new Intl.DateTimeFormat("fa-IR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function formatMoney(value) {
+  const amount = Number(value) || 0;
+  if (amount <= 0) return "";
+
+  return `${new Intl.NumberFormat("fa-IR").format(amount)} تومان`;
+}
+
+function formatDuration(seconds) {
+  const totalSeconds = Math.max(0, Math.round(Number(seconds) || 0));
+  if (totalSeconds <= 0) return "";
+
+  const minutes = Math.floor(totalSeconds / 60);
+  if (minutes <= 0) {
+    return `${new Intl.NumberFormat("fa-IR").format(totalSeconds)} ثانیه`;
+  }
+
+  return `${new Intl.NumberFormat("fa-IR").format(minutes)} دقیقه`;
+}
+
+function getActivityTone(activity) {
+  const key = `${activity?.iconKey || ""} ${activity?.kind || ""}`.toLowerCase();
+
+  if (key.includes("purchase") || key.includes("order") || key.includes("cart")) {
+    return {
+      icon: "fa-check",
+      iconBg: "bg-green-100 dark:bg-green-900",
+      iconColor: "text-green-600 dark:text-green-400",
+    };
+  }
+
+  if (key.includes("favorite") || key.includes("heart")) {
+    return {
+      icon: "fa-heart",
+      iconBg: "bg-red-100 dark:bg-red-900",
+      iconColor: "text-red-600 dark:text-red-400",
+    };
+  }
+
+  if (key.includes("comment") || key.includes("review") || key.includes("star")) {
+    return {
+      icon: "fa-star",
+      iconBg: "bg-blue-100 dark:bg-blue-900",
+      iconColor: "text-blue-600 dark:text-blue-400",
+    };
+  }
+
+  if (key.includes("ticket") || key.includes("question")) {
+    return {
+      icon: "fa-question-circle",
+      iconBg: "bg-orange-100 dark:bg-orange-900",
+      iconColor: "text-orange-600 dark:text-orange-400",
+    };
+  }
+
+  if (key.includes("visit") || key.includes("view") || key.includes("eye")) {
+    return {
+      icon: "fa-eye",
+      iconBg: "bg-purple-100 dark:bg-purple-900",
+      iconColor: "text-purple-600 dark:text-purple-400",
+    };
+  }
+
+  return {
+    icon: "fa-clock",
+    iconBg: "bg-gray-100 dark:bg-zinc-800",
+    iconColor: "text-gray-600 dark:text-gray-400",
+  };
+}
+
+function getActivityDescription(activity) {
+  const parts = [];
+  const money = formatMoney(activity.amount);
+  const duration = formatDuration(activity.durationSeconds);
+
+  if (activity.referenceCode) parts.push(`#${activity.referenceCode}`);
+  if (activity.productTitle) parts.push(activity.productTitle);
+  if (activity.subject) parts.push(activity.subject);
+  if (money) parts.push(money);
+  if (duration) parts.push(`مدت بازدید: ${duration}`);
+
+  return parts.join(" - ") || activity.kindTitleFa || "فعالیت ثبت‌شده";
+}
+
+function ActivitiesSkeleton() {
+  return (
+    <div className="space-y-4">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <div key={`dashboard-activity-skeleton-${index}`} className="flex gap-3">
+          <div className="h-10 w-10 shrink-0 animate-pulse rounded-full bg-gray-100 dark:bg-zinc-800" />
+          <div className="flex-1 space-y-3">
+            <div className="h-4 w-36 animate-pulse rounded bg-gray-100 dark:bg-zinc-800" />
+            <div className="h-3 w-full animate-pulse rounded bg-gray-100 dark:bg-zinc-800" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default function RecentActivities({ activities = [], loading = false }) {
+  if (loading) return <ActivitiesSkeleton />;
+
+  if (activities.length === 0) {
     return (
       <UserProfileEmptyState
         title="فعالیتی ثبت نشده است"
@@ -45,38 +128,30 @@ export default function RecentActivities() {
 
   return (
     <div className="space-y-4">
-      {RECENT_ACTIVITIES.map((activity) => (
-        <div key={activity.id} className="flex items-start space-x-3 ">
-          <div
-            className={`w-10 h-10 ${activity.iconBg} rounded-full flex items-center justify-center shrink-0`}
-          >
-            <svg
-              className={`w-5 h-5 ${activity.iconColor}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+      {activities.map((activity) => {
+        const tone = getActivityTone(activity);
+
+        return (
+          <div key={activity.id} className="flex items-start space-x-3 ">
+            <div
+              className={`w-10 h-10 ${tone.iconBg} rounded-full flex items-center justify-center shrink-0`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d={activity.iconPath}
-              ></path>
-            </svg>
+              <i className={["far", tone.icon, tone.iconColor].join(" ")}></i>
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-gray-800 dark:text-gray-200 font-medium">
+                {activity.kindTitleFa || "فعالیت"}
+              </p>
+              <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                {getActivityDescription(activity)}
+              </p>
+              <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">
+                {formatDateTime(activity.occurredAt)}
+              </p>
+            </div>
           </div>
-          <div className="flex-1">
-            <p className="text-gray-800 dark:text-gray-200 font-medium">
-              {activity.title}
-            </p>
-            <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-              {activity.description}
-            </p>
-            <p className="text-gray-400 dark:text-gray-500 text-xs mt-1">
-              {activity.time}
-            </p>
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

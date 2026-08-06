@@ -11,29 +11,41 @@ export default function SliderItem({
   title,
   subtitle,
   ctaText,
+  onClick,
 }) {
   const desktopSrc = image ?? "/images/default.png";
   const mobileSrc = mobileImage ?? desktopSrc;
   const hasContent = Boolean(title || subtitle || ctaText);
+  const imageSizes = "100vw";
+  const imageQuality = 100;
 
   return (
-    <Link href={href} aria-label={alt} className="group block">
-      <div className="relative mx-auto h-[200px] w-full  overflow-hidden sm:h-[550px] ">
+    <Link href={href} aria-label={alt} className="group block" onClick={onClick}>
+      <div className="relative w-full mx-auto h-[200px] w-full  overflow-hidden sm:h-[550px] ">
         <Image
           fill
           src={desktopSrc}
-          className="hidden object-cover lg:block w-full"
+          className="hidden  object-cover lg:block"
           loading="lazy"
+          quality={imageQuality}
+          sizes={imageSizes}
           alt={alt}
-          // sizes="(min-width: 1024px) 1908px, 406px"
         />
+        {/* <img
+          src={desktopSrc}
+          alt=""
+          className="hidden w-full object-cover lg:block"
+      
+  
+        /> */}
         <Image
           fill
           src={mobileSrc}
           className="object-cover lg:hidden"
           loading="lazy"
+          quality={imageQuality}
+          sizes={imageSizes}
           alt={alt}
-          // sizes="(max-width: 406px) 100vw, 406px"
         />
         {hasContent ? (
           <div className="absolute inset-0 flex items-end bg-linear-to-t from-black/60 via-black/10 to-transparent">

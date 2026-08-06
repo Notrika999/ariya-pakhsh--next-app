@@ -1,5 +1,5 @@
-// components/modules/auth/StepMobile.tsx
 "use client";
+// components/modules/auth/StepMobile.tsx
 import React, { useRef, useState } from "react";
 import Captcha from "../Captcha";
 import type { CaptchaHandle } from "../Captcha";

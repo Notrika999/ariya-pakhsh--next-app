@@ -67,10 +67,7 @@ function getProductVariant(product: ProductDetail, variantId?: string) {
   );
 }
 
-function getProductVariantPath(
-  product: ProductDetail,
-  publicCode: string,
-) {
+function getProductVariantPath(product: ProductDetail, publicCode: string) {
   const basePath = `/product/${encodeURIComponent(product.publicCode)}/${encodeURIComponent(product.slug)}`;
   const params = new URLSearchParams(
     typeof window === "undefined" ? "" : window.location.search,
@@ -239,20 +236,20 @@ export default function ProductPageClient({
             />
           </div>
 
-          <div className="mt-2  border-y border-gray-100 py-5 dark:border-gray-700">
+          <div className="mt-2 grid justify-center border-y border-gray-100 py-5 dark:border-gray-700">
             <ul className="grid grid-cols-2 gap-x-4 gap-y-5 text-gray-400 dark:text-gray-500 sm:grid-cols-3 lg:grid-cols-5">
               {PRODUCT_SERVICE_ITEMS.map((item) => (
                 <li
                   key={item.title}
-                  className="flex items-center justify-center gap-3 text-center mr-auto"
+                  className="flex items-center justify-center gap-1 text-center"
                 >
-                  <span className="text-xs font-bold leading-6">
-                    {item.title}
-                  </span>
                   <i
                     className={`${item.icon}  leading-none`}
                     aria-hidden="true"
                   />
+                  <span className="text-xs text-nowrap font-semibold leading-6">
+                    {item.title}
+                  </span>
                 </li>
               ))}
             </ul>

@@ -6,4 +6,5 @@ export interface DiscountCode {
   expireDate: string;
   status: "active" | "expired" | "used" | string;
   variant?: "green" | "blue" | "purple" | "teal";
+  variantLabel?: string;
 }

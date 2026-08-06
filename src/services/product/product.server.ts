@@ -343,7 +343,6 @@ export async function getProducts(
     cache: "no-store",
   });
 
-  console.log("Home Products: ", response);
 
   if (!response.ok || !response.data.isSuccess) {
     throw new Error("Failed to fetch products");
@@ -370,6 +369,7 @@ export async function getProductList(
     params.BrandId,
   ]);
   const colorOptionIds = nonEmptyStringArray(params.ColorOptionIds);
+  const shouldSendVehicleIds = Array.isArray(params.VehicleIds);
   const vehicleIds = nonEmptyStringArray(params.VehicleIds);
   const attributeFilters = params.AttributeFilters?.map((filter) =>
     removeEmptyValues({
@@ -394,10 +394,13 @@ export async function getProductList(
     inStock: params.InStock,
     onSaleOnly: params.OnSaleOnly,
     colorOptionIds,
-    vehicleIds,
     attributeFilters,
     sortOrder: params.SortOrder,
   });
+
+  if (shouldSendVehicleIds) {
+    body.vehicleIds = vehicleIds ?? [];
+  }
 
   const response = await proxyToBackend<ApiResponse<ProductListResponse>>({
     method: "POST",
@@ -408,8 +411,6 @@ export async function getProductList(
     retries: 0,
   });
 
-  console.log("body: ", body);
-  console.log("response: ", response);
 
   if (!response.ok) {
     throw new ProductServiceError(
@@ -496,6 +497,13 @@ export async function getProductListFromSearchParams(
 ): Promise<ProductListResponse> {
   const baseFilters = parseAttributeFilters(searchParams);
   const vehicleIds = listSearchParamValues(searchParams, "vehicleId");
+  const shouldSendAllVehicles =
+    searchParams.vehicleMode === "all" ||
+    searchParams.allVehicles === "true" ||
+    (Array.isArray(searchParams.vehicleMode) &&
+      searchParams.vehicleMode.includes("all")) ||
+    (Array.isArray(searchParams.allVehicles) &&
+      searchParams.allVehicles.includes("true"));
   const queryColorOptionIds = colorOptionIdParams(searchParams);
   const paletteLabels = colorPaletteParams(searchParams);
   const queryBrandSlugs = allBrandSlugParams(searchParams);
@@ -579,7 +587,11 @@ export async function getProductListFromSearchParams(
         BrandSlug: brandIds?.length ? undefined : brandSlug,
         BrandIds: brandIds && brandIds.length > 0 ? brandIds : undefined,
         ColorOptionIds: colorOptionIds.length > 0 ? colorOptionIds : undefined,
-        VehicleIds: vehicleIds.length > 0 ? vehicleIds : undefined,
+        VehicleIds: shouldSendAllVehicles
+          ? []
+          : vehicleIds.length > 0
+            ? vehicleIds
+            : undefined,
         AttributeFilters:
           attributeFilters.length > 0 ? attributeFilters : undefined,
       }),
@@ -626,7 +638,6 @@ export async function getProductById(
     cache: "no-store",
   });
 
-  console.log("getProductById: ", response.data);
 
   const isSuccess = response.data?.isSuccess ?? response.data?.success;
   if (!response.ok || !isSuccess) {

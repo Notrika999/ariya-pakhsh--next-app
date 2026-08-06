@@ -89,7 +89,7 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
               type="button"
               onClick={() => void handleClearCart()}
               disabled={clearing}
-              className="cursor-pointer text-xs font-medium text-red-600 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-400 dark:hover:text-red-300"
+              className="cursor-pointer text-xs font-medium text-red-600 hover:text-red-700 disabled:cursor-not-allowed disabled:opacity-60 dark:text-red-400 dark:hover:text-red-300 border p-1 rounded-md"
               aria-label="حذف همه کالاها از سبد خرید"
             >
               {clearing ? "در حال حذف..." : "حذف همه"}
@@ -97,7 +97,7 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
           ) : null}
           <button
             onClick={onClose}
-            className="cursor-pointer"
+            className="cursor-pointer border rounded-full text-xs flex items-center justify-center p-1"
             aria-label="بستن سبد خرید"
           >
             <i className="far fa-x"></i>

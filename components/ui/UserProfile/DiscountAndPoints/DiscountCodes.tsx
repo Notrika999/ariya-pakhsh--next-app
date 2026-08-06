@@ -57,8 +57,15 @@ function getCouponDisplayDate(coupon: MyCouponItem, status: CouponPageKey) {
   return status === "used" ? coupon.usedAt : coupon.validTo;
 }
 
+function normalizeCouponDiscountType(discountType: string | null | undefined) {
+  return String(discountType ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z]/g, "");
+}
+
 function getCouponVariant(discountType: string): DiscountCode["variant"] {
-  switch (discountType.trim().toLowerCase()) {
+  switch (normalizeCouponDiscountType(discountType)) {
     case "freeshipping":
       return "purple";
     case "percentage":
@@ -72,9 +79,24 @@ function getCouponVariant(discountType: string): DiscountCode["variant"] {
   }
 }
 
+function getCouponVariantLabel(discountType: string) {
+  switch (normalizeCouponDiscountType(discountType)) {
+    case "freeshipping":
+      return "ارسال رایگان";
+    case "percentage":
+      return "تخفیف درصدی";
+    case "fixedamount":
+      return "تخفیف مبلغی";
+    case "fixedshippingamount":
+      return "تخفیف هزینه ارسال";
+    default:
+      return "کد تخفیف";
+  }
+}
+
 function discountLabel(coupon: MyCouponItem) {
   const numberFormatter = new Intl.NumberFormat("fa-IR");
-  const discountType = coupon.discountType.trim().toLowerCase();
+  const discountType = normalizeCouponDiscountType(coupon.discountType);
 
   if (discountType === "percentage" || discountType.includes("percent")) {
     return `${numberFormatter.format(coupon.discountValue)}٪ تخفیف`;
@@ -109,6 +131,7 @@ function mapCouponToDiscountCode(
     expireDate: formatDate(getCouponDisplayDate(coupon, status)),
     status,
     variant: getCouponVariant(coupon.discountType),
+    variantLabel: getCouponVariantLabel(coupon.discountType),
   };
 }
 

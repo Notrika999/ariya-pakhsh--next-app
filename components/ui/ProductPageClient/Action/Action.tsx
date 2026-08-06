@@ -111,7 +111,7 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
 
         <div className="rounded-xl py-4 px-2 space-y-4">
           {/* Performance */}
-          <div className="flex items-center space-x-2">
+          {/* <div className="flex items-center space-x-2">
             <span className="size-8 flex items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md">
               <i className="far fa-rotate text-gray-700 dark:text-gray-300 text-sm"></i>
             </span>
@@ -121,53 +121,57 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
             <span className="text-xs text-green-600 dark:text-green-400">
               عالی
             </span>
-          </div>
+          </div> */}
 
           {/* Product ID */}
           <div className="flex items-center space-x-2">
             <span className="size-8 flex items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md">
               <i className="fas fa-qrcode text-gray-700 dark:text-gray-300 text-sm"></i>
             </span>
-            <span className="text-sm font-bold text-gray-800 dark:text-white">
+            <span className="md:text-sm text-xs text-nowrap font-semibold text-gray-800 dark:text-white">
               شناسه محصول
             </span>
-            <span className="text-xs text-gray-500 dark:text-gray-300">
+            <span className="text-xs text-nowrap text-gray-500 dark:text-gray-300">
               {product.publicCode}
             </span>
           </div>
 
           {/* Stock */}
-          <div className="flex items-center space-x-2">
-            <span className="size-8 flex items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md">
-              <i className="far fa-truck-fast text-gray-700 dark:text-gray-300 text-xs"></i>
-            </span>
-            <span className="text-sm font-bold text-gray-800 dark:text-white">
-              وضعیت موجودی
-            </span>
-            {isOutOfStock ? (
-              <span className="text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-3 py-1 rounded-full">
-                ناموجود
+          {(variant?.availableQuantity ?? 0) < 5 && (
+            <div className="flex items-center space-x-2">
+              <span className="size-8 flex items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md">
+                <i className="far fa-truck-fast text-gray-700 dark:text-gray-300 text-xs"></i>
               </span>
-            ) : (
-              <span className="text-xs text-green-600">
-                موجود (
-                {new Intl.NumberFormat("fa-IR").format(
-                  variant?.availableQuantity ?? 0,
-                )}{" "}
-                عدد)
+
+              <span className="md:text-sm text-xs text-nowrap font-semibold text-gray-800 dark:text-white">
+                وضعیت موجودی
               </span>
-            )}
-          </div>
+
+              {isOutOfStock ? (
+                <span className="text-xs text-nowrap bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-3 py-1 rounded-full">
+                  ناموجود
+                </span>
+              ) : (
+                <span className="text-xs text-red-600">
+                  موجودی (
+                  {new Intl.NumberFormat("fa-IR").format(
+                    variant?.availableQuantity ?? 0,
+                  )}{" "}
+                  عدد)
+                </span>
+              )}
+            </div>
+          )}
 
           {/* Delivery */}
           <div className="flex items-center space-x-2">
             <span className="size-8 flex items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md">
               <i className="far fa-truck-fast text-gray-700 dark:text-gray-300 text-xs"></i>
             </span>
-            <span className="text-sm font-bold text-gray-800 dark:text-white">
+            <span className="md:text-sm text-xs text-nowrap font-semibold text-gray-800 dark:text-white">
               ارسال از فروشگاه اصلی
             </span>
-            <span className="text-xs text-gray-500 dark:text-gray-300">
+            <span className="text-xsmd:text-sm text-xs text-nowrap font-semibold text-gray-500 dark:text-gray-300">
               آماده ارسال
             </span>
           </div>

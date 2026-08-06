@@ -1,10 +1,15 @@
-// components/layout/Header/Top/HeaderSetting.tsx
 "use client";
+// components/layout/Header/Top/HeaderSetting.tsx
 
 import LoginModal from "@/components/modules/auth/LoginModal";
 import UserMenu from "@/components/modules/auth/UserMenu";
 import HeaderCart from "@/components/modules/HeaderCart/HeaderCart";
-import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { useCart } from "@/src/context/CartContext";
 import {
   useCurrentUser,
@@ -61,16 +66,16 @@ export default function HeaderSetting() {
     <div className="lg:col-span-4 col-span-4 order-3 w-full">
       <div className="flex items-baseline justify-end">
         {/* basket and call and darkmode  */}
-        <div className="flex items-center md:me-5 me-2">
+        <div className="flex items-center gap-x-4 md:me-5 me-4">
           {/* heart  */}
-          <a href="" className="hidden">
+          {/* <a href="" className="hidden">
             <i className="fa-regular fa-heart"></i>
-          </a>
+          </a> */}
 
           {/* basket  */}
           <div
             onClick={() => setCartOpen(true)}
-            className="relative md:ms-5 ms-2 flex"
+            className="relative  ms-2 flex"
           >
             <i className="fa-regular fa-bag-shopping"></i>
 
@@ -80,17 +85,17 @@ export default function HeaderSetting() {
               </span>
             )}
           </div>
-          
+
           {/* dark mode  */}
           <div className="md:ms-5 ">
             <button onClick={toggleDarkMode} className="cursor-pointer">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
-                viewBox="0 0 24 24"
+                viewBox="0 0 22 22"
                 strokeWidth="1.5"
                 stroke="currentColor"
-                className="size-6 dark:block hidden dark:text-white"
+                className="size-5 dark:block hidden dark:text-white"
               >
                 <path
                   strokeLinecap="round"
@@ -101,10 +106,10 @@ export default function HeaderSetting() {
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
-                viewBox="0 0 24 24"
+                viewBox="0 0 22 22"
                 strokeWidth="1.5"
                 stroke="currentColor"
-                className="size-6 dark:hidden block dark:text-white"
+                className="size-5 dark:hidden block dark:text-white"
               >
                 <path
                   strokeLinecap="round"
@@ -133,16 +138,14 @@ export default function HeaderSetting() {
               <i className="fa-regular fa-user-circle me-1"></i>
               <span className="lg:inline-block hidden max-w-[120px] truncate">
                 {user?.displayName ||
-                  [user?.firstName, user?.lastName]
-                    .filter(Boolean)
-                    .join(" ") ||
+                  [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
                   "حساب کاربری"}
               </span>
-              <i
-                className={`fa-solid fa-chevron-down ms-1 text-xs transition-transform ${
+              {/* <i
+                className={`hidden  fa-solid fa-chevron-down ms-1 text-xs transition-transform ${
                   menuOpen ? "rotate-180" : ""
                 }`}
-              ></i>
+              ></i> */}
             </button>
             {menuOpen && (
               <UserMenu

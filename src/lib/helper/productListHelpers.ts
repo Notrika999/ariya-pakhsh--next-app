@@ -19,6 +19,10 @@ export type ProductPageSearchParams = {
   [key: string]: string | string[] | undefined;
 };
 
+type SearchParamsLike = {
+  forEach: (callback: (value: string, key: string) => void) => void;
+};
+
 export type BreadcrumbItem = CategoryBreadcrumbItem & {
   link?: string;
 };
@@ -57,6 +61,44 @@ const SORT_ORDER_ALIASES: Record<string, SortOrder> = {
 
 export function firstValue(value?: string | string[]): string | undefined {
   return Array.isArray(value) ? value[0] : value;
+}
+
+export function normalizeProductSearchParams(
+  searchParams:
+    | ProductPageSearchParams
+    | URLSearchParams
+    | SearchParamsLike,
+): string {
+  const entries: Array<[string, string]> = [];
+
+  if ("forEach" in searchParams && typeof searchParams.forEach === "function") {
+    searchParams.forEach((value, key) => {
+      entries.push([key, value]);
+    });
+  } else {
+    Object.entries(searchParams).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        value.forEach((item) => entries.push([key, item]));
+        return;
+      }
+
+      if (value !== undefined) {
+        entries.push([key, value]);
+      }
+    });
+  }
+
+  entries.sort(([leftKey, leftValue], [rightKey, rightValue]) => {
+    if (leftKey === rightKey) return leftValue.localeCompare(rightValue);
+    return leftKey.localeCompare(rightKey);
+  });
+
+  const normalized = new URLSearchParams();
+  entries.forEach(([key, value]) => {
+    normalized.append(key, value);
+  });
+
+  return normalized.toString();
 }
 
 /** SEO-friendly brand query key (`brand=slug`). */

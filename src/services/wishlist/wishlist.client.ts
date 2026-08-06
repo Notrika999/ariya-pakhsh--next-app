@@ -116,6 +116,5 @@ export async function getMyWishlist(
     },
   });
 
-  console.log("response getMyWishlist => ", response.data);
   return unwrapWishlistPage(response.data);
 }

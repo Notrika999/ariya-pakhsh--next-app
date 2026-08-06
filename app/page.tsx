@@ -162,7 +162,7 @@ export default async function Home() {
 
       {/* <!-- START TOP CATEGORIES SECTION --> */}
       {topCategoriesMap.length > 0 && (
-        <SectionContainer>
+        <SectionContainer className="bg-[#fefefe] dark:bg-[#0d1117]">
           <Category categories={topCategoriesMap} title="دسته‌بندی‌های برتر" />
         </SectionContainer>
       )}
@@ -170,7 +170,7 @@ export default async function Home() {
 
       {/* <!-- START Featured CATEGORY SECTION --> */}
       {featuredCategoriesMap.length > 0 && (
-        <SectionContainer>
+        <SectionContainer className="bg-[#fefefe] dark:bg-[#0d1117] ">
           <Category
             categories={featuredCategoriesMap}
             title="دسته‌بندی‌های ویژه"
@@ -185,7 +185,7 @@ export default async function Home() {
 
       {/* <!-- START BANNER SECTION --> */}
       {bannerItems.length > 0 ? (
-        <SectionContainer>
+        <SectionContainer >
           <Banner banners={bannerItems} title="تبلیغات فروشگاه" />
         </SectionContainer>
       ) : null}
@@ -193,7 +193,7 @@ export default async function Home() {
 
       {/* <!-- START Recommended CATEGORY SECTION --> */}
       {recommendedCategoriesMap.length > 0 ? (
-        <SectionContainer>
+        <SectionContainer  className="bg-[#fefefe] dark:bg-[#0d1117]">
           <Category
             categories={recommendedCategoriesMap}
             title="دسته‌بندی‌های پیشنهادی"
@@ -204,7 +204,7 @@ export default async function Home() {
 
       {/* <!-- START NEW PRODUCT SLIDER SECTION -->/ */}
       {newestProducts.length > 0 ? (
-        <SectionContainer>
+        <SectionContainer className="bg-[#fefefe] dark:bg-[#0d1117]">
           <SliderProduct
             products={newestProducts}
             loop={false}
@@ -229,7 +229,7 @@ export default async function Home() {
 
       {/* <!-- START NEW PRODUCT SECTION --> */}
       {bestSellingProducts.length > 0 ? (
-        <SectionContainer>
+        <SectionContainer className="bg-[#fefefe] dark:bg-[#0d1117]">
           <BestSellingProducts
             bestSellingProducts={bestSellingProducts}
             title={"پرفروش ترین محصولات"}
@@ -241,7 +241,7 @@ export default async function Home() {
 
       {/* <!-- START PRODUCT SLIDER SECTION -->/ */}
       {featuredProducts.length > 0 ? (
-        <SectionContainer>
+        <SectionContainer className="bg-[#fefefe] dark:bg-[#0d1117]">
           <SliderProduct
             products={featuredProducts}
             loop={true}
@@ -255,7 +255,7 @@ export default async function Home() {
 
       {/* <!-- START BRAND SECTION --> */}
       {brands.items.length > 0 ? (
-        <SectionContainer>
+        <SectionContainer className="bg-[#fefefe] dark:bg-[#0d1117]">
           <Brand
             brands={brands.items}
             title={"برندهای های فروشگاه"}

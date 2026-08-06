@@ -1,5 +1,5 @@
-// components/ui/ProductListSection/ProductListSection.tsx
 "use client";
+// components/ui/ProductListSection/ProductListSection.tsx
 
 import { TransitionStartFunction } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -44,6 +44,7 @@ interface Props {
   errorMessage?: string | null;
   isLoading?: boolean;
   startTransition: TransitionStartFunction;
+  onFilterNavigate?: (params: URLSearchParams) => void;
   timer?: boolean;
   sortOptions?: SortOption[];
   sortQueryParam?: string;
@@ -89,6 +90,7 @@ export default function ProductListSection({
   isLoading = false,
   timer,
   startTransition,
+  onFilterNavigate,
   sortOptions,
   sortQueryParam = "sort",
   sortOptionToQuery,
@@ -111,6 +113,11 @@ export default function ProductListSection({
     clearSortQueryParams.forEach((key) => params.delete(key));
     params.delete("page");
 
+    if (onFilterNavigate) {
+      onFilterNavigate(params);
+      return;
+    }
+
     startTransition(() => {
       router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     });
@@ -125,18 +132,20 @@ export default function ProductListSection({
         maxLimit={maxLimit}
         filterOptions={filterOptions}
         startTransition={startTransition}
+        onFilterNavigate={onFilterNavigate}
       />
 
       <div className="grid grid-cols-12 gap-5 mt-6">
         {/* <!-- START FILTER SECTION --> */}
         <aside className="lg:col-span-3 hidden lg:block">
-          <div className="sticky top-6">
+          <div className="sticky top-20">
             <Filter
               filters={filters}
               availableBrands={filterOptions.brands}
               minLimit={minLimit}
               maxLimit={maxLimit}
               startTransition={startTransition}
+              onFilterNavigate={onFilterNavigate}
               filterOptions={filterOptions}
             />
           </div>

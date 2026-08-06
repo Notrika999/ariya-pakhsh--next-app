@@ -503,7 +503,7 @@ export default function Question({ productId }: QuestionProps) {
   return (
     <>
       <div className="space-y-4">
-        <h2 className="relative pb-3 text-2xl font-black text-zinc-800 before:absolute before:bottom-0 before:start-0 before:h-1 before:w-22 before:rounded before:bg-primary-500 dark:text-white">
+        <h2 className="relative pb-3 md:text-2xl text-lg font-black text-zinc-800 before:absolute before:bottom-0 before:start-0 before:h-1 before:w-22 before:rounded before:bg-primary-500 dark:text-white">
           سوالی داری در مورد این محصول؟
         </h2>
         <p className="text-sm text-neutral-700 dark:text-white">

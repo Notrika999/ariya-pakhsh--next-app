@@ -14,6 +14,7 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import { trackHomeLayoutItemView } from "@/src/services/home/home-layout.client";
 
 export default function Slider({ sliders }) {
   return (
@@ -52,6 +53,7 @@ export default function Slider({ sliders }) {
                   title={slid.title}
                   subtitle={slid.subtitle}
                   ctaText={slid.ctaText}
+                  onClick={() => trackHomeLayoutItemView(slid.id)}
                 />
               </SwiperSlide>
             ))}
