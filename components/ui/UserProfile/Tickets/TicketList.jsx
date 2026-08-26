@@ -1,10 +1,10 @@
 "use client";
-
+// components/ui/UserProfile/Tickets/TicketList.jsx
 import React, { useState } from "react";
-import TitleAfter from "../../../modules/TitleAfter/TitleAfter";
+import UserProfileTop from "../UserProfileTop";
 import TicketFilters from "./TicketFilters";
 import TicketStatCard from "../../../modules/TicketStatCard/TicketStatCard";
-import CreateTicketModal from "../../../modules/CreateTicketModal/CreateTicketModal";
+import TicketCreateForm from "./TicketCreateForm";
 import {
   formatTicketDate,
   getCategoryLabel,
@@ -26,7 +26,7 @@ export default function TicketList({
   filters,
   onFilterChange,
 }) {
-  const [showModal, setShowModal] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   const open = tickets.filter((t) => t.status === "open").length;
   const pending = tickets.filter(
@@ -36,32 +36,36 @@ export default function TicketList({
 
   const handleCreate = async (payload) => {
     const ok = await onCreate?.(payload);
-    if (ok) setShowModal(false);
+    if (ok) setShowCreateForm(false);
   };
 
-  return (
-    <div className="space-y-8 lg:col-span-3">
-      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <div>
-            <TitleAfter title="تیکت‌های پشتیبانی" />
-            <p className="mt-1 text-gray-600 dark:text-gray-400">
-              مدیریت و پیگیری تیکت‌های پشتیبانی
-            </p>
-          </div>
-          <div className="mt-4 md:mt-0">
-            <button
-              onClick={() => setShowModal(true)}
-              className="flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white transition duration-200 hover:bg-primary/90 active:scale-95"
-            >
-              <i className="far fa-plus me-2"></i>
-              ایجاد تیکت جدید
-            </button>
-          </div>
-        </div>
-      </div>
+  if (showCreateForm) {
+    return (
+      <TicketCreateForm
+        loading={creating}
+        onBack={() => setShowCreateForm(false)}
+        onSubmit={handleCreate}
+      />
+    );
+  }
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+  return (
+    <div className="space-y-4 lg:col-span-3">
+      <UserProfileTop
+        title="تیکت‌های پشتیبانی"
+        description="مدیریت و پیگیری تیکت‌های پشتیبانی"
+        aside={
+          <button
+            onClick={() => setShowCreateForm(true)}
+            className="flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white transition duration-200 hover:bg-primary/90 active:scale-95"
+          >
+            <i className="far fa-plus me-2"></i>
+            ایجاد تیکت جدید
+          </button>
+        }
+      />
+
+      <div className="grid grid-cols-1 gap-2 md:grid-cols-2 lg:grid-cols-4">
         <TicketStatCard
           title="کل تیکت‌ها"
           count={totalCount}
@@ -96,11 +100,11 @@ export default function TicketList({
         />
       </div>
 
-      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+      <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <TicketFilters filters={filters} onFilterChange={onFilterChange} />
       </div>
 
-      <div className="rounded-3xl bg-white p-6 shadow-xl dark:border dark:border-gray-700 dark:bg-custom-dark">
+      <div className="rounded-3xl bg-white px-3 py-2 shadow-xl dark:border dark:border-gray-700 dark:bg-custom-dark">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-xl font-black dark:text-gray-200">
             تیکت‌های اخیر
@@ -201,12 +205,6 @@ export default function TicketList({
         )}
       </div>
 
-      <CreateTicketModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onSubmit={handleCreate}
-        loading={creating}
-      />
     </div>
   );
 }

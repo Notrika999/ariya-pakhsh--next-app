@@ -57,11 +57,11 @@ export default function QuestionsSection({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+    <div className="grid grid-cols-1 gap-2 xl:grid-cols-2">
       {questions.map((q) => (
         <div
           key={q.id}
-          className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700"
+          className="bg-white rounded-2xl drop-shadow-lg p-3 py-2 dark:bg-custom-dark dark:border dark:border-gray-700"
         >
           <div className="flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-4">
             <div className="shrink-0">

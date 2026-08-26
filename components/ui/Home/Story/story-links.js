@@ -4,6 +4,7 @@ export function resolveStoryHref(link) {
   const type = String(link.type ?? "").toLowerCase();
   const targetId = link.targetId ? encodeURIComponent(link.targetId) : null;
 
+  if (link.href) return link.href;
   if (link.url) return link.url;
   if (type === "product" && targetId) return `/product/${targetId}`;
   if (type === "category" && targetId) return `/products/${targetId}`;

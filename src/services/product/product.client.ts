@@ -1,5 +1,5 @@
 "use client";
-
+// src/services/product/product.client.ts
 import { apiClient } from "@/src/lib/http/api-client";
 
 export async function createProductView(slug: string): Promise<void> {

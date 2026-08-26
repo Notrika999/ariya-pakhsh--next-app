@@ -23,7 +23,7 @@ const QuantitySelector = ({
   };
 
   return (
-    <div className="inline-flex items-center space-x-2 border border-gray-200 dark:border-zinc-700 rounded-lg px-1 bg-white dark:bg-zinc-800 shadow">
+    <div className="inline-flex items-center space-x-1 border border-gray-200 dark:border-zinc-700 rounded-lg px-1 bg-white dark:bg-zinc-800 shadow">
       <button
         type="button"
         onClick={increment}
@@ -33,7 +33,7 @@ const QuantitySelector = ({
         +
       </button>
 
-      <span className="flex min-w-14 items-center justify-center px-5 text-lg dark:text-white">
+      <span className="flex min-w-12 items-center justify-center px-3 text-lg dark:text-white">
         {loading ? (
           <i className="far fa-spinner-third animate-spin text-base" />
         ) : (

@@ -35,9 +35,14 @@ function formatDuration(seconds) {
 }
 
 function getActivityTone(activity) {
-  const key = `${activity?.iconKey || ""} ${activity?.kind || ""}`.toLowerCase();
+  const key =
+    `${activity?.iconKey || ""} ${activity?.kind || ""}`.toLowerCase();
 
-  if (key.includes("purchase") || key.includes("order") || key.includes("cart")) {
+  if (
+    key.includes("purchase") ||
+    key.includes("order") ||
+    key.includes("cart")
+  ) {
     return {
       icon: "fa-check",
       iconBg: "bg-green-100 dark:bg-green-900",
@@ -53,7 +58,11 @@ function getActivityTone(activity) {
     };
   }
 
-  if (key.includes("comment") || key.includes("review") || key.includes("star")) {
+  if (
+    key.includes("comment") ||
+    key.includes("review") ||
+    key.includes("star")
+  ) {
     return {
       icon: "fa-star",
       iconBg: "bg-blue-100 dark:bg-blue-900",
@@ -102,7 +111,10 @@ function ActivitiesSkeleton() {
   return (
     <div className="space-y-4">
       {Array.from({ length: 4 }).map((_, index) => (
-        <div key={`dashboard-activity-skeleton-${index}`} className="flex gap-3">
+        <div
+          key={`dashboard-activity-skeleton-${index}`}
+          className="flex gap-3"
+        >
           <div className="h-10 w-10 shrink-0 animate-pulse rounded-full bg-gray-100 dark:bg-zinc-800" />
           <div className="flex-1 space-y-3">
             <div className="h-4 w-36 animate-pulse rounded bg-gray-100 dark:bg-zinc-800" />
@@ -127,19 +139,19 @@ export default function RecentActivities({ activities = [], loading = false }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {activities.map((activity) => {
         const tone = getActivityTone(activity);
 
         return (
-          <div key={activity.id} className="flex items-start space-x-3 ">
+          <div key={activity.id} className="flex items-start space-x-2 ">
             <div
-              className={`w-10 h-10 ${tone.iconBg} rounded-full flex items-center justify-center shrink-0`}
+              className={`size-8 ${tone.iconBg} rounded-full flex items-center justify-center shrink-0`}
             >
-              <i className={["far", tone.icon, tone.iconColor].join(" ")}></i>
+              <i className={["text-sm far", tone.icon, tone.iconColor].join(" ")}></i>
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-gray-800 dark:text-gray-200 font-medium">
+              <p className="text-gray-800 dark:text-gray-200 text-sm font-medium">
                 {activity.kindTitleFa || "فعالیت"}
               </p>
               <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">

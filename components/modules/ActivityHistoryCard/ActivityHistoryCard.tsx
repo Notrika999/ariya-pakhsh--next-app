@@ -36,8 +36,8 @@ export default function ActivityHistoryCard({
           <p className="mt-1 truncate text-xs text-gray-500 dark:text-gray-400">
             {product.productCode ? `کد: ${product.productCode}` : "کد نامشخص"}
           </p>
-          <div className="mt-2 flex items-center justify-between">
-            <span className="text-lg font-bold text-primary">
+          <div className="my-3 flex items-center justify-between">
+            <span className="text-sm font-bold text-primary">
               {product.formattedPrice}
             </span>
           </div>

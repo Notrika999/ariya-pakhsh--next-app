@@ -24,6 +24,10 @@ export type MyOrderItem = {
   orderItemId: string;
   id?: string;
   productId?: string;
+  productCode?: string | null;
+  productSlug?: string | null;
+  publicCode?: string | null;
+  slug?: string;
   variantId?: string;
   productTitle: string;
   productName?: string;
@@ -142,6 +146,35 @@ export type MyOrderReturn = {
   refund: MyOrderReturnRefund | null;
 };
 
+export type ShippingAddressFields = {
+  CountryCode?: string | null;
+  CountryName?: string | null;
+  State?: string | null;
+  City?: string | null;
+  ProvinceId?: string | null;
+  CityId?: string | null;
+  PostalCode?: string | null;
+  AddressLine?: string | null;
+  RecipientFirstName?: string | null;
+  RecipientLastName?: string | null;
+  Mobile?: string | null;
+  Phone?: string | null;
+  Email?: string | null;
+};
+
+export type ShippingSelectionSnapshot = {
+  shippingClassId?: string;
+  shippingClassName?: string;
+  methodId?: string;
+  methodName?: string;
+  cost?: number;
+};
+
+export type ShippingAddressSnapshot = {
+  address?: ShippingAddressFields | null;
+  shippingSelections?: ShippingSelectionSnapshot[];
+};
+
 export type MyOrderDetail = MyOrderListItem & {
   items: MyOrderItem[];
   currency: string;
@@ -159,6 +192,7 @@ export type MyOrderDetail = MyOrderListItem & {
   selectedShippingMethodId: string;
   shippingMethodTitleSnapshot: string;
   shippingAddressSnapshotJson: string;
+  shippingAddressSnapshot: ShippingAddressSnapshot | null;
   estimatedDeliveryDays: number;
   cancelledAt: string | null;
   closedAt: string | null;

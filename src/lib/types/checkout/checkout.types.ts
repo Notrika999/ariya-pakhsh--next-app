@@ -47,6 +47,8 @@ export type CheckoutShippingMethod = {
 export type CheckoutShippingGroupItem = {
   productId: string;
   productName: string;
+  productColorName?: string;
+  productColorHex?: string;
   quantity: number;
 };
 

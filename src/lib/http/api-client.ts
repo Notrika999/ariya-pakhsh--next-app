@@ -146,14 +146,14 @@ apiClient.interceptors.response.use(
     const backendCode = extractApiErrorCode(errorData);
 
     if (!error.response) {
-      console.error("[api-client] network/no-response error", {
-        url: error.config?.url,
-        method: error.config?.method,
-        baseURL: error.config?.baseURL,
-        code: error.code,
-        message: error.message,
-        name: error.name,
-      });
+      // console.error("[api-client] network/no-response error", {
+      //   url: error.config?.url,
+      //   method: error.config?.method,
+      //   baseURL: error.config?.baseURL,
+      //   code: error.code,
+      //   message: error.message,
+      //   name: error.name,
+      // });
       return Promise.reject(
         new ApiError(
           0,
@@ -165,14 +165,17 @@ apiClient.interceptors.response.use(
       );
     }
 
-    console.error("[api-client] http error", {
-      url: error.config?.url,
-      method: error.config?.method,
-      status,
-      backendCode,
-      backendMessage,
-      errorData,
-    });
+    // console.error("[api-client] http error", {
+    //   url: error.config?.url,
+    //   method: error.config?.method,
+    //   status: error.response?.status,
+    //   statusText: error.response?.statusText,
+    //   responseData: error.response?.data,
+    //   responseHeaders: error.response?.headers,
+    //   requestData: error.config?.data,
+    //   params: error.config?.params,
+    //   message: error.message,
+    // });
 
     switch (status) {
       case 400:
@@ -222,7 +225,12 @@ apiClient.interceptors.response.use(
         );
       case 429:
         return Promise.reject(
-          new ApiError(429, "Too many requests. Slow down.", "RATE_LIMIT"),
+          new ApiError(
+            429,
+            backendMessage || "Too many requests. Slow down.",
+            backendCode || "RATE_LIMIT",
+            errorData,
+          ),
         );
       case 500:
       case 502:

@@ -64,7 +64,11 @@ const AmazingHeaderTimer = memo(function AmazingHeaderTimer({ enabled }) {
   );
 });
 
-export default function AmazingProductsSlider({ products, noTimer = false, noFirstSlide = false }) {
+export default function AmazingProductsSlider({
+  products,
+  noTimer = false,
+  noFirstSlide = false,
+}) {
   // products = [{id, image, title, colors, price, discount, countdownTo}, ...]
   const safeProducts = useMemo(() => products ?? [], [products]);
 
@@ -74,8 +78,6 @@ export default function AmazingProductsSlider({ products, noTimer = false, noFir
 
   return (
     <>
-      <h2 className="sr-only">محصولات شگفت انگیز فروشگاه</h2>
-
       <div className="bg-brand-gradient dark:bg-[#20242b] py-3 rounded-xl transition-colors">
         {/* Product Swiper */}
 
@@ -95,7 +97,7 @@ export default function AmazingProductsSlider({ products, noTimer = false, noFir
           </div>
           <Swiper
             modules={[Navigation]}
-            slidesPerView={1}
+            slidesPerView={2}
             // spaceBetween={10}
             loop={false}
             watchOverflow
@@ -123,31 +125,34 @@ export default function AmazingProductsSlider({ products, noTimer = false, noFir
             className="amazing-swiper"
           >
             {/* AMAZING SIDE */}
-            {!noFirstSlide && <SwiperSlide className="hidden! xl:block! w-[260px]!">
-              <div className=" text-white rounded-2xl h-full min-h-[340px] p-5 flex flex-col justify-between">
-                <div className="space-y-6 flex flex-col items-center justify-center">
-                  <Image
-                    width={194}
-                    height={120}
-                    src="/images/amazing/amazing-light.webp"
-                    className="w-44 object-contain dark:invert"
-                    alt=""
-                  />
+            {!noFirstSlide && (
+              <SwiperSlide className="hidden! xl:block! w-[260px]!">
+                <div className=" text-white rounded-2xl h-full min-h-[400px] p-5 flex flex-col justify-between">
+                  <div className="flex flex-1 flex-col items-center justify-between">
+                    <Image
+                      width={194}
+                      height={120}
+                      src="/images/amazing/amazing-light.webp"
+                      className="w-44 object-contain dark:invert"
+                      alt=""
+                    />
 
-                  <h2 className="font-extrabold text-xl">
-                    پیشنهاد شگفت‌انگیز
-                  </h2>
-                  <AmazingHeaderTimer enabled={safeProducts.length > 0} />
+                    <h3 className="font-bold text-sm">پیشنهاد شگفت‌انگیز</h3>
 
-                  <Link
-                    href="/incredible-offers"
-                    className="bg-white text-red-600 px-4 py-2 rounded-xl font-bold"
-                  >
-                    مشاهده همه
-                  </Link>
+                    <div className="flex flex-col items-center gap-4">
+                      <AmazingHeaderTimer enabled={safeProducts.length > 0} />
+
+                      <Link
+                        href="/incredible-offers"
+                        className="bg-white text-red-600 px-4 py-2 rounded-xl font-bold"
+                      >
+                        مشاهده همه
+                      </Link>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </SwiperSlide>}
+              </SwiperSlide>
+            )}
 
             {/* PRODUCTS */}
             {limitedProducts.map((p) => (

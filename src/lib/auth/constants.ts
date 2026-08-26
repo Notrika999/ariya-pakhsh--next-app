@@ -3,10 +3,33 @@
 import { ROLES } from "../types/auth";
 
 export const AUTH_COOKIE_NAMES = {
+  ACCESS_TOKEN: "CUP_Customer_Access_Token",
+  REFRESH_TOKEN: "CUP_Customer_Refresh_Token",
+  AUTH_INDICATOR: "CUP_Auth_Indicator",
+  DEVICE_ID: "CUP_Customer_Device_Id",
+} as const;
+
+export const LEGACY_AUTH_COOKIE_NAMES = {
   ACCESS_TOKEN: "CUP_Access_Token",
   REFRESH_TOKEN: "CUP_Refresh_Token",
   AUTH_INDICATOR: "CUP_Auth_Indicator",
   DEVICE_ID: "CUP_Device_Id",
+} as const;
+
+export const AUTH_COOKIE_NAME_ALIASES = {
+  ACCESS_TOKEN: [
+    AUTH_COOKIE_NAMES.ACCESS_TOKEN,
+    LEGACY_AUTH_COOKIE_NAMES.ACCESS_TOKEN,
+  ],
+  REFRESH_TOKEN: [
+    AUTH_COOKIE_NAMES.REFRESH_TOKEN,
+    LEGACY_AUTH_COOKIE_NAMES.REFRESH_TOKEN,
+  ],
+  AUTH_INDICATOR: [
+    AUTH_COOKIE_NAMES.AUTH_INDICATOR,
+    LEGACY_AUTH_COOKIE_NAMES.AUTH_INDICATOR,
+  ],
+  DEVICE_ID: [AUTH_COOKIE_NAMES.DEVICE_ID, LEGACY_AUTH_COOKIE_NAMES.DEVICE_ID],
 } as const;
 
 export const AUTH_USER_STORAGE_KEY = "CUP_User";

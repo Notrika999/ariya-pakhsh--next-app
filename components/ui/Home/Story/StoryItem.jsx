@@ -34,7 +34,7 @@ export default function StoryItem({
         />
         {hasVideo ? (
           <span className={storyStyle.storyPlayBadge} aria-hidden="true">
-            <Play size={18} fill="currentColor" strokeWidth={2.4} />
+            <Play size={12} fill="currentColor" strokeWidth={2} />
           </span>
         ) : null}
       </div>

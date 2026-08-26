@@ -3,11 +3,11 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { getBackendBaseUrl } from "@/src/lib/api/backend-base";
-import { AUTH_COOKIE_NAMES } from "@/src/lib/auth/constants";
 import {
-  assertSafeInput,
-  UnsafeInputError,
-} from "@/src/utils/input-security";
+  AUTH_COOKIE_NAME_ALIASES,
+  AUTH_COOKIE_NAMES,
+} from "@/src/lib/auth/constants";
+import { assertSafeInput, UnsafeInputError } from "@/src/utils/input-security";
 
 /* -------------------------------------------------------------------------- */
 /*                                 Constants                                  */
@@ -59,6 +59,10 @@ interface ProxyResponse<T = unknown> {
   ok: boolean;
   isJson: boolean;
 }
+
+type CookieReader = {
+  get(name: string): { value: string } | undefined;
+};
 
 /* -------------------------------------------------------------------------- */
 /*                                   Error                                    */
@@ -209,6 +213,17 @@ function sanitizeCookieValue(value: string): string {
   return encodeURIComponent(value);
 }
 
+function getFirstCookieValue(
+  cookieStore: CookieReader,
+  names: readonly string[],
+): string | undefined {
+  for (const name of names) {
+    const value = cookieStore.get(name)?.value;
+    if (value) return value;
+  }
+  return undefined;
+}
+
 /**
  * مصرف و رها کردن body برای آزادسازی connection.
  */
@@ -301,7 +316,10 @@ export async function proxyToBackend<T = unknown>(
   };
 
   const hasJsonBody =
-    body !== undefined && body !== null && method !== "GET" && method !== "HEAD";
+    body !== undefined &&
+    body !== null &&
+    method !== "GET" &&
+    method !== "HEAD";
 
   // فقط وقتی rawBody نداریم Content-Type ست می‌شود
   if (!rawBody && hasJsonBody && !headers["Content-Type"]) {
@@ -326,11 +344,18 @@ export async function proxyToBackend<T = unknown>(
 
   if (withAuth) {
     const cookieStore = await cookies();
-    const accessToken = cookieStore.get(AUTH_COOKIE_NAMES.ACCESS_TOKEN)?.value;
-    const refreshToken = cookieStore.get(
-      AUTH_COOKIE_NAMES.REFRESH_TOKEN,
-    )?.value;
-    const deviceId = cookieStore.get(AUTH_COOKIE_NAMES.DEVICE_ID)?.value;
+    const accessToken = getFirstCookieValue(
+      cookieStore,
+      AUTH_COOKIE_NAME_ALIASES.ACCESS_TOKEN,
+    );
+    const refreshToken = getFirstCookieValue(
+      cookieStore,
+      AUTH_COOKIE_NAME_ALIASES.REFRESH_TOKEN,
+    );
+    const deviceId = getFirstCookieValue(
+      cookieStore,
+      AUTH_COOKIE_NAME_ALIASES.DEVICE_ID,
+    );
 
     const cookieParts: string[] = [];
 
@@ -491,7 +516,13 @@ export async function getAuthCookies(): Promise<{
   const cookieStore = await cookies();
 
   return {
-    accessToken: cookieStore.get(AUTH_COOKIE_NAMES.ACCESS_TOKEN)?.value,
-    refreshToken: cookieStore.get(AUTH_COOKIE_NAMES.REFRESH_TOKEN)?.value,
+    accessToken: getFirstCookieValue(
+      cookieStore,
+      AUTH_COOKIE_NAME_ALIASES.ACCESS_TOKEN,
+    ),
+    refreshToken: getFirstCookieValue(
+      cookieStore,
+      AUTH_COOKIE_NAME_ALIASES.REFRESH_TOKEN,
+    ),
   };
 }

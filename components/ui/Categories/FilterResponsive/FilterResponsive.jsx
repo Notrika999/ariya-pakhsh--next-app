@@ -10,21 +10,34 @@ export default function FilterResponsive({
   maxLimit,
   filterOptions,
   onFilterNavigate,
+  isOpen,
+  onOpenChange,
+  hideTrigger = false,
   ...filterProps
 }) {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = typeof isOpen === "boolean" ? isOpen : internalOpen;
   const resolvedBrands = brands ?? filterProps.availableBrands ?? [];
+  const setOpen = (nextOpen) => {
+    if (typeof isOpen !== "boolean") {
+      setInternalOpen(nextOpen);
+    }
+
+    onOpenChange?.(nextOpen);
+  };
 
   return (
     <div className="lg:hidden block">
-      <div className="fixed z-20 bottom-28 start-3">
-        <button
-          onClick={() => setOpen(true)}
-          className="bg-primary px-3 py-3 rounded-lg drop-shadow"
-        >
-          <i className="far fa-sliders text-3xl text-white"></i>
-        </button>
-      </div>
+      {!hideTrigger && (
+        <div className="fixed z-20 bottom-28 start-3">
+          <button
+            onClick={() => setOpen(true)}
+            className="bg-primary px-3 py-3 rounded-lg drop-shadow"
+          >
+            <i className="far fa-sliders text-3xl text-white"></i>
+          </button>
+        </div>
+      )}
 
       {/* <!--Filters--> */}
       {open && (

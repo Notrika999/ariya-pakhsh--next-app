@@ -1,5 +1,5 @@
 "use client";
-
+// src/services/product/question.client.ts
 import { apiClient, ApiError } from "@/src/lib/http/api-client";
 import type {
   CreateProductQuestionRequest,

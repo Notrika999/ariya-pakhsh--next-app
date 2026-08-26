@@ -1,19 +1,61 @@
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
+import { Category } from "@/src/lib/types/categories/menuType";
+import { getCategoryImage, getProductImage } from "@/src/utils/product-image";
 
-type MegaMenuCategory = {
-  id: string | number;
-  name: string;
-  slug: string;
-  depth: number;
-  children?: MegaMenuCategory[];
+function getMenuItemImage(category: Category) {
+  if (category.svgIcon) {
+    return getProductImage(category.svgIcon);
+  }
+
+  if (category.imageUrl) {
+    return getProductImage(category.imageUrl);
+  }
+
+  return getCategoryImage(category.image);
+}
+
+function isSvgImage(src: string) {
+  return src.split("?")[0].toLowerCase().endsWith(".svg");
+}
+
+const graySvgIconStyle = {
+  filter:
+    "brightness(0) saturate(100%) invert(46%) sepia(9%) saturate(395%) hue-rotate(176deg) brightness(91%) contrast(88%)",
 };
+
+function CategoryImage({
+  category,
+  sizeClassName,
+}: {
+  category: Category;
+  sizeClassName: string;
+}) {
+  const imageSrc = getMenuItemImage(category);
+
+  return (
+    <span
+      className={`relative shrink-0 overflow-hidden rounded-lg bg-white dark:bg-zinc-900 ${sizeClassName}`}
+    >
+      <Image
+        src={imageSrc}
+        alt={category.name}
+        fill
+        sizes="40px"
+        className="object-contain p-1"
+        unoptimized={isSvgImage(imageSrc)}
+        style={isSvgImage(imageSrc) ? graySvgIconStyle : undefined}
+      />
+    </span>
+  );
+}
 
 export default function CategoryNode({
   category,
   onNavigate,
 }: {
-  category: MegaMenuCategory;
+  category: Category;
   onNavigate?: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,13 +79,14 @@ export default function CategoryNode({
         >
           <Link
             href={href}
-            className="inline-flex min-w-0"
+            className="inline-flex min-w-0 items-center gap-2"
             onClick={(event) => {
               event.stopPropagation();
               onNavigate?.();
             }}
           >
-            {category.name}
+            <CategoryImage category={category} sizeClassName="size-9" />
+            <span className="min-w-0 truncate">{category.name}</span>
           </Link>
 
           {hasChildren && (
@@ -81,9 +124,14 @@ export default function CategoryNode({
   // اگر عمق 1 باشد -> تایتل (بدون دراپ‌دان) و نمایش فرزندان
   return (
     <li className="list-none">
-      <div className="font-bold text-sm text-gray-700 dark:text-gray-300 py-1">
-        <Link href={href} onClick={onNavigate}>
-          {category.name}
+      <div className="py-1 text-sm font-bold text-gray-700 dark:text-gray-300">
+        <Link
+          href={href}
+          onClick={onNavigate}
+          className="inline-flex min-w-0 items-center gap-2"
+        >
+          <CategoryImage category={category} sizeClassName="size-8" />
+          <span className="min-w-0 truncate">{category.name}</span>
         </Link>
       </div>
       {hasChildren && (
@@ -93,8 +141,13 @@ export default function CategoryNode({
               key={child.id}
               className="pr-4 text-sm text-gray-600 dark:text-gray-400"
             >
-              <Link href={`/products/${child.slug}`} onClick={onNavigate}>
-                {child.name}
+              <Link
+                href={`/products/${child.slug}`}
+                onClick={onNavigate}
+                className="inline-flex min-w-0 items-center gap-2 py-1"
+              >
+                <CategoryImage category={child} sizeClassName="size-7" />
+                <span className="min-w-0 truncate">{child.name}</span>
               </Link>
             </li>
           ))}

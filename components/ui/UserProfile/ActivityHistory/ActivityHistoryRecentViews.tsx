@@ -106,7 +106,7 @@ export default function ActivityHistoryRecentViews({
   const hasItems = groups.some((group) => group.items.length > 0);
 
   return (
-    <div id="recent-views" className="tab-content space-y-6">
+    <div id="recent-views" className="tab-content space-y-2">
       {error && (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -130,10 +130,10 @@ export default function ActivityHistoryRecentViews({
         groups.map((group) => (
           <div
             key={group.date || group.dateLabel}
-            className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark"
+            className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark"
           >
             <TitleAfter title={group.dateLabel || group.date} tag={false} />
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-1 md:grid-cols-2 lg:grid-cols-3">
               {group.items.map((item) => {
                 const product = toRecentViewItem(item);
 
@@ -163,7 +163,7 @@ export default function ActivityHistoryRecentViews({
         </div>
       )}
 
-      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+      <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="font-medium text-gray-800 dark:text-gray-200">

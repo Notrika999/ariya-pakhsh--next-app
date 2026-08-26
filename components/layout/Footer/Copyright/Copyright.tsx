@@ -6,7 +6,7 @@ export default function Copyright() {
       <div className="container mx-auto">
         <div className="flex sm:space-y-0 space-y-3 items-center justify-between flex-wrap">
           <p className="text-xs text-gray-700  dark:text-gray-400">
-            2025 © - تمامی حقوق مادی و معنوی برای فروشگاه اینترنتی کارپ 24 محفوظ
+            2025 © - تمامی حقوق مادی و معنوی برای فروشگاه اینترنتی کارآپ 24 محفوظ
             می‌باشد.
           </p>
           

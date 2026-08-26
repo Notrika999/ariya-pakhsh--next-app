@@ -14,7 +14,8 @@ interface UserMenuProps {
 }
 
 const MENU_ITEMS = [
-  { href: "/user-profile", label: "داشبورد", icon: "fa-gauge" },
+  { href: "/user-profile", label: "پنل کاربر", icon: "fa-gauge" },
+  { href: "/user-profile/favorites", label: "علاقمندی ها", icon: "fa-haert" },
   { href: "/user-profile/orders", label: "سفارش‌های من", icon: "fa-box" },
   {
     href: "/user-profile/tickets",

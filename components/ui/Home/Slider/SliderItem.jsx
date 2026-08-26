@@ -20,28 +20,27 @@ export default function SliderItem({
   const imageQuality = 100;
 
   return (
-    <Link href={href} aria-label={alt} className="group block" onClick={onClick}>
-      <div className="relative w-full mx-auto h-[200px] w-full  overflow-hidden sm:h-[550px] ">
+    <Link
+      href={href}
+      aria-label={alt}
+      className="group block"
+      onClick={onClick}
+    >
+      <div className="relative w-full mx-auto h-[200px]  overflow-hidden sm:h-[600px] ">
         <Image
           fill
           src={desktopSrc}
-          className="hidden  object-cover lg:block"
+          className="hidden  object-fit lg:block"
           loading="lazy"
           quality={imageQuality}
           sizes={imageSizes}
           alt={alt}
         />
-        {/* <img
-          src={desktopSrc}
-          alt=""
-          className="hidden w-full object-cover lg:block"
-      
-  
-        /> */}
+        
         <Image
           fill
           src={mobileSrc}
-          className="object-cover lg:hidden"
+          className="object-fit lg:hidden"
           loading="lazy"
           quality={imageQuality}
           sizes={imageSizes}

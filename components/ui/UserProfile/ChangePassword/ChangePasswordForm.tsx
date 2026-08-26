@@ -260,12 +260,12 @@ export default function ChangePasswordForm() {
   };
 
   return (
-    <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
+    <div className="bg-white rounded-2xl drop-shadow-lg px-3 py-2 dark:bg-custom-dark dark:border dark:border-gray-700">
       <TitleAfter title="فرم تغییر رمز عبور" tag={false} />
 
       <form
         id="change-password-form"
-        className="space-y-6"
+        className="space-y-2"
         onSubmit={handleSubmit}
         noValidate
       >

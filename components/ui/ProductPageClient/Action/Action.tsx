@@ -109,20 +109,8 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
           </Link>
         </div> */}
 
-        <div className="rounded-xl py-4 px-2 space-y-4">
-          {/* Performance */}
-          {/* <div className="flex items-center space-x-2">
-            <span className="size-8 flex items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md">
-              <i className="far fa-rotate text-gray-700 dark:text-gray-300 text-sm"></i>
-            </span>
-            <span className="text-sm font-bold text-gray-800 dark:text-white">
-              عملکرد
-            </span>
-            <span className="text-xs text-green-600 dark:text-green-400">
-              عالی
-            </span>
-          </div> */}
-
+        <div className="rounded-xl p-2 space-y-4">
+          
           {/* Product ID */}
           <div className="flex items-center space-x-2">
             <span className="size-8 flex items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md">
@@ -175,26 +163,6 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
               آماده ارسال
             </span>
           </div>
-
-          {/* Tags */}
-          <div className="flex items-center gap-2 pt-2 flex-wrap">
-            <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-3 py-1 rounded-full">
-              کالای اصل
-            </span>
-            <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-3 py-1 rounded-full">
-              کالای نو
-            </span>
-            {product.warrantyInfo && (
-              <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full">
-                {product.warrantyInfo}
-              </span>
-            )}
-            {isOutOfStock && (
-              <span className="text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-3 py-1 rounded-full">
-                ناموجود
-              </span>
-            )}
-          </div>
         </div>
       </div>
 
@@ -210,18 +178,7 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
       </div>
 
       {/* Price & Quantity */}
-      <div className="flex items-center space-x-4 justify-between mt-4 mb-2">
-        {!isOutOfStock && (
-          <QuantitySelector
-            value={quantity}
-            onChange={handleQtyChange}
-            min={1}
-            max={maxQty}
-            loading={quantityUpdating}
-            disabled={quantityUpdating}
-          />
-        )}
-
+      <div className="flex items-center space-x-4 justify-end my-4 ">
         <div className="flex items-center">
           <div className="text-gray-700 dark:text-zinc-300 flex flex-col items-center">
             {hasDiscount && (
@@ -250,13 +207,24 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
         </div>
       </div>
 
+     
+
       {/* CTA */}
       {!isOutOfStock ? (
         <div className="flex items-center justify-center">
+          <QuantitySelector
+          value={quantity}
+          onChange={handleQtyChange}
+          min={1}
+          max={maxQty}
+          loading={quantityUpdating}
+          disabled={quantityUpdating}
+        />
+
           <button
             onClick={handleAddToCart}
             disabled={quantityUpdating}
-            className={`ms-auto mt-3 text-white font-semibold rounded-xl px-6 py-4 text-sm cursor-pointer transition-colors ${
+            className={`ms-auto  text-white font-semibold rounded-xl px-2 py-3 text-sm cursor-pointer transition-colors ${
               added
                 ? "bg-green-500 hover:bg-green-600 shadow-green-500/30"
                 : "bg-primary hover:bg-primary-600 shadow-primary-500"
@@ -267,14 +235,9 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
         </div>
       ) : (
         <>
-          <div className="flex items-center justify-center">
-            <button className="bg-gray-400 cursor-not-allowed w-full mt-3 text-white font-semibold rounded-xl px-6 py-4 text-sm">
-              اتمام موجودی
-            </button>
-          </div>
           <div className="mt-3">
             <button className="bg-primary shadow-primary-500 w-full hover:bg-primary-600 text-white font-semibold rounded-xl px-6 py-3 text-sm">
-              📧 به من اطلاع بده
+              🔔 به من اطلاع بده
             </button>
             <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
               وقتی محصول موجود شد به من اطلاع بده

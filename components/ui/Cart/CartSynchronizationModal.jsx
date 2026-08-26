@@ -62,12 +62,12 @@ function IssueRow({ issue }) {
         <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
           {oldValue ? (
             <div className="rounded-md bg-gray-50 px-2 py-1 text-gray-600 dark:bg-zinc-800 dark:text-gray-300">
-              مقدار قبلی: <span className="font-bold">{oldValue}</span>
+              قیمت قبلی: <span className="font-bold">{oldValue}</span>
             </div>
           ) : null}
           {newValue ? (
             <div className="rounded-md bg-primary/10 px-2 py-1 text-primary dark:bg-primary/20">
-              مقدار جدید: <span className="font-bold">{newValue}</span>
+              قیمت جدید: <span className="font-bold">{newValue}</span>
             </div>
           ) : null}
         </div>

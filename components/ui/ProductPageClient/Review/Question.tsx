@@ -182,11 +182,44 @@ function QuestionCard({
   const [reportReason, setReportReason] = useState(REPORT_REASONS[0]);
   const [reportDescription, setReportDescription] = useState("");
   const [reporting, setReporting] = useState(false);
+  const [usefulVoting, setUsefulVoting] = useState(false);
 
   const usefulCount = question.answers.reduce(
     (sum, answer) => sum + answer.likesCount,
     0,
   );
+  const usefulVoteAnswer =
+    question.answers.find((answer) => answer.isOfficial) ??
+    question.answers[0] ??
+    null;
+  const hasUsefulVote = question.answers.some(
+    (answer) => answer.userVote === "like",
+  );
+
+  const handleUsefulVote = async () => {
+    if (usefulVoting || !usefulVoteAnswer || hasUsefulVote) return;
+
+    setUsefulVoting(true);
+    try {
+      const previousVote = usefulVoteAnswer.userVote ?? null;
+
+      await voteQuestionAnswer(usefulVoteAnswer.id, "like");
+      onAnswerVoted(question.id, usefulVoteAnswer.id, {
+        userVote: "like",
+        likesCount:
+          usefulVoteAnswer.likesCount + (previousVote === "like" ? 0 : 1),
+        dislikesCount:
+          usefulVoteAnswer.dislikesCount -
+          (previousVote === "dislike" ? 1 : 0),
+      });
+      notify.success("رأی مثبت ثبت شد");
+    } catch (error) {
+      console.error("[Question] useful vote failed =>", error);
+      notify.error(getAuthErrorMessage(error));
+    } finally {
+      setUsefulVoting(false);
+    }
+  };
 
   const handleAnswer = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -275,10 +308,27 @@ function QuestionCard({
             <i className="far fa-comments" />
             {new Intl.NumberFormat("fa-IR").format(question.answers.length)} پاسخ
           </div>
-          <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={handleUsefulVote}
+            disabled={usefulVoting || !usefulVoteAnswer || hasUsefulVote}
+            aria-pressed={hasUsefulVote}
+            className={`flex items-center gap-1 transition hover:text-green-500 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:text-green-400 ${
+              hasUsefulVote
+                ? "text-green-600 dark:text-green-400"
+                : "text-gray-500 dark:text-gray-400"
+            }`}
+            title={
+              !usefulVoteAnswer
+                ? "برای ثبت رأی، ابتدا باید پاسخی وجود داشته باشد"
+                : hasUsefulVote
+                  ? "شما قبلا این پاسخ را مفید دانسته‌اید"
+                  : "ثبت رأی مفید"
+            }
+          >
             <i className="far fa-thumbs-up" />
             {new Intl.NumberFormat("fa-IR").format(usefulCount)} مفید
-          </div>
+          </button>
           <button
             type="button"
             onClick={() => setShowAnswers((open) => !open)}
@@ -436,7 +486,11 @@ export default function Question({ productId }: QuestionProps) {
   );
 
   useEffect(() => {
-    void loadQuestions(1, false);
+    const timeoutId = window.setTimeout(() => {
+      void loadQuestions(1, false);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [loadQuestions]);
 
   const filteredQuestions = useMemo(() => {

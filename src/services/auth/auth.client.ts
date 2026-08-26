@@ -3,9 +3,7 @@
 
 import { apiClient } from "@/src/lib/http/api-client";
 import { ApiError } from "@/src/lib/http/api-client";
-import {
-  CUSTOMER_AUTH_CLIENT_PATHS,
-} from "@/src/lib/auth/constants";
+import { CUSTOMER_AUTH_CLIENT_PATHS } from "@/src/lib/auth/constants";
 import {
   LoginRequest,
   LoginResponse,
@@ -240,12 +238,11 @@ export function attachSessionToUser(
 export async function completeUserFromMe(
   user: UserInfoDto,
 ): Promise<UserInfoDto> {
-
-
   if (user.birthDate) return user;
 
   try {
     const me = await getMe();
+
     return me;
   } catch (error) {
     console.warn(
@@ -266,8 +263,6 @@ export async function completeUserFromMe(
 export const startPhoneAuth = async (
   data: StartAuthRequest,
 ): Promise<StartAuthResponse> => {
- 
-
   try {
     const response = await apiClient.post(
       CUSTOMER_AUTH_CLIENT_PATHS.PHONE_START,
@@ -277,10 +272,8 @@ export const startPhoneAuth = async (
       unwrapApiData<StartAuthResponse>(response.data, "startPhoneAuth"),
     );
 
-  
     return result;
   } catch (error) {
-
     throw error;
   }
 };
@@ -288,8 +281,6 @@ export const startPhoneAuth = async (
 export const verifyOtp = async (
   data: VerifyOtpRequest,
 ): Promise<VerifyOtpResponse> => {
-
-
   try {
     const response = await apiClient.post(
       CUSTOMER_AUTH_CLIENT_PATHS.PHONE_VERIFY,
@@ -297,10 +288,8 @@ export const verifyOtp = async (
     );
     const result = unwrapApiData<VerifyOtpResponse>(response.data, "verifyOtp");
 
-
     return result;
   } catch (error) {
-
     throw error;
   }
 };
@@ -308,7 +297,6 @@ export const verifyOtp = async (
 export const resendOtp = async (
   data: ResendOtpRequest,
 ): Promise<ResendOtpResponse> => {
- 
   const response = await apiClient.post(
     CUSTOMER_AUTH_CLIENT_PATHS.OTP_RESEND,
     data,
@@ -324,13 +312,12 @@ export const resendOtp = async (
 export const loginWithPassword = async (
   data: LoginRequest,
 ): Promise<LoginResponse> => {
-  
   const response = await apiClient.post(CUSTOMER_AUTH_CLIENT_PATHS.LOGIN, data);
 
   const result = normalizeLoginResponse(
     unwrapApiData<LoginResponse>(response.data, "loginWithPassword"),
   );
- 
+
   return result;
 };
 
@@ -362,7 +349,6 @@ function normalizeLoginResponse(result: LoginResponse): LoginResponse {
 export const verifyLoginTwoFactor = async (
   data: VerifyLoginTwoFactorRequest,
 ): Promise<VerifyLoginTwoFactorResponse> => {
- 
   const response = await apiClient.post(
     CUSTOMER_AUTH_CLIENT_PATHS.LOGIN_VERIFY_2FA,
     {
@@ -371,7 +357,7 @@ export const verifyLoginTwoFactor = async (
       deviceFingerPrint: data.deviceFingerPrint,
     },
   );
- 
+
   const result = unwrapApiData<VerifyLoginTwoFactorResponse>(
     response.data,
     "verifyLoginTwoFactor",
@@ -383,7 +369,6 @@ export const verifyLoginTwoFactor = async (
 export const resendLoginTwoFactorOtp = async (
   twoFactorToken: string,
 ): Promise<ResendOtpResponse> => {
- 
   return resendOtp({ token: twoFactorToken });
 };
 
@@ -410,11 +395,7 @@ export const register = async (
       data,
     );
 
-
-
     const parsed = unwrapApiData<RegisterResponse>(response.data, "register");
-
-
 
     return parsed;
   } catch (error) {
@@ -439,7 +420,6 @@ export const register = async (
     throw error;
   }
 };
-
 
 function normalizeForgotPasswordResponse(
   result: ForgotPasswordResponse,
@@ -563,7 +543,6 @@ export const startChangePasswordOtp = async (
     { currentPassword: data.currentPassword },
   );
 
- 
   return normalizeStartChangePasswordOtpResponse(
     unwrapApiData<StartChangePasswordOtpResponse>(
       response.data,
@@ -575,7 +554,6 @@ export const startChangePasswordOtp = async (
 export const changePassword = async (
   data: ChangePasswordRequest,
 ): Promise<ChangePasswordResponse> => {
-  
   const response = await apiClient.patch(
     CUSTOMER_AUTH_CLIENT_PATHS.ME_PASSWORD_CHANGE,
     {
@@ -587,7 +565,6 @@ export const changePassword = async (
     },
   );
 
- 
   const result = unwrapApiData<ChangePasswordResponse>(
     response.data,
     "changePassword",
@@ -635,7 +612,7 @@ function extractUser(payload: unknown): UserInfoDto {
 
 export const getMe = async (): Promise<UserInfoDto> => {
   const response = await apiClient.get(CUSTOMER_AUTH_CLIENT_PATHS.ME);
- 
+
   return extractUser(response.data);
 };
 
@@ -667,13 +644,11 @@ export const uploadAvatar = async (
   // نام فیلد رایج در بک‌اندهای ASP.NET برای IFormFile
   formData.append("file", file);
 
-
   try {
     const response = await apiClient.post(
       CUSTOMER_AUTH_CLIENT_PATHS.ME_AVATAR,
       formData,
     );
-
 
     if (!response.data) {
       return { success: true };
@@ -685,7 +660,6 @@ export const uploadAvatar = async (
         unwrapApiData<AvatarUploadResponse>(response.data, "uploadAvatar"),
       );
     } catch (parseError) {
-      
       record = getRecord(response.data);
     }
 
@@ -696,7 +670,6 @@ export const uploadAvatar = async (
       avatarUrl: extractAvatarUrl(response.data) ?? extractAvatarUrl(record),
     };
   } catch (error) {
-    
     if (error instanceof ApiError) {
       console.error("[auth.client] uploadAvatar error body =>", {
         status: error.status,
@@ -710,12 +683,10 @@ export const uploadAvatar = async (
 };
 
 export const deleteAvatar = async (): Promise<AvatarUploadResponse> => {
-
   try {
     const response = await apiClient.delete(
       CUSTOMER_AUTH_CLIENT_PATHS.ME_AVATAR,
     );
-    
 
     const record =
       response.data && typeof response.data === "object"
@@ -773,6 +744,7 @@ export const updateProfile = async (
       ...(response.data as UserInfoDto),
       ...data,
       birthDate: data.birthDate ?? undefined,
+      nationalCode: data.nationalCode ?? undefined,
     };
   }
 };
@@ -810,12 +782,10 @@ function unwrapEmailActionResponse<T>(payload: unknown, label: string): T {
 
 export const startEmailVerification =
   async (): Promise<EmailVerificationStartResponse> => {
-   
     const response = await apiClient.post(
       "/CustomerAuth/me/email/verification/start",
       {},
     );
-   
 
     const result = normalizeEmailVerificationStart(
       unwrapEmailActionResponse<EmailVerificationStartResponse>(
@@ -823,34 +793,31 @@ export const startEmailVerification =
         "startEmailVerification",
       ),
     );
-   
+
     return result;
   };
 
 export const verifyEmail = async (
   code: string,
 ): Promise<EmailVerifyResponse> => {
- 
   const response = await apiClient.post("/CustomerAuth/me/email/verify", {
     code,
   });
-
 
   const result = unwrapEmailActionResponse<EmailVerifyResponse>(
     response.data,
     "verifyEmail",
   );
-  
+
   return result;
 };
 
 export const enableTwoFactor = async (): Promise<TwoFactorToggleResponse> => {
- 
   const response = await apiClient.patch(
     "/CustomerAuth/me/two-factor/enable",
     {},
   );
-  
+
   const result = unwrapEmailActionResponse<TwoFactorToggleResponse>(
     response.data,
     "enableTwoFactor",
@@ -860,12 +827,11 @@ export const enableTwoFactor = async (): Promise<TwoFactorToggleResponse> => {
 };
 
 export const disableTwoFactor = async (): Promise<TwoFactorToggleResponse> => {
-
   const response = await apiClient.patch(
     "/CustomerAuth/me/two-factor/disable",
     {},
   );
-  
+
   const result = unwrapEmailActionResponse<TwoFactorToggleResponse>(
     response.data,
     "disableTwoFactor",
@@ -930,6 +896,26 @@ function extractValidationMessages(errors: unknown): string[] {
   return [];
 }
 
+function toFriendlyValidationMessage(message: string): string {
+  const normalized = message.trim();
+  const lower = normalized.toLowerCase();
+
+  if (
+    (lower.includes("category") || normalized.includes("دسته‌بندی")) &&
+    (lower.includes("could not be converted") ||
+      lower.includes("invalid") ||
+      normalized.includes("معتبر نیست"))
+  ) {
+    return "دسته‌بندی انتخاب‌شده معتبر نیست.";
+  }
+
+  if (lower.includes("body field is required")) {
+    return "متن تیکت الزامی است.";
+  }
+
+  return normalized;
+}
+
 export function getAuthErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
     if (error.code === "UNSAFE_INPUT") {
@@ -960,18 +946,9 @@ export function getAuthErrorMessage(error: unknown): string {
     ];
 
     // پیام‌های فنی enum را به فارسی ساده‌تر کن
-    const friendlyValidation = validationMessages.map((message) => {
-      if (
-        message.includes("could not be converted") &&
-        message.includes("ategory")
-      ) {
-        return "دسته‌بندی انتخاب‌شده معتبر نیست";
-      }
-      if (message.toLowerCase().includes("body field is required")) {
-        return "متن تیکت الزامی است";
-      }
-      return message;
-    });
+    const friendlyValidation = validationMessages.map(
+      toFriendlyValidationMessage,
+    );
 
     if (friendlyValidation.length > 0) {
       return friendlyValidation[0].trim();
@@ -986,7 +963,7 @@ export function getAuthErrorMessage(error: unknown): string {
       nested?.errorMessage,
     ].find((value): value is string => Boolean(value && value.trim()));
 
-    if (backendMessage) return backendMessage.trim();
+    if (backendMessage) return toFriendlyValidationMessage(backendMessage);
 
     const backendCode = [
       data?.code,

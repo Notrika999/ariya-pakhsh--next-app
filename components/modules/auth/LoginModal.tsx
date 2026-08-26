@@ -84,12 +84,12 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
 
           <div className="flex items-center mb-5 justify-center">
             <Image
-              width={125}
-              height={125}
+              width={80}
+              height={80}
               className="h-12 dark:invert"
-              src="/images/logo.png"
+              src="/images/logo/carup24-logo.png"
               loading="lazy"
-              alt=""
+              alt="کارآپ ۲۴"
             />
           </div>
 

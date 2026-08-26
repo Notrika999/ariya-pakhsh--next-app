@@ -177,7 +177,7 @@ export default function FilterBrand({
             ) : null}
 
             {filteredSelected.length > 0 && filteredOthers.length > 0 ? (
-              <div className="h-px bg-gray-200 dark:bg-gray-700 my-2" />
+              <div className="h-px bg-gray-200 dark:bg-gray-700 my-1" />
             ) : null}
 
             {filteredOthers.length > 0 ? (

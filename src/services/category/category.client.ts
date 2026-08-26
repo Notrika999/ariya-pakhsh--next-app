@@ -20,6 +20,8 @@ export async function getMegaMenu(): Promise<Category[]> {
       .get<MegaMenuResponse>("Categories/mega-menu")
       .then((res) => {
         const menu = res.data.data.rootCategories;
+
+
         megaMenuCache = menu;
         return menu;
       })

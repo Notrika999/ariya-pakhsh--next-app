@@ -1,5 +1,5 @@
-// src/services/checkout/checkout.client.ts
 "use client";
+// src/services/checkout/checkout.client.ts
 
 import { apiClient, ApiError } from "@/src/lib/http/api-client";
 import type {
@@ -60,6 +60,15 @@ function toOptionalString(value: unknown): string | undefined {
   return typeof value === "string" && value.trim()
     ? value.trim()
     : undefined;
+}
+
+function firstOptionalString(...values: unknown[]): string | undefined {
+  for (const value of values) {
+    const normalized = toOptionalString(value);
+    if (normalized) return normalized;
+  }
+
+  return undefined;
 }
 
 function mapApiErrors(value: unknown): CheckoutApiErrorItem[] {
@@ -239,11 +248,29 @@ function mapShippingGroupItem(value: unknown): CheckoutShippingGroupItem | null 
   const item = getRecord(value);
   const productId = String(item.productId ?? item.id ?? "").trim();
   const productName = String(item.productName ?? item.name ?? item.title ?? "");
+  const productColorName = firstOptionalString(
+    item.productColorName,
+    item.colorName,
+    item.colorTitle,
+    item.productColor,
+    item.variantColorName,
+    item.variantColor,
+    item.color,
+    item.colour,
+  );
+  const productColorHex = firstOptionalString(
+    item.productColorHex,
+    item.colorHex,
+    item.colorHexCode,
+    item.hexCode,
+  );
   if (!productId && !productName) return null;
 
   return {
     productId,
     productName,
+    productColorName,
+    productColorHex,
     quantity: Math.max(0, toNumber(item.quantity)),
   };
 }

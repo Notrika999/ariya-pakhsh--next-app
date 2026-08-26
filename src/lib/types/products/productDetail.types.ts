@@ -10,6 +10,8 @@ export interface ProductDetailCategory {
 export interface ProductDetailBrand {
   brandId: string;
   name: string;
+  nameInEnglish?: string;
+  englishName?: string;
   slug: string;
   isPrimary: boolean;
 }

@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import TicketMessage from "./TicketMessage";
 import TicketList from "./TicketList";
+import TicketCreateForm from "./TicketCreateForm";
 import {
   createTicket,
   getMyTickets,
@@ -13,6 +15,9 @@ import { notify } from "@/src/utils/toast";
 const PAGE_SIZE = 20;
 
 export default function Tickets({ initialTicketId = null }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const createFromQuery = searchParams.get("create") === "1";
   const [tickets, setTickets] = useState([]);
   const [selectedTicketId, setSelectedTicketId] = useState(initialTicketId);
   const [page, setPage] = useState(1);
@@ -60,11 +65,15 @@ export default function Tickets({ initialTicketId = null }) {
   }, []);
 
   useEffect(() => {
-    void loadTickets(1, false);
+    queueMicrotask(() => {
+      void loadTickets(1, false);
+    });
   }, [loadTickets]);
 
   useEffect(() => {
-    setSelectedTicketId(initialTicketId);
+    queueMicrotask(() => {
+      setSelectedTicketId(initialTicketId);
+    });
   }, [initialTicketId]);
 
   const handleFilterChange = (updatedFilter) => {
@@ -124,6 +133,16 @@ export default function Tickets({ initialTicketId = null }) {
           setSelectedTicketId(null);
           void loadTickets(1, false);
         }}
+      />
+    );
+  }
+
+  if (createFromQuery) {
+    return (
+      <TicketCreateForm
+        loading={creating}
+        onBack={() => router.push("/user-profile/tickets")}
+        onSubmit={handleCreateTicket}
       />
     );
   }

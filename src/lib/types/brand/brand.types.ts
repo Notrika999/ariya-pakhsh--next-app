@@ -6,7 +6,10 @@ export interface BrandImage {
 
 export interface Brand {
   id: string
+  brandId?: string
   name: string
+  nameInEnglish?: string
+  englishName?: string
   slug: string
   productCount: number
   isLeaf: boolean

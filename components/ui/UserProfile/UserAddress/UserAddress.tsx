@@ -98,10 +98,10 @@ export default function UserAddress() {
   };
 
   return (
-    <div className="lg:col-span-3 space-y-8">
+    <div className="lg:col-span-3 space-y-4">
       <UserAddressTop addressLength={addresses.length} />
 
-      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+      <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <button
           onClick={openCreateModal}
           disabled={loading}
@@ -121,11 +121,11 @@ export default function UserAddress() {
           هنوز آدرسی ثبت نشده است.
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2" id="addressesList">
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2" id="addressesList">
           {addresses.map((addr) => (
             <div
               key={addr.id}
-              className={`relative rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark ${
+              className={`relative rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark ${
                 addr.isDefault ? "border-2 border-primary" : ""
               }`}
             >

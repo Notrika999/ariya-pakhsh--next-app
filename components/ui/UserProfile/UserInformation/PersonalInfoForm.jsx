@@ -14,6 +14,10 @@ import {
 } from "@/src/services/auth/auth.client";
 import { useAuthStore } from "@/src/lib/stores/auth/auth.store";
 import { notify } from "@/src/utils/toast";
+import {
+  getNationalCodeValidation,
+  normalizeNationalCode,
+} from "@/src/utils/auth.validation";
 
 function toInitialBirthDate(value) {
   if (!value) return "";
@@ -59,10 +63,22 @@ export default function PersonalInfoForm({ user }) {
   const setUser = useAuthStore((state) => state.setUser);
 
   const [form, setForm] = useState(() => createFormState(user));
+  const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const initialNationalCode = normalizeNationalCode(user?.nationalCode ?? "");
+  const isNationalCodeLocked = Boolean(initialNationalCode);
+  const isNationalCodeChanged =
+    !isNationalCodeLocked &&
+    form.nationalCode !== initialNationalCode;
+  const nationalCodeValidation = getNationalCodeValidation(form.nationalCode);
 
+  useEffect(() => {
+    queueMicrotask(() => {
+      setIsMounted(true);
+    });
+  }, []);
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -75,6 +91,12 @@ export default function PersonalInfoForm({ user }) {
 
     if (name === "gender") {
       setForm((prev) => ({ ...prev, gender: value }));
+    } else if (id === "nationalCode") {
+      if (isNationalCodeLocked) return;
+      setForm((prev) => ({
+        ...prev,
+        nationalCode: normalizeNationalCode(value),
+      }));
     } else {
       setForm((prev) => ({ ...prev, [id]: value }));
     }
@@ -90,15 +112,22 @@ export default function PersonalInfoForm({ user }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setErrorMessage("");
     setStatusMessage("");
+
+    if (!isNationalCodeLocked && nationalCodeValidation.status === "invalid") {
+      setErrorMessage("کد ملی نامعتبر است.");
+      return;
+    }
+
+    setLoading(true);
 
     const payload = {
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
       email: form.email.trim(),
       birthDate: form.birthDate || null,
+      nationalCode: form.nationalCode.trim() || null,
     };
 
     try {
@@ -108,6 +137,7 @@ export default function PersonalInfoForm({ user }) {
         ...updatedUser,
         ...payload,
         birthDate: payload.birthDate ?? undefined,
+        nationalCode: payload.nationalCode ?? undefined,
       });
       setStatusMessage("اطلاعات پروفایل با موفقیت ذخیره شد.");
       notify.success("اطلاعات پروفایل ذخیره شد.");
@@ -187,7 +217,7 @@ export default function PersonalInfoForm({ user }) {
           />
         </div>
 
-        {/* <div>
+        <div>
           <label
             htmlFor="nationalCode"
             className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
@@ -197,11 +227,53 @@ export default function PersonalInfoForm({ user }) {
           <input
             type="text"
             id="nationalCode"
+            inputMode="numeric"
+            maxLength={10}
             value={form.nationalCode}
-            disabled
-            className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-100 text-gray-500 dark:bg-zinc-900 dark:border-gray-700 dark:text-gray-400"
+            onChange={handleChange}
+            disabled={isNationalCodeLocked}
+            aria-invalid={nationalCodeValidation.status === "invalid"}
+            aria-describedby="nationalCode-help"
+            className={`w-full px-4 py-3 border rounded-lg ${
+              isNationalCodeLocked
+                ? "border-gray-200 bg-gray-100 text-gray-500 dark:bg-zinc-900 dark:border-gray-700 dark:text-gray-400"
+                : nationalCodeValidation.status === "invalid"
+                  ? "border-red-400 focus:ring-2 focus:ring-red-400 dark:border-red-500 dark:bg-zinc-800 dark:text-white"
+                  : isNationalCodeChanged
+                    ? "border-primary bg-primary/5 ring-1 ring-primary/30 focus:ring-2 focus:ring-primary dark:border-primary dark:bg-zinc-800 dark:text-white"
+                    : nationalCodeValidation.status === "valid"
+                      ? "border-emerald-400 focus:ring-2 focus:ring-primary focus:border-transparent dark:border-emerald-500 dark:bg-zinc-800 dark:text-white"
+                      : "border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-zinc-800 dark:border-gray-600 dark:text-white"
+            }`}
+            placeholder={isNationalCodeLocked ? undefined : "اختیاری"}
           />
-        </div> */}
+          {isNationalCodeChanged && (
+            <p
+              id="nationalCode-help"
+              role="status"
+              className="mt-1 text-xs text-primary dark:text-primary"
+            >
+              پس از ذخیره، امکان ویرایش کد ملی وجود ندارد.
+            </p>
+          )}
+          {!isNationalCodeLocked && nationalCodeValidation.message && (
+            <p
+              id={isNationalCodeChanged ? "nationalCode-validation" : "nationalCode-help"}
+              role={
+                nationalCodeValidation.status === "invalid"
+                  ? "alert"
+                  : "status"
+              }
+              className={`mt-1 text-xs ${
+                nationalCodeValidation.status === "invalid"
+                  ? "text-red-600 dark:text-red-400"
+                  : "text-emerald-600 dark:text-emerald-400"
+              }`}
+            >
+              {nationalCodeValidation.message}
+            </p>
+          )}
+        </div>
 
         <div>
           <label
@@ -210,19 +282,29 @@ export default function PersonalInfoForm({ user }) {
           >
             تاریخ تولد
           </label>
-          <DatePicker
-            value={form.birthDatePicker}
-            onChange={handleBirthDateChange}
-            calendar={persian}
-            locale={persian_fa}
-            calendarPosition="bottom-right"
-            className="red"
-            containerClassName="w-full"
-            inputClass="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-zinc-800 dark:border-gray-600 dark:text-white"
-            placeholder="تاریخ تولد را انتخاب کنید"
-            format="YYYY/MM/DD"
-            editable={false}
-          />
+          {isMounted ? (
+            <DatePicker
+              value={form.birthDatePicker}
+              onChange={handleBirthDateChange}
+              calendar={persian}
+              locale={persian_fa}
+              calendarPosition="bottom-right"
+              className="red"
+              containerClassName="w-full"
+              inputClass="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-zinc-800 dark:border-gray-600 dark:text-white"
+              placeholder="تاریخ تولد را انتخاب کنید"
+              format="YYYY/MM/DD"
+              editable={false}
+            />
+          ) : (
+            <input
+              type="text"
+              value=""
+              readOnly
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-zinc-800 dark:border-gray-600 dark:text-white"
+              placeholder="تاریخ تولد را انتخاب کنید"
+            />
+          )}
         </div>
 
         {/* <div>

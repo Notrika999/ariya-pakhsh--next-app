@@ -100,7 +100,7 @@ function mapCartApiItem(value: unknown): CartApiItem | null {
     id: String(item.id ?? ""),
     variantId,
     productId: String(item.productId ?? ""),
-    productTitle: String(item.productTitle ?? item.title ?? "محصول"),
+    productTitle: String(item.productTitle ?? "محصول"),
     variantTitle: String(item.variantTitle ?? ""),
     imageUrl:
       typeof item.imageUrl === "string" && item.imageUrl.trim()
@@ -237,6 +237,7 @@ export function mapCartDtoToItems(cart: CartDto): CartItem[] {
 export async function getCart(): Promise<CartDto> {
   
   const response = await apiClient.get(BASE, cartRequestConfig());
+
 
 
   assertSuccess(response.data, "دریافت سبد خرید ناموفق بود");

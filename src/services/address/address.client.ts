@@ -18,7 +18,9 @@ function unwrapAddressList(payload: unknown): CustomerAddressDto[] {
   const record = payload as CustomerAddressApiEnvelope<CustomerAddressDto[]>;
   if (Array.isArray(record.data)) return record.data;
 
-  const nested = record.data as CustomerAddressApiEnvelope<CustomerAddressDto[]> | undefined;
+  const nested = record.data as
+    | CustomerAddressApiEnvelope<CustomerAddressDto[]>
+    | undefined;
   if (nested && Array.isArray(nested.data)) return nested.data;
 
   return [];
@@ -40,18 +42,16 @@ function unwrapAddressId(payload: unknown): string {
 }
 
 export async function getCustomerAddresses(): Promise<CustomerAddressDto[]> {
-
   const response = await apiClient.get(BASE_PATH);
-  
+
   const addresses = unwrapAddressList(response.data);
- 
+
   return addresses;
 }
 
 export async function createCustomerAddress(
   payload: CustomerAddressPayload,
 ): Promise<string> {
- 
   const response = await apiClient.post(BASE_PATH, payload);
 
   const id = unwrapAddressId(response.data);
@@ -62,30 +62,25 @@ export async function createCustomerAddress(
 export async function createCustomerAddressesBulk(
   payload: CustomerAddressBulkPayload,
 ): Promise<void> {
-
   const response = await apiClient.post(`${BASE_PATH}/bulk`, payload);
-
 }
 
 export async function updateCustomerAddress(
   addressId: string,
   payload: CustomerAddressPayload,
 ): Promise<void> {
-  
   const response = await apiClient.put(`${BASE_PATH}/${addressId}`, payload);
-
 }
 
 export async function deleteCustomerAddress(addressId: string): Promise<void> {
-  
   const response = await apiClient.delete(`${BASE_PATH}/${addressId}`);
-
 }
 
 export async function setDefaultCustomerAddress(
   addressId: string,
 ): Promise<void> {
-
-  const response = await apiClient.patch(`${BASE_PATH}/${addressId}/default`, {});
-
+  const response = await apiClient.patch(
+    `${BASE_PATH}/${addressId}/default`,
+    {},
+  );
 }

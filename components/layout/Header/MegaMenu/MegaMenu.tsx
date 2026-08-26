@@ -78,7 +78,7 @@ export default function MegaMenu() {
               </Link>
             </li>
 
-            <li className="">
+            {/* <li className="">
               <Link
                 href="/products"
                 className="flex space-x-3 hover:text-primary transition"
@@ -99,7 +99,7 @@ export default function MegaMenu() {
                 </svg>
                 <span>فروشگاه</span>
               </Link>
-            </li>
+            </li> */}
 
             <li>
               <Link

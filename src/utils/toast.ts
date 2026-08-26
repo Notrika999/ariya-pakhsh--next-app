@@ -46,7 +46,7 @@ export const notify = {
         ({ closeToast }) =>
           createElement(
             "div",
-            { className: "flex flex-col gap-3 text-sm text-gray-800" },
+            { className: "flex flex-col gap-3 text-sm text-gray-800 absolute z-9999" },
             createElement("p", { className: "font-medium leading-6" }, message),
             createElement(
               "div",

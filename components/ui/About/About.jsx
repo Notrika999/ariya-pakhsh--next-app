@@ -27,7 +27,7 @@ export default function About() {
       <OurValues />
 
       {/* <!-- Our Team --> */}
-      <OurTeam />
+      {/* <OurTeam /> */}
 
       {/* <!-- CTA Section --> */}
       <CTASection />

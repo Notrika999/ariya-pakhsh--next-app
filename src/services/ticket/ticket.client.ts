@@ -51,6 +51,12 @@ function createTicketFormData(
   return formData;
 }
 
+function normalizeTicketCategory(category: string): string {
+  const value = category?.trim() ?? "";
+  if (value === "cancel") return "cancell";
+  return value;
+}
+
 function mapTicketListItem(value: unknown): TicketListItem {
   const record = getRecord(value);
   return {
@@ -189,7 +195,7 @@ export async function createTicket(
 ): Promise<CreateTicketResponse> {
   const payload: Record<string, string> = {
     subject: request.subject?.trim() ?? "",
-    category: request.category,
+    category: normalizeTicketCategory(request.category),
     body: request.body?.trim() ?? "",
     priority: request.priority,
     orderId: request.orderId?.trim() ?? "",

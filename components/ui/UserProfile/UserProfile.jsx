@@ -7,6 +7,7 @@ import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
 import RecentOrders from "./Dashboard/RecentOrders";
 import RecentActivities from "./Dashboard/RecentActivities";
 import SpecialOffers from "./Dashboard/SpecialOffers";
+import SidebarResponsive from "./SidebarResponsive";
 import {
   createEmptyDashboard,
   getDashboardErrorMessage,
@@ -37,23 +38,25 @@ export default async function UserProfile() {
   const { dashboard, error } = await loadDashboard();
 
   return (
-    <div className="lg:col-span-3 space-y-8">
+    <div className="lg:col-span-3 space-y-4">
       <DashboardHeader
         displayName={dashboard.displayName}
         wallet={dashboard.wallet}
         loading={false}
       />
 
-      {error ? (
+      {/* {error ? (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
           {error}
         </div>
-      ) : null}
+      ) : null} */}
 
       <StatisticsAndFigures dashboard={dashboard} loading={false} />
 
-      <div className="bg-white rounded-3xl shadow-xl p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
-        <div className="flex items-center justify-between mb-6">
+      <SidebarResponsive />
+
+      <div className="bg-white rounded-3xl shadow-xl px-3 py-2 dark:bg-custom-dark dark:border dark:border-gray-700">
+        <div className="flex items-center justify-between mb-2">
           <TitleAfter title="سفارشات اخیر" />
           <Link
             href="/user-profile/orders"

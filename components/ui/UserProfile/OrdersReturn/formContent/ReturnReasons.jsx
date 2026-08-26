@@ -1,4 +1,5 @@
-const RETURN_REASONS = [
+// components/ui/UserProfile/OrdersReturn/formContent/ReturnReasons.jsx
+export const RETURN_REASONS = [
   {
     value: "defective",
     title: "کالای معیوب یا ناقص",

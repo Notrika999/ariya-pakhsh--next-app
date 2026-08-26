@@ -36,19 +36,19 @@ export default function PointsTab({
   const numericRedeemPoints = Number(redeemPoints);
 
   return (
-    <div className="tab-content space-y-6">
+    <div className="tab-content space-y-2">
       {error ? (
         <div className="rounded-2xl bg-white p-6 text-sm text-red-500 drop-shadow-lg dark:bg-custom-dark dark:border dark:border-gray-700">
           {error}
         </div>
       ) : null}
 
-      <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
+      <div className="bg-white rounded-2xl drop-shadow-lg px-3 py-2 dark:bg-custom-dark dark:border dark:border-gray-700">
         <TitleAfter title={"خلاصه امتیازات"} tag={false} />
         <PointsSummary summary={summary} />
       </div>
 
-      <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
+      <div className="bg-white rounded-2xl drop-shadow-lg px-3 py-2 dark:bg-custom-dark dark:border dark:border-gray-700">
         <TitleAfter title={"تبدیل امتیاز"} tag={false} />
         <form
           className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end"
@@ -88,7 +88,7 @@ export default function PointsTab({
         </form>
       </div>
 
-      <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
+      <div className="bg-white rounded-2xl drop-shadow-lg px-3 py-2 dark:bg-custom-dark dark:border dark:border-gray-700">
         <TitleAfter title={"تاریخچه امتیازات"} tag={false} />
 
         <PointsHistory

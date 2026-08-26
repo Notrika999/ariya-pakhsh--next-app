@@ -1,15 +1,15 @@
 "use client";
 // components/modules/auth/StepMobile.tsx
-import React, { useRef, useState } from "react";
-import Captcha from "../Captcha";
-import type { CaptchaHandle } from "../Captcha";
+import React, { useState } from "react";
 import { validateMobile } from "@/src/utils/auth.validation";
 import {
   getAuthErrorMessage,
   startPhoneAuth,
 } from "@/src/services/auth/auth.client";
 import { getBrowserFingerprint } from "@/src/lib/helper/fingerprint";
+import { ApiError } from "@/src/lib/http/api-client";
 import { useAuthStore } from "@/src/lib/stores/auth/auth.store";
+import { notify } from "@/src/utils/toast";
 
 interface StepMobileProps {
   mobile: string;
@@ -17,24 +17,56 @@ interface StepMobileProps {
   onNext: () => void;
 }
 
+type CachedPhoneAuthFlow = {
+  flowToken: string;
+  phone: string;
+  maskedPhone: string;
+  deviceFingerPrint: string;
+  resendCooldownSeconds: number;
+};
+
+const PHONE_AUTH_FLOW_CACHE_KEY = "phone_auth_flow";
+
+function readCachedPhoneAuthFlow(): CachedPhoneAuthFlow | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const raw = window.sessionStorage.getItem(PHONE_AUTH_FLOW_CACHE_KEY);
+    if (!raw) return null;
+    const cached = JSON.parse(raw) as Partial<CachedPhoneAuthFlow>;
+
+    if (!cached.flowToken || !cached.phone) return null;
+
+    return {
+      flowToken: cached.flowToken,
+      phone: cached.phone,
+      maskedPhone: cached.maskedPhone ?? cached.phone,
+      deviceFingerPrint: cached.deviceFingerPrint ?? "device-id",
+      resendCooldownSeconds: cached.resendCooldownSeconds ?? 120,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedPhoneAuthFlow(flow: CachedPhoneAuthFlow): void {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.setItem(PHONE_AUTH_FLOW_CACHE_KEY, JSON.stringify(flow));
+}
+
 export default function StepMobile({ mobile, setMobile, onNext }: StepMobileProps) {
-  const captchaRef = useRef<CaptchaHandle | null>(null);
-  const [captchaValid, setCaptchaValid] = useState(false);
-  const [captchaInput, setCaptchaInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { setAuthFlow } = useAuthStore();
+  const {
+    flowToken: storedFlowToken,
+    maskedPhone: storedMaskedPhone,
+    deviceFingerPrint: storedDeviceFingerPrint,
+    resendCooldownSeconds: storedResendCooldownSeconds,
+    setAuthFlow,
+  } = useAuthStore();
 
   const handleNext = async () => {
-    if (!captchaRef.current) return;
-
-    const isValid = captchaRef.current.validate(captchaInput);
-    if (!isValid) {
-      setError("کد امنیتی صحیح نیست");
-      return;
-    }
-
     if (!validateMobile(mobile)) {
       setError("شماره موبایل معتبر نیست");
       return;
@@ -43,9 +75,11 @@ export default function StepMobile({ mobile, setMobile, onNext }: StepMobileProp
     setLoading(true);
     setError(null);
 
+    let deviceFingerPrint = storedDeviceFingerPrint ?? "device-id";
+
     try {
       const fingerprint = await getBrowserFingerprint();
-      const deviceFingerPrint = fingerprint?.visitorId ?? "device-id";
+      deviceFingerPrint = fingerprint?.visitorId ?? deviceFingerPrint;
 
 
 
@@ -76,39 +110,70 @@ export default function StepMobile({ mobile, setMobile, onNext }: StepMobileProp
         deviceFingerPrint,
         response.resendCooldownSeconds,
       );
+      writeCachedPhoneAuthFlow({
+        flowToken,
+        phone: mobile,
+        maskedPhone: response.maskedPhone,
+        deviceFingerPrint,
+        resendCooldownSeconds: response.resendCooldownSeconds,
+      });
       onNext();
     } catch (err) {
       console.error("[StepMobile] start failed =>", err);
-      setError(getAuthErrorMessage(err));
+      const message = getAuthErrorMessage(err);
+
+      if (err instanceof ApiError && err.status === 429) {
+        notify.warning(message);
+
+        const authState = useAuthStore.getState();
+        const cachedFlow = readCachedPhoneAuthFlow();
+        const activeFlowToken =
+          authState.flowToken ??
+          storedFlowToken ??
+          (cachedFlow?.phone === mobile ? cachedFlow.flowToken : null);
+
+        if (activeFlowToken) {
+          setAuthFlow(
+            activeFlowToken,
+            mobile,
+            authState.maskedPhone ??
+              storedMaskedPhone ??
+              cachedFlow?.maskedPhone ??
+              mobile,
+            authState.deviceFingerPrint ??
+              cachedFlow?.deviceFingerPrint ??
+              deviceFingerPrint,
+            authState.resendCooldownSeconds ??
+              storedResendCooldownSeconds ??
+              cachedFlow?.resendCooldownSeconds ??
+              120,
+          );
+          onNext();
+        }
+
+        return;
+      }
+
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
 
-  const isReady = captchaValid && validateMobile(mobile);
+  const isReady = validateMobile(mobile);
 
   return (
     <>
       <input
         type="tel"
         value={mobile}
-        onChange={(e) => setMobile(e.target.value)}
-        placeholder="09xxxxxxxxx"
-        className="w-full border rounded-xl p-3 mb-4"
-        dir="ltr"
-      />
-      <Captcha
-        ref={captchaRef}
-        length={6}
-        width={220}
-        height={45}
-        caseSensitive={false}
-        charset={{ uppercase: true, lowercase: false, numbers: true }}
-        controlledValidation={false}
-        onValidate={(isValid, value) => {
-          setCaptchaValid(isValid);
-          setCaptchaInput(value);
+        onChange={(e) => {
+          setMobile(e.target.value);
+          setError(null);
         }}
+        placeholder="09xxxxxxxxx"
+        className="w-full border rounded-xl p-3"
+        dir="ltr"
       />
       {error && (
         <p className="text-red-500 text-sm mt-2 text-right">{error}</p>

@@ -10,7 +10,7 @@ import {
   ProxyError,
   proxyToBackend,
 } from "@/src/lib/http/server-http";
-import { AUTH_COOKIE_NAMES } from "./constants";
+import { AUTH_COOKIE_NAME_ALIASES, AUTH_COOKIE_NAMES } from "./constants";
 import {
   clearAllAuthCookies,
   extractExpiresIn,
@@ -20,9 +20,27 @@ import {
   setDeviceIdFromBody,
 } from "./cookie-utils";
 
+type CookieReader = {
+  get(name: string): { value: string } | undefined;
+};
+
+function getFirstCookieValue(
+  cookieStore: CookieReader,
+  names: readonly string[],
+): string | undefined {
+  for (const name of names) {
+    const value = cookieStore.get(name)?.value;
+    if (value) return value;
+  }
+  return undefined;
+}
+
 async function buildDeviceCookieHeader(): Promise<Record<string, string>> {
   const cookieStore = await cookies();
-  const deviceId = cookieStore.get(AUTH_COOKIE_NAMES.DEVICE_ID)?.value;
+  const deviceId = getFirstCookieValue(
+    cookieStore,
+    AUTH_COOKIE_NAME_ALIASES.DEVICE_ID,
+  );
   if (!deviceId) return {};
   return {
     Cookie: `${AUTH_COOKIE_NAMES.DEVICE_ID}=${deviceId}`,
@@ -63,8 +81,8 @@ export async function handleCustomerAuthPost(
     rehostBackendCookies(nextResponse, extractSetCookieHeaders(response.headers));
 
     // 2) بکندهای Bearer-based: توکن‌ها را از body بخوان و کوکی کن
-    const tokensSet = setAuthCookiesFromBody(nextResponse, response.data);
-    const deviceSet = setDeviceIdFromBody(nextResponse, response.data);
+    setAuthCookiesFromBody(nextResponse, response.data);
+    setDeviceIdFromBody(nextResponse, response.data);
 
     if (options?.setAuthIndicator) {
       const expiresIn = extractExpiresIn(response.data);
@@ -123,7 +141,10 @@ export async function handleCustomerAuthLogout(
 ): Promise<NextResponse> {
   try {
     const cookieStore = await cookies();
-    const refreshToken = cookieStore.get(AUTH_COOKIE_NAMES.REFRESH_TOKEN)?.value;
+    const refreshToken = getFirstCookieValue(
+      cookieStore,
+      AUTH_COOKIE_NAME_ALIASES.REFRESH_TOKEN,
+    );
     const extraHeaders: Record<string, string> = {};
 
     if (refreshToken) {
@@ -156,9 +177,18 @@ export async function handleCustomerAuthRefresh(
 ): Promise<NextResponse> {
   try {
     const cookieStore = await cookies();
-    const accessToken = cookieStore.get(AUTH_COOKIE_NAMES.ACCESS_TOKEN)?.value;
-    const refreshToken = cookieStore.get(AUTH_COOKIE_NAMES.REFRESH_TOKEN)?.value;
-    const deviceId = cookieStore.get(AUTH_COOKIE_NAMES.DEVICE_ID)?.value;
+    const accessToken = getFirstCookieValue(
+      cookieStore,
+      AUTH_COOKIE_NAME_ALIASES.ACCESS_TOKEN,
+    );
+    const refreshToken = getFirstCookieValue(
+      cookieStore,
+      AUTH_COOKIE_NAME_ALIASES.REFRESH_TOKEN,
+    );
+    const deviceId = getFirstCookieValue(
+      cookieStore,
+      AUTH_COOKIE_NAME_ALIASES.DEVICE_ID,
+    );
 
     if (!refreshToken) {
       const res = NextResponse.json(

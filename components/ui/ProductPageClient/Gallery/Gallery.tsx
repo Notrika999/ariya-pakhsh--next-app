@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 // swiper
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Thumbs, Zoom } from "swiper/modules";
+import { Navigation, Thumbs, Zoom } from "swiper/modules";
 import type { Swiper as SwiperInstance } from "swiper";
 
 import "swiper/css";
@@ -17,7 +17,6 @@ import ShareModal from "./ShareModal";
 import ChartModal from "./ChartModal";
 import GalleryLightbox from "./GalleryLightbox";
 import DiscountCountdown from "./DiscountCountdown";
-import Link from "next/link";
 import {
   useIsAuthenticated,
   useIsAuthBootstrapping,
@@ -45,6 +44,7 @@ interface GalleryProps {
   images: GalleryImage[];
   isOutOfStock: boolean;
   productName: string;
+  productPriceText?: string | null;
   productId: string;
   variants?: ProductDetailVariant[];
   selectedVariantId?: string;
@@ -60,8 +60,8 @@ interface GalleryProps {
 
 export default function Gallery({
   images,
-  isOutOfStock,
   productName,
+  productPriceText,
   productId,
   variants: productVariants = [],
   selectedVariantId,
@@ -211,7 +211,7 @@ export default function Gallery({
   }, [selectedVariantImageIndex, thumbsSwiper]);
 
   return (
-    <section className="xl:col-span-4 mt-7 col-span-12 pb-10 w-full">
+    <section className="xl:col-span-4 mt-7 col-span-12 md:pb-10 w-full">
       {isAmazingOffer && (
         <div className="bg-secondary-200 dark:bg-custom-dark dark:text-gray-200 shadow-sm border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-2xl flex items-center justify-between mb-4 transition-all duration-200">
           <h3 className="font-black text-gray-800 dark:text-gray-100">
@@ -222,12 +222,12 @@ export default function Gallery({
       )}
 
       {/* <!-- Out of Stock Badge --> */}
-      {isOutOfStock && (
+      {/* {isOutOfStock && (
         <div className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 shadow-sm border border-red-200 dark:border-red-800 px-3 py-2 rounded-2xl flex items-center justify-between mb-4 transition-all duration-200">
           <h3 className="font-black">اتمام موجودی</h3>
           <i className="far fa-exclamation-triangle"></i>
         </div>
-      )}
+      )} */}
 
       {/* <!-- Large gallery --> */}
       <div className="bg-primary relative mb-12 aspect-square w-full rounded-[15px] p-3 dark:bg-custom-dark dark:border dark:border-gray-700">
@@ -242,12 +242,12 @@ export default function Gallery({
           </button>
 
           {/* Compare */}
-          <Link
+          {/* <Link
             href={"/compare"}
             className="flex z-10 group relative items-center justify-center w-full p-2 transition dark:border-gray-700 drop-shadow rounded"
           >
             <i className="fas fa-code-compare"></i>
-          </Link>
+          </Link> */}
 
           {/* Favorite */}
           <button
@@ -282,6 +282,12 @@ export default function Gallery({
           open={shareOpen}
           onClose={() => setShareOpen(false)}
           title={productName}
+          priceText={productPriceText}
+          imageUrl={
+            images[selectedVariantImageIndex]?.imgSrc ??
+            images[0]?.imgSrc ??
+            "/images/default.png"
+          }
         />
 
         {chartOpen && (
@@ -301,9 +307,9 @@ export default function Gallery({
             swiper.slideTo(selectedVariantImageIndex);
           }}
           onSlideChange={(swiper) => setLightboxIndex(swiper.activeIndex)}
-          modules={[Navigation, Pagination, Thumbs, Zoom]}
+          modules={[Navigation, Thumbs, Zoom]}
           navigation
-          pagination={{ clickable: true }}
+    
           zoom
           spaceBetween={10}
           thumbs={{

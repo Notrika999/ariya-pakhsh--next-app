@@ -1,19 +1,18 @@
 "use client";
 // components/modules/AddressFormModal/AddressFormModal.tsx
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
-import LocationAutocomplete from "@/components/ui/UserProfile/UserAddress/LocationAutocomplete";
+import LocationAutocomplete, {
+  type LocationAutocompleteOption,
+} from "@/components/ui/UserProfile/UserAddress/LocationAutocomplete";
 import {
   createCustomerAddress,
   updateCustomerAddress,
 } from "@/src/services/address/address.client";
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
+import { apiClient } from "@/src/lib/http/api-client";
 import { CustomerAddressPayload } from "@/src/lib/types/address/address.type";
-import {
-  getCityOptionsByProvince,
-  getIranProvinceOptions,
-} from "@/src/lib/data/iran-locations";
 import {
   buildAddressPayload,
   EMPTY_ADDRESS_FORM,
@@ -23,17 +22,87 @@ import {
 import { FieldError, fieldClass } from "@/src/utils/form.validation";
 import { notify } from "@/src/utils/toast";
 
-const AddressLocationMap = dynamic(
-  () => import("./AddressLocationMap"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex h-64 items-center justify-center rounded-lg border border-gray-300 bg-gray-50 text-sm text-gray-500 dark:border-gray-600 dark:bg-zinc-800 dark:text-gray-400">
-        در حال بارگذاری نقشه...
-      </div>
-    ),
-  },
-);
+const PROVINCES_PATH = "/locations/provinces";
+
+function getRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object"
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+function unwrapLocationItems(payload: unknown): unknown[] {
+  if (Array.isArray(payload)) return payload;
+
+  const root = getRecord(payload);
+  if (Array.isArray(root.data)) return root.data;
+
+  const data = getRecord(root.data);
+  if (Array.isArray(data.items)) return data.items;
+  if (Array.isArray(data.provinces)) return data.provinces;
+  if (Array.isArray(data.cities)) return data.cities;
+
+  return [];
+}
+
+function mapLocationOption(
+  value: unknown,
+  parentId?: string,
+): LocationAutocompleteOption | null {
+  const record = getRecord(value);
+  const id = String(
+    record.id ?? record.provinceId ?? record.cityId ?? "",
+  ).trim();
+  const name = String(record.name ?? record.title ?? "").trim();
+  if (!id || !name) return null;
+
+  const resolvedParentId = String(
+    record.parentId ?? record.provinceId ?? parentId ?? "",
+  ).trim();
+
+  return resolvedParentId
+    ? { id, name, parentId: resolvedParentId }
+    : { id, name };
+}
+
+function findProvinceOption(
+  options: LocationAutocompleteOption[],
+  province: string,
+): LocationAutocompleteOption | undefined {
+  const normalized = province.trim();
+  if (!normalized) return undefined;
+
+  return (
+    options.find((option) => option.name === normalized) ??
+    options.find((option) => option.id === normalized)
+  );
+}
+
+async function fetchProvinces(): Promise<LocationAutocompleteOption[]> {
+  const response = await apiClient.get(PROVINCES_PATH);
+  return unwrapLocationItems(response.data)
+    .map((item) => mapLocationOption(item))
+    .filter((item): item is LocationAutocompleteOption => Boolean(item));
+}
+
+async function fetchCitiesByProvinceId(
+  provinceId: string,
+): Promise<LocationAutocompleteOption[]> {
+  const response = await apiClient.get(
+    `${PROVINCES_PATH}/${encodeURIComponent(provinceId)}/cities`,
+  );
+  return unwrapLocationItems(response.data)
+    .map((item) => mapLocationOption(item, provinceId))
+    .filter((item): item is LocationAutocompleteOption => Boolean(item));
+}
+
+const AddressLocationMap = dynamic(() => import("./AddressLocationMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-64 items-center justify-center rounded-lg border border-gray-300 bg-gray-50 text-sm text-gray-500 dark:border-gray-600 dark:bg-zinc-800 dark:text-gray-400">
+      در حال بارگذاری نقشه...
+    </div>
+  ),
+});
 
 const INPUT_CLASS =
   "appearance-none rounded-lg px-4 pe-10 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary";
@@ -59,12 +128,69 @@ function AddressFormModalContent({
   );
   const [fieldErrors, setFieldErrors] = useState<AddressFieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
-
-  const provinceOptions = useMemo(() => getIranProvinceOptions(), []);
-  const cityOptions = useMemo(
-    () => getCityOptionsByProvince(formData.province),
-    [formData.province],
+  const [provinceOptions, setProvinceOptions] = useState<
+    LocationAutocompleteOption[]
+  >([]);
+  const [loadingProvinces, setLoadingProvinces] = useState(true);
+  const [citiesByProvinceId, setCitiesByProvinceId] = useState<
+    Record<string, LocationAutocompleteOption[]>
+  >({});
+  const selectedProvince = findProvinceOption(
+    provinceOptions,
+    formData.province,
   );
+  const cityOptions = selectedProvince
+    ? (citiesByProvinceId[selectedProvince.id] ?? [])
+    : [];
+  const loadingCities = Boolean(
+    selectedProvince && !(selectedProvince.id in citiesByProvinceId),
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadProvinces() {
+      try {
+        const provinces = await fetchProvinces();
+        if (!cancelled) setProvinceOptions(provinces);
+      } catch (error) {
+        console.error("[AddressFormModal] provinces failed =>", error);
+        if (!cancelled) setProvinceOptions([]);
+      } finally {
+        if (!cancelled) setLoadingProvinces(false);
+      }
+    }
+
+    void loadProvinces();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!selectedProvince || selectedProvince.id in citiesByProvinceId) {
+      return;
+    }
+
+    const provinceId = selectedProvince.id;
+    let cancelled = false;
+
+    void fetchCitiesByProvinceId(provinceId)
+      .then((cities) => {
+        if (cancelled) return;
+        setCitiesByProvinceId((prev) => ({ ...prev, [provinceId]: cities }));
+      })
+      .catch((error) => {
+        console.error("[AddressFormModal] cities failed =>", error);
+        if (cancelled) return;
+        setCitiesByProvinceId((prev) => ({ ...prev, [provinceId]: [] }));
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedProvince, citiesByProvinceId]);
 
   const clearFieldError = (field: keyof AddressFieldErrors) => {
     setFieldErrors((prev) => {
@@ -96,6 +222,28 @@ function AddressFormModalContent({
     e.preventDefault();
 
     const nextErrors = validateAddressForm(formData);
+    const selectedProvince = findProvinceOption(
+      provinceOptions,
+      formData.province,
+    );
+    const cityName = formData.city.trim();
+
+    if (!formData.province.trim()) {
+      nextErrors.province = "استان الزامی است";
+    } else if (!selectedProvince) {
+      nextErrors.province = "لطفاً استان را از لیست انتخاب کنید";
+    } else {
+      delete nextErrors.province;
+    }
+
+    if (!cityName) {
+      nextErrors.city = "شهر الزامی است";
+    } else if (!cityOptions.some((option) => option.name === cityName)) {
+      nextErrors.city = "لطفاً شهر را از لیست انتخاب کنید";
+    } else {
+      delete nextErrors.city;
+    }
+
     if (Object.keys(nextErrors).length > 0) {
       setFieldErrors(nextErrors);
       return;
@@ -156,9 +304,10 @@ function AddressFormModalContent({
                 }}
                 type="text"
                 disabled={submitting}
-                className={[fieldClass(Boolean(fieldErrors.title)), INPUT_CLASS].join(
-                  " ",
-                )}
+                className={[
+                  fieldClass(Boolean(fieldErrors.title)),
+                  INPUT_CLASS,
+                ].join(" ")}
                 placeholder="مثال: منزل، محل کار"
               />
               <FieldError message={fieldErrors.title} />
@@ -222,7 +371,9 @@ function AddressFormModalContent({
                 onChange={(e) => {
                   setFormData({
                     ...formData,
-                    receiverMobile: e.target.value.replace(/\D/g, "").slice(0, 11),
+                    receiverMobile: e.target.value
+                      .replace(/\D/g, "")
+                      .slice(0, 11),
                   });
                   clearFieldError("receiverMobile");
                 }}
@@ -244,9 +395,13 @@ function AddressFormModalContent({
               value={formData.province}
               options={provinceOptions}
               onChange={handleProvinceChange}
-              placeholder="جستجو یا انتخاب استان"
+              placeholder={
+                loadingProvinces
+                  ? "در حال بارگذاری استان‌ها..."
+                  : "جستجو یا انتخاب استان"
+              }
               required
-              disabled={submitting}
+              disabled={submitting || loadingProvinces}
               error={fieldErrors.province}
               onClearError={() => clearFieldError("province")}
             />
@@ -260,12 +415,16 @@ function AddressFormModalContent({
                 clearFieldError("city");
               }}
               placeholder={
-                formData.province
-                  ? "جستجو یا انتخاب شهر"
-                  : "ابتدا استان را انتخاب کنید"
+                !formData.province.trim()
+                  ? "ابتدا استان را انتخاب کنید"
+                  : loadingCities
+                    ? "در حال بارگذاری شهرها..."
+                    : "جستجو یا انتخاب شهر"
               }
               required
-              disabled={!formData.province.trim() || submitting}
+              disabled={
+                !formData.province.trim() || submitting || loadingCities
+              }
               error={fieldErrors.city}
               onClearError={() => clearFieldError("city")}
             />

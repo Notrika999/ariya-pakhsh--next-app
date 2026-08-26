@@ -94,7 +94,7 @@ export default function SliderProduct({
                 aria-label="محصول قبلی"
                 onClick={handleSlidePrev}
                 disabled={!isLoopEnabled && sliderState.isBeginning}
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-300 dark:text-gray-200 dark:hover:bg-gray-800 dark:disabled:text-gray-600"
+                className="flex md:h-9 md:w-9 h-5 w-6 cursor-pointer items-center justify-center rounded-lg text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-300 dark:text-gray-200 dark:hover:bg-gray-800 dark:disabled:text-gray-600"
               >
                 <ChevronRight size={20} strokeWidth={2.4} aria-hidden="true" />
               </button>
@@ -103,7 +103,7 @@ export default function SliderProduct({
                 aria-label="محصول بعدی"
                 onClick={handleSlideNext}
                 disabled={!isLoopEnabled && sliderState.isEnd}
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg bg-primary text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-300 disabled:shadow-none dark:disabled:bg-gray-800 dark:disabled:text-gray-600"
+                className="flex md:h-9 md:w-9 h-5 w-6 cursor-pointer items-center justify-center rounded-lg bg-primary text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-300 disabled:shadow-none dark:disabled:bg-gray-800 dark:disabled:text-gray-600"
               >
                 <ChevronLeft size={20} strokeWidth={2.4} aria-hidden="true" />
               </button>
@@ -139,7 +139,7 @@ export default function SliderProduct({
                   : false
               }
               spaceBetween={2}
-              slidesPerView={1}
+              slidesPerView={2}
               watchOverflow
               onSwiper={(instance) => {
                 setSwiper(instance);

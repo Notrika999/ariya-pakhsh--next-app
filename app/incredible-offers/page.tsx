@@ -2,7 +2,6 @@
 
 import DealsClient from "@/components/ui/IncredibleOffers/DealsClient/DealsClient";
 import {
-  AmazingFilterParams,
   getAmazingFilteredProducts,
   getSpecialPromotionProducts,
 } from "@/src/services/promotion/promotion.server";
@@ -12,7 +11,12 @@ import {
   colorPaletteParams,
   getColorOptionLabel,
   listSearchParamValues,
+  normalizeProductSearchParams,
 } from "@/src/lib/helper/productListHelpers";
+import {
+  AmazingPageSearchParams,
+  toAmazingFilterParams,
+} from "@/src/lib/helper/amazingProductListHelpers";
 
 // تعریف متادیتای سئو
 export const metadata: Metadata = {
@@ -38,119 +42,10 @@ export const metadata: Metadata = {
   },
 };
 
-type PageSearchParams = Record<string, string | string[] | undefined>;
-
-function firstParam(
-  searchParams: PageSearchParams,
-  key: string,
-): string | undefined {
-  const value = searchParams[key];
-  return Array.isArray(value) ? value[0] : value;
-}
-
-function listParam(searchParams: PageSearchParams, key: string): string[] {
-  const value = searchParams[key];
-  if (!value) return [];
-  if (Array.isArray(value)) return value;
-  return value
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
-}
-
-function numberParam(
-  searchParams: PageSearchParams,
-  key: string,
-): number | undefined {
-  const value = firstParam(searchParams, key);
-  if (!value) return undefined;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : undefined;
-}
-
-function booleanParam(
-  searchParams: PageSearchParams,
-  key: string,
-): boolean | undefined {
-  const value = firstParam(searchParams, key);
-  if (value === undefined) return undefined;
-  return value === "true";
-}
-
-function sortByParam(value?: string): AmazingFilterParams["SortBy"] {
-  switch (value) {
-    case "bestDiscount":
-    case "priceAsc":
-    case "priceDesc":
-    case "newest":
-    case "bestSelling":
-      return value;
-    case "discountDesc":
-    case "default":
-    case "Default":
-      return "bestDiscount";
-    default:
-      return "bestDiscount";
-  }
-}
-
-function defaultVariantByParam(
-  value?: string,
-): AmazingFilterParams["DefaultVariantBy"] {
-  return value === "basePrice" ? "basePrice" : "finalPrice";
-}
-
-function toAmazingFilterParams(
-  searchParams: PageSearchParams,
-  options?: {
-    colorOptionIds?: string[];
-    brandIds?: string[];
-  },
-): AmazingFilterParams {
-  const sortBy =
-    firstParam(searchParams, "SortBy") ?? firstParam(searchParams, "sort");
-  const defaultVariantBy = firstParam(searchParams, "DefaultVariantBy");
-  const resolvedColorOptionIds = [
-    ...(options?.colorOptionIds ?? []),
-    ...listParam(searchParams, "ColorOptionIds"),
-    ...listParam(searchParams, "attr_color"),
-  ];
-  const resolvedBrandIds = [
-    ...(options?.brandIds ?? []),
-    ...listParam(searchParams, "BrandIds"),
-    ...listParam(searchParams, "brandId"),
-  ];
-
-  return {
-    Page:
-      numberParam(searchParams, "Page") ??
-      numberParam(searchParams, "page") ??
-      1,
-    PageSize:
-      numberParam(searchParams, "PageSize") ??
-      numberParam(searchParams, "pageSize") ??
-      24,
-    BrandIds: [...new Set(resolvedBrandIds)],
-    ColorOptionIds: [...new Set(resolvedColorOptionIds)],
-    CategoryId: firstParam(searchParams, "CategoryId"),
-    InStockOnly:
-      booleanParam(searchParams, "InStockOnly") ??
-      booleanParam(searchParams, "inStock"),
-    MinPrice:
-      numberParam(searchParams, "MinPrice") ??
-      numberParam(searchParams, "minPrice"),
-    MaxPrice:
-      numberParam(searchParams, "MaxPrice") ??
-      numberParam(searchParams, "maxPrice"),
-    SortBy: sortByParam(sortBy),
-    DefaultVariantBy: defaultVariantByParam(defaultVariantBy),
-  };
-}
-
 async function IncredibleOffersPage({
   searchParams,
 }: {
-  searchParams?: Promise<PageSearchParams>;
+  searchParams?: Promise<AmazingPageSearchParams>;
 }) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const paletteLabels = colorPaletteParams(resolvedSearchParams);
@@ -217,7 +112,7 @@ async function IncredibleOffersPage({
   };
 
   return (
-    <main className="space-y-12 py-8 my-8">
+    <main className="space-y-12 pb-8 mb-8">
       <DealsClient
         products={amazingResult.products}
         specialProducts={specialProducts}
@@ -229,6 +124,7 @@ async function IncredibleOffersPage({
         filterOptions={filterOptions}
         minLimit={minLimit}
         maxLimit={maxLimit}
+        serverSearchKey={normalizeProductSearchParams(resolvedSearchParams)}
       />
     </main>
   );

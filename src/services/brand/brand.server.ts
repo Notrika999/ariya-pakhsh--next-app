@@ -2,7 +2,11 @@
 import "server-only";
 
 import { proxyToBackend } from "@/src/lib/http/server-http";
-import { Brand, GetBrandsParams, PaginatedResponse } from "@/src/lib/types/brand/brand.types";
+import {
+  Brand,
+  GetBrandsParams,
+  PaginatedResponse,
+} from "@/src/lib/types/brand/brand.types";
 import { ApiResponse } from "@/src/lib/types/common/api-response.types";
 
 export type { GetBrandsParams };

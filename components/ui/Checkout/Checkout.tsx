@@ -147,6 +147,48 @@ function findCartItemForShippingItem(
   });
 }
 
+function normalizeTitleTokens(value: string): string[] {
+  return value
+    .replace(/[ـ‌\u200c]/g, " ")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+function isRepeatedTitlePart(base: string, candidate: string): boolean {
+  const baseTokens = new Set(normalizeTitleTokens(base));
+  const candidateTokens = normalizeTitleTokens(candidate);
+
+  return (
+    candidateTokens.length > 0 &&
+    candidateTokens.every((token) => baseTokens.has(token))
+  );
+}
+
+function formatCheckoutItemTitle(title: string): string {
+  const parts = title
+    .split(/\s*[—–-]\s*/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length < 2) return title;
+
+  const longestPart = parts.reduce((longest, part) =>
+    part.length > longest.length ? part : longest,
+  );
+  const hasRepeatedPart = parts.some(
+    (part) => part !== longestPart && isRepeatedTitlePart(longestPart, part),
+  );
+
+  return hasRepeatedPart ? longestPart : title;
+}
+
+function getCheckoutItemColorLabel(item: CheckoutShippingGroupItem): string {
+  return item.productColorName?.trim() || item.productColorHex?.trim() || "";
+}
+
 function isBankGatewayPaymentMethod(method: CheckoutPaymentMethod): boolean {
   if (isGiftCardPaymentMethod(method)) return false;
 
@@ -630,7 +672,19 @@ export default function Checkout() {
     if (!pendingGatewayPayment || gatewayStarting) return;
 
     if (pendingGatewayPayment.isGiftCardPayment) {
-      router.replace("/user-profile/orders");
+      const params = new URLSearchParams({
+        status: "success",
+        message: "سفارش با موفقیت ثبت و پرداخت شد.",
+      });
+
+      if (pendingGatewayPayment.orderId) {
+        params.set("orderId", pendingGatewayPayment.orderId);
+      }
+      if (pendingGatewayPayment.orderNumber) {
+        params.set("orderNumber", pendingGatewayPayment.orderNumber);
+      }
+
+      router.replace(`/checkout/payment-result?${params.toString()}`);
       return;
     }
 
@@ -943,6 +997,10 @@ export default function Checkout() {
                       <div className="space-y-3">
                         {group.items.map((shippingItem) => {
                           const cartItem = findCartItemForShippingItem(shippingItem, items);
+                          const productTitle = formatCheckoutItemTitle(
+                            shippingItem.productName || cartItem?.title || "محصول",
+                          );
+                          const productColorLabel = getCheckoutItemColorLabel(shippingItem);
                           const quantity = shippingItem.quantity || cartItem?.quantity || 0;
                           const unitPrice = cartItem ? getCartItemUnitPrice(cartItem) : 0;
                           const lineTotal = unitPrice * quantity;
@@ -958,14 +1016,28 @@ export default function Checkout() {
                                     width={56}
                                     height={56}
                                     src={cartItem?.image || "/images/default.png"}
-                                    alt={cartItem?.title || shippingItem.productName}
+                                    alt={productTitle}
                                     className="h-14 w-14 object-contain"
                                   />
                                 </div>
                                 <div className="min-w-0">
-                                  <h4 className="truncate font-medium text-gray-800 dark:text-white">
-                                    {cartItem?.title || shippingItem.productName}
-                                  </h4>
+                                  <div className="flex min-w-0 items-center gap-2">
+                                    <h4 className="truncate font-medium text-gray-800 dark:text-white">
+                                      {productTitle}
+                                    </h4>
+                                    {productColorLabel ? (
+                                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-zinc-800 dark:text-gray-300">
+                                        رنگ:
+                                        {shippingItem.productColorHex ? (
+                                          <span
+                                            className="inline-block h-3 w-3 rounded-full border border-gray-300 dark:border-gray-600"
+                                            style={{ backgroundColor: shippingItem.productColorHex }}
+                                          />
+                                        ) : null}
+                                        <span>{productColorLabel}</span>
+                                      </span>
+                                    ) : null}
+                                  </div>
                                   <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                     تعداد: {new Intl.NumberFormat("fa-IR").format(quantity)}
                                   </p>

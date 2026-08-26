@@ -28,9 +28,12 @@ export interface BrandFilterOption {
 
 export interface CategoryFilterOption {
   categoryId: string;
+  parentId?: string | null;
+  parentCategoryId?: string | null;
   name: string;
   slug: string;
   count: number;
+  children?: CategoryFilterOption[];
 }
 
 export interface ProductFilterState {
@@ -52,7 +55,7 @@ export interface ProductFilterState {
 }
 
 export interface AttributeOption {
-  optionId: string;
+  optionId?: string | null;
   value: string;
   /** Human-readable label for UI / SEO query (`color_palettes`) */
   displayText?: string;

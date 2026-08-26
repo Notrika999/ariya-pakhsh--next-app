@@ -1,20 +1,23 @@
+// components/layout/Header/Top/HeaderLogo.jsx
+
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
 export default function HeaderLogo() {
   return (
-    <div className="lg:col-span-2 lg:order-1 order-2 col-span-4 w-full">
+    <div className="order-1 col-span-6 w-auto lg:col-span-2 lg:w-full">
       <Link href="/">
-        <div className="xl:text-start text-center flex items-center xl:justify-start justify-center">
+        <div className="flex items-center justify-end xl:justify-start">
           <Image
-            width={124}
-            height={48}
-            className="h-12 dark:invert"
-            src="/images/logo.png"
+            width={60}
+            height={60}
+            className="dark:invert"
+            src="/images/logo/carup24-logo.png"
             priority
             alt="کارآپ ۲۴"
           />
+          <h1 className="ms-3 md:text-xl md:font-bold font-semibold">کارآپ <span className="text-primary">۲۴</span></h1>
         </div>
       </Link>
     </div>

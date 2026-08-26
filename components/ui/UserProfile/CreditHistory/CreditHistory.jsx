@@ -354,7 +354,7 @@ export default function CreditHistory() {
   }
 
   return (
-    <div className="space-y-8 lg:col-span-3">
+    <div className="space-y-4 lg:col-span-3">
       <CreditHistoryTop balance={balance} />
 
       <CreditHistorySummary
@@ -363,7 +363,7 @@ export default function CreditHistory() {
         lastTransactionAmount={summary.lastTransactionAmount}
       />
 
-      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+      <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <FilterBar
           selects={[
             {
@@ -409,7 +409,7 @@ export default function CreditHistory() {
         />
       </div>
 
-      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+      <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <h2 className="with-highlight mb-6 text-xl font-bold dark:text-gray-200">
           لیست تراکنش‌ها
         </h2>
@@ -476,7 +476,7 @@ export default function CreditHistory() {
         </div>
       </div>
 
-      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+      <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <h2 className="with-highlight mb-6 text-xl font-bold dark:text-gray-200">
           افزایش اعتبار
         </h2>

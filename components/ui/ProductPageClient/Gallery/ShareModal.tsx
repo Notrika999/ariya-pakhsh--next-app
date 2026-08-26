@@ -1,14 +1,67 @@
 "use client";
 
+import Image from "next/image";
+import type { ReactNode } from "react";
 import { notify } from "@/src/utils/toast";
 
 type ShareModalProps = {
   open: boolean;
   onClose: () => void;
   title: string;
+  priceText?: string | null;
+  imageUrl?: string | null;
 };
 
-const SHARE_APPS = [
+type ShareApp = {
+  id: string;
+  label: string;
+  icon: ReactNode;
+  color: string;
+  bg: string;
+  border: string;
+  getUrl:
+    | ((url: string, title: string, priceText?: string | null) => string)
+    | null;
+};
+
+const PUBLIC_SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://aryapakhsh.shop"
+).replace(/\/$/, "");
+
+function buildShareText(title: string, url: string, priceText?: string | null) {
+  const normalizedTitle = title.trim();
+  const normalizedPrice = priceText?.trim();
+  const lines = [normalizedTitle, normalizedPrice, url].filter(Boolean);
+
+  return lines.join("\n");
+}
+
+function getPublicShareUrl(currentUrl: string) {
+  try {
+    const url = new URL(currentUrl);
+    const isLocalhost =
+      url.hostname === "localhost" ||
+      url.hostname === "127.0.0.1" ||
+      url.hostname === "::1";
+
+    const pathSegments = url.pathname.split("/").filter(Boolean);
+    const isProductPath = pathSegments[0] === "product";
+    const shortProductPath =
+      isProductPath && pathSegments[1]
+        ? `/product/${pathSegments[1]}`
+        : `${url.pathname}${url.search}${url.hash}`;
+
+    if (!isLocalhost) {
+      return new URL(shortProductPath, url.origin).href;
+    }
+
+    return new URL(shortProductPath, PUBLIC_SITE_URL).href;
+  } catch {
+    return currentUrl;
+  }
+}
+
+const SHARE_APPS: ShareApp[] = [
   {
     id: "telegram",
     label: "تلگرام",
@@ -20,8 +73,10 @@ const SHARE_APPS = [
     color: "text-sky-500",
     bg: "bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-950/70",
     border: "border-sky-200 dark:border-sky-800",
-    getUrl: (url: string) =>
-      `https://t.me/share/url?url=${encodeURIComponent(url)}`,
+    getUrl: (url, title, priceText) =>
+      `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(
+        [title.trim(), priceText?.trim()].filter(Boolean).join("\n"),
+      )}`,
   },
   {
     id: "whatsapp",
@@ -34,7 +89,10 @@ const SHARE_APPS = [
     color: "text-green-500",
     bg: "bg-green-50 dark:bg-green-950/40 hover:bg-green-100 dark:hover:bg-green-950/70",
     border: "border-green-200 dark:border-green-800",
-    getUrl: (url: string) => `https://wa.me/?text=${encodeURIComponent(url)}`,
+    getUrl: (url, title, priceText) =>
+      `https://wa.me/?text=${encodeURIComponent(
+        buildShareText(title, url, priceText),
+      )}`,
   },
   {
     id: "bale",
@@ -47,8 +105,10 @@ const SHARE_APPS = [
     color: "text-purple-500",
     bg: "bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-950/70",
     border: "border-purple-200 dark:border-purple-800",
-    getUrl: (url: string) =>
-      `https://ble.ir/share?url=${encodeURIComponent(url)}`,
+    getUrl: (url, title, priceText) =>
+      `https://ble.ir/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(
+        [title.trim(), priceText?.trim()].filter(Boolean).join("\n"),
+      )}`,
   },
   {
     id: "eitaa",
@@ -61,8 +121,10 @@ const SHARE_APPS = [
     color: "text-orange-500",
     bg: "bg-orange-50 dark:bg-orange-950/40 hover:bg-orange-100 dark:hover:bg-orange-950/70",
     border: "border-orange-200 dark:border-orange-800",
-    getUrl: (url: string) =>
-      `https://eitaa.com/share/url?url=${encodeURIComponent(url)}`,
+    getUrl: (url, title, priceText) =>
+      `https://eitaa.com/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(
+        [title.trim(), priceText?.trim()].filter(Boolean).join("\n"),
+      )}`,
   },
   {
     id: "copy",
@@ -88,24 +150,194 @@ const SHARE_APPS = [
   },
 ];
 
-export default function ShareModal({ open, onClose, title }: ShareModalProps) {
+function resolveShareUrl(value: string | null | undefined, baseUrl: string) {
+  if (!value?.trim()) return "";
+
+  try {
+    return new URL(value, baseUrl).href;
+  } catch {
+    return "";
+  }
+}
+
+function getShareImageRequestUrl(imageUrl: string, baseUrl: string) {
+  try {
+    const resolvedImageUrl = new URL(imageUrl, baseUrl);
+    const resolvedBaseUrl = new URL(baseUrl);
+
+    if (resolvedImageUrl.origin === resolvedBaseUrl.origin) {
+      return resolvedImageUrl.href;
+    }
+
+    return new URL(
+      `/api/share-image?url=${encodeURIComponent(resolvedImageUrl.href)}`,
+      resolvedBaseUrl.origin,
+    ).href;
+  } catch {
+    return imageUrl;
+  }
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function getImageExtension(mimeType: string) {
+  if (mimeType.includes("png")) return "png";
+  if (mimeType.includes("webp")) return "webp";
+  if (mimeType.includes("gif")) return "gif";
+  return "jpg";
+}
+
+function getShareFileName(title: string, mimeType: string) {
+  const normalizedTitle = title
+    .trim()
+    .replace(/[\\/:*?"<>|]/g, "-")
+    .slice(0, 80);
+
+  return `${normalizedTitle || "product"}.${getImageExtension(mimeType)}`;
+}
+
+async function createImageShareFile(
+  imageUrl: string,
+  title: string,
+): Promise<File | null> {
+  if (!imageUrl) return null;
+
+  try {
+    const response = await fetch(imageUrl);
+    if (!response.ok) return null;
+
+    const blob = await response.blob();
+    if (!blob.type.startsWith("image/")) return null;
+
+    return new File([blob], getShareFileName(title, blob.type), {
+      type: blob.type,
+    });
+  } catch {
+    return null;
+  }
+}
+
+function canShareFiles(files: File[]) {
+  try {
+    return (
+      typeof navigator.canShare === "function" &&
+      navigator.canShare({ files })
+    );
+  } catch {
+    return false;
+  }
+}
+
+export default function ShareModal({
+  open,
+  onClose,
+  title,
+  priceText,
+  imageUrl,
+}: ShareModalProps) {
   if (!open) return null;
 
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+  const currentOrigin =
+    typeof window !== "undefined" ? window.location.origin : PUBLIC_SITE_URL;
+  const shareUrl = getPublicShareUrl(currentUrl);
+  const previewImageUrl =
+    resolveShareUrl(imageUrl, currentUrl) ||
+    resolveShareUrl("/images/default.png", currentUrl);
+  const shareImageRequestUrl = getShareImageRequestUrl(
+    previewImageUrl,
+    currentOrigin,
+  );
+  const shareText = buildShareText(title, shareUrl, priceText);
+  const canUseNativeShare =
+    typeof navigator !== "undefined" && typeof navigator.share === "function";
 
-  const handleShare = async (app: (typeof SHARE_APPS)[number]) => {
-    if (app.id === "copy") {
-      try {
-        await navigator.clipboard.writeText(currentUrl);
-        notify.success("لینک با موفقیت کپی شد");
-      } catch {
-        notify.error("خطا در کپی لینک");
+  const copyShareContent = async () => {
+    const escapedTitle = escapeHtml(title);
+    const escapedPriceText = escapeHtml(priceText?.trim() ?? "");
+    const escapedUrl = escapeHtml(shareUrl);
+    const escapedImageUrl = escapeHtml(previewImageUrl);
+
+    try {
+      if (
+        typeof ClipboardItem !== "undefined" &&
+        typeof navigator.clipboard?.write === "function"
+      ) {
+        const html = `
+          <a href="${escapedUrl}">
+            ${escapedImageUrl ? `<img src="${escapedImageUrl}" alt="${escapedTitle}" />` : ""}
+            <strong>${escapedTitle}</strong>
+          </a>
+          ${escapedPriceText ? `<br /><span>${escapedPriceText}</span>` : ""}
+        `;
+
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            "text/plain": new Blob([shareText], { type: "text/plain" }),
+            "text/html": new Blob([html], { type: "text/html" }),
+          }),
+        ]);
+        notify.success("محصول با تصویر، نام و قیمت کپی شد");
+        return;
       }
+
+      if (typeof navigator.clipboard?.writeText !== "function") {
+        notify.error("امکان کپی لینک در این مرورگر وجود ندارد");
+        return;
+      }
+
+      await navigator.clipboard.writeText(shareText);
+      notify.success("محصول با نام، قیمت و لینک کوتاه کپی شد");
+    } catch {
+      notify.error("خطا در کپی لینک");
+    }
+  };
+
+  const handleNativeShare = async () => {
+    const imageFile = await createImageShareFile(shareImageRequestUrl, title);
+    const canShareImage = imageFile && canShareFiles([imageFile]);
+    const shareData: ShareData = canShareImage
+      ? {
+          title,
+          text: shareText,
+          files: [imageFile],
+        }
+      : {
+          title,
+          text: [title.trim(), priceText?.trim()].filter(Boolean).join("\n"),
+          url: shareUrl,
+        };
+
+    try {
+      await navigator.share(shareData);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        return;
+      }
+
+      notify.error("خطا در اشتراک‌گذاری محصول");
+    }
+  };
+
+  const handleShare = async (app: ShareApp) => {
+    if (app.id === "copy") {
+      await copyShareContent();
       return;
     }
 
     if (app.getUrl) {
-      window.open(app.getUrl(currentUrl), "_blank", "noopener,noreferrer");
+      window.open(
+        app.getUrl(shareUrl, title, priceText),
+        "_blank",
+        "noopener,noreferrer",
+      );
     }
   };
 
@@ -119,12 +351,12 @@ export default function ShareModal({ open, onClose, title }: ShareModalProps) {
         onClick={(e) => e.stopPropagation()}
         dir="rtl"
       >
-        {/* Header */}
         <div className="flex justify-between items-center px-5 py-4 border-b border-gray-100 dark:border-gray-800">
           <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">
             اشتراک‌گذاری محصول
           </h3>
           <button
+            type="button"
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             aria-label="بستن"
@@ -142,32 +374,62 @@ export default function ShareModal({ open, onClose, title }: ShareModalProps) {
           </button>
         </div>
 
-        {/* URL preview */}
-        <div className="mx-5 mt-4 flex items-center gap-2 bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2}
-            strokeLinecap="round"
-            className="w-4 h-4 text-gray-400 shrink-0"
-          >
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-          </svg>
-          <span
-            className="text-xs text-gray-500 dark:text-gray-400 truncate flex-1 text-left"
-            dir="ltr"
-          >
-            {title}
-          </span>
+        <div className="mx-5 mt-4 flex items-center gap-3 bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2.5">
+          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900">
+            <Image
+              fill
+              sizes="56px"
+              src={previewImageUrl || "/images/default.png"}
+              alt={title}
+              className="object-contain p-1"
+            />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold text-gray-800 dark:text-gray-100">
+              {title}
+            </p>
+            {priceText && (
+              <p className="mt-1 truncate text-xs font-medium text-gray-500 dark:text-gray-400">
+                {priceText}
+              </p>
+            )}
+          </div>
         </div>
 
-        {/* Apps grid */}
-        <div className="grid grid-cols-5 gap-2 p-5">
+        <div className="grid grid-cols-3 gap-2 p-5 sm:grid-cols-5">
+          {canUseNativeShare && (
+            <button
+              type="button"
+              onClick={handleNativeShare}
+              className="flex flex-col items-center gap-2 p-3 rounded-xl border border-gray-200 bg-gray-50 transition-all duration-150 active:scale-95 hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800/60 dark:hover:bg-gray-800"
+            >
+              <span className="text-gray-700 dark:text-gray-200">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-6 h-6"
+                >
+                  <circle cx="18" cy="5" r="3" />
+                  <circle cx="6" cy="12" r="3" />
+                  <circle cx="18" cy="19" r="3" />
+                  <path d="M8.59 13.51l6.83 3.98" />
+                  <path d="M15.41 6.51 8.59 10.49" />
+                </svg>
+              </span>
+              <span className="text-[11px] font-medium text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                اشتراک
+              </span>
+            </button>
+          )}
+
           {SHARE_APPS.map((app) => (
             <button
               key={app.id}
+              type="button"
               onClick={() => handleShare(app)}
               className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-150 active:scale-95 ${app.bg} ${app.border}`}
             >

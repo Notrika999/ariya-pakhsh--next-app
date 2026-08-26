@@ -2,6 +2,10 @@ import "server-only";
 // src/services/home/home-layout.server.ts
 import { proxyToBackend } from "@/src/lib/http/server-http";
 import { ApiResponse } from "@/src/lib/types/common/api-response.types";
+import { getBrands } from "@/src/services/brand/brand.server";
+import { getCategoryBreadcrumb } from "@/src/services/category/category.server";
+import { getProductById } from "@/src/services/product/product.server";
+import type { ProductDetail } from "@/src/lib/types/products/productDetail.types";
 import { getProductImage } from "@/src/utils/product-image";
 
 export type HomeLayoutLink = {
@@ -9,6 +13,7 @@ export type HomeLayoutLink = {
   targetId: string | null;
   url: string | null;
   filterPayload: string | null;
+  href?: string | null;
 };
 
 export type HomeLayoutFrame = {
@@ -99,6 +104,20 @@ export type HomePromoCard = {
 };
 
 const DEFAULT_FRAME_DURATION_MS = 5000;
+const BRAND_LOOKUP_PAGE_SIZE = 20;
+const BRAND_LOOKUP_MAX_PAGES = 20;
+
+type ResolvableHomeLayoutLink = {
+  key: string;
+  type: "product" | "category" | "brand";
+  targetId: string;
+};
+
+type BrandLookupItem = {
+  id?: string | number | null;
+  brandId?: string | number | null;
+  slug?: string | null;
+};
 
 function normalizeMediaType(
   value: string | null | undefined,
@@ -138,11 +157,214 @@ function fallbackFrame(item: HomeLayoutItem): HomeStoryFrame {
     imageUrl: item.imageUrl ? getProductImage(item.imageUrl) : null,
     videoUrl: item.videoUrl ? getProductImage(item.videoUrl) : null,
     posterUrl: getProductImage(
-      item.videoPosterUrl ?? item.mobileImageUrl ?? item.thumbnailUrl ?? item.imageUrl,
+      item.videoPosterUrl ??
+        item.mobileImageUrl ??
+        item.thumbnailUrl ??
+        item.imageUrl,
     ),
     durationMs: DEFAULT_FRAME_DURATION_MS,
     link: item.link,
   };
+}
+
+function encodePathSegment(value: string) {
+  return encodeURIComponent(value.trim());
+}
+
+function normalizeLookupValue(value: string | number | null | undefined) {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function getBrandLookupId(brand: BrandLookupItem) {
+  return normalizeLookupValue(brand.id ?? brand.brandId);
+}
+
+function getBrandLookupSlug(brand: BrandLookupItem) {
+  return brand.slug?.trim() ?? "";
+}
+
+function getDefaultVariantPublicCode(product: ProductDetail) {
+  const defaultVariantPublicCode = product.variants
+    ?.find((variant) => variant.isDefault)
+    ?.publicCode?.trim();
+
+  if (defaultVariantPublicCode) return defaultVariantPublicCode;
+
+  return (
+    product.variants
+      ?.find((variant) => variant.publicCode?.trim())
+      ?.publicCode?.trim() ?? ""
+  );
+}
+
+function getProductHomeLayoutHref(product: ProductDetail) {
+  const publicCode = product.publicCode?.trim();
+  const slug = product.slug?.trim();
+
+  if (!publicCode || !slug) return null;
+
+  const basePath = `/product/${encodePathSegment(publicCode)}/${encodePathSegment(
+    slug,
+  )}`;
+  const variantPublicCode = getDefaultVariantPublicCode(product);
+
+  return variantPublicCode
+    ? `${basePath}?public-code=${encodeURIComponent(variantPublicCode)}`
+    : basePath;
+}
+
+async function resolveProductHomeLayoutHref(targetId: string) {
+  const product = await getProductById(targetId);
+  return getProductHomeLayoutHref(product);
+}
+
+async function resolveCategoryHomeLayoutHref(targetId: string) {
+  const breadcrumb = await getCategoryBreadcrumb({
+    categoryId: targetId,
+    includeHome: false,
+  });
+  const slug = breadcrumb
+    ?.slice()
+    .reverse()
+    .find((item) => item.slug?.trim())?.slug;
+
+  return slug ? `/products/${encodePathSegment(slug)}` : null;
+}
+
+async function resolveBrandHomeLayoutHref(targetId: string) {
+  const normalizedTargetId = normalizeLookupValue(targetId);
+
+  for (let pageNumber = 1; pageNumber <= BRAND_LOOKUP_MAX_PAGES; pageNumber += 1) {
+    const brands = await getBrands({
+      pageNumber,
+      pageSize: BRAND_LOOKUP_PAGE_SIZE,
+      grouped: false,
+    });
+    const brand = (brands.items as BrandLookupItem[]).find(
+      (item) => getBrandLookupId(item) === normalizedTargetId,
+    );
+    const slug = brand ? getBrandLookupSlug(brand) : "";
+
+    if (slug) return `/products/${encodePathSegment(slug)}`;
+    if (!brands.hasNextPage) break;
+  }
+
+  return null;
+}
+
+function getResolvableHomeLayoutLink(
+  link: HomeLayoutLink | null | undefined,
+): ResolvableHomeLayoutLink | null {
+  if (!link) return null;
+
+  const targetId = link.targetId?.trim();
+  if (!targetId) return null;
+
+  const type = String(link.type ?? "").toLowerCase();
+  if (type !== "product" && type !== "category" && type !== "brand") {
+    return null;
+  }
+
+  return {
+    key: `${type}:${targetId}`,
+    type,
+    targetId,
+  };
+}
+
+function shouldResolveHomeLayoutSection(section: HomeLayoutSection) {
+  const type = section.type?.toLowerCase();
+  const layout = section.layout?.toLowerCase();
+
+  return (
+    (type === "stories" && layout === "horizontalscroll") ||
+    (type === "herocarousel" && layout === "carousel") ||
+    (type === "promocards" && layout === "grid")
+  );
+}
+
+function collectResolvableHomeLayoutLinks(sections: HomeLayoutSection[]) {
+  const links = new Map<string, ResolvableHomeLayoutLink>();
+
+  for (const section of sections) {
+    if (!shouldResolveHomeLayoutSection(section)) continue;
+
+    for (const item of section.items ?? []) {
+      const itemLink = getResolvableHomeLayoutLink(item.link);
+      if (itemLink) links.set(itemLink.key, itemLink);
+
+      for (const frame of item.frames ?? []) {
+        const frameLink = getResolvableHomeLayoutLink(frame.link);
+        if (frameLink) links.set(frameLink.key, frameLink);
+      }
+    }
+  }
+
+  return links;
+}
+
+async function resolveHomeLayoutLinkMap(sections: HomeLayoutSection[]) {
+  const links = collectResolvableHomeLayoutLinks(sections);
+  const resolvedLinks = new Map<string, string>();
+
+  await Promise.all(
+    [...links.values()].map(async (link) => {
+      try {
+        let href: string | null = null;
+
+        if (link.type === "product") {
+          href = await resolveProductHomeLayoutHref(link.targetId);
+        } else if (link.type === "category") {
+          href = await resolveCategoryHomeLayoutHref(link.targetId);
+        } else {
+          href = await resolveBrandHomeLayoutHref(link.targetId);
+        }
+
+        if (href) resolvedLinks.set(link.key, href);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        console.warn(
+          `[home-layout] Failed to resolve ${link.type} link ${link.targetId}: ${message}`,
+        );
+      }
+    }),
+  );
+
+  return resolvedLinks;
+}
+
+function withResolvedHomeLayoutLink(
+  link: HomeLayoutLink | null,
+  resolvedLinks: Map<string, string>,
+): HomeLayoutLink | null {
+  const resolvableLink = getResolvableHomeLayoutLink(link);
+  if (!link || !resolvableLink) return link;
+
+  const href = resolvedLinks.get(resolvableLink.key);
+  return href ? { ...link, href } : link;
+}
+
+async function resolveHomeLayoutLinks(
+  sections: HomeLayoutSection[],
+): Promise<HomeLayoutSection[]> {
+  const resolvedLinks = await resolveHomeLayoutLinkMap(sections);
+  if (resolvedLinks.size === 0) return sections;
+
+  return sections.map((section) => {
+    if (!shouldResolveHomeLayoutSection(section)) return section;
+
+    return {
+      ...section,
+      items: section.items.map((item) => ({
+        ...item,
+        link: withResolvedHomeLayoutLink(item.link, resolvedLinks),
+        frames: item.frames.map((frame) => ({
+          ...frame,
+          link: withResolvedHomeLayoutLink(frame.link, resolvedLinks),
+        })),
+      })),
+    };
+  });
 }
 
 function resolveHomeLayoutHref(link: HomeLayoutLink | null | undefined) {
@@ -151,9 +373,10 @@ function resolveHomeLayoutHref(link: HomeLayoutLink | null | undefined) {
   const type = String(link.type ?? "").toLowerCase();
   const targetId = link.targetId ? encodeURIComponent(link.targetId) : null;
 
+  if (link.href) return link.href;
   if (link.url) return link.url;
-  if (type === "product" && targetId) return `/product/${targetId}`;
-  if (type === "category" && targetId) return `/products?categoryId=${targetId}`;
+  if (type === "category" && targetId)
+    return `/products?categoryId=${targetId}`;
   if (type === "landing" && targetId) return `/landing/${targetId}`;
   if (type === "campaign" && targetId) {
     return `/incredible-offers?campaignId=${targetId}`;
@@ -177,7 +400,7 @@ export function mapHomeLayoutStories(
   return (storiesSection?.items ?? [])
     .map((item) => {
       const frames =
-        item.frames.length > 0
+        (item.frames?.length ?? 0) > 0
           ? item.frames.map((frame) => normalizeFrame(frame, item))
           : [fallbackFrame(item)];
 
@@ -212,7 +435,7 @@ export function mapHomeLayoutCarousel(
   return (carouselSection?.items ?? [])
     .map((item) => {
       const image = item.imageUrl ? getProductImage(item.imageUrl) : null;
-      const href = resolveHomeLayoutHref(item.link);
+      const href = resolveHomeLayoutHref(item.link ?? item.frames?.[0]?.link);
 
       if (!image || !href) return null;
 
@@ -275,12 +498,13 @@ export async function getHomeLayout(): Promise<HomeLayoutData> {
     cache: "no-store",
   });
 
+    
   const isSuccess = response.data.success ?? response.data.isSuccess;
   if (!response.ok || !isSuccess) {
     throw new Error(response.data.message ?? "Failed to fetch home layout");
   }
 
   return {
-    sections: response.data.data?.sections ?? [],
+    sections: await resolveHomeLayoutLinks(response.data.data?.sections ?? []),
   };
 }

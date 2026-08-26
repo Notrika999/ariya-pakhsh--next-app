@@ -109,6 +109,21 @@ function getProductListItemKey(product: ProductListItem): string {
   );
 }
 
+function appendUniqueProducts(
+  currentProducts: ProductListItem[],
+  nextProducts: ProductListItem[],
+): ProductListItem[] {
+  const seen = new Set(currentProducts.map(getProductListItemKey));
+  const uniqueNextProducts = nextProducts.filter((product) => {
+    const key = getProductListItemKey(product);
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return [...currentProducts, ...uniqueNextProducts];
+}
+
 interface Props {
   category: MenuCategory | null;
   breadcrumb: BreadcrumbItem[];
@@ -198,27 +213,6 @@ export default function CategoryProductListPage({
     };
   }, [category, activeFilterOptions]);
 
-  const listKey = useMemo(
-    () =>
-      JSON.stringify({
-        pathname,
-        search: currentSearchKey,
-        page: pagination.page,
-        totalCount: pagination.totalCount,
-        products: isServerResultCurrent
-          ? initialProducts.map(getProductListItemKey)
-          : [],
-      }),
-    [
-      pathname,
-      currentSearchKey,
-      pagination.page,
-      pagination.totalCount,
-      initialProducts,
-      isServerResultCurrent,
-    ],
-  );
-
   const [loadedList, setLoadedList] = useState<LoadedProductList | null>(null);
 
   const [isFetchingMore, setIsFetchingMore] = useState(false);
@@ -226,6 +220,7 @@ export default function CategoryProductListPage({
 
   const sentinelRef = useRef<HTMLDivElement>(null);
   const inFlightPageRef = useRef<number | null>(null);
+  const sentinelReadyRef = useRef(true);
   const routeCategoryId = getCategoryId(category);
   const categoryId = searchParams.get("categoryId") ?? routeCategoryId;
 
@@ -249,6 +244,7 @@ export default function CategoryProductListPage({
   const handleStartTransition = useCallback<typeof startTransition>(
     (callback) => {
       inFlightPageRef.current = null;
+      sentinelReadyRef.current = true;
       setLoadedList(null);
       setLoadMoreError(null);
       setIsFetchingMore(false);
@@ -277,6 +273,7 @@ export default function CategoryProductListPage({
       const requestId = filterRequestIdRef.current + 1;
       filterRequestIdRef.current = requestId;
       inFlightPageRef.current = null;
+      sentinelReadyRef.current = true;
       setLoadedList(null);
       setLoadMoreError(null);
       setIsFetchingMore(false);
@@ -402,13 +399,16 @@ export default function CategoryProductListPage({
         totalCount: number;
       } = await res.json();
 
+      if (inFlightPageRef.current !== nextPage) return;
+
       setLoadedList((prev) => {
         const prevItems = prev?.key === queryKey ? prev.items : initialProducts;
+        const resolvedPage = Number.isFinite(data.page) ? data.page : nextPage;
 
         return {
           key: queryKey,
-          items: [...prevItems, ...data.items],
-          page: data.page,
+          items: appendUniqueProducts(prevItems, data.items),
+          page: Math.max(resolvedPage, nextPage),
           totalPages: data.totalPages,
           totalCount: data.totalCount,
         };
@@ -417,7 +417,9 @@ export default function CategoryProductListPage({
       console.error("Load more products error:", error);
       setLoadMoreError("خطا در بارگذاری محصولات بیشتر");
     } finally {
-      inFlightPageRef.current = null;
+      if (inFlightPageRef.current === nextPage) {
+        inFlightPageRef.current = null;
+      }
       setIsFetchingMore(false);
     }
   }, [
@@ -467,9 +469,18 @@ export default function CategoryProductListPage({
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          fetchNextPage();
+        if (!entry.isIntersecting) {
+          sentinelReadyRef.current = true;
+          return;
         }
+
+        const pageCanScroll =
+          document.documentElement.scrollHeight > window.innerHeight + 1;
+
+        if (!sentinelReadyRef.current && pageCanScroll) return;
+
+        sentinelReadyRef.current = false;
+        fetchNextPage();
       },
       { rootMargin: "300px 0px" },
     );
@@ -478,30 +489,36 @@ export default function CategoryProductListPage({
     return () => observer.disconnect();
   }, [fetchNextPage, hasMore]);
 
-  const filters = {
-    search: "",
-    categoryId,
-    brands:
-      searchParams.getAll("brand").length > 0
-        ? searchParams.getAll("brand")
-        : searchParams.getAll("brandSlug").length > 0
-          ? searchParams.getAll("brandSlug")
-          : searchParams.getAll("brandId"),
-    minPrice: Number(searchParams.get("minPrice") ?? priceLimit.min),
-    maxPrice: Number(searchParams.get("maxPrice") ?? priceLimit.max),
-    inStock: searchParams.get("inStock") === "true",
-    onSaleOnly: searchParams.get("onSaleOnly") === "true",
-    sort: parseSortOption(searchParams.get("sort")),
-  };
+  const filters = useMemo(
+    () => ({
+      search: "",
+      categoryId,
+      brands:
+        searchParams.getAll("brand").length > 0
+          ? searchParams.getAll("brand")
+          : searchParams.getAll("brandSlug").length > 0
+            ? searchParams.getAll("brandSlug")
+            : searchParams.getAll("brandId"),
+      minPrice: Number(searchParams.get("minPrice") ?? priceLimit.min),
+      maxPrice: Number(searchParams.get("maxPrice") ?? priceLimit.max),
+      inStock: searchParams.get("inStock") === "true",
+      onSaleOnly: searchParams.get("onSaleOnly") === "true",
+      sort: parseSortOption(searchParams.get("sort")),
+    }),
+    [categoryId, priceLimit.max, priceLimit.min, searchParams],
+  );
 
   return (
     <SectionContainer>
+      <h1 className="sr-only">
+        فیلتربندی محصولات
+      </h1>
       <Breadcrumb items={breadcrumb} />
 
       {sliderCategories.length > 0 && (
         <>
-          <SectionTitle title="دسته بندی ها" />
-          <div className="pb-10">
+          <SectionTitle title="دسته بندی ها" noAfter />
+          <div className=" bg-gray-light rounded-lg">
             <CategoriesSlider
               categories={sliderCategories}
               onNavigate={handleCategoryNavigate}
@@ -511,7 +528,6 @@ export default function CategoryProductListPage({
       )}
 
       <ProductListSection
-        key={listKey}
         filters={filters}
         pagination={{ page: currentPage, totalPages, totalCount }}
         filterOptions={sidebarFilterOptions}
@@ -524,10 +540,12 @@ export default function CategoryProductListPage({
         onFilterNavigate={handleFilterNavigate}
       />
 
-      {hasMore && <div ref={sentinelRef} className="h-1" />}
+      {hasMore && (
+        <div ref={sentinelRef} className="h-1 [overflow-anchor:none]" />
+      )}
 
       {isFetchingMore && (
-        <div className="mt-4 grid grid-cols-12 gap-5">
+        <div className="mt-4 grid grid-cols-12 gap-5 [overflow-anchor:none]">
           <div className="hidden lg:col-span-3 lg:block" aria-hidden />
           <div className="col-span-12 lg:col-span-9">
             <ProductCardsSkeletonGrid count={4} />
@@ -536,11 +554,11 @@ export default function CategoryProductListPage({
       )}
 
       {loadMoreError && !isFetchingMore && (
-        <div className="py-6">
+        <div className="py-6 [overflow-anchor:none]">
           <button
             type="button"
             onClick={() => fetchNextPage(true)}
-            className="flex w-150 mx-auto items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700 transition-colors hover:bg-red-100 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400"
+            className="flex  mx-auto items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700 transition-colors hover:bg-red-100 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400"
           >
             <AlertCircle className="h-4 w-4" />
             <span className="text-sm font-medium">
@@ -551,7 +569,7 @@ export default function CategoryProductListPage({
       )}
 
       {!hasMore && !isFetchingMore && products.length > 0 && (
-        <div className="py-6">
+        <div className="py-6 [overflow-anchor:none]">
           <div className=" mx-auto flex items-center justify-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700 dark:border-green-900 dark:bg-green-950/30 dark:text-green-400">
             <CheckCircle className="h-4 w-4" />
             <span className="text-sm font-medium">

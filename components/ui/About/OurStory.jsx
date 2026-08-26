@@ -7,19 +7,17 @@ export default function OurStory() {
     <section className="mb-24">
       <div className="flex flex-col lg:flex-row items-center gap-12">
         <div className="lg:w-1/2 relative">
-          <div className="relative rounded-3xl overflow-hidden shadow-2xl transform hover:scale-[1.02] transition duration-500">
+          <div className="relative w-165 h-112 rounded-3xl overflow-hidden shadow-2xl transform hover:scale-[1.02] transition duration-500">
             <Image
-              width={472}
-              height={283}
-              src="/images/about/about.jpg"
-              // src=?? "/images/default.png"
+              fill
+              src="/images/default.png"
               alt="همکاری تیم ما"
-              className="w-full h-auto"
+              className="object-fit"
             />
 
             <div className="absolute inset-0 bg-linear-to-t from-gray-900/70 to-transparent opacity-70"></div>
             <div className="absolute bottom-6 inset-e-6 text-white">
-              <p className="text-sm">تیم متعهد ما در سال ۱۴۰۲</p>
+              <p className="text-sm">1405</p>
             </div>
           </div>
 
@@ -50,15 +48,9 @@ export default function OurStory() {
           </div>
 
           <div className="flex flex-wrap gap-4">
+            
             <Link
-              href="#"
-              className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary-dark transition font-medium shadow-lg hover:shadow-xl"
-            >
-              بیشتر درباره ما
-              <i className="fas fa-angle-left ms-2"></i>
-            </Link>
-            <Link
-              href="#"
+              href="/contact"
               className="inline-flex items-center px-6 py-3 bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-zinc-700 transition font-medium border border-gray-200 dark:border-zinc-700"
             >
               تماس با ما

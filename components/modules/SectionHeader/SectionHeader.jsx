@@ -2,7 +2,10 @@ import Link from "next/link";
 import React from "react";
 import SectionTitle from "../SectionTitle/SectionTitle";
 
-export default function SectionHeader({ title, href }) {
+/**
+ * @param {{ title: React.ReactNode; href?: string | false }} props
+ */
+export default function SectionHeader({ title, href = false }) {
   return (
     <header className="flex flex-wrap justify-between items-center">
       <SectionTitle title={title} />

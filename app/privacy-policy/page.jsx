@@ -716,10 +716,10 @@ function PrivacyPolicy() {
                       پشتیبانی ایمیلی
                     </h4>
                     <a
-                      href="mailto:privacy@parsistore.com"
+                      href="mailto:support@carup24.com"
                       className="text-blue-600 dark:text-blue-400 hover:underline"
                     >
-                      privacy@parsistore.com
+                      support@carup24.com
                     </a>
                   </div>
 
@@ -731,7 +731,7 @@ function PrivacyPolicy() {
                       href="tel:+982112345678"
                       className="text-blue-600 dark:text-blue-400 hover:underline"
                     >
-                      ۰۲۱-۱۲۳۴۵۶۷۸
+                      90007824
                     </a>
                   </div>
                 </div>
@@ -741,7 +741,7 @@ function PrivacyPolicy() {
                     آدرس پستی
                   </h4>
                   <p className="text-gray-700 dark:text-gray-300">
-                    تهران، خیابان ولیعصر، پلاک ۱۲۳۴، طبقه ۳ - واحد حریم خصوصی
+                    مازندران، ساری، بلوار امام رضا (ع)، واحد حریم خصوصی
                   </p>
                 </div>
 

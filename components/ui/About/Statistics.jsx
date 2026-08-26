@@ -22,7 +22,7 @@ export default function Statistics() {
           <div className="opacity-90">مشتری راضی</div>
         </div>
         <div className="text-center p-4">
-          <div className="text-4xl md:text-5xl font-bold mb-2">۲۰۰+</div>
+          <div className="text-4xl md:text-5xl font-bold mb-2">400۰۰+</div>
           <div className="opacity-90">محصول متنوع</div>
         </div>
         <div className="text-center p-4">

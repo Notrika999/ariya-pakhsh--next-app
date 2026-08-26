@@ -30,7 +30,6 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
     authOtpMode,
     loginTwoFactorToken,
     loginTwoFactorOtpSentTo,
-    clearAuthFlow,
     clearLoginTwoFactorFlow,
     setAuthFlow,
     setLoginTwoFactorFlow,
@@ -360,10 +359,7 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
       </button>
 
       <button
-        onClick={() => {
-          clearAuthFlow();
-          onBack();
-        }}
+        onClick={onBack}
         className="text-sm text-gray-400 hover:text-gray-600 transition"
       >
         ویرایش شماره موبایل

@@ -11,7 +11,6 @@ import "swiper/css";
 import "swiper/css/free-mode";
 import Image from "next/image";
 import Link from "next/link";
-import { truncateTitle } from "@/src/utils/truncateTitle";
 
 export type SliderCategory = {
   id?: string;
@@ -70,51 +69,50 @@ export default function CategoriesSlider({ categories, onNavigate }: Props) {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="relative rounded-xl bg-[#f3f5f9] px-3 py-3 dark:bg-[#18202b] md:px-5">
       {sliderState.canScroll && (
-        <div className="flex justify-end">
-          <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white p-1 shadow-sm dark:border-gray-700 dark:bg-custom-dark">
-            <button
-              type="button"
-              aria-label="دسته‌بندی قبلی"
-              onClick={handleSlidePrev}
-              disabled={sliderState.isBeginning}
-              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-300 dark:text-gray-200 dark:hover:bg-gray-800 dark:disabled:text-gray-600"
-            >
-              <ChevronRight size={20} strokeWidth={2.4} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              aria-label="دسته‌بندی بعدی"
-              onClick={handleSlideNext}
-              disabled={sliderState.isEnd}
-              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg bg-primary text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-300 disabled:shadow-none dark:disabled:bg-gray-800 dark:disabled:text-gray-600"
-            >
-              <ChevronLeft size={20} strokeWidth={2.4} aria-hidden="true" />
-            </button>
-          </div>
-        </div>
+        <>
+          <button
+            type="button"
+            aria-label="دسته‌بندی قبلی"
+            onClick={handleSlidePrev}
+            disabled={sliderState.isBeginning}
+            className="absolute right-2 top-1/2 z-20 hidden size-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-700 shadow-sm transition hover:bg-white disabled:pointer-events-none disabled:opacity-0 dark:border-gray-700 dark:bg-custom-dark/95 dark:text-gray-200 md:flex"
+          >
+            <ChevronRight size={19} strokeWidth={2.4} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            aria-label="دسته‌بندی بعدی"
+            onClick={handleSlideNext}
+            disabled={sliderState.isEnd}
+            className="absolute left-2 top-1/2 z-20 hidden size-9 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-700 shadow-sm transition hover:bg-white disabled:pointer-events-none disabled:opacity-0 dark:border-gray-700 dark:bg-custom-dark/95 dark:text-gray-200 md:flex"
+          >
+            <ChevronLeft size={19} strokeWidth={2.4} aria-hidden="true" />
+          </button>
+        </>
       )}
 
-      <div className="relative">
+      <div className="relative" dir="rtl">
         {sliderState.canScroll && !sliderState.isBeginning && (
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-linear-to-l from-white to-transparent dark:from-[#121923]"
+            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-linear-to-l from-[#f3f5f9] to-transparent dark:from-[#18202b]"
           />
         )}
         {sliderState.canScroll && !sliderState.isEnd && (
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-linear-to-r from-white to-transparent dark:from-[#121923]"
+            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-linear-to-r from-[#f3f5f9] to-transparent dark:from-[#18202b]"
           />
         )}
 
         <Swiper
+          dir="rtl"
           modules={[FreeMode]}
           freeMode={true}
           slidesPerView="auto"
-          spaceBetween={16}
+          spaceBetween={8}
           watchOverflow
           onSwiper={(instance) => {
             setSwiper(instance);
@@ -132,7 +130,10 @@ export default function CategoriesSlider({ categories, onNavigate }: Props) {
           className="mySwiper"
         >
           {categories.map((item) => (
-            <SwiperSlide key={item.id ?? item.categoryId ?? item.slug} className="w-50!">
+            <SwiperSlide
+              key={item.id ?? item.categoryId ?? item.slug}
+              className="!w-fit min-w-28"
+            >
               <Link
                 href={`/products/${item.slug}`}
                 prefetch={false}
@@ -152,23 +153,30 @@ export default function CategoriesSlider({ categories, onNavigate }: Props) {
                   event.preventDefault();
                   onNavigate(`/products/${item.slug}`);
                 }}
+                className="block h-full"
               >
-                <div className="bg-white dark:bg-custom-dark dark:border-gray-700 dark:text-gray-200 space-y-3 shadow-sm border border-gray-200 p-3 rounded-2xl flex flex-col items-center justify-center duration-200 hover:shadow-md hover:scale-[1.02] transition-all">
-                  <figure>
+                <div className="flex h-14 flex-row lg:flex-col items-center justify-center rounded-md bg-white px-2 py-1.5 text-center shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:bg-custom-dark dark:text-gray-200 lg:h-25 ">
+                  <figure className="flex h-12 w-full items-center justify-center lg:h-50">
                     <Image
-                      width={80}
-                      height={80}
+                      width={70}
+                      height={70}
                       src={item.src ?? "/images/default.png"}
                       alt={item.name}
-                      className="w-20 dark:invert-0"
+                      className="max-h-full w-auto max-w-18 object-contain dark:invert-0"
                     />
                   </figure>
                   <span
                     title={item.name}
-                    className="text-sm font-medium text-gray-900 dark:text-gray-200 text-center block"
+                    className="whitespace-nowrap text-xs font-medium leading-5 text-gray-70  lg:inline-block lg:w-full lg:text-ellipsis lg:text-center"
                   >
-                    {truncateTitle(item.name)}
+                    {item.name}
                   </span>
+                  {/* <span
+                    title={item.name}
+                    className="line-clamp-2 min-h-9 w-full text-center text-[12px] font-semibold leading-[18px] text-gray-800 dark:text-gray-200 md:text-base md:font-semibold md:leading-6"
+                  >
+                    {item.name}
+                  </span> */}
                 </div>
               </Link>
             </SwiperSlide>

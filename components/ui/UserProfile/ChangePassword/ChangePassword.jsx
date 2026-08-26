@@ -7,7 +7,7 @@ import SecuritySettings from "./SecuritySettings";
 
 export default function ChangePassword() {
   return (
-    <div className="lg:col-span-3 space-y-8">
+    <div className="lg:col-span-3 space-y-4">
       {/* <!--Dashboard header--> */}
       <ChangePasswordTop />
 

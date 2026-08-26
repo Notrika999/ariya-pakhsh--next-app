@@ -32,7 +32,7 @@ export default async function BlogPage({ params }) {
       <div className="container mx-auto">
         <Breadcrumb
           items={[
-            { id: "home", name: "خانه", slug: "", depth: -1 },
+            { id: "home", name: "کارآپ 24", slug: "", depth: -1 },
             { id: "blog", name: "بلاگ", slug: "blog", depth: -2 },
             { id: post.slug, name: post.keyword, slug: post.slug, depth: -2 },
           ]}

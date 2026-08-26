@@ -64,10 +64,7 @@ export function firstValue(value?: string | string[]): string | undefined {
 }
 
 export function normalizeProductSearchParams(
-  searchParams:
-    | ProductPageSearchParams
-    | URLSearchParams
-    | SearchParamsLike,
+  searchParams: ProductPageSearchParams | URLSearchParams | SearchParamsLike,
 ): string {
   const entries: Array<[string, string]> = [];
 
@@ -166,6 +163,8 @@ export function resolveBrandSlugsToIds(
         brandId: string | number;
         slug?: string | null;
         name?: string | null;
+        nameInEnglish?: string | null;
+        englishName?: string | null;
       }>
     | undefined,
 ): string[] {
@@ -182,6 +181,8 @@ export function brandMatchesParam(
     brandId?: string | number | null;
     slug?: string | null;
     name?: string | null;
+    nameInEnglish?: string | null;
+    englishName?: string | null;
   },
   param: string | string[],
 ): boolean {
@@ -191,11 +192,19 @@ export function brandMatchesParam(
   const normalize = (value: string) => value.trim().toLowerCase();
   const slug = normalize(String(brand.slug ?? ""));
   const name = normalize(String(brand.name ?? ""));
+  const nameInEnglish = normalize(String(brand.nameInEnglish ?? ""));
+  const englishName = normalize(String(brand.englishName ?? ""));
   const id = normalize(String(brand.brandId ?? ""));
 
   return params.some((raw) => {
     const p = normalize(raw);
-    return p === slug || p === name || p === id;
+    return (
+      p === slug ||
+      p === name ||
+      p === nameInEnglish ||
+      p === englishName ||
+      p === id
+    );
   });
 }
 
@@ -206,15 +215,15 @@ export function normalizeBrandParamToSlug(
     brandId: string | number;
     slug?: string | null;
     name?: string | null;
+    nameInEnglish?: string | null;
+    englishName?: string | null;
   }>,
 ): string {
   const trimmed = param.trim();
   if (!trimmed) return trimmed;
 
   const found = brands.find((brand) => brandMatchesParam(brand, trimmed));
-  return found
-    ? String(found.slug ?? found.brandId).trim()
-    : trimmed;
+  return found ? String(found.slug ?? found.brandId).trim() : trimmed;
 }
 
 export function parseNumber(value?: string): number | undefined {
@@ -239,6 +248,7 @@ export function parseAttributeFilters(
   attributeId: string;
   optionIds?: string[];
   value?: string;
+  values?: string[];
   boolValue?: boolean;
 }> {
   const filtersByAttribute = new Map<
@@ -247,6 +257,7 @@ export function parseAttributeFilters(
       attributeId: string;
       optionIds?: string[];
       value?: string;
+      values?: string[];
       boolValue?: boolean;
     }
   >();
@@ -260,6 +271,7 @@ export function parseAttributeFilters(
       attributeId: string;
       optionIds?: string[];
       value?: string;
+      values?: string[];
       boolValue?: boolean;
     } = { attributeId: normalizedAttributeId };
     filtersByAttribute.set(normalizedAttributeId, next);
@@ -267,6 +279,18 @@ export function parseAttributeFilters(
   };
 
   for (const [key, value] of Object.entries(searchParams)) {
+    if (key.startsWith("attr_values_")) {
+      const attributeId = key.replace("attr_values_", "");
+      const values = (Array.isArray(value) ? value : value ? [value] : [])
+        .map((item) => item.trim())
+        .filter(Boolean);
+
+      if (attributeId && values.length > 0) {
+        getFilter(attributeId).values = [...new Set(values)];
+      }
+      continue;
+    }
+
     if (key.startsWith("attr_value_")) {
       const attributeId = key.replace("attr_value_", "");
       const textValue = (Array.isArray(value) ? value[0] : value)?.trim();
@@ -305,6 +329,7 @@ export function parseAttributeFilters(
       Boolean(filter.attributeId) &&
       ((filter.optionIds?.length ?? 0) > 0 ||
         Boolean(filter.value) ||
+        (filter.values?.length ?? 0) > 0 ||
         typeof filter.boolValue === "boolean"),
   );
 }
@@ -334,9 +359,7 @@ function expandSearchParamValue(value: string): string[] {
 }
 
 export function listSearchParamValues(
-  searchParams:
-    | URLSearchParams
-    | Record<string, string | string[] | undefined>,
+  searchParams: URLSearchParams | Record<string, string | string[] | undefined>,
   key: string,
 ): string[] {
   if (searchParams instanceof URLSearchParams) {
@@ -354,9 +377,7 @@ export function listSearchParamValues(
 }
 
 export function colorOptionIdParams(
-  searchParams:
-    | URLSearchParams
-    | Record<string, string | string[] | undefined>,
+  searchParams: URLSearchParams | Record<string, string | string[] | undefined>,
 ): string[] {
   return [
     ...listSearchParamValues(searchParams, COLOR_OPTION_ID_PARAM),
@@ -366,9 +387,7 @@ export function colorOptionIdParams(
 }
 
 export function colorPaletteParams(
-  searchParams:
-    | URLSearchParams
-    | Record<string, string | string[] | undefined>,
+  searchParams: URLSearchParams | Record<string, string | string[] | undefined>,
 ): string[] {
   return [
     ...listSearchParamValues(searchParams, COLOR_PALETTES_PARAM),
@@ -390,7 +409,7 @@ export function resolveColorPaletteAttributeFilters(
         attributeId: string;
         attributeName: string;
         options?: Array<{
-          optionId: string;
+          optionId?: string | null;
           value?: string;
           displayText?: string;
         }>;
@@ -412,7 +431,7 @@ export function resolveColorPaletteAttributeFilters(
   for (const attr of colorAttrs) {
     const optionIds = (attr.options ?? [])
       .filter((option) => wanted.has(normalize(getColorOptionLabel(option))))
-      .map((option) => option.optionId)
+      .map((option) => String(option.optionId ?? "").trim())
       .filter(Boolean);
 
     if (optionIds.length > 0) {
@@ -431,7 +450,10 @@ export function resolveColorPaletteAttributeFilter(
   paletteLabels: string[],
   attributes: Parameters<typeof resolveColorPaletteAttributeFilters>[1],
 ): { attributeId: string; optionIds: string[] } | null {
-  const filters = resolveColorPaletteAttributeFilters(paletteLabels, attributes);
+  const filters = resolveColorPaletteAttributeFilters(
+    paletteLabels,
+    attributes,
+  );
   if (filters.length === 0) return null;
 
   return {
@@ -456,7 +478,9 @@ export function mergeColorIntoAttributeFilters(
   if (!resolved.length) return base;
 
   const colorAttrIds = new Set(resolved.map((filter) => filter.attributeId));
-  const withoutColor = base.filter((item) => !colorAttrIds.has(item.attributeId));
+  const withoutColor = base.filter(
+    (item) => !colorAttrIds.has(item.attributeId),
+  );
 
   return [...withoutColor, ...resolved];
 }
@@ -468,7 +492,7 @@ export function createFallbackBreadcrumb(slug: string): BreadcrumbItem[] {
   return [
     {
       id: "home",
-      name: "خانه",
+      name: "کارآپ 24",
       slug: "",
       link: "/",
       depth: -1,
@@ -486,10 +510,190 @@ export function createFallbackBreadcrumb(slug: string): BreadcrumbItem[] {
   ];
 }
 
+/** SEO-friendly vehicle query key (`vehicle=name`). */
+export const VEHICLE_PARAM = "vehicle";
+export const LEGACY_VEHICLE_ID_PARAM = "vehicleId";
+
+const VEHICLE_ID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export type VehicleUrlNode = {
+  id: string;
+  parentId?: string | null;
+  name: string;
+  englishName?: string;
+  children?: VehicleUrlNode[] | string[];
+};
+
+export function isVehicleIdToken(value: string): boolean {
+  return VEHICLE_ID_PATTERN.test(value.trim());
+}
+
+export function slugifyVehicleName(value: string): string {
+  return value
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+export function normalizeVehicleKey(value: string): string {
+  let decoded = value.trim();
+  try {
+    decoded = decodeURIComponent(decoded);
+  } catch {
+    // already decoded
+  }
+
+  return slugifyVehicleName(decoded).toLowerCase();
+}
+
+export function flattenVehicleNodes(
+  nodes: VehicleUrlNode[] | undefined,
+  parent?: VehicleUrlNode,
+  acc: VehicleUrlNode[] = [],
+): VehicleUrlNode[] {
+  if (!nodes?.length) return acc;
+
+  for (const node of nodes) {
+    if (!node?.id) continue;
+
+    const current: VehicleUrlNode = {
+      ...node,
+      parentId: node.parentId ?? parent?.id ?? null,
+    };
+    acc.push(current);
+
+    const children = Array.isArray(node.children)
+      ? node.children.filter(
+          (child): child is VehicleUrlNode =>
+            typeof child === "object" && child !== null && "id" in child,
+        )
+      : [];
+
+    flattenVehicleNodes(children, current, acc);
+  }
+
+  return acc;
+}
+
+function buildVehicleLookup(
+  vehicles?: VehicleUrlNode[],
+  extraVehicles: VehicleUrlNode[] = [],
+) {
+  const lookup = new Map<string, VehicleUrlNode>();
+  flattenVehicleNodes(vehicles).forEach((vehicle) => {
+    lookup.set(vehicle.id, vehicle);
+  });
+  extraVehicles.forEach((vehicle) => {
+    lookup.set(vehicle.id, vehicle);
+  });
+  return lookup;
+}
+
+export function getVehicleUrlValue(
+  vehicle: VehicleUrlNode,
+  lookup: Map<string, VehicleUrlNode>,
+): string {
+  const ownName = (vehicle.name || vehicle.englishName || "").trim();
+  const ownKey = normalizeVehicleKey(ownName);
+  const sameNameCount = [...lookup.values()].filter(
+    (item) =>
+      normalizeVehicleKey(item.name || item.englishName || "") === ownKey,
+  ).length;
+
+  if (ownName && sameNameCount <= 1) {
+    return slugifyVehicleName(ownName);
+  }
+
+  const names: string[] = [];
+  const visited = new Set<string>();
+  let current: VehicleUrlNode | undefined = vehicle;
+
+  while (current && !visited.has(current.id)) {
+    visited.add(current.id);
+    const label = (current.name || current.englishName || "").trim();
+    if (label) names.unshift(label);
+    const parentId: string | undefined = current.parentId?.trim();
+    current = parentId ? lookup.get(parentId) : undefined;
+  }
+
+  return slugifyVehicleName(names.join("-") || ownName || vehicle.id);
+}
+
+export function listVehicleParams(
+  searchParams: URLSearchParams | Record<string, string | string[] | undefined>,
+): string[] {
+  return [
+    ...listSearchParamValues(searchParams, VEHICLE_PARAM),
+    ...listSearchParamValues(searchParams, LEGACY_VEHICLE_ID_PARAM),
+    ...listSearchParamValues(searchParams, "vehicleIds"),
+    ...listSearchParamValues(searchParams, "VehicleIds"),
+  ].filter((value, index, array) => value && array.indexOf(value) === index);
+}
+
+export function resolveVehicleParamsToIds(
+  params: string[],
+  vehicles?: VehicleUrlNode[],
+  extraVehicles: VehicleUrlNode[] = [],
+): string[] {
+  if (!params.length) return [];
+
+  const lookup = buildVehicleLookup(vehicles, extraVehicles);
+  const ids = new Set<string>();
+
+  for (const param of params) {
+    const trimmed = param.trim();
+    if (!trimmed) continue;
+
+    if (isVehicleIdToken(trimmed)) {
+      ids.add(trimmed);
+      continue;
+    }
+
+    const key = normalizeVehicleKey(trimmed);
+    if (!key) continue;
+
+    for (const vehicle of lookup.values()) {
+      const tokenKey = normalizeVehicleKey(getVehicleUrlValue(vehicle, lookup));
+      const nameKey = normalizeVehicleKey(vehicle.name || "");
+      const englishKey = normalizeVehicleKey(vehicle.englishName || "");
+
+      if (key === tokenKey || key === nameKey || key === englishKey) {
+        ids.add(vehicle.id);
+      }
+    }
+  }
+
+  return [...ids];
+}
+
+export function writeVehicleParams(
+  params: URLSearchParams,
+  selectedIds: string[],
+  vehicles?: VehicleUrlNode[],
+  extraVehicles: VehicleUrlNode[] = [],
+) {
+  const lookup = buildVehicleLookup(vehicles, extraVehicles);
+
+  params.delete(VEHICLE_PARAM);
+  params.delete(LEGACY_VEHICLE_ID_PARAM);
+  params.delete("vehicleIds");
+  params.delete("VehicleIds");
+
+  selectedIds.filter(Boolean).forEach((id) => {
+    const vehicle = lookup.get(id);
+    params.append(
+      VEHICLE_PARAM,
+      vehicle ? getVehicleUrlValue(vehicle, lookup) : id,
+    );
+  });
+}
+
 export const ALL_PRODUCTS_BREADCRUMB: BreadcrumbItem[] = [
   {
     id: "home",
-    name: "خانه",
+    name: "کارآپ 24",
     slug: "",
     depth: 0,
     position: 0,

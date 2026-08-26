@@ -16,6 +16,7 @@ export const TICKET_CATEGORIES: Array<{
   { value: "orderTracking", label: "پیگیری سفارش" },
   { value: "paymentIssue", label: "مشکل پرداخت" },
   { value: "returnRequest", label: "درخواست مرجوعی" },
+  { value: "cancell", label: "لغو سفارش" },
   { value: "damageProduct", label: "محصول آسیب دیده" },
   { value: "shippingDelay", label: "تاخیر ارسال" },
   { value: "changeAddress", label: "تغییر آدرس" },

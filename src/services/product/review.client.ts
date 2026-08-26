@@ -18,14 +18,14 @@ function getRecord(value: unknown): Record<string, unknown> {
 }
 
 function logApiError(label: string, error: unknown) {
-  console.error(`[review.client] ${label} failed =>`, error);
+  // console.error(`[review.client] ${label} failed =>`, error);
   if (error instanceof ApiError) {
-    console.error(`[review.client] ${label} error body =>`, {
-      status: error.status,
-      code: error.code,
-      message: error.message,
-      data: error.data,
-    });
+    // console.error(`[review.client] ${label} error body =>`, {
+    //   status: error.status,
+    //   code: error.code,
+    //   message: error.message,
+    //   data: error.data,
+    // });
   }
 }
 

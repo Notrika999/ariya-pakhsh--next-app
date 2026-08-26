@@ -1,6 +1,12 @@
 "use client";
 // components/ui/Home/Story/Story.jsx
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FreeMode } from "swiper/modules";
 import StoryItem from "./StoryItem";
@@ -33,10 +39,12 @@ export default function Story({ stories }) {
   const [videoPaused, setVideoPaused] = useState(false);
   const [videoControlsVisible, setVideoControlsVisible] = useState(true);
   const [seen, setSeen] = useState(new Set());
+  const [storyMotion, setStoryMotion] = useState(null);
 
   const startTs = useRef(0);
   const touchStartX = useRef(0);
   const videoRef = useRef(null);
+  const advancingRef = useRef(false);
 
   const storyList = useMemo(
     () => (Array.isArray(stories) ? stories : []),
@@ -68,7 +76,9 @@ export default function Story({ stories }) {
 
       setStoryIndex(idx);
       setFrameIndex(0);
+      setStoryMotion(null);
       setOpen(true);
+      advancingRef.current = false;
       resetFrameState();
     },
     [resetFrameState, storyList],
@@ -77,7 +87,10 @@ export default function Story({ stories }) {
   const goPrev = useCallback(() => {
     if (storyCount === 0) return;
 
+    advancingRef.current = false;
+
     if (frameIndex > 0) {
+      setStoryMotion(null);
       setFrameIndex((prev) => prev - 1);
       resetFrameState();
       return;
@@ -85,15 +98,19 @@ export default function Story({ stories }) {
 
     const prevStoryIndex = (storyIndex - 1 + storyCount) % storyCount;
     const prevFramesCount = storyList[prevStoryIndex]?.frames?.length ?? 1;
+    setStoryMotion("prev");
     setStoryIndex(prevStoryIndex);
     setFrameIndex(Math.max(prevFramesCount - 1, 0));
     resetFrameState();
   }, [frameIndex, resetFrameState, storyCount, storyIndex, storyList]);
 
   const goNext = useCallback(() => {
-    if (storyCount === 0) return;
+    if (storyCount === 0 || advancingRef.current) return;
+
+    advancingRef.current = true;
 
     if (frameIndex < frames.length - 1) {
+      setStoryMotion(null);
       setFrameIndex((prev) => prev + 1);
       resetFrameState();
       return;
@@ -104,6 +121,7 @@ export default function Story({ stories }) {
     }
 
     const nextStoryIndex = (storyIndex + 1) % storyCount;
+    setStoryMotion("next");
     setStoryIndex(nextStoryIndex);
     setFrameIndex(0);
     resetFrameState();
@@ -135,6 +153,10 @@ export default function Story({ stories }) {
     );
     setOpen(false);
   }, [actionLink, currentFrame, currentStory]);
+
+  useEffect(() => {
+    advancingRef.current = false;
+  }, [currentFrame?.id, storyIndex]);
 
   useEffect(() => {
     if (!open || !currentFrame || isVideo) return;
@@ -241,7 +263,9 @@ export default function Story({ stories }) {
                 onOpen={() => openStory(idx)}
                 index={idx}
                 viewed={seen.has(story.id)}
-                hasVideo={story.frames?.some((frame) => frame.mediaType === "Video")}
+                hasVideo={story.frames?.some(
+                  (frame) => frame.mediaType === "Video",
+                )}
               />
             </SwiperSlide>
           ))}
@@ -289,25 +313,35 @@ export default function Story({ stories }) {
               ›
             </button>
 
-            <div className={storyStyle.progressBar}>
-              {frames.map((frame, idx) => (
-                <div
-                  key={frame.id}
-                  className={`${storyStyle.progressItem} ${
-                    idx === frameIndex ? storyStyle.active : ""
-                  } ${idx < frameIndex ? storyStyle.seen : ""}`}
-                  style={{
-                    width: `${100 / frames.length}%`,
-                    "--progress":
-                      idx === frameIndex ? `${progress * 100}%` : "0%",
-                  }}
-                />
-              ))}
+            <div className={storyStyle.progressBar} aria-hidden="true">
+              {frames.map((frame, idx) => {
+                const fill =
+                  idx < frameIndex ? 1 : idx === frameIndex ? progress : 0;
+
+                return (
+                  <div key={frame.id} className={storyStyle.progressItem}>
+                    <span
+                      className={storyStyle.progressFill}
+                      style={{ transform: `scaleX(${fill})` }}
+                    />
+                  </div>
+                );
+              })}
             </div>
 
-            <div className={storyStyle.storyContent}>
+            <div
+              key={currentStory.id}
+              className={`${storyStyle.storyContent} ${
+                storyMotion === "next"
+                  ? storyStyle.storyEnterNext
+                  : storyMotion === "prev"
+                    ? storyStyle.storyEnterPrev
+                    : ""
+              }`}
+            >
               <div
-                className={storyStyle.imageHolder}
+                key={currentFrame.id}
+                className={`${storyStyle.imageHolder} ${storyStyle.frameEnter}`}
                 onClick={showVideoControls}
               >
                 {isVideo ? (
@@ -331,9 +365,14 @@ export default function Story({ stories }) {
                     onPause={() => setVideoPaused(true)}
                     onTimeUpdate={(e) => {
                       const el = e.target;
-                      if (el.duration > 0) {
+                      const fallbackSeconds = duration / 1000;
+                      const total =
+                        Number.isFinite(el.duration) && el.duration > 0
+                          ? el.duration
+                          : fallbackSeconds;
+                      if (total > 0) {
                         setVideoCurrentTime(el.currentTime);
-                        setProgress(el.currentTime / el.duration);
+                        setProgress(Math.min(1, el.currentTime / total));
                       }
                     }}
                     onEnded={goNext}
@@ -376,7 +415,7 @@ export default function Story({ stories }) {
                 ) : null}
               </div>
 
-              <div className={storyStyle.centerCaption}>
+              {/* <div className={storyStyle.centerCaption}>
                 <h2>{currentStory.title}</h2>
                 {currentStory.subtitle ? <p>{currentStory.subtitle}</p> : null}
               </div>
@@ -385,7 +424,7 @@ export default function Story({ stories }) {
                 <div className={storyStyle.videoTime}>
                   {Math.floor(videoCurrentTime)}s
                 </div>
-              ) : null}
+              ) : null} */}
 
               {actionHref ? (
                 <Link href={actionHref} className={storyStyle.productCard}>

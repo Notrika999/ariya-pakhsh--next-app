@@ -179,10 +179,10 @@ export default function UserFavorites() {
   const to = Math.min(page * PAGE_SIZE, totalCount);
 
   return (
-    <div className="lg:col-span-3 space-y-8">
+    <div className="lg:col-span-3 space-y-4">
       <UserFavoritesTop totalCount={totalCount} />
 
-      <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
+      <div className="bg-white rounded-2xl drop-shadow-lg px-3 py-2 dark:bg-custom-dark dark:border dark:border-gray-700">
         <FilterBar
           selects={[
             {
@@ -205,7 +205,7 @@ export default function UserFavorites() {
         />
       </div>
 
-      <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
+      <div className="bg-white rounded-2xl drop-shadow-lg px-3 py-2 dark:bg-custom-dark dark:border dark:border-gray-700">
         <TitleAfter title={"لیست محصولات ذخیره شده"} />
 
         {loading ? (

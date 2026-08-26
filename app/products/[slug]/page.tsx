@@ -181,6 +181,8 @@ async function CategoryPage({ params, searchParams }: Props) {
 
   if (productListsResult.ok) {
     productLists = productListsResult.value;
+
+   
   } else {
     if (
       productListsResult.error instanceof ProductServiceError &&
@@ -188,12 +190,6 @@ async function CategoryPage({ params, searchParams }: Props) {
     ) {
       notFound();
     }
-
-    console.error("[products/category] product list failed", {
-      slug,
-      categoryId: effectiveCategoryId,
-      error: productListsResult.error,
-    });
 
     productListError = getProductListErrorMessage(productListsResult.error);
     productLists = createEmptyProductListResponse(parseNumber(page) ?? 1);

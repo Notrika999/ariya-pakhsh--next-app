@@ -1,6 +1,9 @@
 "use client";
 
-import { AUTH_COOKIE_NAMES, AUTH_USER_STORAGE_KEY } from "./constants";
+import {
+  AUTH_COOKIE_NAME_ALIASES,
+  AUTH_USER_STORAGE_KEY,
+} from "./constants";
 
 export const PROTECTED_ROUTE_PREFIXES = [
   "/user-profile",
@@ -11,9 +14,10 @@ let logoutInFlight: Promise<void> | null = null;
 
 export function hasAuthIndicator(): boolean {
   if (typeof document === "undefined") return false;
+  const indicatorNames = new Set<string>(AUTH_COOKIE_NAME_ALIASES.AUTH_INDICATOR);
   return document.cookie
     .split(";")
-    .some((c) => c.trim().startsWith(`${AUTH_COOKIE_NAMES.AUTH_INDICATOR}=`));
+    .some((c) => indicatorNames.has(c.trim().split("=")[0]));
 }
 
 export function hasStoredUser(): boolean {

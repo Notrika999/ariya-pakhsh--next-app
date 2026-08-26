@@ -26,11 +26,17 @@ type Props = {
 };
 
 const MAX_VISIBLE_COLOR_LABEL_LENGTH = 10;
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function truncateColorLabel(label: string): string {
   return label.length > MAX_VISIBLE_COLOR_LABEL_LENGTH
     ? `${label.slice(0, MAX_VISIBLE_COLOR_LABEL_LENGTH)}...`
     : label;
+}
+
+function isUuid(value: string): boolean {
+  return UUID_PATTERN.test(value.trim());
 }
 
 function ColorTitle({ labels }: { labels: string[] }) {
@@ -128,6 +134,11 @@ export default function FilterColor({
       selectedItem.labels.forEach((label) => {
         if (label) params.append(COLOR_PALETTE_PARAM, label);
       });
+      selectedItem.optionIds.forEach((optionId) => {
+        if (optionId && isUuid(optionId)) {
+          params.append("ColorOptionIds", optionId);
+        }
+      });
     }
 
     params.set("page", "1");
@@ -141,7 +152,7 @@ export default function FilterColor({
   return (
     <div dir="rtl">
       <div className="max-h-80 overflow-y-auto overflow-x-hidden custom-scrollbar">
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(60px,1fr))] gap-x-2 gap-y-5 px-1 py-2">
+        <div className="grid xl:grid-cols-[repeat(auto-fit,minmax(40px,1fr))] grid-cols-[repeat(auto-fit,minmax(60px,1fr))] gap-2 p-1">
           {items.map((item) => {
             const selected = isItemSelected(item.labels, item.optionIds);
             const hoverTitle = formatColorFilterTitle(item.labels);
@@ -155,17 +166,17 @@ export default function FilterColor({
                 onClick={() => handleToggle(item)}
                 aria-pressed={selected}
                 title={hoverTitle}
-                className="group flex min-w-0 cursor-pointer flex-col items-center gap-2 text-center outline-none"
+                className="group flex min-w-0 cursor-pointer flex-col items-center text-center outline-none"
               >
                 <span
-                  className={`flex size-[45px] items-center justify-center rounded-[10px] bg-gray-100 transition-all duration-200 dark:bg-zinc-900 ${
+                  className={`flex size-[40px] items-center justify-center rounded-md bg-gray-100 transition-all duration-200 dark:bg-zinc-900 ${
                     selected
-                      ? "border-[3px] border-primary p-0.5"
-                      : "border-2 border-[#dedfe3] p-[5px] group-hover:border-[#c7cad1] dark:border-gray-700 dark:group-hover:border-gray-600"
+                      ? "border-[2px] border-primary p-0.2"
+                      : "border-1 border-[#dedfe3] p-[2px] group-hover:border-[#c7cad1] dark:border-gray-700 dark:group-hover:border-gray-600"
                   }`}
                 >
                   <span
-                    className={`block size-[35px] overflow-hidden rounded-md ${
+                    className={`block size-[30px] overflow-hidden rounded-md ${
                       needsBorder
                         ? "border border-[#d9dce3] dark:border-gray-600"
                         : ""

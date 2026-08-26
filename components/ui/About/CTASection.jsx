@@ -12,7 +12,7 @@ export default function CTASection() {
       </p>
       <div className="flex flex-col sm:flex-row justify-center gap-4">
         <Link
-          href="#"
+          href="/contact"
           className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition font-medium shadow-lg"
         >
           تماس با ما
@@ -20,8 +20,8 @@ export default function CTASection() {
           
         </Link>
         <Link
-          href="#"
-          className="inline-flex items-center justify-center px-6 py-3 bg-secondary-500 text-gray-800 rounded-xl hover:bg-secondary-500/80 transition font-medium backdrop-blur-sm"
+          href="/products"
+          className="inline-flex items-center justify-center px-6 py-3 bg-secondary-500 text-gray-50 rounded-xl hover:bg-secondary-500/80 transition font-medium backdrop-blur-sm"
         >
           مشاهده محصولات
         </Link>

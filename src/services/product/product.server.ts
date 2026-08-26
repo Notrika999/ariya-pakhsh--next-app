@@ -4,11 +4,13 @@ import "server-only";
 import { proxyToBackend } from "@/src/lib/http/server-http";
 import { mapProductIndex } from "@/src/lib/mappers/product.mapper";
 import { ApiResponse } from "@/src/lib/types/common/api-response.types";
+import { getBrands } from "@/src/services/brand/brand.server";
 import { ProductDetail } from "@/src/lib/types/products/productDetail.types";
 import {
   ProductIndexApiResponse,
   ProductFilterColorOption,
   ProductFilterOptions,
+  ProductFilterVehicleOption,
   ProductListParams,
   ProductListResponse,
   ProductResponse,
@@ -17,10 +19,12 @@ import {
   allBrandSlugParams,
   colorPaletteParams,
   colorOptionIdParams,
-  listSearchParamValues,
+  isVehicleIdToken,
+  listVehicleParams,
   parseAttributeFilters,
   resolveBrandSlugsToIds,
   resolveColorPaletteAttributeFilters,
+  resolveVehicleParamsToIds,
 } from "@/src/lib/helper/productListHelpers";
 
 export class ProductServiceError extends Error {
@@ -47,12 +51,12 @@ export interface GetProductsParams {
 }
 
 const DEFAULT_PRODUCTS_PARAMS: GetProductsParams = {
-  FeaturedCount: 8,
-  NewestCount: 8,
-  BestSellingCount: 8,
-  OnSaleCount: 8,
-  TopCategoriesCount: 6,
-  TopBrandsCount: 6,
+  FeaturedCount: 15,
+  NewestCount: 15,
+  BestSellingCount: 15,
+  OnSaleCount: 15,
+  TopCategoriesCount: 15,
+  TopBrandsCount: 15,
 };
 
 function removeEmptyValues<T extends Record<string, unknown>>(value: T) {
@@ -95,6 +99,53 @@ const EMPTY_FILTER_OPTIONS: ProductFilterOptions = {
   maxPrice: 0,
 };
 
+const BRAND_LOOKUP_PAGE_SIZE = 20;
+const BRAND_LOOKUP_MAX_PAGES = 20;
+
+type BrandLookupOption = {
+  id?: string | number | null;
+  brandId?: string | number | null;
+  slug?: string | null;
+  name?: string | null;
+  nameInEnglish?: string | null;
+  englishName?: string | null;
+};
+
+type BrandSearchSuggestion = {
+  id?: string | null;
+  type?: string | null;
+  text?: string | null;
+  label?: string | null;
+  name?: string | null;
+  value?: string | null;
+  slug?: string | null;
+};
+
+type BrandSearchFacet = {
+  id?: string | null;
+  key?: string | null;
+  brandId?: string | null;
+  label?: string | null;
+  name?: string | null;
+  value?: string | null;
+  slug?: string | null;
+};
+
+type BrandSearchProduct = {
+  brandId?: string | null;
+  brand?: string | null;
+  primaryBrandName?: string | null;
+  primaryBrandSlug?: string | null;
+};
+
+type BrandSearchResponse = {
+  products?: BrandSearchProduct[];
+  suggestions?: BrandSearchSuggestion[];
+  facets?: {
+    brands?: BrandSearchFacet[];
+  };
+};
+
 export function createEmptyProductListResponse(page = 1): ProductListResponse {
   return {
     items: [],
@@ -128,6 +179,137 @@ function getApiMessage(data: unknown, fallback: string): string {
   return fallback;
 }
 
+function normalizeLookupValue(value: string | number | null | undefined) {
+  const rawValue = String(value ?? "").trim();
+
+  try {
+    return decodeURIComponent(rawValue).trim().toLowerCase();
+  } catch {
+    return rawValue.toLowerCase();
+  }
+}
+
+function brandLookupMatches(brand: BrandLookupOption, values: string[]) {
+  const candidates = [
+    brand.slug,
+    brand.name,
+    brand.nameInEnglish,
+    brand.englishName,
+    brand.id,
+    brand.brandId,
+  ].map(normalizeLookupValue);
+
+  return values.some((value) => candidates.includes(normalizeLookupValue(value)));
+}
+
+function getBrandLookupId(brand: BrandLookupOption) {
+  return String(brand.brandId ?? brand.id ?? "").trim();
+}
+
+async function resolveBrandSlugsToIdsFromBrandList(slugs: string[]) {
+  const wantedSlugs = slugs.map((slug) => slug.trim()).filter(Boolean);
+  if (wantedSlugs.length === 0) return [];
+
+  const resolvedIds = new Set<string>();
+
+  for (let pageNumber = 1; pageNumber <= BRAND_LOOKUP_MAX_PAGES; pageNumber += 1) {
+    const brands = await getBrands({
+      pageNumber,
+      pageSize: BRAND_LOOKUP_PAGE_SIZE,
+      grouped: false,
+    });
+
+    for (const brand of brands.items as BrandLookupOption[]) {
+      if (!brandLookupMatches(brand, wantedSlugs)) continue;
+
+      const brandId = getBrandLookupId(brand);
+      if (brandId) resolvedIds.add(brandId);
+    }
+
+    if (resolvedIds.size === wantedSlugs.length || !brands.hasNextPage) break;
+  }
+
+  return [...resolvedIds];
+}
+
+function getSearchBrandId(brand: BrandLookupOption) {
+  return String(brand.brandId ?? brand.id ?? "").trim();
+}
+
+function getSearchSuggestionLabel(suggestion: BrandSearchSuggestion) {
+  return String(
+    suggestion.text ??
+      suggestion.label ??
+      suggestion.name ??
+      suggestion.value ??
+      suggestion.slug ??
+      "",
+  ).trim();
+}
+
+function getSearchFacetLabel(facet: BrandSearchFacet) {
+  return String(facet.label ?? facet.name ?? facet.value ?? facet.slug ?? "")
+    .trim();
+}
+
+async function resolveBrandSlugsToIdsFromSearch(slugs: string[]) {
+  const wantedSlugs = slugs.map((slug) => slug.trim()).filter(Boolean);
+  if (wantedSlugs.length === 0) return [];
+
+  const resolvedIds = new Set<string>();
+
+  for (const slug of wantedSlugs) {
+    const response = await proxyToBackend<ApiResponse<BrandSearchResponse>>({
+      method: "GET",
+      path: "/api/v1/Search/products",
+      params: {
+        q: slug,
+        Page: 1,
+        PageSize: 10,
+      },
+      cache: "no-store",
+      timeout: 5_000,
+      retries: 0,
+    });
+
+    const data = response.data?.data;
+    if (!response.ok || !data) continue;
+
+    for (const suggestion of data.suggestions ?? []) {
+      if (String(suggestion.type ?? "").toLowerCase() !== "brand") continue;
+      if (!brandLookupMatches({ name: getSearchSuggestionLabel(suggestion) }, [slug])) {
+        continue;
+      }
+
+      const brandId = getSearchBrandId(suggestion);
+      if (brandId) resolvedIds.add(brandId);
+    }
+
+    for (const facet of data.facets?.brands ?? []) {
+      if (!brandLookupMatches({ ...facet, name: getSearchFacetLabel(facet) }, [slug])) {
+        continue;
+      }
+
+      const brandId = getSearchBrandId(facet);
+      if (brandId) resolvedIds.add(brandId);
+    }
+
+    for (const product of data.products ?? []) {
+      const brand = {
+        brandId: product.brandId,
+        name: product.brand ?? product.primaryBrandName,
+        slug: product.primaryBrandSlug,
+      };
+      if (!brandLookupMatches(brand, [slug])) continue;
+
+      const brandId = getSearchBrandId(brand);
+      if (brandId) resolvedIds.add(brandId);
+    }
+  }
+
+  return [...resolvedIds];
+}
+
 function warnOptionalProductRequest(endpoint: string, error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
   console.warn(
@@ -143,7 +325,7 @@ type RawFilterAttribute = {
 };
 
 type RawFilterAttributeOption = {
-  optionId: string;
+  optionId?: string | null;
   value: string;
   displayText?: string;
   colorCodes?: string;
@@ -263,6 +445,7 @@ function normalizeFilterOptions(
 function isColorAttribute(
   attribute: ProductFilterOptions["attributes"][number],
 ) {
+  const attributeType = Number(attribute.attributeType);
   const attributeId = String(attribute.attributeId ?? "")
     .trim()
     .toLowerCase();
@@ -271,11 +454,10 @@ function isColorAttribute(
     .toLowerCase();
 
   return (
+    attributeType === 7 ||
     attributeId === "color" ||
     attributeName === "رنگ" ||
-    attributeName === "color" ||
-    attributeName.includes("رنگ") ||
-    attributeName.includes("color")
+    attributeName === "color"
   );
 }
 
@@ -343,6 +525,7 @@ export async function getProducts(
     cache: "no-store",
   });
 
+  console.log(response);
 
   if (!response.ok || !response.data.isSuccess) {
     throw new Error("Failed to fetch products");
@@ -376,6 +559,7 @@ export async function getProductList(
       attributeId: filter.attributeId,
       optionIds: nonEmptyStringArray(filter.optionIds),
       value: filter.value,
+      values: nonEmptyStringArray(filter.values),
       boolValue: filter.boolValue,
     }),
   ).filter((filter) => {
@@ -410,7 +594,6 @@ export async function getProductList(
     timeout: 8_000,
     retries: 0,
   });
-
 
   if (!response.ok) {
     throw new ProductServiceError(
@@ -484,6 +667,47 @@ export async function getProductFilterOptions(
   return normalizeFilterOptions(response.data.data);
 }
 
+export async function lookupVehiclesByNames(
+  names: string[],
+): Promise<ProductFilterVehicleOption[]> {
+  const uniqueNames = [
+    ...new Set(names.map((name) => name.trim()).filter(Boolean)),
+  ];
+  if (uniqueNames.length === 0) return [];
+
+  const results = await Promise.all(
+    uniqueNames.map(async (name) => {
+      const searchTerm = name.replace(/-/g, " ").trim();
+      if (!searchTerm) return [] as ProductFilterVehicleOption[];
+
+      try {
+        const response = await proxyToBackend<
+          ApiResponse<ProductFilterVehicleOption[]>
+        >({
+          method: "GET",
+          path: "/api/v1/Products/vehicles/lookup",
+          params: { SearchTerm: searchTerm },
+          cache: "no-store",
+          timeout: 5_000,
+          retries: 0,
+        });
+
+        if (!response.ok) return [];
+
+        const isSuccess =
+          response.data.success ?? response.data.isSuccess ?? true;
+        if (!isSuccess) return [];
+
+        return response.data.data ?? [];
+      } catch {
+        return [];
+      }
+    }),
+  );
+
+  return results.flat().filter((vehicle) => Boolean(vehicle?.id));
+}
+
 /**
  * Resolves SEO query params (`brand=slug`, `color_palettes=displayText`)
  * into the Products/filter body (brandIds / attributeFilters).
@@ -496,7 +720,10 @@ export async function getProductListFromSearchParams(
   searchParams: Record<string, string | string[] | undefined>,
 ): Promise<ProductListResponse> {
   const baseFilters = parseAttributeFilters(searchParams);
-  const vehicleIds = listSearchParamValues(searchParams, "vehicleId");
+  const vehicleParams = listVehicleParams(searchParams);
+  const needsVehicleResolve = vehicleParams.some(
+    (value) => !isVehicleIdToken(value),
+  );
   const shouldSendAllVehicles =
     searchParams.vehicleMode === "all" ||
     searchParams.allVehicles === "true" ||
@@ -522,17 +749,19 @@ export async function getProductListFromSearchParams(
 
   const needsColorResolve = paletteLabels.length > 0;
   const needsBrandResolve = brandSlugs.length > 0;
+  const needsFilterOptions =
+    needsColorResolve || needsBrandResolve || needsVehicleResolve;
 
   let filterOptions: ProductFilterOptions = EMPTY_FILTER_OPTIONS;
   let filterOptionsPromise: Promise<ProductFilterOptions> | null = null;
 
-  if (listParams.CategoryId && (needsColorResolve || needsBrandResolve)) {
+  if (listParams.CategoryId && needsFilterOptions) {
     filterOptionsPromise = getProductFilterOptions({
       CategoryId: listParams.CategoryId,
     });
   }
 
-  if (needsColorResolve || needsBrandResolve) {
+  if (needsFilterOptions) {
     try {
       filterOptions = filterOptionsPromise
         ? await filterOptionsPromise
@@ -545,19 +774,27 @@ export async function getProductListFromSearchParams(
     }
   }
 
-  let brandSlug: string | undefined;
   let brandIds: string[] | undefined;
 
   if (brandSlugs.length > 0 && filterOptions.brands.length > 0) {
     brandIds = resolveBrandSlugsToIds(brandSlugs, filterOptions.brands);
-    // fallback when facet list misses a slug
-    if (brandIds.length === 0 && brandSlugs.length === 1) {
-      brandSlug = brandSlugs[0];
-    }
-  } else if (brandSlugs.length === 1) {
-    brandSlug = brandSlugs[0];
   }
 
+  if (brandSlugs.length > 0 && (!brandIds || brandIds.length === 0)) {
+    try {
+      brandIds = await resolveBrandSlugsToIdsFromBrandList(brandSlugs);
+    } catch (error) {
+      warnOptionalProductRequest("brands", error);
+    }
+  }
+
+  if (brandSlugs.length > 0 && (!brandIds || brandIds.length === 0)) {
+    try {
+      brandIds = await resolveBrandSlugsToIdsFromSearch(brandSlugs);
+    } catch (error) {
+      warnOptionalProductRequest("search products", error);
+    }
+  }
   let colorOptionIds = queryColorOptionIds;
   const attributeFilters = baseFilters;
   if (needsColorResolve && filterOptions.attributes.length > 0) {
@@ -570,13 +807,36 @@ export async function getProductListFromSearchParams(
     ];
   }
 
+  let vehicleIds = resolveVehicleParamsToIds(
+    vehicleParams,
+    filterOptions.vehicles,
+  );
+
+  if (needsVehicleResolve) {
+    const unresolvedNames = vehicleParams.filter((param) => {
+      if (isVehicleIdToken(param)) return false;
+      return (
+        resolveVehicleParamsToIds([param], filterOptions.vehicles).length === 0
+      );
+    });
+
+    if (unresolvedNames.length > 0) {
+      const lookedUpVehicles = await lookupVehiclesByNames(unresolvedNames);
+      vehicleIds = resolveVehicleParamsToIds(
+        vehicleParams,
+        filterOptions.vehicles,
+        lookedUpVehicles,
+      );
+    }
+  }
+
   const fullColorOptionsPromise = Promise.resolve<ProductFilterOptions | null>(
     null,
   );
 
   const safeFilterOptionsPromise =
     filterOptionsPromise ??
-    (needsColorResolve || needsBrandResolve
+    (needsFilterOptions
       ? Promise.resolve(filterOptions)
       : Promise.resolve(null));
 
@@ -584,7 +844,6 @@ export async function getProductListFromSearchParams(
     await Promise.all([
       getProductList({
         ...listParams,
-        BrandSlug: brandIds?.length ? undefined : brandSlug,
         BrandIds: brandIds && brandIds.length > 0 ? brandIds : undefined,
         ColorOptionIds: colorOptionIds.length > 0 ? colorOptionIds : undefined,
         VehicleIds: shouldSendAllVehicles

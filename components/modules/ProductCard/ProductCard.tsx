@@ -90,7 +90,7 @@ function getProductHrefIdentifiers(href: string | undefined): string[] {
     .map((part) => decodeURIComponent(part));
 }
 
-function truncateTitle(title: string, maxLength = 28): string {
+function truncateTitle(title: string, maxLength = 100): string {
   const normalized = title.trim();
   if (normalized.length <= maxLength) return normalized;
   return `${normalized.slice(0, maxLength).trimEnd()}...`;
@@ -308,33 +308,29 @@ export default function ProductCard({
           />
         </svg>
       </button>
-
-      {/* Image */}
-      <div className="relative w-full h-48 bg-white dark:bg-stone-800 flex items-center justify-center overflow-hidden ">
-        {(showStockBadge ||
-          showSaleBadge ||
-          product.discountPercent ||
-          product.specialSale) && (
-          <div className="absolute top-3 right-3 z-10 flex flex-col items-start gap-1">
-            
-
-            {showSaleBadge && (
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-sm bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800">
-                {saleBadge?.label}
-              </span>
-            )}
-
-           
-          </div>
-        )}
-        <Image
-          src={product.image}
-          alt={product.title}
-          fill
-          className="object-contain transition-transform duration-500 group-hover:scale-105"
-        />
-      </div>
-
+      <Link href={product.href}>
+        {/* Image */}
+        <div className="relative w-full h-48 bg-white dark:bg-white flex items-center justify-center overflow-hidden ">
+          {(showStockBadge ||
+            showSaleBadge ||
+            product.discountPercent ||
+            product.specialSale) && (
+            <div className="absolute top-3 right-3 z-10 flex flex-col items-start gap-1">
+              {showSaleBadge && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border shadow-sm bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800">
+                  {saleBadge?.label}
+                </span>
+              )}
+            </div>
+          )}
+          <Image
+            src={product.image}
+            alt={product.title}
+            fill
+            className="object-contain transition-transform duration-500 group-hover:scale-105"
+          />
+        </div>
+      </Link>
       {/* Content */}
       <div className="p-4 flex flex-col gap-3">
         {/* Name */}
@@ -355,20 +351,9 @@ export default function ProductCard({
             title={product.title}
             className="text-sm font-medium text-gray-900 dark:text-gray-100 block"
           >
-            {truncateTitle(product.title)}
+            {product.title}
+            {/* {truncateTitle(product.title)} */}
           </span>
-
-          {showStockBadge && (
-              <span
-                className={`text-[8px] font-extrabold px-2 py-0.5 rounded-full border shadow-sm ${
-                  product.inStock
-                    ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800"
-                    : "bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800"
-                }`}
-              >
-                {product.inStock ? "موجود در انبار" : "اتمام کالا"}
-              </span>
-            )}
         </Link>
 
         {/* {showPublicCode && (
@@ -380,10 +365,23 @@ export default function ProductCard({
           </p>
         )} */}
 
-        {/* Rating */}
-        {review && (
-          <StarRating rating={review.rating ?? 0} count={review.count ?? 0} />
-        )}
+        <div className="flex items-center justify-between">
+          {/* Rating */}
+          {review && (
+            <StarRating rating={review.rating ?? 0} count={review.count ?? 0} />
+          )}
+          {showStockBadge && (
+            <span
+              className={`text-[8px] font-extrabold px-2 py-0.5 rounded-full border shadow-sm ${
+                product.inStock
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800"
+                  : "bg-red-50 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800"
+              }`}
+            >
+              {product.inStock ? "موجود در انبار" : "اتمام کالا"}
+            </span>
+          )}
+        </div>
 
         {/* Countdown */}
         {product.dealEndsAt && !expired && !noTimer && (
@@ -401,38 +399,35 @@ export default function ProductCard({
 
         {/* Prices */}
         <div className="flex flex-col gap-1 pt-1 border-t border-stone-100 dark:border-stone-800">
-          <div className="flex items-center gap-2">
-            
+          <div className="flex flex-col sm:flex-row items-center gap-2">
             {product.oldPrice !== product.price && (
               <span className="text-[10px] font-bold text-stone-400 dark:text-stone-500 line-through text-nowrap">
                 {formatPrice(product?.oldPrice)}
               </span>
             )}
             <span className="font-black text-stone-900 dark:text-stone-100 tracking-tight text-lg text-nowrap text-left inline-block mr-auto">
-              
               {formatPrice(product.price)}
 
               {product.discountPercent ? (
-              <span className="bg-red-500 text-white text-xs font-bold me-2 py-0.5 px-1 rounded-lg shadow-sm">
-                {product.discountPercent}٪
-              </span>
-            ) : null}
-            {product.specialSale && !showSaleBadge && (
-              <span className="text-[8px] font-extrabold me-2 py-0.5 px-2 rounded-full border shadow-sm bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800">
-                ویژه
-              </span>
-            )}
+                <span className="bg-red-500 text-white text-xs font-bold me-2 py-0.5 px-1 rounded-lg shadow-sm">
+                  {product.discountPercent}٪
+                </span>
+              ) : null}
+              {product.specialSale && !showSaleBadge && (
+                <span className="text-[8px] font-extrabold me-2 py-0.5 px-2 rounded-full border shadow-sm bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800">
+                  ویژه
+                </span>
+              )}
               <span className="inline-block text-[11px] font-bold -rotate-90 text-stone-500 dark:text-stone-400 border-b border-stone-300 dark:border-stone-600">
                 تومان
               </span>
-              
             </span>
           </div>
         </div>
 
         {/* CTA */}
         {!noClick && (
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             {isOutOfStock ? (
               <Link
                 href={"#"}
@@ -467,7 +462,7 @@ export default function ProductCard({
 
             <Link
               href={product.href}
-              className="w-full py-2 rounded-xl text-sm text-center font-bold transition-all duration-200 bg-primary hover:bg-primary-400 text-white"
+              className="w-full hidden py-2 rounded-xl text-sm text-center font-bold transition-all duration-200 bg-primary hover:bg-primary-400 text-white"
             >
               جزییات
             </Link>

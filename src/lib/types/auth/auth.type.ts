@@ -104,6 +104,7 @@ export interface UpdateProfileRequest {
   lastName: string;
   email: string;
   birthDate: string | null;
+  nationalCode?: string | null;
 }
 
 export type UpdateProfileResponse = UserInfoDto;

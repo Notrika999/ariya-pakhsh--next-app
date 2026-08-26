@@ -22,19 +22,32 @@ function formatDate(value) {
 
 function statusBadgeClass(statusKey = "") {
   const key = String(statusKey).toLowerCase();
-  if (key.includes("deliver") || key.includes("paid") || key.includes("success")) {
+  if (
+    key.includes("deliver") ||
+    key.includes("paid") ||
+    key.includes("success")
+  ) {
     return "bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300";
   }
   if (key.includes("ship") || key.includes("fulfill")) {
     return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300";
   }
-  if (key.includes("cancel") || key.includes("fail") || key.includes("expire")) {
+  if (
+    key.includes("cancel") ||
+    key.includes("fail") ||
+    key.includes("expire")
+  ) {
     return "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300";
   }
   if (key.includes("pending") || key.includes("wait")) {
     return "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300";
   }
   return "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300";
+}
+
+function getOrderDetailsHref(order) {
+  const lookup = String(order?.publicOrderNumber || order?.orderId || "").trim();
+  return `/user-profile/orders/${encodeURIComponent(lookup)}`;
 }
 
 function OrdersSkeleton() {
@@ -67,13 +80,13 @@ export default function RecentOrders({ orders = [], loading = false }) {
   return (
     <div className="overflow-x-auto rounded-2xl border border-gray-100 dark:border-gray-700">
       <table className="w-full text-sm text-right">
-        <thead className="text-xs bg-gray-100 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 sticky top-0">
+        <thead className="text-xs bg-gray-100 dark:bg-gray-800/60 text-gray-700 dark:text-gray-300 sticky top-0 ">
           <tr>
-            <th className="px-5 py-4">شماره سفارش</th>
-            <th className="px-5 py-4">تاریخ</th>
-            <th className="px-5 py-4">مبلغ</th>
-            <th className="px-5 py-4">وضعیت</th>
-            <th className="px-5 py-4">عملیات</th>
+            <th className="p-2 text-center">شماره سفارش</th>
+            <th className="p-2 text-center">تاریخ</th>
+            <th className="p-2 text-center">مبلغ</th>
+            <th className="p-2 text-center">وضعیت</th>
+            <th className="p-2 text-center">عملیات</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -82,23 +95,27 @@ export default function RecentOrders({ orders = [], loading = false }) {
               key={order.orderId}
               className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
             >
-              <td className="px-5 py-4 font-bold text-gray-900 dark:text-white">
+              <td className="p-3 text-center text-sm font-bold text-gray-900 dark:text-white">
                 #{order.publicOrderNumber || order.orderId}
               </td>
-              <td className="px-5 py-4">{formatDate(order.createdAt)}</td>
-              <td className="px-5 py-4">{formatMoney(order.payableAmount)}</td>
-              <td className="px-5 py-4">
+              <td className="p-3 text-center text-sm">
+                {formatDate(order.createdAt)}
+              </td>
+              <td className="p-3 text-center text-sm">
+                {formatMoney(order.payableAmount)}
+              </td>
+              <td className="p-3 text-center text-sm">
                 <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-xs text-nowrap font-semibold ${statusBadgeClass(
+                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs text-nowrap font-semibold ${statusBadgeClass(
                     order.statusKey,
                   )}`}
                 >
                   {order.statusTitleFa || order.statusKey || "-"}
                 </span>
               </td>
-              <td className="px-5 py-4">
+              <td className="p-3">
                 <Link
-                  href={`/user-profile/orders/${order.orderId}`}
+                  href={getOrderDetailsHref(order)}
                   className="text-xs font-medium bg-primary text-white py-1.5 px-4 rounded-lg hover:bg-primary/90 active:scale-95 transition duration-200 shadow-sm hover:shadow dark:bg-primary/80 dark:hover:bg-primary/60 dark:text-white"
                 >
                   مشاهده

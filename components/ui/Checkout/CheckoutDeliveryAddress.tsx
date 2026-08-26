@@ -172,7 +172,28 @@ export default function CheckoutDeliveryAddress({
           آدرس‌های ذخیره شده
         </h3>
 
-        {loading ? null : (
+        {loading ? null : addresses.length === 0 ? (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
+            <div className="flex items-start gap-3">
+              <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-900/60 dark:text-amber-300">
+                <i className="far fa-location-exclamation" />
+              </span>
+              <div className="min-w-0">
+                <p className="font-bold">آدرس ذخیره‌شده‌ای وجود ندارد</p>
+                <p className="mt-1 text-sm leading-6 text-amber-700 dark:text-amber-200/90">
+                  برای ادامه ثبت سفارش، لطفاً یک آدرس تحویل جدید اضافه کنید.
+                </p>
+                <button
+                  type="button"
+                  onClick={openCreateModal}
+                  className="mt-3 rounded-lg bg-amber-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-amber-700"
+                >
+                  افزودن آدرس جدید
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
           <div className="space-y-3">
             {addresses.map((address) => {
               const isSelected = selectedAddressId === address.id;

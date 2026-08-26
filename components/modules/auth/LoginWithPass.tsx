@@ -10,11 +10,24 @@ import {
 } from "@/src/services/auth/auth.client";
 import { useAuthStore } from "@/src/lib/stores/auth/auth.store";
 import { getBrowserFingerprint } from "@/src/lib/helper/fingerprint";
+import { ApiError } from "@/src/lib/http/api-client";
+import { notify } from "@/src/utils/toast";
 
 interface LoginWithPassProps {
   onSuccess: () => void;
   onRequiresTwoFactor: () => void;
   onForgotSuccess: () => void;
+}
+
+function isTwoFactorAlreadySentError(
+  message?: string | null,
+): message is string {
+  if (!message) return false;
+  return (
+    message.includes("قبلاً") ||
+    message.includes("قبلا") ||
+    message.includes("دیگر تلاش")
+  );
 }
 
 export default function LoginWithPass({
@@ -25,6 +38,8 @@ export default function LoginWithPass({
   const setUser = useAuthStore((s) => s.setUser);
   const setLoginTwoFactorFlow = useAuthStore((s) => s.setLoginTwoFactorFlow);
   const setPasswordResetFlow = useAuthStore((s) => s.setPasswordResetFlow);
+  const loginTwoFactorToken = useAuthStore((s) => s.loginTwoFactorToken);
+  const loginTwoFactorOtpSentTo = useAuthStore((s) => s.loginTwoFactorOtpSentTo);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -70,9 +85,15 @@ export default function LoginWithPass({
       }
 
       if (result.requiresTwoFactor) {
+        const twoFactorMessage = result.errorMessage ?? null;
+
         if (!result.twoFactorToken) {
           setError("توکن احراز دومرحله‌ای از سرور دریافت نشد");
           return;
+        }
+
+        if (isTwoFactorAlreadySentError(twoFactorMessage)) {
+          notify.warning(twoFactorMessage);
         }
 
         setLoginTwoFactorFlow(
@@ -95,7 +116,24 @@ export default function LoginWithPass({
       onSuccess();
     } catch (err) {
       console.error("[LoginWithPass] login failed:", err);
-      setError(getAuthErrorMessage(err));
+      const message = getAuthErrorMessage(err);
+
+      if (err instanceof ApiError && err.status === 429) {
+        notify.warning(message);
+
+        if (loginTwoFactorToken) {
+          setLoginTwoFactorFlow(
+            loginTwoFactorToken,
+            loginTwoFactorOtpSentTo,
+            deviceFingerPrint ?? "device-id",
+          );
+          onRequiresTwoFactor();
+        }
+
+        return;
+      }
+
+      setError(message);
     } finally {
       setLoading(false);
     }

@@ -94,7 +94,7 @@ export default function Faq() {
     <SectionContainer>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
         <div>
-          <TitleAfter title={"سوالات متداول"} />
+          <TitleAfter title={"سوالات متداول"} tag />
           <p className="text-gray-600 dark:text-gray-400">
             پاسخ به پرتکرارترین سوالات شما درباره محصولات و خدمات ما
           </p>

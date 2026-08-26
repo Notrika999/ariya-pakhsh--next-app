@@ -29,7 +29,7 @@ function resolveAvatarSrc(avatarUrl) {
   return getProductImage(trimmed);
 }
 
-export default function UserSidebar() {
+export default function UserSidebar({ variant = "desktop" }) {
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
@@ -201,7 +201,7 @@ export default function UserSidebar() {
         );
       }
 
-      const freshUser = await refreshUserFromMe(result.avatarUrl);
+      await refreshUserFromMe(result.avatarUrl);
       notify.success(result.message || "آواتار با موفقیت به‌روزرسانی شد");
     } catch (error) {
       console.error("[UserSidebar] upload avatar failed =>", error);
@@ -243,8 +243,60 @@ export default function UserSidebar() {
     await performLogout();
   };
 
+  if (variant === "mobileBottom") {
+    return (
+      <nav
+        className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-custom-dark"
+        aria-label="منوی پنل کاربر"
+      >
+        <h2 className="mb-4 text-center text-base font-black text-gray-900 dark:text-gray-100">
+          منو پنل
+        </h2>
+
+        <ul className="grid grid-cols-2 gap-2">
+          {userPanelMenu.map((menu) => {
+            const active = isActive(menu.link);
+
+            return (
+              <li key={menu.id}>
+                <Link
+                  href={menu.link}
+                  className={`flex min-h-12 items-center justify-start gap-2 rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+                    active
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-gray-100 text-gray-700 hover:border-primary/30 hover:text-primary dark:border-gray-700 dark:text-gray-300"
+                  }`}
+                  title={menu.disabled ? "در دست تکمیل است" : undefined}
+                  aria-disabled={menu.disabled}
+                >
+                  <i
+                    className={`${menu.icon} shrink-0 text-base ${
+                      active ? "text-primary" : "text-[#BCC1C8]"
+                    }`}
+                  />
+                  <span className="min-w-0 truncate">{menu.title}</span>
+                </Link>
+              </li>
+            );
+          })}
+
+          <li className="col-span-2">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-red-100 px-3 py-2 text-sm font-bold text-red-500 transition hover:bg-red-50 dark:border-red-900/50 dark:hover:bg-red-950/30"
+            >
+              <i className="far fa-right-from-bracket text-[#DC3545]" />
+              خروج
+            </button>
+          </li>
+        </ul>
+      </nav>
+    );
+  }
+
   return (
-    <div className="relative mb-8 rounded-2xl bg-white p-4 pt-24 shadow-[0_4px_30px_#edf0f5] dark:bg-custom-dark dark:shadow-lg">
+    <div className="relative mb-8 rounded-2xl bg-white pt-24 shadow-[0_4px_30px_#edf0f5] dark:bg-custom-dark dark:shadow-lg">
       <div className="absolute inset-e-0 inset-s-0 top-[-10px] z-0 mx-auto h-[75px] w-[230px]">
         <svg
           width="230"
@@ -256,8 +308,8 @@ export default function UserSidebar() {
           <path d="M230 0H0V10C26.2258 10.6605 43.6909 20.4901 52.0499 27.9356C60.4088 35.3811 84.5186 61.9259 84.5186 61.9259C101.038 79.219 128.627 79.219 145.146 61.9259C145.146 61.9259 169.146 35.4578 177.549 28.0042C185.953 20.5506 203.675 10.6625 230 10V0Z"></path>
         </svg>
 
-      {/* Avatar */}
-        <div className="absolute inset-e-0 inset-s-0 top-[-10px] mx-auto h-[73px] w-[73px]">
+        {/* Avatar */}
+        <div className="absolute inset-e-0 inset-s-0 top-[-10px] mx-auto h-[75px] w-[75px]">
           <Image
             width={100}
             height={100}
@@ -316,15 +368,15 @@ export default function UserSidebar() {
         </div>
       </div>
 
-      <ul className="space-y-2">
+      <ul className="space-y-1">
         {userPanelMenu.map((menu) => {
           const active = isActive(menu.link);
 
           return (
-            <li key={menu.id} className="px-1 py-2.5">
+            <li key={menu.id} className="px-1">
               <Link
                 href={menu.link}
-                className={`group relative flex items-center justify-start px-5 py-1 ${
+                className={`group relative flex items-center justify-start px-3 py-3 ${
                   active
                     ? "font-bold text-primary before:absolute before:bottom-0 before:right-0 before:top-0 before:w-1 before:scale-y-100 before:rounded before:bg-primary before:content-['']"
                     : "text-gray-800 hover:text-primary before:absolute before:bottom-0 before:right-0 before:top-0 before:w-1 before:scale-y-0 before:rounded before:content-[''] hover:before:scale-y-100 hover:before:bg-primary dark:text-gray-500"

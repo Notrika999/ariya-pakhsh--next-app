@@ -232,7 +232,7 @@ export default function Comments() {
     currentPage.hasNextPage;
 
   return (
-    <div className="lg:col-span-3 space-y-8">
+    <div className="lg:col-span-3 space-y-4">
       <CommentsTop
         reviewsCount={summary.reviewsCount}
         questionsCount={summary.questionsCount}

@@ -18,6 +18,7 @@ export type Category = {
     path?: string | null;
   } | null;
   imageUrl?: string | null;
+  svgIcon?: string | null;
   src?: string;
   seoTitle: string;
   seoDescription: string;

@@ -58,6 +58,15 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
   return (
     <>
       <CartSynchronizationModal {...cartSync.modalProps} />
+      <button
+        type="button"
+        aria-label="بستن سبد خرید"
+        className={`fixed inset-0 z-40 bg-black/25 transition-opacity duration-200 ${
+          open ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        onClick={onClose}
+      />
+
       <div
       className={`fixed top-0 inset-e-0 sm:w-100 w-[80%] h-full bg-white dark:bg-[#0d1117]
       text-gray-900 dark:text-gray-100 border-s border-gray-200 dark:border-gray-800 shadow-xl

@@ -107,17 +107,17 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
 
   return (
     <>
-      <button
-        type="button"
-        aria-label="بازگشت به صفحه قبل"
-        onClick={handleBack}
-        className="fixed start-3 top-[calc(env(safe-area-inset-top)+12px)] z-9000 flex size-10 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm lg:hidden dark:border-gray-700 dark:bg-custom-dark dark:text-gray-100"
-      >
-        <i className="far fa-angle-right text-lg" aria-hidden="true" />
-      </button>
-
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white px-3 py-2.5 pb-[calc(env(safe-area-inset-bottom)+10px)] shadow-[0_-8px_24px_rgba(15,23,42,0.08)] lg:hidden dark:border-gray-700 dark:bg-custom-dark">
         <div className="flex items-center justify-between gap-3">
+          <button
+            type="button"
+            aria-label="بازگشت به صفحه قبل"
+            onClick={handleBack}
+            className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-800 shadow-sm transition-colors hover:bg-gray-50 active:scale-95 dark:border-gray-700 dark:bg-zinc-900 dark:text-gray-100 dark:hover:bg-zinc-800"
+          >
+            <i className="far fa-angle-right text-lg" aria-hidden="true" />
+          </button>
+
           <button
             type="button"
             onClick={handleAddToCart}
@@ -228,7 +228,7 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
               </div>
 
               {/* Tags */}
-              <div className="flex items-center gap-2 pt-2 flex-wrap">
+              {/* <div className="flex items-center gap-2 pt-2 flex-wrap">
                 <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-3 py-1 rounded-full">
                   کالای اصل
                 </span>
@@ -245,7 +245,7 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
                     ناموجود
                   </span>
                 )}
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -315,14 +315,14 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
             </div>
           ) : (
             <>
-              <div className="flex items-center justify-center">
+              {/* <div className="flex items-center justify-center">
                 <button className="bg-gray-400 cursor-not-allowed w-full mt-3 text-white font-semibold rounded-xl px-6 py-4 text-sm">
                   اتمام موجودی
                 </button>
-              </div>
+              </div> */}
               <div className="mt-3">
                 <button className="bg-primary shadow-primary-500 w-full hover:bg-primary-600 text-white font-semibold rounded-xl px-6 py-3 text-sm">
-                  📧 به من اطلاع بده
+                  🔔 به من اطلاع بده
                 </button>
                 <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
                   وقتی محصول موجود شد به من اطلاع بده

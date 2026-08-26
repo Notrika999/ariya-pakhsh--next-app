@@ -1,9 +1,10 @@
-// product/[...params]/page.tsx
+// app/product/[...params]/page.tsx
 
 import { Metadata } from "next";
 import ProductDetails from "@/components/ui/ProductPageClient/ProductPageClient";
 import { getProductById } from "@/src/services/product/product.server";
-import { absoluteUrl } from "@/src/lib/seo/site";
+import { SITE_NAME, absoluteUrl } from "@/src/lib/seo/site";
+import { getProductImage } from "@/src/utils/product-image";
 import type { ProductDetail } from "@/src/lib/types/products/productDetail.types";
 
 interface PageProps {
@@ -46,6 +47,24 @@ function getProductVariantPath(product: ProductDetail, variantId?: string) {
     : basePath;
 }
 
+function getProductShareImage(product: ProductDetail, variantId?: string) {
+  const variantImages =
+    product.variants?.find((variant) => variant.variantId === variantId)
+      ?.images ?? [];
+  const allImages = product.variants?.flatMap((variant) => variant.images) ?? [];
+  const image =
+    variantImages.find((item) => item.isPrimary) ??
+    variantImages[0] ??
+    allImages.find((item) => item.isPrimary) ??
+    allImages[0];
+
+  const imageUrl = getProductImage(
+    image?.largePath ?? image?.mediumPath ?? image?.thumbnailPath,
+  );
+
+  return imageUrl.startsWith("http") ? imageUrl : absoluteUrl(imageUrl);
+}
+
 export async function generateMetadata({
   params: pageParams,
   searchParams: pageSearchParams,
@@ -62,13 +81,38 @@ export async function generateMetadata({
 
   const product = await getProductById(productIdentifier);
   const canonicalVariantId = getInitialVariantId(product, requestedVariantId);
+  const title = product?.metaTitle ?? product.name;
+  const description = product?.metaDescription ?? product.shortDescription;
+  const canonicalUrl = absoluteUrl(
+    getProductVariantPath(product, canonicalVariantId),
+  );
+  const imageUrl = getProductShareImage(product, canonicalVariantId);
 
   return {
-    title: product?.metaTitle ?? product.name,
-    description: product?.metaDescription ?? product.shortDescription,
+    title,
+    description,
     keywords: product?.metaKeywords,
     alternates: {
-      canonical: absoluteUrl(getProductVariantPath(product, canonicalVariantId)),
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: SITE_NAME,
+      type: "website",
+      images: [
+        {
+          url: imageUrl,
+          alt: product.name,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
     },
     robots: { index: true, follow: true },
   };

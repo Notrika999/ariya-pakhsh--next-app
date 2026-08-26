@@ -10,6 +10,7 @@ import "swiper/css";
 import Image from "next/image";
 import Link from "next/link";
 import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
+import { getProductImage } from "@/src/utils/product-image";
 
 function getActiveSlidesPerView(instance) {
   const value = instance.params.slidesPerView;
@@ -17,7 +18,27 @@ function getActiveSlidesPerView(instance) {
   return typeof value === "number" ? value : 1;
 }
 
-export default function Brand({ brands, title, href }) {
+function getBrandImage(brand) {
+  if (typeof brand.image === "string") {
+    return getProductImage(brand.image);
+  }
+
+  return getProductImage(
+    brand.image?.logoMdUrl ??
+      brand.image?.logoLgUrl ??
+      brand.image?.logoSmUrl ??
+      brand.logoUrl ??
+      brand.imageUrl,
+  );
+}
+
+function getBrandHref(brand) {
+  const slug = String(brand.slug ?? "").trim();
+  return slug ? `/products/${encodeURIComponent(slug)}` : "/products";
+}
+
+export default function Brand({ brands, title }) {
+
   const [swiper, setSwiper] = useState(null);
   const [sliderState, setSliderState] = useState({
     canScroll: false,
@@ -62,11 +83,8 @@ export default function Brand({ brands, title, href }) {
 
   return (
     <>
-      {/* <!-- for seo --> */}
-      <h2 className="sr-only">برند های فروشگاه</h2>
-
       {/* <!-- header --> */}
-      <SectionHeader title={title}  />
+      <SectionHeader title={title} />
 
       {/* <!-- categories swiper --> */}
       <div className="mt-3 space-y-3 pb-4">
@@ -78,7 +96,7 @@ export default function Brand({ brands, title, href }) {
                 aria-label="برند قبلی"
                 onClick={handleSlidePrev}
                 disabled={!isLoopEnabled && sliderState.isBeginning}
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-300 dark:text-gray-200 dark:hover:bg-gray-800 dark:disabled:text-gray-600"
+                className="flex md:h-9 md:w-9 h-5 w-6 cursor-pointer items-center justify-center rounded-lg text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-300 dark:text-gray-200 dark:hover:bg-gray-800 dark:disabled:text-gray-600"
               >
                 <ChevronRight size={20} strokeWidth={2.4} aria-hidden="true" />
               </button>
@@ -87,7 +105,7 @@ export default function Brand({ brands, title, href }) {
                 aria-label="برند بعدی"
                 onClick={handleSlideNext}
                 disabled={!isLoopEnabled && sliderState.isEnd}
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg bg-primary text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-300 disabled:shadow-none dark:disabled:bg-gray-800 dark:disabled:text-gray-600"
+                className="flex md:h-9 md:w-9 h-5 w-6 cursor-pointer items-center justify-center rounded-lg bg-primary text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-300 disabled:shadow-none dark:disabled:bg-gray-800 dark:disabled:text-gray-600"
               >
                 <ChevronLeft size={20} strokeWidth={2.4} aria-hidden="true" />
               </button>
@@ -96,12 +114,13 @@ export default function Brand({ brands, title, href }) {
         )}
 
         <div className="relative">
-          {sliderState.canScroll && (isLoopEnabled || !sliderState.isBeginning) && (
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-linear-to-l from-white to-transparent dark:from-[#121923]"
-            />
-          )}
+          {sliderState.canScroll &&
+            (isLoopEnabled || !sliderState.isBeginning) && (
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-linear-to-l from-white to-transparent dark:from-[#121923]"
+              />
+            )}
           {sliderState.canScroll && (isLoopEnabled || !sliderState.isEnd) && (
             <div
               aria-hidden="true"
@@ -144,7 +163,7 @@ export default function Brand({ brands, title, href }) {
           >
             {brands.map((brand) => (
               <SwiperSlide key={brand.id}>
-                <Link href={`/products/${brand.slug}`}>
+                <Link href={getBrandHref(brand)}>
                   <div
                     className="bg-white dark:bg-custom-dark border border-gray-200 dark:border-neutral-700
                                     space-y-4 p-4 rounded-2xl flex flex-col items-center justify-center
@@ -154,7 +173,7 @@ export default function Brand({ brands, title, href }) {
                     {/* <!-- thumbnail --> */}
                     <figure>
                       <Image
-                        src={brand.image || "/images/default.png"}
+                        src={getBrandImage(brand)}
                         alt={brand.name}
                         width={100}
                         height={100}

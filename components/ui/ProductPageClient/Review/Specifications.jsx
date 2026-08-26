@@ -62,6 +62,8 @@ function buildRows(product, attributes, variant) {
 }
 
 function ValueContent({ row }) {
+  const isCompatibleCarsRow = row.label === "خودروهای سازگار";
+  const values = row.values.length ? row.values : normalizeListValue(row.value);
   const shouldUseChips = row.featured || row.values.length > 3;
 
   if (!shouldUseChips) {
@@ -69,6 +71,38 @@ function ValueContent({ row }) {
       <p className="whitespace-pre-line break-words text-sm leading-7 text-gray-800 dark:text-gray-100">
         {row.value}
       </p>
+    );
+  }
+
+  if (isCompatibleCarsRow) {
+    return (
+      <>
+        <p className="text-xs font-medium leading-7 text-gray-800 dark:text-gray-100 md:hidden">
+          {values.map((item, index) => (
+            <span key={`${item}-${index}`}>
+              {item}
+              {index < values.length - 1 ? (
+                <span className="px-1 text-gray-400 dark:text-gray-500">
+                  -
+                </span>
+              ) : null}
+            </span>
+          ))}
+        </p>
+
+        <div className="hidden max-h-72 overflow-y-auto pe-1 md:block">
+          <div className="flex flex-wrap gap-2">
+            {values.map((item, index) => (
+              <span
+                key={`${item}-${index}`}
+                className="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium leading-5 text-gray-700 shadow-sm dark:border-gray-700 dark:bg-zinc-900 dark:text-gray-200"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      </>
     );
   }
 
@@ -98,19 +132,20 @@ export default function Specifications({ product, attributes, variant }) {
       </h2>
 
       {rows.length > 0 ? (
-        <div className="mt-8 grid grid-cols-1 gap-4">
+        <div className="mt-8 grid grid-cols-1 ">
           {rows.map((row, index) => (
             <section
               key={`${row.label}-${index}`}
-              className="grid grid-cols-1 gap-3 rounded-xl border border-gray-200 bg-gray-50 p-3 shadow-sm transition-colors dark:border-gray-700 dark:bg-zinc-900/70 md:grid-cols-[240px_1fr]"
+              className="grid  
+               rounded-sm border border-gray-200 bg-gray-50  shadow-sm transition-colors dark:border-gray-700 dark:bg-zinc-900/70 grid-cols-2"
             >
-              <div className="flex min-h-14 items-center rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 dark:border-blue-900/50 dark:bg-blue-950/30">
+              <div className="flex min-h-10 items-center  border border-blue-100 bg-blue-50 px-2 py-2 dark:border-blue-900/50 dark:bg-blue-950/30">
                 <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
                   {row.label}
                 </span>
               </div>
 
-              <div className="min-h-14 rounded-lg border border-gray-200 bg-white px-4 py-3 dark:border-gray-700 dark:bg-[#1e232a]">
+              <div className="min-h-10  border border-gray-200 bg-white px-2 py-2 dark:border-gray-700 dark:bg-[#1e232a]">
                 <ValueContent row={row} />
               </div>
             </section>

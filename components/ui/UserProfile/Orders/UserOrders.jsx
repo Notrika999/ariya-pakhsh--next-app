@@ -2,7 +2,7 @@
 // components/ui/UserProfile/Orders/UserOrders.jsx
 import React, { useCallback, useEffect, useState } from "react";
 import UserOrdersTop from "./UserOrdersTop";
-import UserOrdersFilter from "./UserOrdersFilter";
+import UserOrdersFilter, { ORDER_STATUS_TABS } from "./UserOrdersFilter";
 import UserOrdersList from "./UserOrdersList";
 import GatewayRedirectConfirmation from "@/components/modules/GatewayRedirectConfirmation/GatewayRedirectConfirmation";
 import {
@@ -54,6 +54,7 @@ export default function UserOrders() {
   const [hasNextPage, setHasNextPage] = useState(false);
 
   const [status, setStatus] = useState("");
+  const [statusCounts, setStatusCounts] = useState({});
   const [dateRange, setDateRange] = useState("");
   const [search, setSearch] = useState("");
   const [searchMode, setSearchMode] = useState(false);
@@ -101,6 +102,36 @@ export default function UserOrders() {
     }, 0);
     return () => window.clearTimeout(timer);
   }, [loadOrders]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const timer = window.setTimeout(() => {
+      const dateParams = buildDateRange(dateRange);
+      void Promise.all(
+        ORDER_STATUS_TABS.filter((tab) => tab.value).map(async (tab) => {
+          try {
+            const data = await getMyOrders({
+              pageNumber: 1,
+              pageSize: 1,
+              statusKey: tab.value,
+              ...dateParams,
+            });
+            return [tab.value, data.totalCount];
+          } catch {
+            return [tab.value, 0];
+          }
+        }),
+      ).then((entries) => {
+        if (cancelled) return;
+        setStatusCounts(Object.fromEntries(entries));
+      });
+    }, 0);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [dateRange]);
 
   const handleSearchSubmit = async () => {
     const term = search.trim();
@@ -186,29 +217,31 @@ export default function UserOrders() {
     }
   }, [pendingRetryOrder, retryingOrderId]);
 
-  const handleDownloadInvoice = useCallback(async (order) => {
-    if (!order?.orderId || downloadingInvoiceOrderId) return;
+  const handleDownloadInvoice = useCallback(
+    async (order) => {
+      if (!order?.orderId || downloadingInvoiceOrderId) return;
 
-    setDownloadingInvoiceOrderId(order.orderId);
-    try {
-      const { blob, fileName } = await downloadMyOrderInvoice(order.orderId);
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download =
-        fileName ||
-        `invoice-${order.publicOrderNumber || order.orderId}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-      notify.success("فاکتور سفارش دانلود شد");
-    } catch (error) {
-      notify.error(getAuthErrorMessage(error));
-    } finally {
-      setDownloadingInvoiceOrderId(null);
-    }
-  }, [downloadingInvoiceOrderId]);
+      setDownloadingInvoiceOrderId(order.orderId);
+      try {
+        const { blob, fileName } = await downloadMyOrderInvoice(order.orderId);
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download =
+          fileName || `invoice-${order.publicOrderNumber || order.orderId}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        notify.success("فاکتور سفارش دانلود شد");
+      } catch (error) {
+        notify.error(getAuthErrorMessage(error));
+      } finally {
+        setDownloadingInvoiceOrderId(null);
+      }
+    },
+    [downloadingInvoiceOrderId],
+  );
 
   if (pendingRetryOrder) {
     return (
@@ -218,7 +251,8 @@ export default function UserOrders() {
         details={[
           {
             label: "شماره سفارش",
-            value: pendingRetryOrder.publicOrderNumber || pendingRetryOrder.orderId,
+            value:
+              pendingRetryOrder.publicOrderNumber || pendingRetryOrder.orderId,
           },
           {
             label: "تعداد کالا",
@@ -228,7 +262,8 @@ export default function UserOrders() {
           },
           {
             label: "وضعیت سفارش",
-            value: pendingRetryOrder.statusTitleFa || pendingRetryOrder.statusKey,
+            value:
+              pendingRetryOrder.statusTitleFa || pendingRetryOrder.statusKey,
             tone: "warning",
           },
           {
@@ -248,12 +283,10 @@ export default function UserOrders() {
   }
 
   return (
-    <div className="space-y-8 lg:col-span-3">
-      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
-        <UserOrdersTop activeCount={totalCount} />
-      </div>
+    <div className="space-y-4 lg:col-span-3">
+      <UserOrdersTop activeCount={totalCount} />
 
-      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+      <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <UserOrdersFilter
           status={status}
           dateRange={dateRange}
@@ -262,6 +295,7 @@ export default function UserOrders() {
           onDateRangeChange={(value) => setDateRange(value)}
           onSearchChange={setSearch}
           onSearchSubmit={handleSearchSubmit}
+          statusCounts={statusCounts}
         />
       </div>
 
@@ -294,7 +328,7 @@ export default function UserOrders() {
           notify.info("قابلیت خرید مجدد به‌زودی فعال می‌شود");
         }}
         onTrackOrder={() => {
-          notify.info("قابلیت رهگیری سفارش به‌زودی فعال می‌شود");
+          notify.info("قابلیت پیگیری سفارش به‌زودی فعال می‌شود");
         }}
         onCancelSuccess={() => {
           void loadOrders(page);

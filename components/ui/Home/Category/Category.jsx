@@ -2,10 +2,9 @@ import CategoriesSlider from "@/components/modules/CategoriesSlider/CategoriesSl
 import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
 
 export default function CategorySlider({ categories, title }) {
+  
   return (
     <>
-      <h2 className="sr-only">دسته‌بندی‌های فروشگاه</h2>
-
       {/* Header */}
       <SectionHeader title={title}  />
 

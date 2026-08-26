@@ -63,10 +63,10 @@ export default function HeaderSetting() {
     setDarkMode((prev) => !prev);
   };
   return (
-    <div className="lg:col-span-4 col-span-4 order-3 w-full">
+    <div className="order-3 col-span-6 w-auto lg:col-span-4 lg:w-full">
       <div className="flex items-baseline justify-end">
         {/* basket and call and darkmode  */}
-        <div className="flex items-center gap-x-4 md:me-5 me-4">
+        <div className="flex items-center gap-x-4 md:me-5 me-0">
           {/* heart  */}
           {/* <a href="" className="hidden">
             <i className="fa-regular fa-heart"></i>
@@ -75,7 +75,7 @@ export default function HeaderSetting() {
           {/* basket  */}
           <div
             onClick={() => setCartOpen(true)}
-            className="relative  ms-2 flex"
+            className="relative ms-2 hidden lg:flex"
           >
             <i className="fa-regular fa-bag-shopping"></i>
 
@@ -123,46 +123,50 @@ export default function HeaderSetting() {
 
         <div className="lg:inline-block hidden me-3 h-10 w-px self-stretch bg-gray-200 dark:bg-gray-700"></div>
         {/* login  */}
-        {!mounted ? (
-          <div
-            className="hidden lg:block h-10 w-28 rounded-lg bg-gray-100 dark:bg-zinc-800 animate-pulse"
-            aria-hidden="true"
-          />
-        ) : showUserMenu ? (
-          <div className="relative" ref={menuRef}>
+        <div className="hidden lg:block">
+          {!mounted ? (
+            <div
+              className="h-10 w-28 rounded-lg bg-gray-100 dark:bg-zinc-800 animate-pulse"
+              aria-hidden="true"
+            />
+          ) : showUserMenu ? (
+            <div className="relative" ref={menuRef}>
+              <button
+                ref={triggerRef}
+                onClick={() => setMenuOpen((v) => !v)}
+                className="flex items-center bg-white dark:bg-custom-dark text-gray-900 dark:text-gray-100 lg:py-2 lg:px-3 lg:border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1f242c] transition-colors duration-200"
+              >
+                <i className="fa-regular fa-user-circle me-1"></i>
+                <span className="lg:inline-block hidden max-w-[120px] truncate">
+                  {user?.displayName ||
+                    [user?.firstName, user?.lastName]
+                      .filter(Boolean)
+                      .join(" ") ||
+                    "حساب کاربری"}
+                </span>
+                {/* <i
+                  className={`hidden  fa-solid fa-chevron-down ms-1 text-xs transition-transform ${
+                    menuOpen ? "rotate-180" : ""
+                  }`}
+                ></i> */}
+              </button>
+              {menuOpen && (
+                <UserMenu
+                  anchorRef={triggerRef}
+                  onClose={() => setMenuOpen(false)}
+                />
+              )}
+            </div>
+          ) : (
             <button
-              ref={triggerRef}
-              onClick={() => setMenuOpen((v) => !v)}
+              onClick={() => setOpen(true)}
               className="flex items-center bg-white dark:bg-custom-dark text-gray-900 dark:text-gray-100 lg:py-2 lg:px-3 lg:border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1f242c] transition-colors duration-200"
             >
               <i className="fa-regular fa-user-circle me-1"></i>
-              <span className="lg:inline-block hidden max-w-[120px] truncate">
-                {user?.displayName ||
-                  [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
-                  "حساب کاربری"}
-              </span>
-              {/* <i
-                className={`hidden  fa-solid fa-chevron-down ms-1 text-xs transition-transform ${
-                  menuOpen ? "rotate-180" : ""
-                }`}
-              ></i> */}
+              <span className="lg:inline-block hidden">ورود / ثبت نام</span>
             </button>
-            {menuOpen && (
-              <UserMenu
-                anchorRef={triggerRef}
-                onClose={() => setMenuOpen(false)}
-              />
-            )}
-          </div>
-        ) : (
-          <button
-            onClick={() => setOpen(true)}
-            className="flex items-center bg-white dark:bg-custom-dark text-gray-900 dark:text-gray-100 modal-trigger lg:py-2 lg:px-3 lg:border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-[#1f242c] transition-colors duration-200"
-          >
-            <i className="fa-regular fa-user-circle me-1"></i>
-            <span className="lg:inline-block hidden">ورود / ثبت نام</span>
-          </button>
-        )}
+          )}
+        </div>
         {/* login  */}
       </div>
 

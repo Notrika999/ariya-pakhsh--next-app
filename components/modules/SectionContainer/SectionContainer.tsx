@@ -12,14 +12,16 @@ export const SectionContainer = ({
 }: Props) => {
   if (fullWidth) {
     return (
-      <section className={`max-w-485 mx-auto mt-7 mb-5  ${className}`}>
+      <section className={`max-w-485 mx-auto mt-3 md:mt-6 mb-5  ${className}`}>
         {children}
       </section>
     );
   }
 
   return (
-    <section className={`max-w-400 mx-auto mt-7 mb-5  px-4 w-full rounded-lg  ${className}`}>
+    <section
+      className={`max-w-400 mx-auto mt-3 md:mt-2 mb-5  px-4 w-full rounded-lg  ${className}`}
+    >
       {children}
     </section>
   );

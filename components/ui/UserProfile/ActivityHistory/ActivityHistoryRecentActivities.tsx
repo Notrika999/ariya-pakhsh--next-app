@@ -226,8 +226,8 @@ export default function ActivityHistoryRecentActivities({
   const endIndex = Math.min(pageOffset + visibleItems.length, totalRecords);
 
   return (
-    <div id="recent-activities" className="tab-content space-y-6">
-      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+    <div id="recent-activities" className="tab-content space-y-2">
+      <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <div className="flex items-start justify-between gap-4">
           <TitleAfter title="آمار فعالیت‌ها" tag={false} />
           <span className="text-xs text-gray-400 dark:text-gray-500">
@@ -266,7 +266,7 @@ export default function ActivityHistoryRecentActivities({
         </div>
       </div>
 
-      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+      <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <TitleAfter title="فعالیت‌های اخیر شما" tag={false} />
 
         {error && (

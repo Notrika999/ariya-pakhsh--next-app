@@ -1,3 +1,4 @@
+// components/layout/Footer/Menus/Menus
 import React from "react";
 import footerStyles from "../Footer.module.css";
 import MenuItems from "./MenuItems";
@@ -21,10 +22,10 @@ export default function Menus() {
       id: 2,
       title: "<strong> خدمت </strong>مشتریان",
       subMenus: [
-        { id: 1, title: "پاسخ به پرسش‌های متداول", link: "#", new: false },
+        { id: 1, title: "پاسخ به پرسش‌های متداول", link: "/faq", new: false },
         { id: 2, title: "رویه‌های بازگرداندن کالا", link: "#", new: false },
-        { id: 3, title: "شرایط استفاده", link: "#", new: false },
-        { id: 4, title: "حریم خصوصی", link: "#", new: false },
+        { id: 3, title: "قوانین و مقررات", link: "/rules", new: false },
+        { id: 4, title: "حریم خصوصی", link: "/privacy-policy", new: false },
       ],
     },
     {
@@ -32,8 +33,8 @@ export default function Menus() {
       title: "با <strong> کارآپ 24</strong>",
       subMenus: [
         { id: 1, title: "اتاق خبر", link: "#", new: false },
-        { id: 2, title: "تماس با ما", link: "#", new: false },
-        { id: 3, title: "درباره ما", link: "#", new: false },
+        { id: 2, title: "تماس با ما", link: "/contact", new: false },
+        { id: 3, title: "درباره ما", link: "/about", new: false },
       ],
     },
     // {
@@ -49,10 +50,14 @@ export default function Menus() {
   ];
 
   const socialMedia = [
-    { id: 1, src: "/images/social/aparat-white.svg" },
-    { id: 2, src: "/images/social/instagram-white.svg" },
-    { id: 3, src: "/images/social/telegram-white.svg" },
-    { id: 4, src: "/images/social/youtube-white.svg" },
+    { id: 1, src: "/images/social/aparat-white.svg", link: "#" },
+    {
+      id: 2,
+      src: "/images/social/instagram-1-svgrepo-com.svg",
+      link: "https://www.instagram.com/carup24.ir",
+    },
+    { id: 3, src: "/images/social/telegram-svgrepo-com.svg", link: "#" },
+    { id: 4, src: "/images/social/youtube-svgrepo-com.svg", link: "#" },
   ];
   return (
     <div className="py-8 bg-gray-200/50 dark:bg-[#0d1117] transition-colors duration-300">
@@ -136,7 +141,11 @@ export default function Menus() {
                     <nav className="flex justify-center">
                       <div className="flex">
                         {socialMedia.map((social) => (
-                          <SocialMediaItem key={social.id} image={social.src} />
+                          <SocialMediaItem
+                            key={social.id}
+                            image={social.src}
+                            link={social.link}
+                          />
                         ))}
                       </div>
                     </nav>
@@ -152,19 +161,19 @@ export default function Menus() {
                 <div className="w-full lg:block hidden lg:w-2/12 relative">
                   <div className="relative w-56 ">
                     <div
-                      className={`absolute -inset-3 inset-e-0 top-4 h-24 w-64 dark:hidden dark:opacity-70 ${footerStyles.footerLogoShadow}`}
+                      className={`absolute -inset-3 inset-e-0 md:top-11 top-4 h-24 w-64 dark:hidden dark:opacity-70 ${footerStyles.footerLogoShadow}`}
                     ></div>
                     <a
                       href="#"
                       className="absolute 
-                       inset-s-0 inset-e-0 text-center dark:mt-0 mt-11 block "
+                       inset-s-2 inset-e-0 text-center dark:mt-0 md:mt-19 mt-10 block "
                     >
                       <Image
                         width={60}
                         height={60}
-                        src="/images/logo/logo.png"
-                        className="size-15 mt-2 inline-block mx-auto dark:invert"
-                        alt="لوگو"
+                        src="/images/logo/carup24-logo.png"
+                        className=" mt-2 inline-block mx-auto dark:invert"
+                        alt="کارآپ ۲۴"
                       />
                     </a>
                   </div>

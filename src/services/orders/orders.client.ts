@@ -21,6 +21,7 @@ import type {
   MyOrderShipmentItem,
   MyOrdersPage,
   RetryPaymentResult,
+  ShippingAddressSnapshot,
 } from "@/src/lib/types/orders/order.types";
 import { getProductImage } from "@/src/utils/product-image";
 
@@ -49,6 +50,35 @@ function toString(value: unknown, fallback = ""): string {
 
 function toNullableString(value: unknown): string | null {
   return typeof value === "string" && value ? value : null;
+}
+
+function toJsonString(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (!value || typeof value !== "object") return "";
+
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return "";
+  }
+}
+
+function toShippingAddressSnapshot(
+  value: unknown,
+): ShippingAddressSnapshot | null {
+  let source = value;
+
+  if (typeof source === "string") {
+    try {
+      source = JSON.parse(source) as unknown;
+    } catch {
+      return null;
+    }
+  }
+
+  if (!source || typeof source !== "object") return null;
+
+  return source as ShippingAddressSnapshot;
 }
 
 function assertSuccess(payload: unknown, fallback: string) {
@@ -103,6 +133,16 @@ function getInvoiceFileName(contentDisposition?: string): string {
 
 function mapOrderListItem(value: unknown): MyOrderListItem {
   const item = getRecord(value);
+  const itemsRaw = Array.isArray(item.items)
+    ? item.items
+    : Array.isArray(item.orderItems)
+      ? item.orderItems
+      : Array.isArray(item.lines)
+        ? item.lines
+        : [];
+  const items = itemsRaw
+    .map(mapOrderItem)
+    .filter((orderItem): orderItem is MyOrderItem => Boolean(orderItem));
 
   return {
     orderId: String(item.orderId ?? item.id ?? ""),
@@ -128,6 +168,7 @@ function mapOrderListItem(value: unknown): MyOrderListItem {
       item.canRequestReturn === undefined || item.canRequestReturn === null
         ? undefined
         : Boolean(item.canRequestReturn),
+    items,
   };
 }
 
@@ -152,12 +193,6 @@ function unwrapOrdersPage(payload: unknown): MyOrdersPage {
     hasPreviousPage: Boolean(data.hasPreviousPage ?? root.hasPreviousPage),
     hasNextPage: Boolean(data.hasNextPage ?? root.hasNextPage),
   };
-}
-
-function unwrapOrder(payload: unknown): MyOrderListItem {
-  const root = getRecord(payload);
-  const data = root.data ?? root;
-  return mapOrderListItem(data);
 }
 
 function pickImagePath(item: Record<string, unknown>): string | null {
@@ -198,6 +233,8 @@ function pickImagePath(item: Record<string, unknown>): string | null {
 
 function mapOrderItem(value: unknown): MyOrderItem | null {
   const item = getRecord(value);
+  const product = getRecord(item.product);
+  const variant = getRecord(item.variant);
   const orderItemId = String(
     item.orderItemId ?? item.id ?? item.itemId ?? "",
   ).trim();
@@ -218,12 +255,31 @@ function mapOrderItem(value: unknown): MyOrderItem | null {
   const variantTitle = String(
     item.variantTitle ?? item.variantName ?? item.skuName ?? "",
   );
+  const publicCode =
+    toString(item.publicCode) ||
+    toString(item.productPublicCode) ||
+    toString(item.productCode) ||
+    toString(item.code) ||
+    toString(product.publicCode) ||
+    toString(product.productCode) ||
+    toString(product.code) ||
+    "";
+  const slug =
+    toString(item.slug) ||
+    toString(item.productSlug) ||
+    toString(product.slug) ||
+    toString(product.productSlug) ||
+    "";
 
   return {
     orderItemId,
     id: orderItemId,
-    productId: toString(item.productId) || undefined,
-    variantId: toString(item.variantId) || undefined,
+    productId: toString(item.productId) || toString(product.productId) || undefined,
+    productCode: publicCode || null,
+    productSlug: slug || null,
+    publicCode,
+    slug,
+    variantId: toString(item.variantId) || toString(variant.variantId) || undefined,
     productTitle,
     productName: productTitle,
     variantTitle,
@@ -423,7 +479,12 @@ function unwrapOrderDetail(payload: unknown): MyOrderDetail {
     customerNote: String(data.customerNote ?? ""),
     selectedShippingMethodId: String(data.selectedShippingMethodId ?? ""),
     shippingMethodTitleSnapshot: String(data.shippingMethodTitleSnapshot ?? ""),
-    shippingAddressSnapshotJson: String(data.shippingAddressSnapshotJson ?? ""),
+    shippingAddressSnapshotJson: toJsonString(
+      data.shippingAddressSnapshotJson ?? data.shippingAddressSnapshot,
+    ),
+    shippingAddressSnapshot: toShippingAddressSnapshot(
+      data.shippingAddressSnapshot ?? data.shippingAddressSnapshotJson,
+    ),
     estimatedDeliveryDays: toNumber(data.estimatedDeliveryDays),
     cancelledAt: toNullableString(data.cancelledAt),
     closedAt: toNullableString(data.closedAt),
@@ -473,20 +534,23 @@ export async function getMyOrders(
 
 export async function getMyOrderByNumber(
   publicOrderNumber: string,
-): Promise<MyOrderListItem> {
+): Promise<MyOrderDetail> {
   const encoded = encodeURIComponent(publicOrderNumber.trim());
 
   const response = await apiClient.get(`${BASE}/by-number/${encoded}`);
 
+  console.log(response)
 
   assertSuccess(response.data, "سفارش با این شماره پیدا نشد");
-  return unwrapOrder(response.data);
+  return unwrapOrderDetail(response.data);
 }
 
 export async function getMyOrderById(orderId: string): Promise<MyOrderDetail> {
   const encoded = encodeURIComponent(orderId.trim());
 
   const response = await apiClient.get(`${BASE}/${encoded}`);
+
+    
 
   assertSuccess(response.data, "دریافت جزئیات سفارش ناموفق بود");
   return unwrapOrderDetail(response.data);

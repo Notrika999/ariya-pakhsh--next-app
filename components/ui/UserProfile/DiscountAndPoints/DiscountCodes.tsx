@@ -172,7 +172,7 @@ function CouponSection({
   const shouldShowPagination = computedTotalPages > 1 || canPrevious || canNext;
 
   return (
-    <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
+    <div className="bg-white rounded-2xl drop-shadow-lg px-3 py-2 dark:bg-custom-dark dark:border dark:border-gray-700">
       <TitleAfter title={config.title} tag={false} />
 
       {visibleItems.length > 0 ? (
@@ -248,7 +248,7 @@ export default function DiscountCodes({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {SECTION_CONFIG.map((config) => (
         <CouponSection
           key={config.key}

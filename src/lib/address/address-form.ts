@@ -1,10 +1,5 @@
 import { validateMobile } from "@/src/utils/auth.validation";
 import {
-  getCitiesByProvince,
-  getIranProvinceNames,
-  resolveIranProvince,
-} from "@/src/lib/data/iran-locations";
-import {
   CustomerAddressDto,
   CustomerAddressPayload,
 } from "@/src/lib/types/address/address.type";
@@ -44,7 +39,7 @@ export function addressToFormPayload(
 ): CustomerAddressPayload {
   return {
     title: address.title,
-    province: resolveIranProvince(address.province),
+    province: address.province,
     city: address.city,
     addressLine: address.addressLine,
     postalCode: address.postalCode,
@@ -61,8 +56,6 @@ export function validateAddressForm(
   formData: CustomerAddressPayload,
 ): AddressFieldErrors {
   const nextErrors: AddressFieldErrors = {};
-  const provinceOptions = getIranProvinceNames();
-  const cityOptions = getCitiesByProvince(resolveIranProvince(formData.province));
 
   if (!formData.title.trim()) {
     nextErrors.title = "عنوان آدرس الزامی است";
@@ -82,20 +75,12 @@ export function validateAddressForm(
     nextErrors.receiverMobile = "شماره موبایل معتبر نیست";
   }
 
-  const resolvedProvince = resolveIranProvince(formData.province);
   if (!formData.province.trim()) {
     nextErrors.province = "استان الزامی است";
-  } else if (!provinceOptions.includes(resolvedProvince)) {
-    nextErrors.province = "لطفاً استان را از لیست انتخاب کنید";
   }
 
   if (!formData.city.trim()) {
     nextErrors.city = "شهر الزامی است";
-  } else if (
-    formData.province.trim() &&
-    !cityOptions.includes(formData.city.trim())
-  ) {
-    nextErrors.city = "لطفاً شهر را از لیست انتخاب کنید";
   }
 
   if (!formData.postalCode.trim()) {
@@ -128,7 +113,7 @@ export function buildAddressPayload(
 ): CustomerAddressPayload {
   return {
     title: formData.title.trim(),
-    province: resolveIranProvince(formData.province),
+    province: formData.province.trim(),
     city: formData.city.trim(),
     addressLine: formData.addressLine.trim(),
     postalCode: formData.postalCode.trim(),

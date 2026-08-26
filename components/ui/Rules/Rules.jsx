@@ -352,7 +352,7 @@ export default function Rules() {
                     قیمت محصولات
                   </span>
                   <span className="font-bold text-gray-800 dark:text-gray-200">
-                    به ریال ایران
+                    به تومان ایران
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700">
@@ -1343,10 +1343,10 @@ export default function Rules() {
                     📧 پشتیبانی ایمیلی
                   </h4>
                   <a
-                    href="mailto:terms@parsistore.com"
+                    href="mailto:support@carup24.com"
                     className="text-blue-600 dark:text-blue-400 hover:underline"
                   >
-                    terms@parsistore.com
+                    support@carup24.com
                   </a>
                 </div>
 
@@ -1358,7 +1358,7 @@ export default function Rules() {
                     href="tel:+982112345678"
                     className="text-blue-600 dark:text-blue-400 hover:underline"
                   >
-                    ۰۲۱-۱۲۳۴۵۶۷۸
+                   90007824
                   </a>
                 </div>
               </div>
@@ -1368,7 +1368,7 @@ export default function Rules() {
                   🏢 آدرس پستی
                 </h4>
                 <p className="text-gray-700 dark:text-gray-300">
-                  تهران، خیابان ولیعصر، پلاک ۱۲۳۴، طبقه ۳ - واحد امور حقوقی
+                مازندران-ساری، بلوار امام رضا (ع)
                 </p>
               </div>
 

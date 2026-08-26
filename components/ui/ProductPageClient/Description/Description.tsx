@@ -1,5 +1,6 @@
 "use client";
 // components/ui/ProductPageClient/Description/Description.tsx
+import Link from "next/link";
 import type { CSSProperties } from "react";
 import {
   ProductDetail,
@@ -89,6 +90,17 @@ function swatchStyle(codes: string[]): CSSProperties {
   return { background: `linear-gradient(90deg, ${stops})` };
 }
 
+function getProductListSlugHref(slug?: string | null) {
+  const normalizedSlug = slug?.trim();
+  return normalizedSlug
+    ? `/products/${encodeURIComponent(normalizedSlug)}`
+    : "/products";
+}
+
+function getBrandProductListHref(brand: ProductDetail["brands"][number]) {
+  return getProductListSlugHref(brand.name || brand.slug);
+}
+
 /** One selectable swatch per variant; multi-color attrs become a split circle. */
 export function buildProductColorOptions(
   variants?: ProductDetailVariant[] | null,
@@ -137,37 +149,37 @@ export default function Description({
     product.brands?.find((b) => b.isPrimary) ?? product.brands?.[0];
 
   return (
-    <section className="xl:col-span-5 mt-7 col-span-12 pb-10 w-full dark:text-gray-200">
+    <section className="xl:col-span-5 md:mt-7 mt-1 col-span-12 md:pb-10 w-full dark:text-gray-200">
       {/* Category */}
-      <ul className="space-x-2 flex items-center">
+      <ul className="text-xs space-x-1 flex items-center">
         {primaryBrand && (
           <>
             <li>
-              <a
-                href={`/products?brand=${primaryBrand.slug}`}
+              <Link
+                href={getBrandProductListHref(primaryBrand)}
                 className="text-primary"
               >
                 {primaryBrand.name}
-              </a>
+              </Link>
             </li>
-            <li className="text-gray-400 dark:text-gray-500">/</li>
+            <i className="far fa-chevron-left dark:text-gray-500"></i>
           </>
         )}
         {primaryCategory && (
           <li>
-            <a
-              href={`/products/${primaryCategory.slug}`}
+            <Link
+              href={getProductListSlugHref(primaryCategory.slug)}
               className="text-primary"
             >
               {primaryCategory.name}
-            </a>
+            </Link>
           </li>
         )}
       </ul>
 
       {/* Title */}
       <div className="space-y-2 mt-2 pb-2 border-b border-b-gray-300 dark:border-b-gray-700">
-        <h2 className="font-black leading-8">{product.name}</h2>
+        <h1 className="font-black leading-8">{product.name}</h1>
         {product.shortDescription && (
           <div
             className="text-gray-400 dark:text-gray-500 text-sm leading-8"
@@ -305,52 +317,47 @@ export default function Description({
       {/* Compatibilities */}
       {product.compatibilities?.length > 0 ? (
         <div className="mt-8 space-y-3">
-        <h4 className="font-bold text-lg flex items-center gap-2">
-          <i className="fas fa-car-side text-primary" aria-hidden="true" />
-          خودروهای سازگار
-        </h4>
-        <ul className="grid gap-3 lg:grid-cols-2 sm:grid-cols-2 grid-cols-1">
-          {product.compatibilities.map((item) => (
-            <li
-              key={item.carId}
-              className="flex items-center justify-between gap-3 p-3 bg-gray-200 dark:bg-zinc-800 rounded-lg"
-            >
-              <div className="min-w-0">
-                <p className="line-clamp-1 text-sm font-semibold text-gray-800 dark:text-gray-100">
-                  {item.name}
-                </p>
-                {item.model && (
-                  <p className="line-clamp-1 mt-1 text-xs text-gray-600 dark:text-gray-300">
-                    مدل: {item.model}
-                  </p>
-                )}
-              </div>
-              <span
-                className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                  item.isIranianCar
-                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
-                    : "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300"
-                }`}
+          <h4 className="font-bold text-lg flex items-center gap-2">
+            <i className="fas fa-car-side text-primary" aria-hidden="true" />
+            خودروهای سازگار
+          </h4>
+          <ul className="grid gap-3 lg:grid-cols-2 sm:grid-cols-2 grid-cols-1">
+            {product.compatibilities.map((item) => (
+              <li
+                key={item.carId}
+                className="flex items-center justify-between gap-3 p-3 bg-gray-200 dark:bg-zinc-800 rounded-lg"
               >
-                {item.isIranianCar ? "ایرانی" : "وارداتی"}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
+                <div className="min-w-0">
+                  <p className="line-clamp-1 text-sm font-semibold text-gray-800 dark:text-gray-100">
+                    {item.name}
+                  </p>
+                  {item.model && (
+                    <p className="line-clamp-1 mt-1 text-xs text-gray-600 dark:text-gray-300">
+                      مدل: {item.model}
+                    </p>
+                  )}
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                    item.isIranianCar
+                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
+                      : "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300"
+                  }`}
+                >
+                  {item.isIranianCar ? "ایرانی" : "وارداتی"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : (
         <div className="mt-8 space-y-3">
-        <h4 className="font-bold text-lg flex items-center gap-2">
-          <i className="fas fa-car-side text-primary" aria-hidden="true" />
-          خودروهای سازگار
-        </h4>
-        <ul className="grid gap-3 lg:grid-cols-2 sm:grid-cols-2 grid-cols-1">
-    
-            <li
-            
-              className="flex items-center justify-between gap-3 p-3 bg-gray-200 dark:bg-zinc-800 rounded-lg"
-            >
-              
+          <h4 className="font-bold text-lg flex items-center gap-2">
+            <i className="fas fa-car-side text-primary" aria-hidden="true" />
+            خودروهای سازگار
+          </h4>
+          <ul className="grid gap-3 lg:grid-cols-2 sm:grid-cols-2 grid-cols-1">
+            <li className="flex items-center justify-between gap-3 p-3 bg-gray-200 dark:bg-zinc-800 rounded-lg">
               <span
                 className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium 
               `}
@@ -358,9 +365,8 @@ export default function Description({
                 همه خودرها
               </span>
             </li>
-        
-        </ul>
-      </div>
+          </ul>
+        </div>
       )}
 
       {/* Compatibilities

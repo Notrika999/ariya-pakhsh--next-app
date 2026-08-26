@@ -19,6 +19,7 @@ import {
   isTicketClosed,
 } from "@/src/lib/tickets/ticket-labels";
 import { notify } from "@/src/utils/toast";
+import { RETURN_REASONS } from "../OrdersReturn/formContent/ReturnReasons";
 
 const formatAttachmentSize = (size) => {
   if (!Number.isFinite(size) || size <= 0) return "";
@@ -33,6 +34,49 @@ const formatAttachmentSize = (size) => {
 
 const isImageAttachment = (attachment) =>
   attachment.contentType?.toLowerCase().startsWith("image/");
+
+const RETURN_REASON_TITLE_BY_VALUE = new Map(
+  RETURN_REASONS.map((reason) => [reason.value, reason.title]),
+);
+
+function formatTicketBody(body) {
+  if (!body) return "";
+
+  return body.replace(
+    /(^|\n)(دلیل مرجوعی:\s*)([a-z_]+)(?=\n|$)/g,
+    (match, lineStart, label, value) => {
+      const title = RETURN_REASON_TITLE_BY_VALUE.get(value);
+      return title ? `${lineStart}${label}${title}` : match;
+    },
+  );
+}
+
+function ticketTimelineStepMeta(status) {
+  if (status === "current") {
+    return {
+      icon: "far fa-clock",
+      iconClassName:
+        "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
+      lineClassName: "bg-yellow-200 dark:bg-yellow-900/60",
+    };
+  }
+
+  if (status === "pending") {
+    return {
+      icon: "far fa-hourglass",
+      iconClassName:
+        "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400",
+      lineClassName: "bg-gray-200 dark:bg-gray-700",
+    };
+  }
+
+  return {
+    icon: "far fa-check",
+    iconClassName:
+      "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
+    lineClassName: "bg-green-200 dark:bg-green-900/60",
+  };
+}
 
 export default function TicketMessage({ ticketId, onBack }) {
   const [ticket, setTicket] = useState(null);
@@ -108,7 +152,7 @@ export default function TicketMessage({ ticketId, onBack }) {
 
   if (loading) {
     return (
-      <div className="space-y-8 lg:col-span-3">
+      <div className="space-y-4 lg:col-span-3">
         <div className="rounded-2xl bg-white p-8 text-center text-gray-500 drop-shadow-lg dark:bg-custom-dark">
           در حال بارگذاری تیکت...
         </div>
@@ -118,7 +162,7 @@ export default function TicketMessage({ ticketId, onBack }) {
 
   if (error || !ticket) {
     return (
-      <div className="space-y-8 lg:col-span-3">
+      <div className="space-y-4 lg:col-span-3">
         <div className="rounded-2xl bg-white p-8 text-center drop-shadow-lg dark:bg-custom-dark">
           <p className="mb-4 text-red-500">{error || "تیکت پیدا نشد"}</p>
           {onBack && (
@@ -165,8 +209,8 @@ export default function TicketMessage({ ticketId, onBack }) {
   ];
 
   return (
-    <div className="space-y-8 lg:col-span-3">
-      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+    <div className="space-y-4 lg:col-span-3">
+      <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div>
             <TitleAfter
@@ -195,54 +239,53 @@ export default function TicketMessage({ ticketId, onBack }) {
         </div>
       </div>
 
-      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+      <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <TitleAfter title="روند تیکت" />
-        <div className="space-y-8">
-          {timeline.map((step) => (
-            <div key={step.id} className="flex items-start space-x-4">
-              <div
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-                  step.status === "done"
-                    ? "bg-green-500"
-                    : step.status === "current"
-                      ? "bg-yellow-500"
-                      : "bg-gray-300"
-                }`}
-              >
-                {step.status === "done" && (
-                  <i className="far fa-check text-white"></i>
-                )}
-                {step.status === "current" && (
-                  <i className="far fa-clock text-white"></i>
-                )}
-                {step.status === "pending" && (
-                  <i className="far fa-hourglass text-white"></i>
-                )}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="font-medium text-gray-800 dark:text-gray-200">
+        <div className="overflow-x-auto pb-2">
+          <div className="flex min-w-max items-start gap-3 pt-2 sm:min-w-0 sm:gap-0">
+            {timeline.map((step, index) => {
+              const meta = ticketTimelineStepMeta(step.status);
+              const isLast = index === timeline.length - 1;
+
+              return (
+                <div
+                  key={step.id}
+                  className="relative flex w-40 shrink-0 flex-col items-center text-center sm:w-auto sm:flex-1"
+                >
+                  {!isLast ? (
+                    <div
+                      className={`absolute right-1/2 top-6 hidden h-0.5 w-full translate-x-6 sm:block ${meta.lineClassName}`}
+                    />
+                  ) : null}
+
+                  <div
+                    className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-full ${meta.iconClassName}`}
+                  >
+                    <i className={`${meta.icon} text-lg`}></i>
+                  </div>
+
+                  <h3 className="mt-3 text-sm font-bold text-gray-800 dark:text-gray-200">
                     {step.title}
                   </h3>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                  <span className="mt-1 text-xs font-medium text-gray-500 dark:text-gray-400">
                     {step.date}
                   </span>
+                  <span className="mt-1 max-w-36 text-xs leading-5 text-gray-500 dark:text-gray-400">
+                    {step.desc}
+                  </span>
                 </div>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  {step.desc}
-                </p>
-              </div>
+              );
+            })}
             </div>
-          ))}
+          </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="space-y-8 lg:col-span-2">
+      <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
+        <div className="space-y-4 lg:col-span-2">
           <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
             <TitleAfter title="مکالمات تیکت" />
 
-            <div className="space-y-6">
+            <div className="space-y-2">
               {ticket.messages.length === 0 && (
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   هنوز پیامی ثبت نشده است.
@@ -286,7 +329,7 @@ export default function TicketMessage({ ticketId, onBack }) {
                         }`}
                       >
                         <p className="whitespace-pre-line text-sm text-gray-800 dark:text-gray-200">
-                          {msg.body}
+                          {formatTicketBody(msg.body)}
                         </p>
                         {msg.attachments.length > 0 && (
                           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -390,7 +433,7 @@ export default function TicketMessage({ ticketId, onBack }) {
           </div>
         </div>
 
-        <div className="space-y-8">
+        <div className="space-y-4">
           <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
             <TitleAfter title="اطلاعات تیکت" />
             <div className="space-y-4">
@@ -419,10 +462,10 @@ export default function TicketMessage({ ticketId, onBack }) {
                       : ""
                   }`}
                 >
-                  <span className="text-gray-600 dark:text-gray-400">
+                  <span className="text-gray-600 dark:text-gray-400 text-sm">
                     {label}
                   </span>
-                  <span className="text-end font-medium text-gray-800 dark:text-gray-200">
+                  <span className="text-end font-semibold text-gray-800 dark:text-gray-200 text-xs">
                     {value}
                   </span>
                 </div>
@@ -434,11 +477,11 @@ export default function TicketMessage({ ticketId, onBack }) {
             <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
               <TitleAfter title="سفارش مرتبط" />
               <div className="flex items-center justify-between gap-3">
-                <span className="text-gray-600 dark:text-gray-400">
+                <span className="text-gray-600 dark:text-gray-400 text-sm">
                   شناسه سفارش
                 </span>
                 <span
-                  className="font-medium text-gray-800 dark:text-gray-200"
+                  className="font-semibold text- text-gray-800 dark:text-gray-200"
                   dir="ltr"
                 >
                   {ticket.orderNumber}

@@ -1,6 +1,7 @@
 // components/OffcanvasRight.jsx
 import Link from "next/link";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
+import HeaderSearch from "../Top/HeaderSearch";
 import CategoryNode from "./CategoryNode";
 
 export default function OffcanvasRight({ isOpen, onClose, menu }) {
@@ -25,7 +26,7 @@ export default function OffcanvasRight({ isOpen, onClose, menu }) {
 
       {/* پنل جانب راست (با انیمیشن ترجمه) */}
       <div
-        className={`fixed top-0 right-0 z-50 flex h-dvh w-[80%] flex-col bg-white text-gray-900 shadow-xl transform transition-transform duration-300 dark:bg-[#0d1117] dark:text-gray-100 ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 z-50 flex h-dvh w-full flex-col bg-white text-gray-900 shadow-xl transform transition-transform duration-300 dark:bg-[#0d1117] dark:text-gray-100 sm:w-[80%] ${isOpen ? "translate-x-0" : "translate-x-full"}`}
         role="navigation"
         aria-labelledby="store-menu-title"
         aria-hidden={!isOpen}
@@ -47,9 +48,27 @@ export default function OffcanvasRight({ isOpen, onClose, menu }) {
 
         {/* navigation */}
         <nav
-          className="relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden p-3 pb-8"
+          className="relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 pb-8"
           aria-label="منوی اصلی"
         >
+          <div className="sticky top-0 z-10 mb-4 bg-white pb-3 dark:bg-[#0d1117]">
+            <Suspense
+              fallback={
+                <div className="h-14 w-full rounded-full border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900" />
+              }
+            >
+              <HeaderSearch
+                className="block w-full"
+                inputClassName="h-14 mt-1 w-full appearance-none rounded-full border border-gray-200 bg-white py-3 pe-5 ps-14 text-base font-semibold placeholder-gray-400 shadow-sm transition-colors duration-300 focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:border-gray-600 dark:focus:ring-gray-700"
+                buttonClassName="absolute right-3 rounded-full p-2 text-gray-400 transition-colors hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-100"
+                placeholder="جستجو در کارآپ24"
+                onNavigate={onClose}
+                resultsVariant="mobile"
+                resultsId="offcanvasSearchResults"
+              />
+            </Suspense>
+          </div>
+
           <ul className="space-y-2 pb-6 text-sm">
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
               <Link href="/" onClick={onClose}>صفحه اصلی</Link>

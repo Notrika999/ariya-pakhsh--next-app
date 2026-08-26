@@ -13,8 +13,8 @@ import ConsumerProducts from "../ConsumerProducts/ConsumerProducts";
 
 const TABS = [
   { id: "desc", label: "معرفی اجمالی" },
-  { id: "intro", label: "معرفی تکمیلی" },
   { id: "specs", label: "مشخصات فنی" },
+  { id: "intro", label: "معرفی تکمیلی" },
   { id: "comments", label: "نظرات" },
   { id: "question", label: "پرسش و پاسخ" },
 ];
@@ -128,27 +128,19 @@ export default function Review({ product, attributes, variant, isOutOfStock }) {
         <TabBar navRef={navRef} tabs={TABS} />
 
         {/* <!--The content of the tabs--> */}
-        <div className="space-y-8">
+        <div className="space-y-4">
           {/* <!--Tab 1 - Brief Introduction--> */}
           <div
             id="desc"
-            className="tab-section p-8 bg-white dark:bg-custom-dark dark:border-gray-700 rounded-2xl shadow-md border border-gray-200"
+            className="tab-section md:p-8 p-4 bg-white dark:bg-custom-dark dark:border-gray-700 rounded-2xl shadow-md border border-gray-200"
           >
             <ProductIntroduction product={product} />
-          </div>
-
-          {/* <!--Tab 2 - Supplementary Introduction--> */}
-          <div
-            id="intro"
-            className="tab-section p-8 bg-white dark:bg-custom-dark dark:border-gray-700 rounded-2xl shadow-md border border-gray-200"
-          >
-            <Intro product={product} />
           </div>
 
           {/* <!--Tab 3 - Technical specifications--> */}
           <div
             id="specs"
-            className="tab-section p-8 bg-white dark:bg-custom-dark dark:border-gray-700 rounded-2xl shadow-md border border-gray-200"
+            className="tab-section md:p-8 p-4 bg-white dark:bg-custom-dark dark:border-gray-700 rounded-2xl shadow-md border border-gray-200"
           >
             <Specifications
               product={product}
@@ -156,6 +148,15 @@ export default function Review({ product, attributes, variant, isOutOfStock }) {
               // variant={variant}
             />
           </div>
+          
+          {/* <!--Tab 2 - Supplementary Introduction--> */}
+          <div
+            id="intro"
+            className="tab-section md:p-8 p-4 bg-white dark:bg-custom-dark dark:border-gray-700 rounded-2xl shadow-md border border-gray-200"
+          >
+            <Intro product={product} />
+          </div>
+
 
           {/* <!--Tab 4 - Upsell Products--> */}
           <ConsumerProducts products={product.upsellProducts} noClick={true} title="محصولات پیشنهادی" />
@@ -163,7 +164,7 @@ export default function Review({ product, attributes, variant, isOutOfStock }) {
           {/* <!--Tab 4 - Comments--> */}
           <div
             id="comments"
-            className="tab-section p-8 bg-white dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-2xl shadow-md"
+            className="tab-section md:p-8 p-4 bg-white dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-2xl shadow-md"
           >
             <Comments
               productId={product.productId}
@@ -175,7 +176,7 @@ export default function Review({ product, attributes, variant, isOutOfStock }) {
           {/* <!--Tab 5 - Question--> */}
           <div
             id="question"
-            className="tab-section p-8 bg-white dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg"
+            className="tab-section md:p-8 p-4 bg-white dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-2xl shadow-lg"
             data-content="5"
           >
             <Question productId={product.productId} />

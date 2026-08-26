@@ -3,21 +3,23 @@
 // components/layout/NavMobile/NavMobile.jsx
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useSyncExternalStore } from "react";
-import HeaderSearch from "@/components/layout/Header/Top/HeaderSearch";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import OffcanvasRight from "@/components/layout/Header/MegaMenu/OffcanvasRight";
 import { useCart } from "@/src/context/CartContext";
 import LoginModal from "@/components/modules/auth/LoginModal";
 import {
   useCurrentUser,
   useIsAuthenticated,
 } from "@/src/lib/stores/auth/auth.store";
+import { getMegaMenu } from "@/src/services/category/category.client";
 
 export default function NavMobile() {
   const pathname = usePathname();
   const router = useRouter();
   const { totalItems } = useCart();
-  const [searchOpen, setSearchOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [menu, setMenu] = useState([]);
   const user = useCurrentUser();
   const isAuthenticated = useIsAuthenticated();
   const mounted = useSyncExternalStore(
@@ -28,8 +30,29 @@ export default function NavMobile() {
   const isStoreActive =
     pathname === "/products" || pathname.startsWith("/products/");
   const isCartActive = pathname === "/cart";
+  const isHomeActive = pathname === "/";
   const isProfileActive = pathname === "/user-profile";
   const showUserPanel = mounted && isAuthenticated && Boolean(user);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadMenu() {
+      try {
+        const data = await getMegaMenu();
+        if (mounted) setMenu(data);
+      } catch (error) {
+        console.error("[NavMobile] failed to load category menu:", error);
+        if (mounted) setMenu([]);
+      }
+    }
+
+    void loadMenu();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const handleProfileClick = () => {
     if (showUserPanel) {
@@ -40,117 +63,114 @@ export default function NavMobile() {
     setLoginOpen(true);
   };
 
+  const navItems = [
+    {
+      key: "home",
+      label: "خانه",
+      icon: "fa-solid fa-house",
+      href: "/",
+      active: isHomeActive,
+    },
+    {
+      key: "categories",
+      label: "دسته‌بندی",
+      icon: "fa-solid fa-grid-2",
+      active: isStoreActive || categoryOpen,
+      onClick: () => setCategoryOpen(true),
+      expanded: categoryOpen,
+    },
+    {
+      key: "cart",
+      label: "سبد خرید",
+      icon: "far fa-cart-shopping",
+      href: "/cart",
+      active: isCartActive,
+      badge: totalItems > 0 ? (totalItems > 99 ? "99+" : totalItems) : "",
+    },
+    {
+      key: "profile",
+      label: "کارآپ من",
+      icon: "far fa-user",
+      active: isProfileActive,
+      onClick: handleProfileClick,
+    },
+  ];
+
   return (
     <>
-      {searchOpen && (
-        <>
-          <button
-            type="button"
-            aria-label="بستن جستجو"
-            className="fixed inset-0 z-40 bg-black/35 backdrop-blur-[2px] lg:hidden"
-            onClick={() => setSearchOpen(false)}
-          />
-
-          <div className="fixed inset-x-0 top-0 z-50 border-b border-gray-200 bg-white px-3 pb-3 pt-[calc(env(safe-area-inset-top)+12px)] shadow-lg dark:border-gray-800 dark:bg-custom-dark lg:hidden">
-            <div className="flex items-center gap-2" dir="rtl">
-              <HeaderSearch
-                autoFocus
-                className="block w-full"
-                onNavigate={() => setSearchOpen(false)}
-                resultsId="mobileSearchResults"
-              />
-              <button
-                type="button"
-                aria-label="بستن جستجو"
-                onClick={() => setSearchOpen(false)}
-                className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-gray-200 text-gray-700 dark:border-gray-700 dark:text-gray-100"
-              >
-                <i className="far fa-xmark" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-
       {/* <!-- NAV MOBILE --> */}
-      <nav className="fixed lg:hidden block bottom-0 inset-e-0 inset-s-0 z-30 py-1 px-2 rounded-t-2xl overflow-hidden bg-custom-light dark:bg-custom-dark before:content-[''] before:absolute before:top-0 before:right-0 before:w-full before:h-full before:opacity-30">
-      <div className="flex justify-around items-center relative text-white dark:text-gray-100">
-        {/* <!-- Home --> */}
-        <Link
-          href="/products"
-          aria-label="فروشگاه"
-          className="flex flex-col items-center px-1.5 py-1.5 rounded-lg transition-all duration-300 relative"
-        >
-          <div className="size-10 flex items-center justify-center rounded-lg bg-primary dark:bg-[rgba(255,255,255,0.05)] transition-all duration-300">
-          <i className="far fa-store text-base"></i>
+      <nav className="fixed inset-x-0 bottom-0 z-30 block border-t border-gray-100 bg-white px-1 pb-[calc(env(safe-area-inset-bottom)+6px)] pt-2 shadow-[0_-6px_20px_rgba(15,23,42,0.06)] dark:border-gray-800 dark:bg-custom-dark lg:hidden">
+        <div className="grid grid-cols-4 items-end">
+          {navItems.map((item) => {
+            const content = (
+              <>
+                <span className="relative flex h-6 items-center justify-center">
+                  <i
+                    className={`${item.icon} text-[22px] leading-none ${
+                      item.active
+                        ? "text-gray-900 dark:text-white"
+                        : "text-gray-400 dark:text-gray-500"
+                    }`}
+                    aria-hidden="true"
+                  />
+                  {item.badge ? (
+                    <span className="absolute -end-2 -top-1 flex min-w-4 items-center justify-center rounded-full bg-secondary px-1 text-[10px]  leading-4 text-white dark:bg-primary-400">
+                      {item.badge}
+                    </span>
+                  ) : null}
+                </span>
+                <span
+                  className={`mt-1 max-w-full truncate text-[13px] leading-5 ${
+                    item.active
+                      ? "text-gray-900 dark:text-white"
+                      : "text-gray-500 dark:text-gray-400"
+                  }`}
+                >
+                  {item.label}
+                </span>
+              </>
+            );
 
-          </div>
-        </Link>
+            const className =
+              "flex min-w-0 flex-col items-center justify-center px-1 text-center transition-colors";
 
-        {/* <!-- Search --> */}
-        <button
-          type="button"
-          aria-label="جستجو"
-          aria-expanded={searchOpen}
-          onClick={() => setSearchOpen(true)}
-          className="flex flex-col items-center px-1.5 py-1.5 rounded-lg transition-all duration-300 relative"
-        >
-          <div className="size-10 flex items-center justify-center rounded-lg bg-primary dark:bg-[rgba(255,255,255,0.05)] transition-all duration-300">
-            <i className="far fa-search text-base"></i>
-          </div>
-        </button>
+            if (item.onClick) {
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={item.onClick}
+                  aria-label={item.label}
+                  aria-current={item.active ? "page" : undefined}
+                  aria-expanded={item.expanded}
+                  className={className}
+                >
+                  {content}
+                </button>
+              );
+            }
 
-        {/* <!--Central button--> */}
-        <div className="flex flex-col items-center relative">
-          <Link
-            href="/"
-            aria-label="صفحه اصلی"
-            aria-current={isStoreActive ? "page" : undefined}
-            className={`size-12 bg-[linear-gradient(135deg,#D4AF37_0%,#F1C40F_100%)] dark:bg-[linear-gradient(135deg,#FFD700_0%,#B8860B_100%)] text-white rounded-xl border-2 flex items-center justify-center mt-[-12px] shadow-[0_4px_14px_rgba(212,175,55,0.35)] active:scale-90 transition-all duration-300 ${
-              isStoreActive
-                ? "border-primary ring-2 ring-primary/20"
-                : "border-white/80 dark:border-gray-800"
-            }`}
-          >
-            <i className="far fa-home text-lg"></i>
-            </Link>
+            return (
+              <Link
+                key={item.key}
+                href={item.href}
+                aria-label={item.label}
+                aria-current={item.active ? "page" : undefined}
+                className={className}
+              >
+                {content}
+              </Link>
+            );
+          })}
         </div>
-
-        {/* <!--Shopping Cart--> */}
-        <Link
-          href="/cart"
-          aria-current={isCartActive ? "page" : undefined}
-          className="flex flex-col items-center px-1.5 py-1.5 rounded-lg transition-all duration-300 relative"
-        >
-          <div className="size-10 flex items-center justify-center rounded-lg bg-primary dark:bg-[rgba(255,255,255,0.05)] relative">
-            <i className="fas fa-shopping-bag text-base"></i>
-            {totalItems > 0 && (
-              <span className="absolute -top-1 -end-1 min-w-4 h-4 px-1 bg-secondary dark:bg-primary-400 text-white dark:text-gray-100 text-[10px] font-bold flex items-center justify-center rounded-full shadow-sm dark:shadow-[0_0_4px_rgba(255,255,255,0.2)]">
-                {totalItems > 99 ? "99+" : totalItems}
-              </span>
-            )}
-          </div>
-        </Link>
-
-        {/* <!-- Profile --> */}
-        <button
-          type="button"
-          onClick={handleProfileClick}
-          aria-label={showUserPanel ? "پنل کاربری" : "ورود / ثبت نام"}
-          aria-current={isProfileActive ? "page" : undefined}
-          className="flex flex-col items-center px-1.5 py-1.5 rounded-lg transition-all duration-300 relative"
-        >
-          <div
-            className={`size-10 flex items-center justify-center rounded-lg bg-primary dark:bg-[rgba(255,255,255,0.05)] transition-all duration-300 ${
-              isProfileActive ? "ring-2 ring-primary/20" : ""
-            }`}
-          >
-            <i className="far fa-user text-base"></i>
-          </div>
-        </button>
-      </div>
       </nav>
       {/* <!-- END NAV MOBILE --> */}
+
+      <OffcanvasRight
+        isOpen={categoryOpen}
+        onClose={() => setCategoryOpen(false)}
+        menu={menu}
+      />
 
       <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </>

@@ -62,7 +62,9 @@ export interface PromotedParams {
   maxCount?: number;
 }
 
-export const getMegaMenu = cache(async function getMegaMenu(): Promise<Category[]> {
+export const getMegaMenu = cache(async function getMegaMenu(): Promise<
+  Category[]
+> {
   const response = await proxyToBackend<MegaMenuResponse>({
     method: "GET",
     path: "/api/v1/Categories/mega-menu",

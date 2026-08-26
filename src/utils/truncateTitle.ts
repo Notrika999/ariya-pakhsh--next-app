@@ -1,6 +1,6 @@
 export const truncateTitle = (
   title: string | undefined | null,
-  maxLength = 30,
+  maxLength = 32,
 ): string => {
   // اگر title مقدار نداشت، یک رشته خالی برگردان تا برنامه به خطا نخورد
   const safeTitle = title ?? "";

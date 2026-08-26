@@ -1,9 +1,9 @@
 "use client";
-
 // components/ui/Categories/Filter/Filter.tsx
 import React, {
   ReactNode,
   TransitionStartFunction,
+  memo,
   useCallback,
   useEffect,
   useMemo,
@@ -17,9 +17,13 @@ import PriceRangeFilter from "./PriceRangeFilter";
 import FilterBrand from "./FilterBrand";
 import {
   BRAND_PARAM,
+  brandMatchesParam,
   colorPaletteParams,
   colorOptionIdParams,
+  listVehicleParams,
   normalizeBrandParamToSlug,
+  resolveVehicleParamsToIds,
+  writeVehicleParams,
 } from "@/src/lib/helper/productListHelpers";
 import { isColorFilterAttribute } from "@/src/lib/helper/filterColorHelpers";
 
@@ -42,8 +46,16 @@ type BrandOption = {
 
 type RawBrandOption = BrandOption | string;
 
+function getBrandUrlValue(brand: BrandOption): string {
+  return String(brand.slug || brand.name || brand.brandId).trim();
+}
+
+function getBrandIdValue(brand: BrandOption): string {
+  return String(brand.brandId ?? "").trim();
+}
+
 type ColorOption = {
-  optionId: string;
+  optionId?: string | null;
   value?: string;
   displayText?: string;
   count?: number;
@@ -115,24 +127,27 @@ type FilterDropdownProps = {
   title: string;
   children: ReactNode;
   isActive?: boolean;
+  forceOpen?: boolean;
 };
 
 function FilterDropdown({
   title,
   children,
   isActive = false,
+  forceOpen = false,
 }: FilterDropdownProps) {
   const [open, setOpen] = useState(isActive);
+  const isOpen = open || forceOpen;
 
   return (
-    <section className="dark:bg-custom-dark dark:border-gray-700 dark:text-white bg-white rounded-lg drop-shadow-lg border-gray-300 border overflow-hidden">
+    <section className="dark:bg-custom-dark dark:border-gray-700 dark:text-white bg-white   border-gray-300 border-b overflow-hidden">
       <button
         type="button"
-        aria-expanded={open}
+        aria-expanded={isOpen}
         onClick={() => setOpen((prev) => !prev)}
         className="w-full flex items-center justify-between gap-3 p-4 text-start"
       >
-        <span className="font-bold text-base inline-flex items-center gap-2">
+        <span className=" text-xs font-semiBold leading-4 text-gray-700 lg:text-sm lg:font-medium">
           {title}
           {isActive ? (
             <span
@@ -143,14 +158,14 @@ function FilterDropdown({
         </span>
         <i
           className={`far fa-chevron-down text-sm text-gray-500 transition-transform duration-200 ${
-            open ? "rotate-180" : ""
+            isOpen ? "rotate-180" : ""
           }`}
           aria-hidden="true"
         />
       </button>
 
-      {open && (
-        <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+      {isOpen && (
+        <div className="border-t border-gray-200 dark:border-gray-700 p-1">
           {children}
         </div>
       )}
@@ -366,6 +381,10 @@ function writeCachedVehicleLookup(vehicles: VehicleOption[]) {
   } catch {
     // Cache is only for display labels; filter behavior must not depend on it.
   }
+}
+
+function extraVehiclesFromCache(): VehicleOption[] {
+  return [...readCachedVehicleLookup().values()];
 }
 
 function getVehicleDisplayName(
@@ -894,68 +913,165 @@ function VehicleFilter({
   );
 }
 
-type DynamicAttributeKind = "options" | "text" | "boolean";
+type DynamicAttributeKind =
+  | "multi-options"
+  | "single-option"
+  | "text"
+  | "number"
+  | "date-range"
+  | "boolean";
 
-const BOOLEAN_ATTRIBUTE_TYPES = new Set([3]);
+const TEXT_ATTRIBUTE_TYPE = 1;
+const NUMBER_ATTRIBUTE_TYPE = 2;
+const SINGLE_SELECT_ATTRIBUTE_TYPE = 3;
+const MULTI_SELECT_ATTRIBUTE_TYPE = 4;
+const DATE_ATTRIBUTE_TYPE = 6;
 
 function getAttributeFilterKind(attribute: FilterAttribute): DynamicAttributeKind {
-  if (BOOLEAN_ATTRIBUTE_TYPES.has(Number(attribute.attributeType))) {
-    return "boolean";
+  const type = Number(attribute.attributeType);
+  const hasOptions = (attribute.options?.length ?? 0) > 0;
+
+  if (hasOptions && type === SINGLE_SELECT_ATTRIBUTE_TYPE) {
+    return "single-option";
   }
 
-  if ((attribute.options?.length ?? 0) > 0) {
-    return "options";
+  if (
+    hasOptions &&
+    (type === TEXT_ATTRIBUTE_TYPE || type === MULTI_SELECT_ATTRIBUTE_TYPE)
+  ) {
+    return "multi-options";
   }
+
+  if (hasOptions) return "multi-options";
+  if (type === NUMBER_ATTRIBUTE_TYPE) return "number";
+  if (type === DATE_ATTRIBUTE_TYPE) return "date-range";
+  if (type === SINGLE_SELECT_ATTRIBUTE_TYPE) return "boolean";
 
   return "text";
+}
+
+function getAttributeOptionLabel(option: ColorOption) {
+  return String(option.displayText ?? option.value ?? "").trim();
+}
+
+function getAttributeOptionId(option: ColorOption) {
+  return String(option.optionId ?? "").trim();
+}
+
+function getAttributeOptionValue(option: ColorOption) {
+  return String(option.value ?? option.displayText ?? "").trim();
+}
+
+function getAttributeOptionKey(option: ColorOption) {
+  return getAttributeOptionId(option) || getAttributeOptionValue(option);
 }
 
 function DynamicAttributeFilter({
   attribute,
   selectedOptionIds,
+  selectedValues,
   textValue,
   boolValue,
   onToggleOption,
+  onToggleValue,
+  onSetValues,
   onTextChange,
   onBoolChange,
+  shouldFocusTextInput = false,
+  onTextInputFocus,
 }: {
   attribute: FilterAttribute;
   selectedOptionIds: string[];
+  selectedValues: string[];
   textValue: string;
   boolValue: boolean | null;
-  onToggleOption: (attributeId: string, optionId: string) => void;
+  onToggleOption: (
+    attributeId: string,
+    optionId: string,
+    singleSelect?: boolean,
+  ) => void;
+  onToggleValue: (
+    attributeId: string,
+    value: string,
+    singleSelect?: boolean,
+  ) => void;
+  onSetValues: (attributeId: string, values: string[]) => void;
   onTextChange: (attributeId: string, value: string) => void;
   onBoolChange: (attributeId: string, value: boolean | null) => void;
+  shouldFocusTextInput?: boolean;
+  onTextInputFocus?: (attributeId: string) => void;
 }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [draftTextValue, setDraftTextValue] = useState(textValue);
+  const textInputRef = useRef<HTMLInputElement | null>(null);
   const kind = getAttributeFilterKind(attribute);
   const selectedOptionSet = useMemo(
     () => new Set(selectedOptionIds),
     [selectedOptionIds],
   );
+  const selectedValueSet = useMemo(
+    () => new Set(selectedValues),
+    [selectedValues],
+  );
   const options = useMemo(
     () =>
       (attribute.options ?? []).filter((option) => {
-        const optionId = String(option.optionId ?? "").trim();
-        const label = String(option.displayText ?? option.value ?? "").trim();
-        return optionId && label;
+        const label = getAttributeOptionLabel(option);
+        return Boolean(label && getAttributeOptionKey(option));
       }),
     [attribute.options],
   );
+  const selectedOptions = useMemo(
+    () =>
+      options.filter((option) => {
+        const optionId = getAttributeOptionId(option);
+        const optionValue = getAttributeOptionValue(option);
+
+        return optionId
+          ? selectedOptionSet.has(optionId)
+          : selectedValueSet.has(optionValue);
+      }),
+    [options, selectedOptionSet, selectedValueSet],
+  );
   const filteredOptions = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
-    if (!term) return options;
-
-    return options.filter((option) =>
-      String(option.displayText ?? option.value ?? "")
-        .toLowerCase()
-        .includes(term),
+    const visibleOptions = options.filter(
+      (option) => !selectedOptions.includes(option),
     );
-  }, [options, searchTerm]);
+    if (!term) return visibleOptions;
+
+    return visibleOptions.filter((option) =>
+      getAttributeOptionLabel(option).toLowerCase().includes(term),
+    );
+  }, [options, searchTerm, selectedOptions]);
 
   useEffect(() => {
-    if (kind !== "text") return;
+    if (kind !== "text" && kind !== "number") return;
+    if (document.activeElement === textInputRef.current) return;
+
+    setDraftTextValue(textValue);
+  }, [kind, textValue]);
+
+  useEffect(() => {
+    if ((kind !== "text" && kind !== "number") || !shouldFocusTextInput) {
+      return;
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      const input = textInputRef.current;
+      if (!input) return;
+
+      input.focus({ preventScroll: true });
+
+      const cursorPosition = input.value.length;
+      input.setSelectionRange(cursorPosition, cursorPosition);
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [attribute.attributeId, kind, shouldFocusTextInput, textValue]);
+
+  useEffect(() => {
+    if (kind !== "text" && kind !== "number") return;
 
     const timer = window.setTimeout(() => {
       if (draftTextValue.trim() !== textValue) {
@@ -1006,13 +1122,18 @@ function DynamicAttributeFilter({
     );
   }
 
-  if (kind === "text") {
+  if (kind === "text" || kind === "number") {
     return (
       <div className="relative" dir="rtl">
         <input
-          type="text"
+          ref={textInputRef}
+          type={kind === "number" ? "number" : "text"}
           value={draftTextValue}
-          onChange={(event) => setDraftTextValue(event.target.value)}
+          onFocus={() => onTextInputFocus?.(attribute.attributeId)}
+          onChange={(event) => {
+            onTextInputFocus?.(attribute.attributeId);
+            setDraftTextValue(event.target.value);
+          }}
           placeholder={`${attribute.attributeName} را وارد کنید`}
           className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 pe-9 text-right text-sm outline-none transition-colors focus:border-cyan-500 dark:border-gray-600 dark:bg-zinc-800"
         />
@@ -1023,9 +1144,12 @@ function DynamicAttributeFilter({
         {draftTextValue ? (
           <button
             type="button"
+            onMouseDown={(event) => event.preventDefault()}
             onClick={() => {
+              onTextInputFocus?.(attribute.attributeId);
               setDraftTextValue("");
               onTextChange(attribute.attributeId, "");
+              textInputRef.current?.focus({ preventScroll: true });
             }}
             className="absolute end-3 top-1/2 flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-full bg-gray-400 text-xs text-white transition-colors hover:bg-gray-500"
             aria-label="پاک کردن مقدار"
@@ -1037,11 +1161,49 @@ function DynamicAttributeFilter({
     );
   }
 
+  if (kind === "date-range") {
+    const fromValue = selectedValues[0] ?? "";
+    const toValue = selectedValues[1] ?? "";
+
+    return (
+      <div className="space-y-3" dir="rtl">
+        <label className="block text-xs font-medium text-gray-500 dark:text-gray-400">
+          از تاریخ
+          <input
+            type="date"
+            value={fromValue}
+            onChange={(event) => {
+              onSetValues(
+                attribute.attributeId,
+                [event.target.value, toValue].filter(Boolean),
+              );
+            }}
+            className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-cyan-500 dark:border-gray-600 dark:bg-zinc-800"
+          />
+        </label>
+        <label className="block text-xs font-medium text-gray-500 dark:text-gray-400">
+          تا تاریخ
+          <input
+            type="date"
+            value={toValue}
+            onChange={(event) => {
+              onSetValues(
+                attribute.attributeId,
+                [fromValue, event.target.value].filter(Boolean),
+              );
+            }}
+            className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-cyan-500 dark:border-gray-600 dark:bg-zinc-800"
+          />
+        </label>
+      </div>
+    );
+  }
+
   if (options.length === 0) return null;
 
   return (
     <div dir="rtl">
-      {options.length > 8 ? (
+      {options.length > 0 ? (
         <div className="relative mb-4">
           <input
             type="text"
@@ -1067,7 +1229,72 @@ function DynamicAttributeFilter({
         </div>
       ) : null}
 
-      {filteredOptions.length === 0 ? (
+      {selectedOptions.length > 0 ? (
+        <div className="mb-2 max-h-40 overflow-y-auto custom-scrollbar">
+          <p className="mb-1 text-xs text-gray-400 dark:text-gray-500">
+            انتخاب شما
+          </p>
+          <div className="divide-y divide-gray-100 dark:divide-gray-700">
+            {selectedOptions.map((option) => {
+              const optionId = getAttributeOptionId(option);
+              const optionValue = getAttributeOptionValue(option);
+              const label = getAttributeOptionLabel(option);
+              const optionKey = getAttributeOptionKey(option);
+              const isSingleSelect = kind === "single-option";
+
+              return (
+                <button
+                  key={optionKey}
+                  type="button"
+                  onClick={() => {
+                    if (optionId) {
+                      onToggleOption(
+                        attribute.attributeId,
+                        optionId,
+                        isSingleSelect,
+                      );
+                      return;
+                    }
+
+                    onToggleValue(
+                      attribute.attributeId,
+                      optionValue,
+                      isSingleSelect,
+                    );
+                  }}
+                  className="flex w-full items-center gap-3 py-3 text-start cursor-pointer group"
+                  aria-pressed="true"
+                >
+                  <span
+                    className="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 bg-red-600 border-red-600"
+                    aria-hidden
+                  >
+                    <svg
+                      className="w-3 h-3 text-white"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M2 6L5 9L10 3"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium text-gray-900 dark:text-white">
+                    {label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
+
+      {selectedOptions.length === 0 && filteredOptions.length === 0 ? (
         <p className="py-4 text-center text-xs text-gray-400">
           گزینه‌ای یافت نشد
         </p>
@@ -1075,36 +1302,81 @@ function DynamicAttributeFilter({
         <div className="max-h-72 overflow-y-auto custom-scrollbar">
           <div className="space-y-2">
             {filteredOptions.map((option) => {
-              const optionId = String(option.optionId);
-              const label = String(option.displayText ?? option.value);
-              const selected = selectedOptionSet.has(optionId);
+              const optionId = getAttributeOptionId(option);
+              const optionValue = getAttributeOptionValue(option);
+              const label = getAttributeOptionLabel(option);
+              const optionKey = getAttributeOptionKey(option);
+              const selected = optionId
+                ? selectedOptionSet.has(optionId)
+                : selectedValueSet.has(optionValue);
+              const isSingleSelect = kind === "single-option";
+              const handleToggle = () => {
+                if (optionId) {
+                  onToggleOption(
+                    attribute.attributeId,
+                    optionId,
+                    isSingleSelect,
+                  );
+                  return;
+                }
+
+                onToggleValue(
+                  attribute.attributeId,
+                  optionValue,
+                  isSingleSelect,
+                );
+              };
 
               return (
-                <label
-                  key={optionId}
-                  className={`flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-sm transition ${
-                    selected
-                      ? "border-primary bg-primary/10 text-primary dark:border-primary/70 dark:bg-primary/15"
-                      : "border-gray-200 bg-white text-gray-700 hover:border-primary/50 hover:text-primary dark:border-gray-700 dark:bg-zinc-900 dark:text-gray-200"
-                  }`}
+                <button
+                  key={optionKey}
+                  type="button"
+                  onClick={handleToggle}
+                  className="flex w-full items-center gap-3 py-3 text-start cursor-pointer group"
+                  aria-pressed={selected}
                 >
-                  <span className="flex min-w-0 items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={selected}
-                      onChange={() =>
-                        onToggleOption(attribute.attributeId, optionId)
-                      }
-                      className="h-4 w-4 shrink-0 rounded border-gray-300 text-primary focus:ring-primary"
-                    />
-                    <span className="truncate">{label}</span>
+                  <span
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
+                      selected
+                        ? "bg-red-600 border-red-600"
+                        : "border-gray-400 dark:border-gray-500 bg-transparent group-hover:border-gray-500"
+                    }`}
+                    aria-hidden
+                  >
+                    {selected ? (
+                      <svg
+                        className="w-3 h-3 text-white"
+                        viewBox="0 0 12 12"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M2 6L5 9L10 3"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    ) : null}
                   </span>
-                  {typeof option.count === "number" ? (
-                    <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-500 dark:bg-gray-800 dark:text-gray-400">
-                      {new Intl.NumberFormat("fa-IR").format(option.count)}
+                  <span className="flex min-w-0 flex-1 items-center justify-between gap-3">
+                    <span
+                      className={`text-sm font-medium truncate ${
+                        selected
+                          ? "text-gray-900 dark:text-white"
+                          : "text-gray-700 dark:text-gray-200"
+                      }`}
+                    >
+                      {label}
                     </span>
-                  ) : null}
-                </label>
+                    {/* {typeof option.count === "number" ? (
+                      <span className="shrink-0 rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                        {new Intl.NumberFormat("fa-IR").format(option.count)}
+                      </span>
+                    ) : null} */}
+                  </span>
+                </button>
               );
             })}
           </div>
@@ -1185,7 +1457,7 @@ function buildColorAttributesFromFilterOptions(
   return Array.from(attributesByKey.values());
 }
 
-export default function Filter({
+function Filter({
   filters,
   availableBrands = [],
   minLimit,
@@ -1199,6 +1471,9 @@ export default function Filter({
   const searchParams = useSearchParams();
   const searchString = searchParams.toString();
   const [optimisticSearch, setOptimisticSearch] = useState(searchString);
+  const [activeTextAttributeId, setActiveTextAttributeId] = useState<
+    string | null
+  >(null);
   const optimisticSearchRef = useRef(searchString);
   const lastObservedSearchRef = useRef(searchString);
 
@@ -1284,29 +1559,90 @@ export default function Filter({
   const handleBrandToggle = useCallback(
     (slug: string) => {
       const params = createParams();
-      const canonicalSlug = normalizeBrandParamToSlug(slug, normalizedBrands);
-      const current = [
+      const selectedParams = [
         ...params.getAll(BRAND_PARAM),
         ...params.getAll("brandSlug"),
-      ]
-        .map((value) => normalizeBrandParamToSlug(value, normalizedBrands))
-        .filter(Boolean);
+        ...params.getAll("brandId"),
+        ...params.getAll("BrandIds"),
+        ...params.getAll("brandIds"),
+      ].filter(Boolean);
+      const targetBrand = normalizedBrands.find((brand) =>
+        brandMatchesParam(brand, slug),
+      );
 
       params.delete("brandId");
+      params.delete("brandIds");
       params.delete("brandSlug");
+      params.delete("BrandIds");
       params.delete(BRAND_PARAM);
 
-      const uniqueCurrent = [...new Set(current)];
+      if (!targetBrand) {
+        const canonicalSlug = normalizeBrandParamToSlug(slug, normalizedBrands);
+        const current = selectedParams
+          .map((value) => normalizeBrandParamToSlug(value, normalizedBrands))
+          .filter(Boolean);
+        const uniqueCurrent = [...new Set(current)];
 
-      if (uniqueCurrent.includes(canonicalSlug)) {
-        uniqueCurrent
-          .filter((value) => value !== canonicalSlug)
-          .forEach((value) => params.append(BRAND_PARAM, value));
-      } else {
-        [...uniqueCurrent, canonicalSlug].forEach((value) =>
-          params.append(BRAND_PARAM, value),
-        );
+        if (uniqueCurrent.includes(canonicalSlug)) {
+          uniqueCurrent
+            .filter((value) => value !== canonicalSlug)
+            .forEach((value) => params.append(BRAND_PARAM, value));
+        } else {
+          [...uniqueCurrent, canonicalSlug].forEach((value) =>
+            params.append(BRAND_PARAM, value),
+          );
+        }
+
+        params.set("page", "1");
+        navigate(params);
+        return;
       }
+
+      const selectedBrandIds = new Set(
+        normalizedBrands
+          .filter((brand) =>
+            selectedParams.some((param) => brandMatchesParam(brand, param)),
+          )
+          .map(getBrandIdValue)
+          .filter(Boolean),
+      );
+      const targetBrandId = getBrandIdValue(targetBrand);
+
+      if (!targetBrandId) {
+        const readableValue = getBrandUrlValue(targetBrand);
+        const current = selectedParams
+          .map((value) => normalizeBrandParamToSlug(value, normalizedBrands))
+          .filter(Boolean);
+        const uniqueCurrent = [...new Set(current)];
+
+        if (uniqueCurrent.includes(readableValue)) {
+          uniqueCurrent
+            .filter((value) => value !== readableValue)
+            .forEach((value) => params.append(BRAND_PARAM, value));
+        } else {
+          [...uniqueCurrent, readableValue].forEach((value) =>
+            params.append(BRAND_PARAM, value),
+          );
+        }
+
+        params.set("page", "1");
+        navigate(params);
+        return;
+      }
+
+      if (selectedBrandIds.has(targetBrandId)) {
+        selectedBrandIds.delete(targetBrandId);
+      } else {
+        selectedBrandIds.add(targetBrandId);
+      }
+
+      normalizedBrands
+        .filter((brand) => selectedBrandIds.has(getBrandIdValue(brand)))
+        .forEach((brand) => {
+          const readableValue = getBrandUrlValue(brand);
+
+          if (readableValue) params.append(BRAND_PARAM, readableValue);
+        });
 
       params.set("page", "1");
       navigate(params);
@@ -1319,28 +1655,36 @@ export default function Filter({
     [filterOptions?.categories],
   );
 
+  const selectedCategoryParam =
+    activeSearchParams.get("categoryId") ??
+    activeSearchParams.get("CategoryId") ??
+    undefined;
   const selectedCategoryId =
-    activeSearchParams.get("categoryId") ?? filters.categoryId ?? undefined;
+    selectedCategoryParam ?? filters.categoryId ?? undefined;
   const onlyInStock =
-    activeSearchParams.get("inStock") === "true" || Boolean(filters.inStock);
+    activeSearchParams.get("inStock") === "true" ||
+    activeSearchParams.get("InStock") === "true" ||
+    Boolean(filters.inStock);
   const onlyOnSale =
     activeSearchParams.get("onSaleOnly") === "true" ||
+    activeSearchParams.get("OnSaleOnly") === "true" ||
     Boolean(filters.onSaleOnly);
 
   const handleCategoryToggle = useCallback(
     (categoryId: string) => {
       const params = createParams();
 
-      if (params.get("categoryId") === categoryId) {
-        params.delete("categoryId");
-      } else {
-        params.set("categoryId", categoryId);
+      params.delete("categoryId");
+      params.delete("CategoryId");
+
+      if (selectedCategoryId !== categoryId) {
+        params.set("CategoryId", categoryId);
       }
 
       params.set("page", "1");
       navigate(params);
     },
-    [createParams, navigate],
+    [createParams, navigate, selectedCategoryId],
   );
 
   const handleBooleanToggle = useCallback(
@@ -1361,12 +1705,18 @@ export default function Filter({
   );
 
   const vehicles = filterOptions?.vehicles ?? [];
-  const selectedVehicleIds = activeSearchParams.getAll("vehicleId");
+  const extraVehicles = extraVehiclesFromCache();
+  const selectedVehicleIds = resolveVehicleParamsToIds(
+    listVehicleParams(activeSearchParams),
+    vehicles,
+    extraVehicles,
+  );
   const allVehiclesSelected = activeSearchParams.get("vehicleMode") === "all";
 
   const handleAllVehiclesSelect = useCallback(() => {
     const params = createParams();
     params.delete("vehicleId");
+    params.delete("vehicle");
     params.set("vehicleMode", "all");
     params.set("page", "1");
     navigate(params);
@@ -1375,33 +1725,44 @@ export default function Filter({
   const handleVehicleToggle = useCallback(
     (vehicleId: string) => {
       const params = createParams();
-      const current = params.getAll("vehicleId").filter(Boolean);
+      const current = new Set(
+        resolveVehicleParamsToIds(
+          listVehicleParams(params),
+          vehicles,
+          extraVehiclesFromCache(),
+        ),
+      );
 
-      params.delete("vehicleMode");
-      params.delete("vehicleId");
-
-      if (current.includes(vehicleId)) {
-        current
-          .filter((value) => value !== vehicleId)
-          .forEach((value) => params.append("vehicleId", value));
+      if (current.has(vehicleId)) {
+        current.delete(vehicleId);
       } else {
-        [...current, vehicleId].forEach((value) =>
-          params.append("vehicleId", value),
-        );
+        current.add(vehicleId);
       }
 
+      params.delete("vehicleMode");
+      writeVehicleParams(
+        params,
+        [...current],
+        vehicles,
+        extraVehiclesFromCache(),
+      );
       params.set("page", "1");
       navigate(params);
     },
-    [createParams, navigate],
+    [createParams, navigate, vehicles],
   );
 
   const handleVehicleBulkToggle = useCallback(
     (vehicleIds: string[], shouldSelect: boolean) => {
       const params = createParams();
-      const current = new Set(params.getAll("vehicleId").filter(Boolean));
+      const current = new Set(
+        resolveVehicleParamsToIds(
+          listVehicleParams(params),
+          vehicles,
+          extraVehiclesFromCache(),
+        ),
+      );
 
-      params.delete("vehicleMode");
       vehicleIds.filter(Boolean).forEach((vehicleId) => {
         if (shouldSelect) {
           current.add(vehicleId);
@@ -1410,13 +1771,17 @@ export default function Filter({
         }
       });
 
-      params.delete("vehicleId");
-      current.forEach((vehicleId) => params.append("vehicleId", vehicleId));
-
+      params.delete("vehicleMode");
+      writeVehicleParams(
+        params,
+        [...current],
+        vehicles,
+        extraVehiclesFromCache(),
+      );
       params.set("page", "1");
       navigate(params);
     },
-    [createParams, navigate],
+    [createParams, navigate, vehicles],
   );
 
   const colorAttributes = useMemo(
@@ -1455,6 +1820,17 @@ export default function Filter({
 
     return selected;
   }, [dynamicAttributes, activeSearchParams]);
+  const selectedAttributeValues = useMemo(() => {
+    const selected: Record<string, string[]> = {};
+
+    for (const attribute of dynamicAttributes) {
+      selected[attribute.attributeId] = activeSearchParams
+        .getAll(`attr_values_${attribute.attributeId}`)
+        .filter(Boolean);
+    }
+
+    return selected;
+  }, [dynamicAttributes, activeSearchParams]);
   const selectedAttributeTextValues = useMemo(() => {
     const selected: Record<string, string> = {};
 
@@ -1487,15 +1863,25 @@ export default function Filter({
       ? activeSearchParams.getAll(BRAND_PARAM)
       : activeSearchParams.getAll("brandSlug").length > 0
         ? activeSearchParams.getAll("brandSlug")
-        : activeSearchParams.getAll("brandId");
+        : activeSearchParams.getAll("brandId").length > 0
+          ? activeSearchParams.getAll("brandId")
+          : activeSearchParams.getAll("BrandIds");
   const selectedSearch =
     activeSearchParams.get("search") ?? filters.search ?? "";
   const selectedMinPrice = Number(
-    activeSearchParams.get("minPrice") ?? filters.minPrice,
+    activeSearchParams.get("minPrice") ??
+      activeSearchParams.get("MinPrice") ??
+      filters.minPrice,
   );
   const selectedMaxPrice = Number(
-    activeSearchParams.get("maxPrice") ?? filters.maxPrice,
+    activeSearchParams.get("maxPrice") ??
+      activeSearchParams.get("MaxPrice") ??
+      filters.maxPrice,
   );
+  const hasMinPriceParam =
+    activeSearchParams.has("minPrice") || activeSearchParams.has("MinPrice");
+  const hasMaxPriceParam =
+    activeSearchParams.has("maxPrice") || activeSearchParams.has("MaxPrice");
 
   const hasColorFilter =
     colorOptionIdParams(activeSearchParams).length > 0 ||
@@ -1507,17 +1893,23 @@ export default function Filter({
   const hasDynamicAttributeFilter = dynamicAttributes.some(
     (attribute) =>
       (selectedAttributeOptionIds[attribute.attributeId]?.length ?? 0) > 0 ||
+      (selectedAttributeValues[attribute.attributeId]?.length ?? 0) > 0 ||
       Boolean(selectedAttributeTextValues[attribute.attributeId]) ||
       typeof selectedAttributeBoolValues[attribute.attributeId] === "boolean",
   );
 
   const hasBrandFilter = selectedBrands.length > 0;
-  const hasCategoryFilter = Boolean(selectedCategoryId);
+  const hasCategoryFilter = Boolean(selectedCategoryParam);
   const hasVehicleFilter = allVehiclesSelected || selectedVehicleIds.length > 0;
 
   const hasPriceFilter =
-    selectedMinPrice > minLimit || selectedMaxPrice < maxLimit;
-  const hasBooleanFilter = onlyInStock || onlyOnSale;
+    (hasMinPriceParam && selectedMinPrice > minLimit) ||
+    (hasMaxPriceParam && selectedMaxPrice < maxLimit);
+  const hasBooleanFilter =
+    activeSearchParams.get("inStock") === "true" ||
+    activeSearchParams.get("InStock") === "true" ||
+    activeSearchParams.get("onSaleOnly") === "true" ||
+    activeSearchParams.get("OnSaleOnly") === "true";
 
   const hasActiveFilters =
     hasBrandFilter ||
@@ -1526,24 +1918,69 @@ export default function Filter({
     hasPriceFilter ||
     hasColorFilter ||
     hasDynamicAttributeFilter ||
-    hasBooleanFilter ||
-    selectedSearch.trim() !== "";
+    hasBooleanFilter;
 
   const handleAttributeOptionToggle = useCallback(
-    (attributeId: string, optionId: string) => {
+    (attributeId: string, optionId: string, singleSelect = false) => {
       const params = createParams();
       const key = `attr_${attributeId}`;
       const current = params.getAll(key).filter(Boolean);
 
       params.delete(key);
 
-      if (current.includes(optionId)) {
+      if (singleSelect) {
+        if (current[0] !== optionId) {
+          params.append(key, optionId);
+        }
+      } else if (current.includes(optionId)) {
         current
           .filter((value) => value !== optionId)
           .forEach((value) => params.append(key, value));
       } else {
         [...current, optionId].forEach((value) => params.append(key, value));
       }
+
+      params.set("page", "1");
+      navigate(params);
+    },
+    [createParams, navigate],
+  );
+
+  const handleAttributeValueToggle = useCallback(
+    (attributeId: string, value: string, singleSelect = false) => {
+      const params = createParams();
+      const key = `attr_values_${attributeId}`;
+      const current = params.getAll(key).filter(Boolean);
+
+      params.delete(key);
+
+      if (singleSelect) {
+        if (current[0] !== value) {
+          params.append(key, value);
+        }
+      } else if (current.includes(value)) {
+        current
+          .filter((item) => item !== value)
+          .forEach((item) => params.append(key, item));
+      } else {
+        [...current, value].forEach((item) => params.append(key, item));
+      }
+
+      params.set("page", "1");
+      navigate(params);
+    },
+    [createParams, navigate],
+  );
+
+  const handleAttributeValuesChange = useCallback(
+    (attributeId: string, values: string[]) => {
+      const params = createParams();
+      const key = `attr_values_${attributeId}`;
+
+      params.delete(key);
+      [...new Set(values.map((value) => value.trim()).filter(Boolean))].forEach(
+        (value) => params.append(key, value),
+      );
 
       params.set("page", "1");
       navigate(params);
@@ -1588,15 +2025,21 @@ export default function Filter({
 
   const handleClearFilters = useCallback(() => {
     const params = new URLSearchParams();
+    const query = activeSearchParams.get("Q") ?? activeSearchParams.get("q");
+
+    if (query) {
+      params.set("Q", query);
+    }
+
     params.set("page", "1");
     navigate(params);
-  }, [navigate]);
+  }, [activeSearchParams, navigate]);
 
   return (
-    <section className="space-y-5 sticky top-0">
+    <section className="">
       {hasActiveFilters && (
         <div
-          className="dark:bg-custom-dark bg-white rounded-lg border p-4"
+          className="dark:bg-custom-dark bg-white rounded-t-lg border-b border-gray-300 p-4"
           dir="rtl"
         >
           <button
@@ -1683,30 +2126,46 @@ export default function Filter({
       {dynamicAttributes.map((attribute) => {
         const selectedOptions =
           selectedAttributeOptionIds[attribute.attributeId] ?? [];
+        const selectedValues =
+          selectedAttributeValues[attribute.attributeId] ?? [];
         const textValue =
           selectedAttributeTextValues[attribute.attributeId] ?? "";
         const boolValue =
           selectedAttributeBoolValues[attribute.attributeId] ?? null;
+        const isTextAttribute = getAttributeFilterKind(attribute) === "text";
         const isActive =
           selectedOptions.length > 0 ||
+          selectedValues.length > 0 ||
           Boolean(textValue) ||
           typeof boolValue === "boolean";
+        const shouldFocusTextInput =
+          isTextAttribute &&
+          isActive &&
+          (activeTextAttributeId === attribute.attributeId ||
+            activeTextAttributeId === null);
 
         return (
           <FilterDropdown
             key={attribute.attributeId}
             title={attribute.attributeName}
             isActive={isActive}
+            forceOpen={shouldFocusTextInput}
           >
             <DynamicAttributeFilter
-              key={`${attribute.attributeId}:${textValue}:${String(boolValue)}`}
               attribute={attribute}
               selectedOptionIds={selectedOptions}
+              selectedValues={selectedValues}
               textValue={textValue}
               boolValue={boolValue}
               onToggleOption={handleAttributeOptionToggle}
+              onToggleValue={handleAttributeValueToggle}
+              onSetValues={handleAttributeValuesChange}
               onTextChange={handleAttributeTextChange}
               onBoolChange={handleAttributeBoolChange}
+              shouldFocusTextInput={shouldFocusTextInput}
+              onTextInputFocus={(attributeId) => {
+                setActiveTextAttributeId(attributeId);
+              }}
             />
           </FilterDropdown>
         );
@@ -1725,7 +2184,7 @@ export default function Filter({
         </FilterDropdown>
       ) : null}
 
-      {categoryTree.length > 1000 ? (
+      {categoryTree.length > 0 ? (
         <FilterDropdown title="دسته‌بندی" isActive={hasCategoryFilter}>
           <div className="max-h-72 overflow-y-auto custom-scrollbar" dir="rtl">
             <CategoryTree
@@ -1739,3 +2198,5 @@ export default function Filter({
     </section>
   );
 }
+
+export default memo(Filter);

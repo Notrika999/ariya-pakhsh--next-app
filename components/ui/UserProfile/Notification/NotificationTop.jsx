@@ -1,38 +1,20 @@
 import React from "react";
+import UserProfileTop, { UserProfileTopStat } from "../UserProfileTop";
 
-export default function NotificationTop({notificationsLength}) {
+export default function NotificationTop({ notificationsLength }) {
   return (
-    <div className="bg-white rounded-2xl drop-shadow-lg p-6 dark:bg-custom-dark dark:border dark:border-gray-700">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <div className="flex items-center space-x-4">
-          <div>
-            <h1 className="font-black text-2xl with-highlight dark:text-gray-200">
-              اعلانات سایت
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              پیگیری آخرین اطلاعیه‌ها و اخبار
-            </p>
-          </div>
-        </div>
-        <div className="mt-4 md:mt-0">
-          <div className="flex items-center space-x-6">
-            <div className="text-right">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                اعلانات خوانده نشده
-              </p>
-              <span
-                className="text-2xl font-bold text-primary"
-                id="unread-count"
-              >
-                {notificationsLength}
-              </span>
-            </div>
-            <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
-              <i className="far fa-bell text-white text-xl"></i>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <UserProfileTop
+      title="اعلانات سایت"
+      description="پیگیری آخرین اطلاعیه‌ها و اخبار"
+      aside={
+        <UserProfileTopStat
+          label="اعلانات خوانده نشده"
+          value={notificationsLength}
+          id="unread-count"
+          valueClassName="text-2xl font-bold text-primary"
+          icon={<i className="far fa-bell text-xl text-white"></i>}
+        />
+      }
+    />
   );
 }

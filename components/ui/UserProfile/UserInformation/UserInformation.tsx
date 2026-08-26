@@ -44,7 +44,7 @@ export default function UserInformation() {
   }, [setUser, user]);
 
   return (
-    <div className="lg:col-span-3 space-y-8">
+    <div className="lg:col-span-3 space-y-4">
       {/* <!--Dashboard header-->/ */}
       <UserInformationTop user={user} />
 

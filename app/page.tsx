@@ -12,7 +12,7 @@ import Story from "@/components/ui/Home/Story/Story";
 import Slider from "@/components/ui/Home/Slider/Slider";
 import AmazingProducts from "@/components/ui/Home/AmazingProducts/AmazingProducts";
 import BestSellingProducts from "@/components/ui/Home/BestSellingProducts/BestSellingProducts";
-import Category from "@/components/ui/Home/Category/Category";
+import CategoryGrid from "@/components/ui/Home/CategoryGrid/CategoryGrid";
 import Banner from "@/components/ui/Home/Banner/Banner";
 import Brand from "@/components/ui/Home/Brand/Brand";
 
@@ -25,6 +25,7 @@ import { absoluteUrl } from "@/src/lib/seo/site";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 import HeroSection from "@/components/ui/IncredibleOffers/HeroSection/HeroSection";
 import { mapToBestSellingProducts } from "@/src/lib/mappers/best-selling-products.mapper";
+import { getCategoryImage } from "@/src/utils/product-image";
 
 export const dynamic = "force-dynamic";
 
@@ -91,7 +92,7 @@ export default async function Home() {
     id: cat.id,
     name: cat.name,
     slug: cat.slug,
-    img: cat.image?.iconUrl ?? "/images/default.png",
+    src: getCategoryImage(cat.image),
   }));
 
   // --- Featured Categories and map ---
@@ -103,7 +104,7 @@ export default async function Home() {
     id: cat.id,
     name: cat.name,
     slug: cat.slug,
-    img: cat.image?.iconUrl ?? "/images/default.png",
+    src: getCategoryImage(cat.image),
   }));
 
   const homeData = await getProducts({
@@ -116,18 +117,26 @@ export default async function Home() {
   const stories = mapHomeLayoutStories(homeLayout.sections);
   const homeCarouselSlides = mapHomeLayoutCarousel(homeLayout.sections);
   const homePromoCards = mapHomeLayoutPromoCards(homeLayout.sections);
-  const newestProducts = homeData.newestProducts ?? [];
 
-  const featuredProducts = homeData.featuredProducts ?? [];
+  const inStockOnly = <T,>(products: T[]) =>
+    products.filter(
+      (product) => (product as { inStock?: boolean | null }).inStock !== false,
+    );
+
+  const newestProducts = inStockOnly(homeData.newestProducts ?? []);
+  const featuredProducts = inStockOnly(homeData.featuredProducts ?? []);
   const topCategoriesMap = (homeData.topCategories ?? []).map((cat) => ({
     id: cat.categoryId,
     name: cat.name,
     slug: cat.slug,
-    src: "/images/default.png",
+    src: getCategoryImage({
+      thumbUrl: cat.thumbUrl,
+      iconUrl: cat.iconUrl,
+    }),
   }));
 
   const bestSellingProducts = mapToBestSellingProducts(
-    homeData.bestSellingProducts ?? [],
+    inStockOnly(homeData.bestSellingProducts ?? []),
     3,
   );
 
@@ -136,6 +145,9 @@ export default async function Home() {
 
   return (
     <main>
+      <h1 className="sr-only">
+        فروشگاه لوازم جانبی، تزئینی و لوکس خودرو | کارآپ 24
+      </h1>
       {/* <!-- START STORY SECTION --> */}
       {stories.length > 0 ? (
         <SectionContainer>
@@ -163,7 +175,10 @@ export default async function Home() {
       {/* <!-- START TOP CATEGORIES SECTION --> */}
       {topCategoriesMap.length > 0 && (
         <SectionContainer className="bg-[#fefefe] dark:bg-[#0d1117]">
-          <Category categories={topCategoriesMap} title="دسته‌بندی‌های برتر" />
+          <CategoryGrid
+            categories={topCategoriesMap}
+            title="دسته‌بندی‌های برتر"
+          />
         </SectionContainer>
       )}
       {/* <!-- END TOP CATEGORIES SECTION --> */}
@@ -171,7 +186,7 @@ export default async function Home() {
       {/* <!-- START Featured CATEGORY SECTION --> */}
       {featuredCategoriesMap.length > 0 && (
         <SectionContainer className="bg-[#fefefe] dark:bg-[#0d1117] ">
-          <Category
+          <CategoryGrid
             categories={featuredCategoriesMap}
             title="دسته‌بندی‌های ویژه"
           />
@@ -185,16 +200,16 @@ export default async function Home() {
 
       {/* <!-- START BANNER SECTION --> */}
       {bannerItems.length > 0 ? (
-        <SectionContainer >
-          <Banner banners={bannerItems} title="تبلیغات فروشگاه" />
+        <SectionContainer>
+          <Banner banners={bannerItems} title="بنرهای تبلیغات فروشگاه" />
         </SectionContainer>
       ) : null}
       {/* <!-- END BANNER SECTION --> */}
 
       {/* <!-- START Recommended CATEGORY SECTION --> */}
       {recommendedCategoriesMap.length > 0 ? (
-        <SectionContainer  className="bg-[#fefefe] dark:bg-[#0d1117]">
-          <Category
+        <SectionContainer className="bg-[#fefefe] dark:bg-[#0d1117]">
+          <CategoryGrid
             categories={recommendedCategoriesMap}
             title="دسته‌بندی‌های پیشنهادی"
           />
@@ -221,7 +236,6 @@ export default async function Home() {
           <UserLatestViews
             suggestedProducts={suggestedProducts}
             title={"محصولات پیشنهادی"}
-            href={"#"}
           />
         </SectionContainer>
       ) : null} */}
@@ -246,7 +260,7 @@ export default async function Home() {
             products={featuredProducts}
             loop={true}
             title="محصولات ویژه"
-            href="#"
+        
           />
         </SectionContainer>
       ) : null}
@@ -259,7 +273,6 @@ export default async function Home() {
           <Brand
             brands={brands.items}
             title={"برندهای های فروشگاه"}
-            href={"#"}
           />
         </SectionContainer>
       ) : null}

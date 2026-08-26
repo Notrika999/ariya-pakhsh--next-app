@@ -34,7 +34,8 @@ export default function BestSellingProducts({
       const visibleSlides = getActiveSlidesPerView(instance);
 
       setSliderState({
-        canScroll: bestSellingProducts.length > visibleSlides && !instance.isLocked,
+        canScroll:
+          bestSellingProducts.length > visibleSlides && !instance.isLocked,
         isBeginning: instance.isBeginning,
         isEnd: instance.isEnd,
       });
@@ -66,8 +67,6 @@ export default function BestSellingProducts({
   let globalIndex = 1;
   return (
     <>
-      <h2 className="sr-only">پرفروش ترین محصولات</h2>
-
       {/* <!-- header --> */}
       <SectionHeader title={title} href={href} />
 
@@ -81,7 +80,7 @@ export default function BestSellingProducts({
                 aria-label="محصول پرفروش قبلی"
                 onClick={handleSlidePrev}
                 disabled={!isLoopEnabled && sliderState.isBeginning}
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-300 dark:text-gray-200 dark:hover:bg-gray-800 dark:disabled:text-gray-600"
+                className="flex md:h-9 md:w-9 h-5 w-6 cursor-pointer items-center justify-center rounded-lg text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-300 dark:text-gray-200 dark:hover:bg-gray-800 dark:disabled:text-gray-600"
               >
                 <ChevronRight size={20} strokeWidth={2.4} aria-hidden="true" />
               </button>
@@ -90,7 +89,7 @@ export default function BestSellingProducts({
                 aria-label="محصول پرفروش بعدی"
                 onClick={handleSlideNext}
                 disabled={!isLoopEnabled && sliderState.isEnd}
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg bg-primary text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-300 disabled:shadow-none dark:disabled:bg-gray-800 dark:disabled:text-gray-600"
+                className="flex md:h-9 md:w-9 h-5 w-6 cursor-pointer items-center justify-center rounded-lg bg-primary text-white shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-300 disabled:shadow-none dark:disabled:bg-gray-800 dark:disabled:text-gray-600"
               >
                 <ChevronLeft size={20} strokeWidth={2.4} aria-hidden="true" />
               </button>
@@ -99,12 +98,13 @@ export default function BestSellingProducts({
         )}
 
         <div className="relative">
-          {sliderState.canScroll && (isLoopEnabled || !sliderState.isBeginning) && (
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-linear-to-l from-white to-transparent dark:from-[#121923]"
-            />
-          )}
+          {sliderState.canScroll &&
+            (isLoopEnabled || !sliderState.isBeginning) && (
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-linear-to-l from-white to-transparent dark:from-[#121923]"
+              />
+            )}
           {sliderState.canScroll && (isLoopEnabled || !sliderState.isEnd) && (
             <div
               aria-hidden="true"
@@ -155,35 +155,18 @@ export default function BestSellingProducts({
                     className="w-full block"
                   >
                     <article
-                      className="flex py-2 px-3 my-3 rounded-xl
+                      className="flex p-1 my-3 rounded-xl
                                 bg-white dark:bg-custom-dark
                                 border border-gray-200 dark:border-gray-700
                                 hover:bg-gray-100 dark:hover:bg-[#13171c]
                                 transition-colors duration-200 shadow-sm
                                 items-center justify-between"
                     >
-                      <section className="w-1/6 border-e-2 border-gray-300 dark:border-neutral-600">
-                        <div className="text-center">
-                          <span className="font-bold text-3xl text-primary">
-                            {globalIndex++}
-                          </span>
-                        </div>
-                      </section>
-
-                      <section className="w-3/6 space-y-2 ps-3">
-                        <h3
-                          itemProp="name"
-                          className="font-bold leading-loose line-clamp-2 h-13 text-xs text-gray-900 dark:text-gray-200"
-                        >
-                          {subProduct.title}
-                        </h3>
-                      </section>
-
-                      <figure className="w-2/6">
+                      <figure className="md:w-2/6 w-1/6">
                         <div className="text-end flex justify-end">
                           <Image
                             src={subProduct.image}
-                            className="object-fill"
+                            className="object-fill rounded-xl"
                             loading="lazy"
                             alt={subProduct.title}
                             width={100}
@@ -191,6 +174,23 @@ export default function BestSellingProducts({
                           />
                         </div>
                       </figure>
+
+                      <section className="w-1/6 border-e-2 border-gray-300 dark:border-neutral-600">
+                        <div className="text-center">
+                          <span className="font-bold md:text-3xl text-lg text-primary">
+                            {globalIndex++}
+                          </span>
+                        </div>
+                      </section>
+
+                      <section className="md:w-3/6 w-4/6 space-y-2 ps-3">
+                        <h3
+                          itemProp="name"
+                          className="font-bold leading-loose line-clamp-2 h-13 text-xs text-gray-900 dark:text-gray-200"
+                        >
+                          {subProduct.title}
+                        </h3>
+                      </section>
                     </article>
                   </Link>
                 ))}

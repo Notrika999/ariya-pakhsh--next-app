@@ -163,6 +163,23 @@ export default function AddressLocationMap({
     map.setView(next, map.getZoom(), { animate: false });
   }, [latitude, longitude, disabled]);
 
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const frameId = window.requestAnimationFrame(() => {
+      map.invalidateSize({ pan: false });
+    });
+    const timeoutId = window.setTimeout(() => {
+      map.invalidateSize({ pan: false });
+    }, 120);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.clearTimeout(timeoutId);
+    };
+  }, [hasError, disabled]);
+
   const handleUseMyLocation = () => {
     if (disabled) return;
     if (!navigator.geolocation) {
@@ -205,14 +222,15 @@ export default function AddressLocationMap({
       </div>
 
       <div
-        ref={containerRef}
         className={[
           "h-64 w-full overflow-hidden rounded-lg border z-0",
           hasError
             ? "border-red-500"
             : "border-gray-300 dark:border-gray-600",
         ].join(" ")}
-      />
+      >
+        <div ref={containerRef} className="h-full w-full" />
+      </div>
 
       {hasCoords(latitude, longitude) && (
         <p className="text-xs text-gray-500 dark:text-gray-400" dir="ltr">

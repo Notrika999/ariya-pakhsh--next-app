@@ -19,6 +19,7 @@ export interface Product {
   href: string;
   offer?: boolean;
   dealEndsAt?: string;
+  inStock?: boolean | null;
   [key: string]: unknown;
 }
 
@@ -38,6 +39,9 @@ export interface ProductIndexCategory {
   name: string;
   slug: string;
   productCount: number;
+  mediaId?: string | null;
+  iconUrl?: string | null;
+  thumbUrl?: string | null;
 }
 
 export interface ProductIndexBrand {
@@ -88,6 +92,7 @@ export interface ProductAttributeFilter {
   attributeId: string;
   optionIds?: string[];
   value?: string;
+  values?: string[];
   boolValue?: boolean;
 }
 
@@ -255,6 +260,22 @@ export interface ProductListResponse {
   totalPages: number;
 
   filterOptions: ProductFilterOptions;
+
+  products?: ProductCardModel[];
+  suggestions?: string[];
+  appliedFilters?: ProductListAppliedFilters;
+}
+
+export interface ProductListAppliedFilters {
+  categoryId?: string | null;
+  brandIds?: string[];
+  vehicleIds?: string[];
+  colorOptionIds?: string[];
+  minPrice?: number | null;
+  maxPrice?: number | null;
+  inStock?: boolean | null;
+  onSaleOnly?: boolean | null;
+  attributeFilters?: ProductAttributeFilter[];
 }
 
 export interface ProductFilterOptions {

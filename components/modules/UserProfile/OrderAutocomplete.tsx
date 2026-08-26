@@ -1,13 +1,19 @@
 "use client";
 
 import type { ChangeEvent, KeyboardEvent } from "react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import type { MyOrderListItem } from "@/src/lib/types/orders/order.types";
-import { getMyOrders } from "@/src/services/orders/orders.client";
+import {
+  getMyOrderById,
+  getMyOrders,
+} from "@/src/services/orders/orders.client";
+import { getProductImage } from "@/src/utils/product-image";
 
 type OrderAutocompleteProps = {
   value?: string;
+  displayValue?: string;
   onChange?: (orderId: string, orderNumber?: string) => void;
   placeholder?: string;
   disabled?: boolean;
@@ -33,6 +39,10 @@ function formatDate(value: string | null | undefined): string {
 
 function formatCount(value: number): string {
   return new Intl.NumberFormat("fa-IR").format(Math.max(0, value || 0));
+}
+
+function formatMoney(value: number): string {
+  return `${formatCount(value)} تومان`;
 }
 
 function statusClass(statusKey: string): string {
@@ -71,6 +81,7 @@ function OrderOptionCard({
   isSelected: boolean;
 }) {
   const statusTitle = order.statusTitleFa || order.statusKey || "—";
+  const orderItems = (order.items ?? []).slice(0, 6);
 
   return (
     <div
@@ -83,14 +94,30 @@ function OrderOptionCard({
         isSelected ? "bg-primary/5 dark:bg-primary/10" : "",
       ].join(" ")}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            شماره سفارش
-          </p>
-          <p className="mt-1 break-all text-base font-bold text-gray-900 dark:text-white">
-            #{order.publicOrderNumber || order.orderId}
-          </p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            <div className="min-w-0 shrink-0">
+              <p className="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                شماره سفارش
+              </p>
+              <p className="mt-1 break-all text-base font-bold text-gray-950 dark:text-white">
+                #{order.publicOrderNumber || order.orderId}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2 text-xs">
+              <span className="rounded-lg bg-gray-50 px-2.5 py-1.5 font-semibold text-gray-700 dark:bg-zinc-800 dark:text-gray-200">
+                تعداد: {formatCount(order.itemCount)} عدد
+              </span>
+              <span className="rounded-lg bg-gray-50 px-2.5 py-1.5 font-semibold text-gray-700 dark:bg-zinc-800 dark:text-gray-200">
+                تاریخ: {formatDate(order.createdAt)}
+              </span>
+              <span className="rounded-lg bg-gray-50 px-2.5 py-1.5 font-semibold text-gray-700 dark:bg-zinc-800 dark:text-gray-200">
+                مبلغ: {formatMoney(order.payableAmount)}
+              </span>
+            </div>
+          </div>
         </div>
         <span
           className={[
@@ -102,38 +129,64 @@ function OrderOptionCard({
         </span>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
-        <div className="rounded-lg bg-gray-50 px-3 py-2 dark:bg-zinc-800">
-          <span className="block text-gray-500 dark:text-gray-400">
-            تعداد کالا
-          </span>
-          <span className="mt-1 block font-semibold text-gray-900 dark:text-white">
-            {formatCount(order.itemCount)} عدد
-          </span>
+      {orderItems.length ? (
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          {orderItems.map((item) => (
+            <div
+              key={item.orderItemId}
+              className="flex w-28 shrink-0 flex-col items-center gap-2 rounded-lg bg-gray-50 p-2 text-center dark:bg-zinc-800"
+            >
+              <span className="flex size-12 items-center justify-center overflow-hidden rounded-md border border-gray-100 bg-white dark:border-gray-700 dark:bg-zinc-900">
+                <Image
+                  width={48}
+                  height={48}
+                  src={getProductImage(item.imageUrl)}
+                  alt={item.productTitle || item.productName || "محصول"}
+                  className="h-[85%] w-[85%] object-contain"
+                  unoptimized
+                />
+              </span>
+              <span className="line-clamp-2 min-h-8 text-[11px] font-semibold leading-4 text-gray-700 dark:text-gray-200">
+                {item.productTitle || item.productName || "محصول"}
+              </span>
+            </div>
+          ))}
         </div>
-        <div className="rounded-lg bg-gray-50 px-3 py-2 dark:bg-zinc-800">
-          <span className="block text-gray-500 dark:text-gray-400">
-            تاریخ ثبت
-          </span>
-          <span className="mt-1 block font-semibold text-gray-900 dark:text-white">
-            {formatDate(order.createdAt)}
-          </span>
-        </div>
-        <div className="rounded-lg bg-gray-50 px-3 py-2 dark:bg-zinc-800">
-          <span className="block text-gray-500 dark:text-gray-400">
-            مبلغ کل
-          </span>
-          <span className="mt-1 block truncate font-semibold text-gray-900 dark:text-white">
-            {formatCount(order.payableAmount)} تومان
-          </span>
-        </div>
-      </div>
+      ) : null}
     </div>
   );
 }
 
+async function hydrateOrdersWithItems(
+  orders: MyOrderListItem[],
+): Promise<MyOrderListItem[]> {
+  const ordersWithoutItems = orders.filter((order) => !order.items?.length);
+  if (!ordersWithoutItems.length) return orders;
+
+  const details = await Promise.allSettled(
+    ordersWithoutItems.map((order) => getMyOrderById(order.orderId)),
+  );
+  const detailById = new Map(
+    details
+      .filter((result) => result.status === "fulfilled")
+      .map((result) => [result.value.orderId, result.value]),
+  );
+
+  return orders.map((order) => {
+    const detail = detailById.get(order.orderId);
+    if (!detail?.items?.length) return order;
+
+    return {
+      ...order,
+      items: detail.items,
+      itemCount: order.itemCount || detail.items.length,
+    };
+  });
+}
+
 export default function OrderAutocomplete({
   value = "",
+  displayValue = "",
   onChange,
   placeholder = "شماره سفارش را جستجو کنید",
   disabled = false,
@@ -152,7 +205,11 @@ export default function OrderAutocomplete({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const listRef = useRef<HTMLUListElement | null>(null);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    queueMicrotask(() => {
+      setMounted(true);
+    });
+  }, []);
 
   const ensureOrdersLoaded = async () => {
     if (fetched || loadingOrders) return;
@@ -160,7 +217,10 @@ export default function OrderAutocomplete({
 
     try {
       const result = await getMyOrders();
-      setOrders(result.items ?? result.orders ?? []);
+      const nextOrders = result.items ?? result.orders ?? [];
+      setOrders(nextOrders);
+      const hydratedOrders = await hydrateOrdersWithItems(nextOrders);
+      setOrders(hydratedOrders);
     } catch {
       setOrders([]);
     } finally {
@@ -170,14 +230,21 @@ export default function OrderAutocomplete({
   };
 
   useEffect(() => {
-    if (!value) {
-      setQuery("");
-      return;
-    }
+    queueMicrotask(() => {
+      if (!value) {
+        setQuery("");
+        return;
+      }
 
-    const match = orders.find((order) => order.orderId === value);
-    if (match) setQuery(orderLabel(match));
-  }, [value, orders]);
+      const match = orders.find((order) => order.orderId === value);
+      if (match) {
+        setQuery(orderLabel(match));
+        return;
+      }
+
+      if (displayValue) setQuery(displayValue);
+    });
+  }, [value, displayValue, orders]);
 
   const filtered = (() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -194,7 +261,7 @@ export default function OrderAutocomplete({
         .toLowerCase()
         .includes(normalizedQuery);
       const titleMatch = (order.items || []).some((item) =>
-        String(item.productTitle || "")
+        String(item.productTitle || item.productName || "")
           .toLowerCase()
           .includes(normalizedQuery),
       );
@@ -218,10 +285,9 @@ export default function OrderAutocomplete({
     });
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!isOpen) return;
     updateCoords();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, filtered.length]);
 
   useEffect(() => {
@@ -254,9 +320,10 @@ export default function OrderAutocomplete({
   }, [isOpen]);
 
   useEffect(() => {
-    setActiveIndex(filtered.length ? 0 : -1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, isOpen, orders]);
+    queueMicrotask(() => {
+      setActiveIndex(filtered.length ? 0 : -1);
+    });
+  }, [filtered.length]);
 
   const commitSelection = (order: MyOrderListItem) => {
     onChange?.(order.orderId, order.publicOrderNumber || "");

@@ -47,14 +47,14 @@ function CategoriesSliderSkeleton() {
   return (
     <div className="pb-10">
       <Bone className="mb-4 h-7 w-36" />
-      <div className="flex gap-4 overflow-hidden">
+      <div className="flex gap-4 overflow-hidden rounded-xl bg-[#f3f5f9] px-3 py-3 dark:bg-[#18202b] md:px-5">
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={`cat-skel-${i}`}
-            className="flex w-50 shrink-0 flex-col items-center gap-3 rounded-2xl border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-custom-dark"
+            className="flex h-[124px] w-[142px] shrink-0 flex-col items-center justify-center gap-2 rounded-xl bg-white px-3 py-3 dark:bg-custom-dark md:h-[136px] md:w-[190px] md:gap-3 md:px-4 lg:w-[214px]"
           >
-            <SoftBone className="size-20 rounded-xl" />
-            <Bone className="h-4 w-24" />
+            <SoftBone className="h-[58px] w-22 rounded-xl md:h-[68px]" />
+            <Bone className="h-4 w-24 md:h-6 md:w-32" />
           </div>
         ))}
       </div>
@@ -64,9 +64,10 @@ function CategoriesSliderSkeleton() {
 
 function MobileFilterSkeleton() {
   return (
-    <div className="flex gap-2 lg:hidden">
-      <Bone className="h-10 w-28 rounded-xl" />
-      <Bone className="h-10 w-24 rounded-xl" />
+    <div className="lg:hidden">
+      <div className="fixed bottom-28 start-3 z-20">
+        <Bone className="size-14 rounded-lg" />
+      </div>
     </div>
   );
 }
@@ -103,13 +104,25 @@ function FilterSidebarSkeleton() {
 
 function SortSkeleton() {
   return (
-    <div className="flex flex-wrap items-center gap-3 space-x-3">
-      <Bone className="h-5 w-5" />
-      <Bone className="h-5 w-24" />
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Bone key={`sort-${i}`} className="h-8 w-20 rounded-full" />
-      ))}
-    </div>
+    <>
+      <div className="flex w-full items-center gap-2 lg:hidden">
+        <Bone className="h-8 w-20 rounded-full md:h-12 md:w-28" />
+        <Bone className="h-8 w-24 rounded-full md:h-12 md:w-32" />
+      </div>
+
+      <div className="hidden w-full items-center gap-7 rounded-xl bg-[#eef1f6] px-6 py-4 dark:bg-[#18202b] lg:flex">
+        <SoftBone className="size-7 rounded-lg" />
+        <Bone className="h-6 w-16" />
+
+        <div className="flex min-w-0 flex-1 items-center gap-8 overflow-hidden">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Bone key={`sort-${i}`} className="h-6 w-24 shrink-0" />
+          ))}
+        </div>
+
+        <Bone className="h-6 w-20 shrink-0" />
+      </div>
+    </>
   );
 }
 

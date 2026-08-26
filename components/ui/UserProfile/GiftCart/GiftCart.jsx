@@ -166,7 +166,7 @@ export default function GiftCart() {
   };
 
   return (
-    <div className="space-y-8 lg:col-span-3">
+    <div className="space-y-4 lg:col-span-3">
       <GiftCartTop totalBalance={totalActiveBalance} currency={"تومان"} />
 
       <TabsSection

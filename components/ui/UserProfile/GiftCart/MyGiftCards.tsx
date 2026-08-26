@@ -41,7 +41,7 @@ export default function MyGiftCards({
   onDetails,
 }: MyGiftCardsProps) {
   return (
-    <div id="my-gift-cards" className="tab-content space-y-6">
+    <div id="my-gift-cards" className="tab-content space-y-2">
       {error ? (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -59,7 +59,7 @@ export default function MyGiftCards({
         </div>
       ) : null}
 
-      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+      <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <TitleAfter title="کارت‌های هدیه فعال" tag={false} />
 
         {loading ? (
@@ -75,7 +75,7 @@ export default function MyGiftCards({
         )}
       </div>
 
-      <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
+      <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
         <TitleAfter title="کارت‌های هدیه استفاده‌شده" tag={false} />
 
         {loading ? (

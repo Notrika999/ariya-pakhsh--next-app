@@ -7,7 +7,7 @@ import type { CSSProperties } from "react";
 const MAX_SWATCH_COLORS = 4;
 
 export type ColorFilterOption = {
-  optionId: string;
+  optionId?: string | null;
   value?: string;
   displayText?: string;
   count?: number;
@@ -18,6 +18,7 @@ export type ColorFilterOption = {
 export type ColorFilterAttribute = {
   attributeId: string;
   attributeName: string;
+  attributeType?: number;
   options?: ColorFilterOption[];
 };
 
@@ -32,16 +33,17 @@ export type ColorFilterItem = {
 export function isColorFilterAttribute(attr: {
   attributeId?: string;
   attributeName?: string;
+  attributeType?: number;
 }): boolean {
+  const attributeType = Number(attr.attributeType);
   const attributeId = String(attr.attributeId ?? "").trim().toLowerCase();
   const attributeName = String(attr.attributeName ?? "").trim().toLowerCase();
 
   return (
+    attributeType === 7 ||
     attributeId === "color" ||
     attributeName === "رنگ" ||
-    attributeName === "color" ||
-    attributeName.includes("رنگ") ||
-    attributeName.includes("color")
+    attributeName === "color"
   );
 }
 
@@ -72,6 +74,7 @@ function itemFromSingleOption(
   option: ColorFilterOption,
   attributeId: string,
 ): ColorFilterItem {
+  const optionId = String(option.optionId ?? "").trim();
   let labels = parseColorLabels(option);
   const fallbackLabel = getColorOptionLabel(option);
   if (labels.length === 0 && fallbackLabel) {
@@ -82,9 +85,9 @@ function itemFromSingleOption(
   const resolvedCodes = codes.length > 0 ? codes : ["#e5e7eb"];
 
   return {
-    key: option.optionId,
+    key: optionId,
     attributeIds: [attributeId],
-    optionIds: [option.optionId],
+    optionIds: [optionId],
     labels,
     codes: resolvedCodes,
   };
@@ -97,9 +100,9 @@ export function buildColorFilterItems(
   if (!colorAttrs.length) return [];
 
   return colorAttrs.flatMap((attr) =>
-    (attr.options ?? []).map((option) =>
-      itemFromSingleOption(option, attr.attributeId),
-    ),
+    (attr.options ?? [])
+      .filter((option) => String(option.optionId ?? "").trim())
+      .map((option) => itemFromSingleOption(option, attr.attributeId)),
   );
 }
 

@@ -4,6 +4,7 @@ import {
   AUTH_COOKIE_NAMES,
   AUTH_INDICATOR_BUFFER,
   AUTH_INDICATOR_DEFAULT_MAX_AGE,
+  LEGACY_AUTH_COOKIE_NAMES,
 } from "./constants";
 
 export function setAuthIndicator(
@@ -203,16 +204,22 @@ export function setAuthCookiesFromBody(
 }
 
 export function clearAllAuthCookies(response: NextResponse): void {
-  const names = [
+  const names = new Set<string>([
     AUTH_COOKIE_NAMES.ACCESS_TOKEN,
     AUTH_COOKIE_NAMES.REFRESH_TOKEN,
     AUTH_COOKIE_NAMES.DEVICE_ID,
     AUTH_COOKIE_NAMES.AUTH_INDICATOR,
-  ];
+    LEGACY_AUTH_COOKIE_NAMES.ACCESS_TOKEN,
+    LEGACY_AUTH_COOKIE_NAMES.REFRESH_TOKEN,
+    LEGACY_AUTH_COOKIE_NAMES.DEVICE_ID,
+    LEGACY_AUTH_COOKIE_NAMES.AUTH_INDICATOR,
+  ]);
 
   for (const name of names) {
     response.cookies.set(name, "", {
-      httpOnly: name !== AUTH_COOKIE_NAMES.AUTH_INDICATOR,
+      httpOnly:
+        name !== AUTH_COOKIE_NAMES.AUTH_INDICATOR &&
+        name !== LEGACY_AUTH_COOKIE_NAMES.AUTH_INDICATOR,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",

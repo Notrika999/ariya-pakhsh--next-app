@@ -2,6 +2,10 @@ import React from "react";
 
 export default function Information() {
   return (
+    <>
+     <h1 className="w-fit px-4 py-2 mx-auto bg-primary/10 text-primary rounded-full  font-medium mb-4 animate-pulse">
+        تماس با ما
+      </h1>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
       {/* <!-- Card 1 --> */}
       <div
@@ -74,5 +78,6 @@ export default function Information() {
         <p className="text-gray-600 dark:text-gray-400">پنجشنبه: ۸:۰۰-۱۲:۰۰</p>
       </div>
     </div>
+    </>
   );
 }

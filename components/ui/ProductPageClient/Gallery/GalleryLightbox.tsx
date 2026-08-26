@@ -211,13 +211,13 @@ export default function GalleryLightbox({
       role="dialog"
       aria-modal="true"
       aria-label={`گالری تصاویر ${productName}`}
-      className="fixed inset-0 z-[200] flex flex-col bg-black"
+      className="fixed inset-0 z-2000 flex flex-col bg-black"
       onClick={() => onClose(activeIndex)}
     >
       <button
         type="button"
         onClick={() => onClose(activeIndex)}
-        className="absolute top-5 start-5 z-20 flex h-10 w-10 items-center justify-center rounded-full text-2xl text-white transition hover:bg-white/10"
+        className="absolute top-5 inset-s-5 z-9999 flex h-10 w-10 items-center justify-center rounded-full text-2xl text-white transition hover:bg-white/10"
         aria-label="بستن گالری"
       >
         <i className="far fa-xmark"></i>

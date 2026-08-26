@@ -10,6 +10,7 @@ import { SectionContainer } from "@/components/modules/SectionContainer/SectionC
 import Review from "./Review/Review";
 import Breadcrumb from "@/components/modules/Breadcrumb/Breadcrumb";
 import { getProductImage } from "@/src/utils/product-image";
+import { formatPrice } from "@/src/utils/formatPrice";
 import { createProductView } from "@/src/services/product/product.client";
 import type {
   ProductDetail,
@@ -91,7 +92,7 @@ export default function ProductPageClient({
   const productDetailsBreadcrumb = [
     {
       id: "0",
-      name: "خانه",
+      name: "کارآپ 24",
       slug: "",
       link: `/`,
 
@@ -154,6 +155,14 @@ export default function ProductPageClient({
   const selectedVariant =
     product.variants?.find((v) => v.variantId === selectedVariantId) ??
     defaultVariant;
+  const selectedVariantPrice =
+    selectedVariant?.salePrice ??
+    selectedVariant?.finalPrice ??
+    selectedVariant?.price;
+  const productPriceText =
+    typeof selectedVariantPrice === "number" && selectedVariantPrice > 0
+      ? `${formatPrice(selectedVariantPrice)} تومان`
+      : null;
 
   useEffect(() => {
     const publicCode = selectedVariant?.publicCode?.trim();
@@ -210,6 +219,7 @@ export default function ProductPageClient({
               images={images}
               isOutOfStock={isOutOfStock}
               productName={product.name}
+              productPriceText={productPriceText}
               productId={product.productId}
               variants={product.variants}
               selectedVariantId={selectedVariant?.variantId ?? ""}
