@@ -5,11 +5,41 @@ import React from "react";
 import BlogVideoSidebar from "../BlogVideoSidebar";
 import BlogSidebar from "../BlogSidebar";
 import { blogPosts, getBlogHref } from "../blogData";
+import BlogComparisonTable from "./BlogComparisonTable";
+import BlogProductShowcase from "./BlogProductShowcase";
+import BlogRelatedReads from "./BlogRelatedReads";
+import BlogProsCons from "./BlogProsCons";
 
-export default function BlogContent({ post }) {
+function getBrandGroups(products = []) {
+  const groups = [];
+  const index = new Map();
+
+  for (const product of products) {
+    const brand = String(product.primaryBrandName ?? "").trim() || "__all__";
+    if (!index.has(brand)) {
+      const group = {
+        brand: brand === "__all__" ? "" : brand,
+        products: [],
+      };
+      index.set(brand, group);
+      groups.push(group);
+    }
+    index.get(brand).products.push(product);
+  }
+
+  return groups.slice(0, 2);
+}
+
+export default function BlogContent({
+  post,
+  relatedProducts = { products: [], totalCount: 0, searchHref: "/search" },
+}) {
   const relatedPosts = blogPosts
     .filter((item) => item.id !== post.id)
     .slice(0, 2);
+  const products = relatedProducts.products ?? [];
+  const brandGroups = getBrandGroups(products);
+  const compareProducts = products.slice(0, 8);
 
   return (
     <div className="grid grid-cols-4 gap-4">
@@ -48,15 +78,35 @@ export default function BlogContent({ post }) {
               رانندگی می‌شود.
             </p>
 
+            <BlogComparisonTable
+              products={compareProducts}
+              keyword={post.keyword}
+            />
+
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
               نکات کاربردی قبل از خرید
             </h2>
             <ul className="list-disc space-y-2 pe-5">
               <li>مدل خودرو و ابعاد قطعه یا اکسسوری را با محصول تطبیق دهید.</li>
               <li>به جنس، مقاومت، ضمانت و کیفیت نصب توجه کنید.</li>
-              <li>محصولی را انتخاب کنید که نگهداری و نظافت آسان‌تری داشته باشد.</li>
-              <li>برای قطعات نوری، استاندارد نوردهی و هماهنگی برقی مهم است.</li>
+              <li>
+                محصولی را انتخاب کنید که نگهداری و نظافت آسان‌تری داشته باشد.
+              </li>
+              <li>
+                برای قطعات نوری، استاندارد نوردهی و هماهنگی برقی مهم است.
+              </li>
             </ul>
+
+            {brandGroups.map((group) => (
+              <BlogProductShowcase
+                key={group.brand || post.keyword}
+                products={group.products}
+                keyword={post.keyword}
+                searchHref={relatedProducts.searchHref}
+              />
+            ))}
+
+            {products.length ? <BlogProsCons keyword={post.keyword} /> : null}
 
             <Image
               width={760}
@@ -65,6 +115,8 @@ export default function BlogContent({ post }) {
               alt={`نمونه ${post.keyword}`}
               className="w-full h-72 object-cover rounded-xl"
             />
+
+            <BlogRelatedReads posts={relatedPosts} />
 
             <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200">
               جمع‌بندی

@@ -6,6 +6,7 @@ import {
   blogPosts,
   getBlogPostBySlug,
 } from "@/components/ui/Blog/blogData";
+import { getBlogRelatedProducts } from "@/components/ui/Blog/slug/getBlogRelatedProducts";
 
 export function generateStaticParams() {
   return blogPosts.map((post) => ({
@@ -26,6 +27,7 @@ export async function generateMetadata({ params }) {
 export default async function BlogPage({ params }) {
   const { slug } = await params;
   const post = getBlogPostBySlug(slug);
+  const relatedProducts = await getBlogRelatedProducts(post.keyword);
 
   return (
     <section className="py-5">
@@ -38,7 +40,7 @@ export default async function BlogPage({ params }) {
           ]}
         />
 
-        <BlogContent post={post} />
+        <BlogContent post={post} relatedProducts={relatedProducts} />
       </div>
     </section>
   );

@@ -1,17 +1,15 @@
-import Rules from '@/components/ui/Rules/Rules'
+import LegalDocument from "@/components/ui/Legal/LegalDocument";
+import { loadLegalMarkdown } from "@/src/lib/legal/load-legal-markdown";
 import { absoluteUrl } from "@/src/lib/seo/site";
-import React from 'react'
 
 export const metadata = {
+  title: "قوانین و مقررات",
   alternates: {
     canonical: absoluteUrl("/rules"),
   },
 };
 
-function RulesPage() {
-  return (
-   <Rules />
-  )
+export default async function RulesPage() {
+  const doc = await loadLegalMarkdown("terms.md");
+  return <LegalDocument doc={doc} />;
 }
-
-export default RulesPage

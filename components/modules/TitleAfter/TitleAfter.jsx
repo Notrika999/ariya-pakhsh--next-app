@@ -1,7 +1,7 @@
 import React from "react";
 
 import styleTitleAftr from "./TitleAfter.module.css";
-export default function TitleAfter({ title, tag }) {
+export default function TitleAfter({ title, tag = false }) {
   return (
     <>
       {!tag ? (

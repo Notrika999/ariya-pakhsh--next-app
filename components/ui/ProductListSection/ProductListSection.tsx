@@ -138,7 +138,7 @@ const DesktopFilterPanel = memo(function DesktopFilterPanel({
 }: FilterPanelProps) {
   return (
     <aside className="xl:col-span-2 lg:col-span-3 hidden lg:block">
-      <div className="custom-scrollbar sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain pe-1 pb-2">
+      <div className="custom-scrollbar sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain pe-1 pb-2 ">
         <Filter
           filters={filters}
           availableBrands={filterOptions.brands}
@@ -293,7 +293,7 @@ export default function ProductListSection({
                   strokeWidth={2.4}
                   aria-hidden="true"
                 />
-                <span className=" flex items-center text-sm font-semiBold leading-4 text-gray-800 ">
+                <span className=" flex items-center text-sm font-semiBold leading-4 text-gray-800 dark:text-gray-100">
                   ترتیب:
                 </span>
               </div>
@@ -310,7 +310,7 @@ export default function ProductListSection({
                       className={`shrink-0 whitespace-nowrap transition hover:text-primary ${
                         isActive
                           ? "cursor-pointer py-4 text-xs leading-4  font-semiBold text-primary"
-                          : "cursor-pointer py-4 text-xs leading-4  font-regular text-gray-800"
+                          : "cursor-pointer py-4 text-xs leading-4  font-regular text-gray-800 dark:text-gray-100"
                       }`}
                     >
                       {DESKTOP_SORT_LABELS[option] ??
@@ -321,7 +321,7 @@ export default function ProductListSection({
                 })}
               </div>
 
-              <span className=" text-xs font-regular leading-4 text-gray-800">
+              <span className=" text-xs font-regular leading-4 text-gray-800 dark:text-gray-100">
                 {productCountFormatter.format(pagination.totalCount)} کالا
               </span>
             </div>

@@ -1,4 +1,4 @@
-// components/layout/Footer/Menus/Menus
+// components/layout/Footer/Menus/Menus.tsx
 import React from "react";
 import footerStyles from "../Footer.module.css";
 import MenuItems from "./MenuItems";
@@ -50,14 +50,14 @@ export default function Menus() {
   ];
 
   const socialMedia = [
-    { id: 1, src: "/images/social/aparat-white.svg", link: "#" },
+    { id: 1, src: "/images/social/aparat-white.svg", link: "https://www.aparat.com/carup24.com" },
     {
       id: 2,
-      src: "/images/social/instagram-1-svgrepo-com.svg",
+      src: "/images/social/instagram-white.svg",
       link: "https://www.instagram.com/carup24.ir",
     },
-    { id: 3, src: "/images/social/telegram-svgrepo-com.svg", link: "#" },
-    { id: 4, src: "/images/social/youtube-svgrepo-com.svg", link: "#" },
+    { id: 3, src: "/images/social/telegram-white.svg", link: "#" },
+    { id: 4, src: "/images/social/youtube-white.svg", link: "#" },
   ];
   return (
     <div className="py-8 bg-gray-200/50 dark:bg-[#0d1117] transition-colors duration-300">
@@ -172,7 +172,7 @@ export default function Menus() {
                         width={60}
                         height={60}
                         src="/images/logo/carup24-logo.png"
-                        className=" mt-2 inline-block mx-auto dark:invert"
+                        className=" mt-2 inline-block mx-auto dark:invert dark:hue-rotate-180"
                         alt="کارآپ ۲۴"
                       />
                     </a>

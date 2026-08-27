@@ -86,7 +86,7 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
             <Image
               width={80}
               height={80}
-              className="h-12 dark:invert"
+              className="h-12 dark:invert dark:hue-rotate-180"
               src="/images/logo/carup24-logo.png"
               loading="lazy"
               alt="کارآپ ۲۴"

@@ -12,7 +12,7 @@ export default function HeaderLogo() {
           <Image
             width={60}
             height={60}
-            className="dark:invert"
+            className="dark:invert dark:hue-rotate-180"
             src="/images/logo/carup24-logo.png"
             priority
             alt="کارآپ ۲۴"

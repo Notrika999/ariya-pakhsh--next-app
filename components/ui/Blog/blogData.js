@@ -136,4 +136,4 @@ export const blogPosts = [
 export const getBlogPostBySlug = (slug) =>
   blogPosts.find((post) => post.slug === slug) ?? blogPosts[0];
 
-export const getBlogHref = (post) => `/blog/${post.slug}`;
+export const getBlogHref = (post) => `/mag/${post.slug}`;

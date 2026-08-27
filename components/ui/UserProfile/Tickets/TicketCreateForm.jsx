@@ -77,6 +77,34 @@ const CANCEL_REASON_OPTIONS = CANCEL_REASONS.map((reason) => ({
 
 const CANCEL_TICKET_PREFILL_KEY = "user-profile:cancel-ticket-prefill";
 
+const CANCELABLE_ORDER_STATUS_KEYS = new Set([
+  "order.paid",
+  "order.processing",
+  "order.confirmed",
+]);
+
+function canCancelOrderByStatus(order) {
+  const statusKey = String(order?.statusKey ?? "").toLowerCase();
+  if (statusKey === "order.expired" || statusKey === "order.cancelled") {
+    return false;
+  }
+
+  return CANCELABLE_ORDER_STATUS_KEYS.has(statusKey);
+}
+
+function canCancelOrderItem(order, item) {
+  if (!canCancelOrderByStatus(order)) return false;
+
+  const statusKey = String(item?.statusKey ?? "").toLowerCase();
+  if (statusKey.includes("cancel") || statusKey.includes("return")) {
+    return false;
+  }
+
+  const quantity = Number(item?.quantity) || 0;
+  const cancelled = Number(item?.quantityCancelled) || 0;
+  return quantity > 0 && cancelled < quantity;
+}
+
 function normalizeInitialTicketCategory(category) {
   if (category === "cancel") return "cancell";
   return category;
@@ -147,6 +175,8 @@ export default function TicketCreateForm({
   const orderItems = useMemo(() => orderDetail?.items ?? [], [orderDetail]);
   const returnOrderBlocked =
     isReturnRequest && orderDetail?.canRequestReturn === false;
+  const cancelOrderBlocked =
+    isCancelRequest && Boolean(orderDetail) && !canCancelOrderByStatus(orderDetail);
   const selectedItems = useMemo(
     () =>
       orderItems
@@ -226,7 +256,8 @@ export default function TicketCreateForm({
           item.orderItemId === initialOrderItemIdRef.current;
 
         nextSelections[item.orderItemId] = {
-          checked: Boolean(preselected),
+          checked:
+            Boolean(preselected) && canCancelOrderItem(detail, item),
           quantity: 1,
           reason: "",
         };
@@ -273,12 +304,20 @@ export default function TicketCreateForm({
     if (isOrderTracking && !orderId.trim()) {
       nextErrors.orderId = "شناسه سفارش الزامی است";
     }
-    if (needsOrderItems && selectedItems.length === 0) {
-      nextErrors.orderItems = "حداقل یک محصول را انتخاب کنید";
-    }
     if (returnOrderBlocked) {
       nextErrors.orderReturn =
         "سفارش انتخاب‌شده قابل مرجوعی نیست";
+    }
+    if (cancelOrderBlocked) {
+      nextErrors.orderCancel = "سفارش انتخاب‌شده قابل لغو نیست";
+    }
+    if (
+      needsOrderItems &&
+      !returnOrderBlocked &&
+      !cancelOrderBlocked &&
+      selectedItems.length === 0
+    ) {
+      nextErrors.orderItems = "حداقل یک محصول را انتخاب کنید";
     }
     if (isReturnRequest && !returnReason) {
       nextErrors.returnReason = "دلیل مرجوعی الزامی است";
@@ -294,7 +333,7 @@ export default function TicketCreateForm({
           "برای هر محصول، تعداد مرجوعی را وارد کنید";
       }
     }
-    if (isCancelRequest) {
+    if (isCancelRequest && !cancelOrderBlocked) {
       const invalidCancelItem = selectedItems.find(
         ({ selection }) =>
           !selection.reason?.trim() ||
@@ -383,6 +422,7 @@ export default function TicketCreateForm({
     clearError("returnReason");
     clearError("returnDetails");
     clearError("orderReturn");
+    clearError("orderCancel");
     clearError("cancelDetails");
     setReturnReason("");
     setSelectedOrderItems({});
@@ -402,6 +442,7 @@ export default function TicketCreateForm({
     clearError("returnReason");
     clearError("returnDetails");
     clearError("orderReturn");
+    clearError("orderCancel");
     clearError("cancelDetails");
   };
 
@@ -573,6 +614,13 @@ export default function TicketCreateForm({
                 </div>
               ) : null}
 
+              {cancelOrderBlocked ? (
+                <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800 dark:border-amber-800/70 dark:bg-amber-950/30 dark:text-amber-300">
+                  <i className="far fa-circle-info me-2"></i>
+                  سفارش انتخاب‌شده قابل لغو نیست.
+                </div>
+              ) : null}
+
               {loadingOrderDetail ? (
                 <div className="flex gap-3 overflow-hidden">
                   {Array.from({ length: 3 }).map((_, index) => (
@@ -594,24 +642,29 @@ export default function TicketCreateForm({
                     const itemReturnBlocked =
                       isReturnRequest &&
                       (returnOrderBlocked || item.canRequestReturn === false);
+                    const itemCancelBlocked =
+                      isCancelRequest &&
+                      (cancelOrderBlocked ||
+                        !canCancelOrderItem(orderDetail, item));
+                    const itemBlocked = itemReturnBlocked || itemCancelBlocked;
 
                     return (
                       <button
                         key={item.orderItemId}
                         type="button"
                         onClick={() => {
-                          if (itemReturnBlocked) return;
+                          if (itemBlocked) return;
                           updateOrderItemSelection(item, {
                             checked: !selected,
                           });
                         }}
-                        disabled={loading || itemReturnBlocked}
+                        disabled={loading || itemBlocked}
                         className={[
                           "w-40 shrink-0 rounded-2xl border bg-white p-3 text-right transition dark:bg-zinc-900",
                           selected
                             ? "border-red-400 ring-2 ring-primary/15"
                             : "border-gray-200 hover:border-red/50 dark:border-gray-700",
-                          loading || itemReturnBlocked
+                          loading || itemBlocked
                             ? "cursor-not-allowed opacity-60"
                             : "",
                         ].join(" ")}
@@ -639,6 +692,11 @@ export default function TicketCreateForm({
                             قابل مرجوعی نیست
                           </span>
                         ) : null}
+                        {itemCancelBlocked ? (
+                          <span className="mt-2 block text-xs font-semibold text-amber-700 dark:text-amber-300">
+                            قابل لغو نیست
+                          </span>
+                        ) : null}
                       </button>
                     );
                   })}
@@ -650,6 +708,7 @@ export default function TicketCreateForm({
               )}
               <FieldError message={errors.orderItems} />
               <FieldError message={errors.orderReturn} />
+              <FieldError message={errors.orderCancel} />
             </div>
           ) : null}
 
@@ -713,7 +772,9 @@ export default function TicketCreateForm({
             </div>
           ) : null}
 
-          {isCancelRequest && selectedItems.length > 0 ? (
+          {isCancelRequest &&
+          !cancelOrderBlocked &&
+          selectedItems.length > 0 ? (
             <div className="space-y-3 rounded-2xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-zinc-900/50">
               <h3 className="text-sm font-bold text-gray-900 dark:text-gray-100">
                 جزئیات لغو محصولات

@@ -140,14 +140,14 @@ function FilterDropdown({
   const isOpen = open || forceOpen;
 
   return (
-    <section className="dark:bg-custom-dark dark:border-gray-700 dark:text-white bg-white   border-gray-300 border-b overflow-hidden">
+    <section className="dark:bg-custom-dark dark:border-gray-700 text-gray-800 dark:text-gray-100 bg-white   border-gray-300 border-b overflow-hidden">
       <button
         type="button"
         aria-expanded={isOpen}
         onClick={() => setOpen((prev) => !prev)}
         className="w-full flex items-center justify-between gap-3 p-4 text-start"
       >
-        <span className=" text-xs font-semiBold leading-4 text-gray-700 lg:text-sm lg:font-medium">
+        <span className=" text-xs font-semiBold leading-4 text-gray-800 dark:text-gray-100 lg:text-sm lg:font-medium">
           {title}
           {isActive ? (
             <span
@@ -157,7 +157,7 @@ function FilterDropdown({
           ) : null}
         </span>
         <i
-          className={`far fa-chevron-down text-sm text-gray-500 transition-transform duration-200 ${
+          className={`far fa-chevron-down text-sm text-gray-800 dark:text-gray-100 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
           }`}
           aria-hidden="true"
@@ -191,8 +191,8 @@ function BooleanFilterButton({
       onClick={onClick}
       className={`flex w-full items-center justify-between gap-3 rounded-xl border px-4 py-3 text-sm font-bold transition ${
         active
-          ? "border-primary bg-primary/10 text-primary dark:border-primary/70 dark:bg-primary/15"
-          : "border-gray-200 bg-white text-gray-700 hover:border-primary/50 hover:text-primary dark:border-gray-700 dark:bg-zinc-900 dark:text-gray-200"
+          ? "border-primary bg-primary/10 text-gray-800 dark:border-primary/70 dark:bg-primary/15 dark:text-gray-100"
+          : "border-gray-200 bg-white text-gray-800 hover:border-primary/50 dark:border-gray-700 dark:bg-zinc-900 dark:text-gray-100"
       }`}
     >
       <span className="flex min-w-0 items-center gap-2">
@@ -270,8 +270,8 @@ function CategoryTree({
               onClick={() => onToggle(node.categoryId)}
               className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-start text-sm transition ${
                 isSelected
-                  ? "bg-primary/10 text-primary"
-                  : "text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                  ? "bg-primary/10 text-gray-800 dark:text-gray-100"
+                  : "text-gray-800 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-800"
               }`}
               style={{ paddingInlineStart: 12 + level * 14 }}
             >
@@ -448,7 +448,7 @@ function VehicleName({ vehicle }: { vehicle: VehicleOption }) {
     <span className="min-w-0 truncate">
       {vehicle.name}
       {vehicle.englishName ? (
-        <span className="text-gray-400 dark:text-gray-500 text-[11px] text-gray-400">
+        <span className="text-gray-800 dark:text-gray-100 text-[11px]">
           {" "}
           ({vehicle.englishName})
         </span>
@@ -598,8 +598,8 @@ function VehicleTree({
             <div
               className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition ${
                 isSelected
-                  ? "bg-primary/10 text-primary"
-                  : "text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800"
+                  ? "bg-primary/10 text-gray-800 dark:text-gray-100"
+                  : "text-gray-800 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-800"
               }`}
               style={{ paddingInlineStart: 12 + level * 14 }}
             >
@@ -625,7 +625,7 @@ function VehicleTree({
                 <VehicleName vehicle={vehicle} />
                 {vehicle.hasChildren ? (
                   <span
-                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-gray-500 transition-transform ${
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-gray-800 dark:text-gray-100 transition-transform ${
                       isOpen ? "-rotate-90" : ""
                     }`}
                     aria-hidden="true"
@@ -637,10 +637,10 @@ function VehicleTree({
             </div>
 
             {isLoading ? (
-              <p className="px-3 py-1 text-xs text-gray-400">در حال دریافت...</p>
+              <p className="px-3 py-1 text-xs text-gray-800 dark:text-gray-100">در حال دریافت...</p>
             ) : null}
             {hasError ? (
-              <p className="px-3 py-1 text-xs text-red-500">
+              <p className="px-3 py-1 text-xs text-gray-800 dark:text-gray-100">
                 خطا در دریافت زیرمجموعه
               </p>
             ) : null}
@@ -773,8 +773,8 @@ function VehicleFilter({
         onClick={onSelectAll}
         className={`mb-3 flex w-full items-center justify-between gap-3 rounded-xl border px-3 py-2 text-sm font-bold transition ${
           allVehiclesSelected
-            ? "border-primary bg-primary/10 text-primary dark:border-primary/70 dark:bg-primary/15"
-            : "border-gray-200 bg-white text-gray-700 hover:border-primary/50 hover:text-primary dark:border-gray-700 dark:bg-zinc-900 dark:text-gray-200"
+            ? "border-primary bg-primary/10 text-gray-800 dark:border-primary/70 dark:bg-primary/15 dark:text-gray-100"
+            : "border-gray-200 bg-white text-gray-800 hover:border-primary/50 dark:border-gray-700 dark:bg-zinc-900 dark:text-gray-100"
         }`}
       >
         <span className="flex min-w-0 items-center gap-2">
@@ -796,13 +796,13 @@ function VehicleFilter({
       {selectedVehicles.length > 0 ? (
         <div className="mb-4 rounded-xl border border-blue-100 bg-blue-50/70 p-3 dark:border-blue-900/50 dark:bg-blue-950/20">
           <div className="mb-2 flex items-center justify-between gap-2">
-            <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
+            <span className="text-xs font-bold text-gray-800 dark:text-gray-100">
               خودروهای انتخاب‌شده
             </span>
             <button
               type="button"
               onClick={() => onToggleMany(selectedVehicleIds, false)}
-              className="shrink-0 text-xs font-medium text-red-500 transition-colors hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
+              className="shrink-0 text-xs font-medium text-gray-800 dark:text-gray-100 transition-colors"
             >
               حذف همه
             </button>
@@ -814,20 +814,20 @@ function VehicleFilter({
                 key={id}
                 type="button"
                 onClick={() => onToggle(id)}
-                className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-blue-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:border-red-200 hover:text-red-500 dark:border-blue-900 dark:bg-zinc-900 dark:text-gray-200 dark:hover:border-red-900 dark:hover:text-red-400"
+                className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-blue-200 bg-white px-2.5 py-1 text-xs font-medium text-gray-800 shadow-sm transition-colors hover:border-red-200 dark:border-blue-900 dark:bg-zinc-900 dark:text-gray-100 dark:hover:border-red-900"
                 title="حذف از فیلتر خودرو"
               >
                 <span className="min-w-0 truncate">
                   {label}
                   {vehicle?.englishName ? (
-                    <span className="text-gray-400 dark:text-gray-500">
+                    <span className="text-gray-800 dark:text-gray-100">
                       {" "}
                       ({vehicle.englishName})
                     </span>
                   ) : null}
                 </span>
                 <span
-                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gray-100 text-[10px] text-gray-500 dark:bg-gray-800 dark:text-gray-300"
+                  className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gray-100 text-[10px] text-gray-800 dark:bg-gray-800 dark:text-gray-100"
                   aria-hidden="true"
                 >
                   ×
@@ -842,11 +842,11 @@ function VehicleFilter({
         <input
           type="text"
           placeholder="جستجوی خودرو ..."
-          className="w-full py-2 px-3 pe-9 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-zinc-800 outline-none focus:border-cyan-500 transition-colors text-right"
+          className="w-full py-2 px-3 pe-9 text-sm border border-gray-200 dark:border-gray-600 rounded-xl bg-white dark:bg-zinc-800 outline-none focus:border-cyan-500 transition-colors text-right text-gray-800 dark:text-gray-100"
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}
         />
-        <i className="far fa-search absolute end-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+        <i className="far fa-search absolute end-3 top-1/2 -translate-y-1/2 text-gray-800 dark:text-gray-100 text-sm pointer-events-none" />
         {searchTerm ? (
           <button
             type="button"
@@ -862,9 +862,9 @@ function VehicleFilter({
       {searchTerm.trim().length >= 2 ? (
         <div className="mb-4 max-h-56 overflow-y-auto rounded-lg border border-gray-100 dark:border-gray-700">
           {isSearching ? (
-            <p className="px-3 py-3 text-xs text-gray-400">در حال جستجو...</p>
+            <p className="px-3 py-3 text-xs text-gray-800 dark:text-gray-100">در حال جستجو...</p>
           ) : lookupError ? (
-            <p className="px-3 py-3 text-xs text-red-500">خطا در جستجوی خودرو</p>
+            <p className="px-3 py-3 text-xs text-gray-800 dark:text-gray-100">خطا در جستجوی خودرو</p>
           ) : lookupItems.length > 0 ? (
             lookupItems.map((vehicle) => {
               const selected = selectedVehicleIds.includes(vehicle.id);
@@ -873,8 +873,8 @@ function VehicleFilter({
                   key={vehicle.id}
                   className={`flex w-full items-center justify-between gap-2 px-3 py-2 text-start text-sm ${
                     selected
-                      ? "bg-primary/10 text-primary"
-                      : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                      ? "bg-primary/10 text-gray-800 dark:text-gray-100"
+                      : "text-gray-800 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-800"
                   }`}
                 >
                   <span className="flex min-w-0 flex-1 items-center gap-2">
@@ -886,7 +886,7 @@ function VehicleFilter({
                     <VehicleName vehicle={vehicle} />
                   </span>
                   {vehicle.company ? (
-                    <span className="shrink-0 text-[11px] text-gray-400">
+                    <span className="shrink-0 text-[11px] text-gray-800 dark:text-gray-100">
                       {vehicle.company}
                     </span>
                   ) : null}
@@ -894,7 +894,7 @@ function VehicleFilter({
               );
             })
           ) : (
-            <p className="px-3 py-3 text-xs text-gray-400">خودرویی یافت نشد</p>
+            <p className="px-3 py-3 text-xs text-gray-800 dark:text-gray-100">خودرویی یافت نشد</p>
           )}
         </div>
       ) : null}
@@ -1110,8 +1110,8 @@ function DynamicAttributeFilter({
               }
               className={`rounded-xl border px-4 py-3 text-sm font-bold transition ${
                 selected
-                  ? "border-primary bg-primary/10 text-primary dark:border-primary/70 dark:bg-primary/15"
-                  : "border-gray-200 bg-white text-gray-700 hover:border-primary/50 hover:text-primary dark:border-gray-700 dark:bg-zinc-900 dark:text-gray-200"
+                  ? "border-primary bg-primary/10 text-gray-800 dark:border-primary/70 dark:bg-primary/15 dark:text-gray-100"
+                  : "border-gray-200 bg-white text-gray-800 hover:border-primary/50 dark:border-gray-700 dark:bg-zinc-900 dark:text-gray-100"
               }`}
             >
               {item.label}
@@ -1135,10 +1135,10 @@ function DynamicAttributeFilter({
             setDraftTextValue(event.target.value);
           }}
           placeholder={`${attribute.attributeName} را وارد کنید`}
-          className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 pe-9 text-right text-sm outline-none transition-colors focus:border-cyan-500 dark:border-gray-600 dark:bg-zinc-800"
+          className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 pe-9 text-right text-sm outline-none transition-colors focus:border-cyan-500 dark:border-gray-600 dark:bg-zinc-800 text-gray-800 dark:text-gray-100"
         />
         <i
-          className="far fa-keyboard pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-sm text-gray-400"
+          className="far fa-keyboard pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-sm text-gray-800 dark:text-gray-100"
           aria-hidden="true"
         />
         {draftTextValue ? (
@@ -1167,7 +1167,7 @@ function DynamicAttributeFilter({
 
     return (
       <div className="space-y-3" dir="rtl">
-        <label className="block text-xs font-medium text-gray-500 dark:text-gray-400">
+        <label className="block text-xs font-medium text-gray-800 dark:text-gray-100">
           از تاریخ
           <input
             type="date"
@@ -1178,10 +1178,10 @@ function DynamicAttributeFilter({
                 [event.target.value, toValue].filter(Boolean),
               );
             }}
-            className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-cyan-500 dark:border-gray-600 dark:bg-zinc-800"
+            className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-cyan-500 dark:border-gray-600 dark:bg-zinc-800 text-gray-800 dark:text-gray-100"
           />
         </label>
-        <label className="block text-xs font-medium text-gray-500 dark:text-gray-400">
+        <label className="block text-xs font-medium text-gray-800 dark:text-gray-100">
           تا تاریخ
           <input
             type="date"
@@ -1192,7 +1192,7 @@ function DynamicAttributeFilter({
                 [fromValue, event.target.value].filter(Boolean),
               );
             }}
-            className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-cyan-500 dark:border-gray-600 dark:bg-zinc-800"
+            className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors focus:border-cyan-500 dark:border-gray-600 dark:bg-zinc-800 text-gray-800 dark:text-gray-100"
           />
         </label>
       </div>
@@ -1208,12 +1208,12 @@ function DynamicAttributeFilter({
           <input
             type="text"
             placeholder={`جستجوی ${attribute.attributeName} ...`}
-            className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 pe-9 ps-9 text-right text-sm outline-none transition-colors focus:border-cyan-500 dark:border-gray-600 dark:bg-zinc-800"
+            className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 pe-9 ps-9 text-right text-sm outline-none transition-colors focus:border-cyan-500 dark:border-gray-600 dark:bg-zinc-800 text-gray-800 dark:text-gray-100"
             value={searchTerm}
             onChange={(event) => setSearchTerm(event.target.value)}
           />
           <i
-            className="far fa-search pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-sm text-gray-400"
+            className="far fa-search pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 text-sm text-gray-800 dark:text-gray-100"
             aria-hidden="true"
           />
           {searchTerm ? (
@@ -1231,7 +1231,7 @@ function DynamicAttributeFilter({
 
       {selectedOptions.length > 0 ? (
         <div className="mb-2 max-h-40 overflow-y-auto custom-scrollbar">
-          <p className="mb-1 text-xs text-gray-400 dark:text-gray-500">
+          <p className="mb-1 text-xs text-gray-800 dark:text-gray-100">
             انتخاب شما
           </p>
           <div className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -1284,7 +1284,7 @@ function DynamicAttributeFilter({
                       />
                     </svg>
                   </span>
-                  <span className="min-w-0 flex-1 truncate text-sm font-medium text-gray-900 dark:text-white">
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium text-gray-800 dark:text-gray-100">
                     {label}
                   </span>
                 </button>
@@ -1295,7 +1295,7 @@ function DynamicAttributeFilter({
       ) : null}
 
       {selectedOptions.length === 0 && filteredOptions.length === 0 ? (
-        <p className="py-4 text-center text-xs text-gray-400">
+        <p className="py-4 text-center text-xs text-gray-800 dark:text-gray-100">
           گزینه‌ای یافت نشد
         </p>
       ) : (
@@ -1362,11 +1362,7 @@ function DynamicAttributeFilter({
                   </span>
                   <span className="flex min-w-0 flex-1 items-center justify-between gap-3">
                     <span
-                      className={`text-sm font-medium truncate ${
-                        selected
-                          ? "text-gray-900 dark:text-white"
-                          : "text-gray-700 dark:text-gray-200"
-                      }`}
+                      className="text-sm font-medium truncate text-gray-800 dark:text-gray-100"
                     >
                       {label}
                     </span>
@@ -2036,7 +2032,7 @@ function Filter({
   }, [activeSearchParams, navigate]);
 
   return (
-    <section className="">
+    <section className="text-gray-800 dark:text-gray-100">
       {hasActiveFilters && (
         <div
           className="dark:bg-custom-dark bg-white rounded-t-lg border-b border-gray-300 p-4"
@@ -2045,7 +2041,7 @@ function Filter({
           <button
             type="button"
             onClick={handleClearFilters}
-            className="flex items-center gap-1.5 text-sm text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 font-medium transition-colors group"
+            className="flex items-center gap-1.5 text-sm text-gray-800 dark:text-gray-100 font-medium transition-colors group"
           >
             <span>حذف فیلترها</span>
             <svg

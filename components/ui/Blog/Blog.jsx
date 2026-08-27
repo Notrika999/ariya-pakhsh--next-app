@@ -1,46 +1,80 @@
-import React from "react";
-import BlogTop from "./BlogTop";
-import SectionHeader from "@/components/modules/SectionHeader/SectionHeader";
-import BlogVideoSidebar from "./BlogVideoSidebar";
-import BlogOriginalVideo from "./BlogOriginalVideo";
-import LastBlogs from "../Home/LastBlogs/LastBlogs";
-import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
-import { blogPosts, getBlogHref } from "./blogData";
+import BlogHero from "./BlogHero";
+import BlogSearch from "./BlogSearch";
+import BlogCategories from "./BlogCategories";
+import FeaturedArticles from "./FeaturedArticles";
+import ArticleGrid from "./ArticleGrid";
+import BuyingGuides from "./BuyingGuides";
+import VideoArticles from "./VideoArticles";
+import PopularArticles from "./PopularArticles";
+import { blogPosts } from "./blogData";
+import {
+  BLOG_CATEGORIES,
+  filterPosts,
+  getBuyingGuidePosts,
+  getFeaturedPosts,
+  getLatestPosts,
+  getPopularPosts,
+  getVideoPosts,
+  normalizeCategory,
+} from "./blogHomeUtils";
+import styles from "./blogHome.module.css";
 
-export default function Blog() {
-  const lastBlogLits = blogPosts.map((post) => ({
-    ...post,
-    href: getBlogHref(post),
-  }));
+export default function Blog({ query = "", category = "all" }) {
+  const activeCategory = normalizeCategory(category);
+  const searchQuery = query.trim();
+  const isDefaultView = activeCategory === "all" && !searchQuery;
+  const filteredPosts = filterPosts(blogPosts, {
+    query: searchQuery,
+    category: activeCategory,
+  });
+
+  const sourcePosts = isDefaultView ? blogPosts : filteredPosts;
+  const useFeaturedLayout = isDefaultView || sourcePosts.length >= 3;
+  const featuredPosts = useFeaturedLayout
+    ? getFeaturedPosts(sourcePosts)
+    : [];
+  const latestPosts = useFeaturedLayout
+    ? getLatestPosts(sourcePosts, featuredPosts)
+    : sourcePosts;
+
+  const latestTitle = searchQuery
+    ? "نتایج جستجو"
+    : activeCategory === "all"
+      ? "آخرین مقالات"
+      : (BLOG_CATEGORIES.find((item) => item.id === activeCategory)?.label ??
+        "آخرین مقالات");
 
   return (
-    <>
-      <SectionContainer>
-        <div className="container">
-          <BlogTop />
-        </div>
-      </SectionContainer>
-
-      <h2 className="sr-only">راهنمای ویدیویی دسته‌بندی محصولات خودرو</h2>
-      <SectionContainer>
-        <SectionHeader
-          title={"راهنمای سریع لوازم کاربردی خودرو"}
-          href={"/blog"}
+    <div className={styles.blogHome}>
+      <div className={styles.container}>
+        <BlogHero />
+        <BlogSearch query={searchQuery} category={activeCategory} />
+        <BlogCategories
+          activeCategory={activeCategory}
+          query={searchQuery}
         />
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-1">
-            <BlogVideoSidebar />
-          </div>
+        {featuredPosts.length ? (
+          <FeaturedArticles posts={featuredPosts} />
+        ) : null}
 
-          <BlogOriginalVideo />
-        </div>
-      </SectionContainer>
+        {latestPosts.length || !featuredPosts.length ? (
+          <ArticleGrid
+            posts={latestPosts}
+            title={latestTitle}
+            viewAllHref={isDefaultView ? "#latest-articles" : undefined}
+            showViewAll
+          />
+        ) : null}
 
-      <h2 className="sr-only">مقالات دسته‌بندی محصولات خودرو</h2>
-      <SectionContainer>
-        <LastBlogs lastBlogLits={lastBlogLits} />
-      </SectionContainer>
-    </>
+        {isDefaultView ? (
+          <>
+            <BuyingGuides posts={getBuyingGuidePosts(blogPosts)} />
+            <VideoArticles posts={getVideoPosts(blogPosts)} />
+            <PopularArticles posts={getPopularPosts(blogPosts)} />
+          </>
+        ) : null}
+      </div>
+    </div>
   );
 }

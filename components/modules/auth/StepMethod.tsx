@@ -1,4 +1,4 @@
-// components/modules/auth/StepMethod.tsx
+import Link from "next/link";
 
 interface StepMethodProps {
   onOtp: () => void;
@@ -9,11 +9,9 @@ interface StepMethodProps {
 export default function StepMethod({
   onOtp,
   onPassword,
-  onForgot,
 }: StepMethodProps) {
   return (
     <div className="space-y-4">
-
       <button
         onClick={onOtp}
         className="w-full bg-primary text-white py-3 rounded-xl"
@@ -28,6 +26,27 @@ export default function StepMethod({
         ورود با رمز عبور
       </button>
 
+      <p className="pt-2 text-center text-xs leading-6 text-gray-500 dark:text-gray-400">
+        ورود شما به معنای پذیرش{" "}
+        <Link
+          href="/rules"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary hover:underline"
+        >
+          شرایط کارآپ 24
+        </Link>{" "}
+        و{" "}
+        <Link
+          href="/privacy-policy"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary hover:underline"
+        >
+          قوانین حریم‌خصوصی
+        </Link>{" "}
+        است
+      </p>
     </div>
   );
 }

@@ -21,7 +21,10 @@ function getSearchParamValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function getInitialVariantId(product: ProductDetail, variantIdentifier?: string) {
+function getInitialVariantId(
+  product: ProductDetail,
+  variantIdentifier?: string,
+) {
   const normalizedVariantIdentifier = variantIdentifier?.trim();
 
   return (
@@ -51,7 +54,8 @@ function getProductShareImage(product: ProductDetail, variantId?: string) {
   const variantImages =
     product.variants?.find((variant) => variant.variantId === variantId)
       ?.images ?? [];
-  const allImages = product.variants?.flatMap((variant) => variant.images) ?? [];
+  const allImages =
+    product.variants?.flatMap((variant) => variant.images) ?? [];
   const image =
     variantImages.find((item) => item.isPrimary) ??
     variantImages[0] ??
@@ -80,8 +84,9 @@ export async function generateMetadata({
     (variantId ? decodeURIComponent(variantId) : "");
 
   const product = await getProductById(productIdentifier);
+
   const canonicalVariantId = getInitialVariantId(product, requestedVariantId);
-  const title = product?.metaTitle ?? product.name;
+  const title = `قیمت و خرید ${product?.metaTitle ?? product.name}`;
   const description = product?.metaDescription ?? product.shortDescription;
   const canonicalUrl = absoluteUrl(
     getProductVariantPath(product, canonicalVariantId),
@@ -133,7 +138,10 @@ export default async function ProductDetailsPage({
     (variantId ? decodeURIComponent(variantId) : "");
 
   const product = await getProductById(productIdentifier);
-  const resolvedInitialVariantId = getInitialVariantId(product, initialVariantId);
+  const resolvedInitialVariantId = getInitialVariantId(
+    product,
+    initialVariantId,
+  );
 
   return (
     <ProductDetails

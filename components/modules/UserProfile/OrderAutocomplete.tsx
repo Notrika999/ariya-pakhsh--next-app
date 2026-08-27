@@ -331,6 +331,15 @@ export default function OrderAutocomplete({
     setIsOpen(false);
   };
 
+  const handleClear = () => {
+    setQuery("");
+    onChange?.("", "");
+    setIsOpen(false);
+    inputRef.current?.focus();
+  };
+
+  const hasValue = Boolean(query || value);
+
   const handleFocus = () => {
     if (disabled) return;
     setIsOpen(true);
@@ -382,8 +391,20 @@ export default function OrderAutocomplete({
         placeholder={placeholder}
         autoComplete="off"
         dir="rtl"
-        className={inputClassName}
+        className={[inputClassName, hasValue ? "pe-11" : ""].join(" ")}
       />
+
+      {hasValue && !disabled ? (
+        <button
+          type="button"
+          aria-label="پاک کردن شناسه سفارش"
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={handleClear}
+          className="absolute end-3 top-1/2 z-10 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 transition hover:bg-gray-200 hover:text-gray-700 dark:hover:bg-zinc-700 dark:hover:text-gray-200"
+        >
+          <i className="far fa-xmark text-sm"></i>
+        </button>
+      ) : null}
 
       {mounted &&
         isOpen &&

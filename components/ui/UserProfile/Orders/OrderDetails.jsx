@@ -108,8 +108,17 @@ function isClosedOrder(order) {
   return statusKey === "order.expired" || statusKey === "order.cancelled";
 }
 
+const CANCELABLE_ORDER_STATUS_KEYS = new Set([
+  "order.paid",
+  "order.processing",
+  "order.confirmed",
+]);
+
 function canCancelOrder(order) {
-  return !isClosedOrder(order);
+  if (isClosedOrder(order)) return false;
+
+  const statusKey = String(order?.statusKey ?? "").toLowerCase();
+  return CANCELABLE_ORDER_STATUS_KEYS.has(statusKey);
 }
 
 function canCancelOrderItem(order, item) {

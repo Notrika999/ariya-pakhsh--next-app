@@ -1,4 +1,3 @@
-"use client";
 // app/payment-result/page.tsx
 import { Suspense } from "react";
 import PaymentResult from "@/components/ui/Checkout/PaymentResult";
