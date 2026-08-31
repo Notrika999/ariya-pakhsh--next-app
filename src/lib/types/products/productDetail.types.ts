@@ -94,8 +94,8 @@ export interface ProductDetailVariant {
 export interface RelatedProduct {
   productId: string;
   name: string;
-  slug: string;
-  publicCode: string;
+  slug?: string | null;
+  publicCode?: string | null;
   price?: number;
   compareAtPrice?: number;
   salePrice?: number | null;

@@ -13,12 +13,13 @@ import { getProductImage } from "@/src/utils/product-image";
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
 import {
   formatTicketDate,
-  getCategoryLabel,
   getPriorityMeta,
   getStatusMeta,
   isTicketClosed,
 } from "@/src/lib/tickets/ticket-labels";
+import { useTicketCategories } from "@/src/lib/hooks/use-ticket-categories";
 import { notify } from "@/src/utils/toast";
+import { TicketDetailsSkeleton } from "../skeletons/UserProfileSkeletons";
 import { RETURN_REASONS } from "../OrdersReturn/formContent/ReturnReasons";
 
 const formatAttachmentSize = (size) => {
@@ -80,6 +81,7 @@ function ticketTimelineStepMeta(status) {
 
 export default function TicketMessage({ ticketId, onBack }) {
   const [ticket, setTicket] = useState(null);
+  const { getLabel: getCategoryLabel } = useTicketCategories();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [replyText, setReplyText] = useState("");
@@ -151,13 +153,7 @@ export default function TicketMessage({ ticketId, onBack }) {
   };
 
   if (loading) {
-    return (
-      <div className="space-y-4 lg:col-span-3">
-        <div className="rounded-2xl bg-white p-8 text-center text-gray-500 drop-shadow-lg dark:bg-custom-dark">
-          در حال بارگذاری تیکت...
-        </div>
-      </div>
-    );
+    return <TicketDetailsSkeleton />;
   }
 
   if (error || !ticket) {

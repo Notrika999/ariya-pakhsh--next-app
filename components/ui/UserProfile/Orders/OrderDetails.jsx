@@ -12,6 +12,7 @@ import {
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
 import { getProductImage } from "@/src/utils/product-image";
 import { notify } from "@/src/utils/toast";
+import { OrderDetailsSkeleton } from "../skeletons/UserProfileSkeletons";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -291,7 +292,7 @@ export default function OrderDetails() {
       window.sessionStorage.setItem(
         CANCEL_TICKET_PREFILL_KEY,
         JSON.stringify({
-          category: "cancell",
+          category: "cancelRequest",
           orderId: order.orderId,
           orderNumber: order.publicOrderNumber || order.orderId,
           orderItemId: item.orderItemId,
@@ -304,16 +305,7 @@ export default function OrderDetails() {
   };
 
   if (loading) {
-    return (
-      <div className="space-y-6 lg:col-span-3">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <div
-            key={`order-detail-skeleton-${index}`}
-            className="h-40 animate-pulse rounded-2xl bg-gray-100 dark:bg-zinc-800"
-          />
-        ))}
-      </div>
-    );
+    return <OrderDetailsSkeleton />;
   }
 
   if (!order) {

@@ -1,16 +1,29 @@
 import styles from "./blogHome.module.css";
 
-export default function BlogSearch({ query = "", category = "all" }) {
+export default function BlogSearch({
+  query = "",
+  category = "all",
+  articleType = "",
+  tag = "",
+  sort = "",
+}) {
   return (
     <div className={styles.searchBlock}>
       <form
         className={styles.searchForm}
-        action="/blog"
+        action="/mag"
         method="get"
         role="search"
       >
         {category !== "all" ? (
           <input type="hidden" name="category" value={category} />
+        ) : null}
+        {articleType ? (
+          <input type="hidden" name="articleType" value={articleType} />
+        ) : null}
+        {tag ? <input type="hidden" name="tag" value={tag} /> : null}
+        {sort && sort !== "latest" ? (
+          <input type="hidden" name="sort" value={sort} />
         ) : null}
 
         <span className={styles.searchIcon} aria-hidden="true">

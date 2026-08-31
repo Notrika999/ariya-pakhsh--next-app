@@ -10,3 +10,16 @@ export async function createProductView(slug: string): Promise<void> {
     `/Products/${encodeURIComponent(normalizedSlug)}/views`,
   );
 }
+
+export async function getProductShare(slug: string): Promise<unknown> {
+  const normalizedSlug = slug.trim();
+  if (!normalizedSlug) {
+    throw new Error("شناسه محصول نامعتبر است.");
+  }
+
+  const response = await apiClient.post(
+    `/Products/${encodeURIComponent(normalizedSlug)}/share`,
+  );
+
+  return response.data;
+}

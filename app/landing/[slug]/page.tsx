@@ -1,7 +1,7 @@
-// // app/landing/[slug]/page.tsx
-
 import { landingConfigs } from "@/components/ui/landing/landingConfigs";
 import LandingRenderer from "@/components/ui/landing/LandingRenderer";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 type PageProps = {
   params: Promise<{
@@ -9,17 +9,17 @@ type PageProps = {
   }>;
 };
 
-export default async function LandingPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
+
+export default async function LandingPage({ params }: PageProps) {
   const { slug } = await params;
 
   const config = landingConfigs[slug];
 
   if (!config) {
-    return <div>not found</div>;
+    notFound();
   }
   return (
     <main>

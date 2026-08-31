@@ -1,6 +1,7 @@
 // src/services/product/product.server.ts
 import "server-only";
 
+import { cache } from "react";
 import { proxyToBackend } from "@/src/lib/http/server-http";
 import { mapProductIndex } from "@/src/lib/mappers/product.mapper";
 import { ApiResponse } from "@/src/lib/types/common/api-response.types";
@@ -888,7 +889,7 @@ export async function getProductListFromSearchParams(
   };
 }
 
-export async function getProductById(
+export const getProductById = cache(async function getProductById(
   productIdOrSlug: string,
 ): Promise<ProductDetail> {
   const response = await proxyToBackend<ApiResponse<ProductDetail>>({
@@ -897,11 +898,32 @@ export async function getProductById(
     cache: "no-store",
   });
 
+  const payload = response.data;
+  const isSuccess = payload?.isSuccess ?? payload?.success;
+  const product = payload?.data;
+  const notFoundMessage =
+    (payload as { error?: string } | undefined)?.error ??
+    payload?.message ??
+    "Product not found";
 
-  const isSuccess = response.data?.isSuccess ?? response.data?.success;
-  if (!response.ok || !isSuccess) {
-    throw new Error(response.data?.message ?? "Failed to fetch product");
+  const isHttpNotFound = response.status === 404;
+  const isApiNotFound =
+    response.ok &&
+    isSuccess === false &&
+    !product &&
+    /پیدا نشد|یافت نشد|not found/i.test(String(notFoundMessage));
+
+  if (isHttpNotFound || isApiNotFound) {
+    throw new ProductServiceError(404, notFoundMessage, payload);
   }
 
-  return response.data.data;
-}
+  if (!response.ok || !isSuccess) {
+    throw new Error(payload?.message ?? "Failed to fetch product");
+  }
+
+  if (!product) {
+    throw new ProductServiceError(404, "Product not found", payload);
+  }
+
+  return product;
+});

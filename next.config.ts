@@ -16,6 +16,30 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/blog",
+        destination: "/mag",
+        permanent: true,
+      },
+      {
+        source: "/blog/:slug",
+        destination: "/mag/:slug",
+        permanent: true,
+      },
+      {
+        source: "/magazine",
+        destination: "/mag",
+        permanent: true,
+      },
+      {
+        source: "/magazine/:slug",
+        destination: "/mag/:slug",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default withSerwist(nextConfig);

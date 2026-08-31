@@ -7,6 +7,7 @@ import type {
   MyCouponsPage,
   MyCouponStatus,
 } from "@/src/lib/types/userpanel/coupon";
+import { DiscountCodesSkeleton } from "../skeletons/UserProfileSkeletons";
 
 type CouponPageKey = MyCouponStatus;
 
@@ -232,11 +233,7 @@ export default function DiscountCodes({
   onNext,
 }: DiscountCodesProps) {
   if (loading) {
-    return (
-      <div className="rounded-2xl bg-white p-8 text-center text-sm text-gray-500 drop-shadow-lg dark:bg-custom-dark dark:text-gray-400">
-        در حال دریافت کدهای تخفیف...
-      </div>
-    );
+    return <DiscountCodesSkeleton />;
   }
 
   if (error) {

@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { apiClient } from "@/src/lib/http/api-client";
 import { useIsAuthenticated } from "@/src/lib/stores/auth/auth.store";
 import { getProductImage } from "@/src/utils/product-image";
+import { type HomeSearchPromotion } from "@/src/services/home/search-promotion";
 import Image from "next/image";
 import { Search as SearchIcon, X as XIcon } from "lucide-react";
 
@@ -31,10 +32,11 @@ type HeaderSearchProps = {
 };
 
 const SUGGESTION_SIZE = 8;
-const POPULAR_SEARCH_SIZE = 5;
+const DESKTOP_SEARCH_LIST_SIZE = 5;
+const MOBILE_SEARCH_LIST_SIZE = 2;
 const HEADER_SEARCH_RESULTS_EVENT = "header-search-results";
 const GUEST_RECENT_SEARCHES_KEY = "guest_recent_searches";
-const MAX_RECENT_SEARCHES = 5;
+const MAX_RECENT_SEARCHES = DESKTOP_SEARCH_LIST_SIZE;
 
 type HeaderSearchResultsEventDetail = {
   query?: string;
@@ -124,7 +126,10 @@ function buildProductsListHref(record: Record<string, unknown>, title: string) {
     : `/products?search=${encodeURIComponent(title)}`;
 }
 
-function buildBrandProductsHref(record: Record<string, unknown>, title: string) {
+function buildBrandProductsHref(
+  record: Record<string, unknown>,
+  title: string,
+) {
   const slug =
     getString(record.slug) ||
     getString(record.brandSlug) ||
@@ -224,8 +229,8 @@ function mapSuggestion(value: unknown, index: number): SearchSuggestion | null {
       : type === "brand"
         ? buildBrandProductsHref(record, title)
         : type === "category"
-        ? buildProductsListHref(record, title)
-        : "";
+          ? buildProductsListHref(record, title)
+          : "";
 
   return {
     id,
@@ -267,19 +272,29 @@ function mapPopularSearch(value: unknown): string {
   );
 }
 
-function normalizePopularSearches(payload: unknown): string[] {
+function getSearchListSize(isMobile: boolean): number {
+  return isMobile ? MOBILE_SEARCH_LIST_SIZE : DESKTOP_SEARCH_LIST_SIZE;
+}
+
+function normalizePopularSearches(
+  payload: unknown,
+  size = DESKTOP_SEARCH_LIST_SIZE,
+): string[] {
   return getSuggestionItems(payload)
     .map(mapPopularSearch)
     .filter(Boolean)
-    .slice(0, POPULAR_SEARCH_SIZE);
+    .slice(0, size);
 }
 
-function normalizeRecentSearches(payload: unknown): string[] {
+function normalizeRecentSearches(
+  payload: unknown,
+  size = MAX_RECENT_SEARCHES,
+): string[] {
   return getSuggestionItems(payload)
     .map(mapPopularSearch)
     .map(normalizeRecentSearchTerm)
     .filter(Boolean)
-    .slice(0, MAX_RECENT_SEARCHES);
+    .slice(0, size);
 }
 
 function buildSearchHref(query: string): string {
@@ -329,6 +344,47 @@ function getNextRecentSearches(searches: string[], term: string): string[] {
       (item) => item.toLocaleLowerCase("fa-IR") !== comparable,
     ),
   ].slice(0, MAX_RECENT_SEARCHES);
+}
+
+let cachedSearchPromotions: HomeSearchPromotion[] | null = null;
+let pendingSearchPromotions: Promise<HomeSearchPromotion[]> | null = null;
+
+function normalizeSearchPromotions(payload: unknown): HomeSearchPromotion[] {
+  const items = Array.isArray(payload)
+    ? payload
+    : payload &&
+        typeof payload === "object" &&
+        Array.isArray((payload as { data?: unknown }).data)
+      ? ((payload as { data: unknown[] }).data)
+      : [];
+
+  return items.filter((item): item is HomeSearchPromotion => {
+    if (!item || typeof item !== "object") return false;
+    const promotion = item as HomeSearchPromotion;
+    return Boolean(promotion.id && promotion.image && promotion.href);
+  });
+}
+
+function loadSearchPromotions() {
+  if (cachedSearchPromotions) {
+    return Promise.resolve(cachedSearchPromotions);
+  }
+
+  if (pendingSearchPromotions) return pendingSearchPromotions;
+
+  pendingSearchPromotions = apiClient
+    .get("/api/home/search-promotions")
+    .then((response) => {
+      const promotions = normalizeSearchPromotions(response.data);
+      cachedSearchPromotions = promotions;
+      return promotions;
+    })
+    .catch((error) => {
+      pendingSearchPromotions = null;
+      throw error;
+    });
+
+  return pendingSearchPromotions;
 }
 
 function getMissingRecentSearches(
@@ -382,6 +438,9 @@ export default function HeaderSearch({
   const [activeIndex, setActiveIndex] = useState(-1);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [popularSearches, setPopularSearches] = useState<string[]>([]);
+  const [searchPromotions, setSearchPromotions] = useState<
+    HomeSearchPromotion[]
+  >(cachedSearchPromotions ?? []);
   const [searchResultCount, setSearchResultCount] =
     useState<HeaderSearchResultCount | null>(null);
 
@@ -390,6 +449,7 @@ export default function HeaderSearch({
   const requestIdRef = useRef(0);
   const recentRequestIdRef = useRef(0);
   const popularRequestIdRef = useRef(0);
+  const searchPromotionRequestIdRef = useRef(0);
   const skipNextDebounceRef = useRef(false);
   const currentSearchQuery =
     searchParams.get("Q") ?? searchParams.get("q") ?? "";
@@ -404,11 +464,12 @@ export default function HeaderSearch({
       ? ""
       : new Intl.NumberFormat("fa-IR").format(searchResultCount.totalCount);
   const hasQuery = query.trim().length > 0;
-  const showRecentSearches =
-    open && !hasQuery && recentSearches.length > 0;
-  const showPopularSearches =
-    open && !hasQuery && popularSearches.length > 0;
   const isMobileResults = resultsVariant === "mobile";
+  const searchListSize = getSearchListSize(isMobileResults);
+  const visibleRecentSearches = recentSearches.slice(0, searchListSize);
+  const visiblePopularSearches = popularSearches.slice(0, searchListSize);
+  const showRecentSearches =
+    open && !hasQuery && visibleRecentSearches.length > 0;
 
   useEffect(() => {
     if (skipNextDebounceRef.current) {
@@ -442,6 +503,7 @@ export default function HeaderSearch({
     return () => window.clearTimeout(timerId);
   }, [isAuthenticated]);
 
+  // جستجوی گذشته کاربر توسط سرور در جستجو می باشد.
   useEffect(() => {
     if (!isAuthenticated) {
       recentRequestIdRef.current += 1;
@@ -455,12 +517,15 @@ export default function HeaderSearch({
     void apiClient
       .get("/Search/recent", {
         params: {
-          Count: MAX_RECENT_SEARCHES,
+          Count: searchListSize,
         },
       })
       .then((response) => {
         if (recentRequestIdRef.current !== requestId) return;
-        const serverRecentSearches = normalizeRecentSearches(response.data);
+        const serverRecentSearches = normalizeRecentSearches(
+          response.data,
+          searchListSize,
+        );
         const unsyncedGuestSearches = getMissingRecentSearches(
           guestRecentSearches,
           serverRecentSearches,
@@ -474,6 +539,15 @@ export default function HeaderSearch({
           .post("/Search/history/sync", {
             queries: unsyncedGuestSearches,
           })
+          .then(() => {
+            if (recentRequestIdRef.current !== requestId) return;
+            const nextSearches = [
+              ...unsyncedGuestSearches,
+              ...serverRecentSearches,
+            ].slice(0, MAX_RECENT_SEARCHES);
+            setRecentSearches(nextSearches);
+            writeRecentSearches(nextSearches);
+          })
           .catch((error) => {
             console.error("[HeaderSearch] history sync failed =>", error);
           });
@@ -483,7 +557,7 @@ export default function HeaderSearch({
         console.error("[HeaderSearch] recent failed =>", error);
         setRecentSearches([]);
       });
-  }, [isAuthenticated]);
+  }, [isAuthenticated, searchListSize]);
 
   useEffect(() => {
     if (!isSearchPage) return;
@@ -519,6 +593,7 @@ export default function HeaderSearch({
     inputRef.current?.focus();
   }, [autoFocus]);
 
+  // جستجوی سریع توسط سرور در صفحه جستجو می باشد.
   useEffect(() => {
     const requestId = requestIdRef.current + 1;
     requestIdRef.current = requestId;
@@ -546,6 +621,7 @@ export default function HeaderSearch({
           },
         })
         .then((response) => {
+         
           if (requestIdRef.current !== requestId) return;
           setResults(normalizeSuggestions(response.data));
           setActiveIndex(-1);
@@ -565,6 +641,7 @@ export default function HeaderSearch({
     return () => window.clearTimeout(timerId);
   }, [debounced]);
 
+  // جستجوی پرطرفدار توسط سرور در صفحه جستجو می باشد.
   useEffect(() => {
     if (!open || query.trim().length > 0) return;
 
@@ -576,12 +653,14 @@ export default function HeaderSearch({
       void apiClient
         .get("/Search/popular", {
           params: {
-            Count: POPULAR_SEARCH_SIZE,
+            Count: searchListSize,
           },
         })
         .then((response) => {
           if (popularRequestIdRef.current !== requestId) return;
-          setPopularSearches(normalizePopularSearches(response.data));
+          setPopularSearches(
+            normalizePopularSearches(response.data, searchListSize),
+          );
         })
         .catch((error) => {
           if (popularRequestIdRef.current !== requestId) return;
@@ -592,6 +671,27 @@ export default function HeaderSearch({
           if (popularRequestIdRef.current === requestId) {
             setPopularLoading(false);
           }
+        });
+    }, 0);
+
+    return () => window.clearTimeout(timerId);
+  }, [open, query, searchListSize]);
+
+  useEffect(() => {
+    if (!open || query.trim().length > 0) return;
+
+    const requestId = searchPromotionRequestIdRef.current + 1;
+    searchPromotionRequestIdRef.current = requestId;
+    const timerId = window.setTimeout(() => {
+      void loadSearchPromotions()
+        .then((promotions) => {
+          if (searchPromotionRequestIdRef.current !== requestId) return;
+          setSearchPromotions(promotions);
+        })
+        .catch((error) => {
+          if (searchPromotionRequestIdRef.current !== requestId) return;
+          console.error("[HeaderSearch] search promotion failed =>", error);
+          setSearchPromotions([]);
         });
     }, 0);
 
@@ -611,10 +711,7 @@ export default function HeaderSearch({
   }, []);
 
   const showResults = open && query.trim().length > 0;
-  const showEmptyAutocomplete =
-    open &&
-    !hasQuery &&
-    (showRecentSearches || showPopularSearches || popularLoading);
+  const showEmptyAutocomplete = open && !hasQuery;
   const selectedIndex =
     activeIndex >= 0 && results.length > 0
       ? Math.min(Math.max(activeIndex, 0), results.length - 1)
@@ -644,20 +741,19 @@ export default function HeaderSearch({
     const normalized = normalizeRecentSearchTerm(term);
     if (!normalized) return;
 
-    if (isAuthenticated) {
-      void apiClient
-        .post("/Search/history/sync", {
-          queries: [normalized],
-        })
-        .catch((error) => {
-          console.error("[HeaderSearch] history sync failed =>", error);
-        });
-      return;
-    }
-
     const nextSearches = getNextRecentSearches(recentSearches, normalized);
     setRecentSearches(nextSearches);
     writeRecentSearches(nextSearches);
+
+    if (!isAuthenticated) return;
+
+    void apiClient
+      .post("/Search/history/sync", {
+        queries: [normalized],
+      })
+      .catch((error) => {
+        console.error("[HeaderSearch] history sync failed =>", error);
+      });
   }
 
   function navigateToSearch(term: string) {
@@ -806,7 +902,7 @@ export default function HeaderSearch({
                           </div>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          {recentSearches.map((term) => (
+                          {visibleRecentSearches.map((term) => (
                             <Link
                               key={term}
                               href={buildSearchHref(term)}
@@ -848,7 +944,7 @@ export default function HeaderSearch({
                         </div>
                       ) : popularSearches.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
-                          {popularSearches.map((term) => (
+                          {visiblePopularSearches.map((term) => (
                             <Link
                               key={term}
                               href={buildSearchHref(term)}
@@ -866,6 +962,31 @@ export default function HeaderSearch({
                         </div>
                       ) : null}
                     </div>
+
+                    {searchPromotions.length > 0 ? (
+                      <div className="mt-4 space-y-3">
+                        {searchPromotions.map((promotion) => (
+                          <Link
+                            key={promotion.id}
+                            href={promotion.href}
+                            className="relative block aspect-2/1 overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-900"
+                            onMouseDown={(event) => event.preventDefault()}
+                            onClick={() => {
+                              setOpen(false);
+                              onNavigate?.();
+                            }}
+                          >
+                            <Image
+                              src={promotion.image}
+                              alt={promotion.alt}
+                              fill
+                              sizes="(min-width: 1024px) 560px, 92vw"
+                              className="object-cover"
+                            />
+                          </Link>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
                 ) : loading ? (
                   <div className="px-5 py-5 text-sm font-medium text-gray-600 dark:text-gray-300">

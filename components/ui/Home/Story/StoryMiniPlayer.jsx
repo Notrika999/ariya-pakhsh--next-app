@@ -7,6 +7,7 @@ import { Maximize2 } from "lucide-react";
 import storyStyle from "./Story.module.css";
 import {
   disableNativePictureInPicture,
+  getStoryActionLink,
   getStoryActionText,
   resolveStoryHref,
 } from "./story-links";
@@ -35,7 +36,10 @@ export default function StoryMiniPlayer() {
 
   const { story, frame, link } = player;
   const isVideo = frame.mediaType === "Video";
-  const href = resolveStoryHref(link ?? story.link);
+  const href =
+    resolveStoryHref(getStoryActionLink(frame, story) ?? link) ||
+    story.href ||
+    null;
 
   if (expanded) {
     return (

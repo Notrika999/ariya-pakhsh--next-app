@@ -21,6 +21,7 @@ import type {
 } from "@/src/lib/types/userpanel/comments";
 import { notify } from "@/src/utils/toast";
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
+import { CommentsListSkeleton } from "../skeletons/UserProfileSkeletons";
 
 const PAGE_SIZE = 10;
 
@@ -255,11 +256,7 @@ export default function Comments() {
         ]}
       />
 
-      {loading ? (
-        <div className="rounded-2xl bg-white p-8 text-center text-sm text-gray-500 drop-shadow-lg dark:bg-custom-dark dark:text-gray-400">
-          در حال دریافت اطلاعات...
-        </div>
-      ) : null}
+      {loading ? <CommentsListSkeleton /> : null}
 
       {!loading && error ? (
         <div className="rounded-2xl bg-white p-8 text-center text-sm text-red-500 drop-shadow-lg dark:bg-custom-dark">

@@ -1,13 +1,31 @@
+
+
 import type {
   TicketCategory,
+  TicketCategoryDefinition,
   TicketPriority,
+  TicketRequiredField,
   TicketStatus,
 } from "@/src/lib/types/tickets/ticket.types";
 
+const ORDER_NUMBER_FIELD: TicketRequiredField = {
+  name: "orderNumber",
+  label: "شماره سفارش",
+  fieldType: "orderNumber",
+};
+
+const CATEGORY_ALIASES: Record<string, TicketCategory> = {
+  cancel: "cancelRequest",
+  cancell: "cancelRequest",
+  cancellrequest: "cancelRequest",
+  cancelrequest: "cancelRequest",
+  damageproduct: "damagedProduct",
+  damagedproduct: "damagedProduct",
+};
+
 /**
- * فقط مقادیری که با enum بک‌اند یکی هستند.
- * نمونه معتبر از API: orderTracking
- * مقادیر نامعتبر (مثل technical) کل مدل را fail می‌کنند و body هم required دیده می‌شود.
+ * fallback وقتی API دسته‌ها در دسترس نیست.
+ * منبع اصلی: GET /Tickets/categories
  */
 export const TICKET_CATEGORIES: Array<{
   value: TicketCategory;
@@ -16,16 +34,78 @@ export const TICKET_CATEGORIES: Array<{
   { value: "orderTracking", label: "پیگیری سفارش" },
   { value: "paymentIssue", label: "مشکل پرداخت" },
   { value: "returnRequest", label: "درخواست مرجوعی" },
-  { value: "cancell", label: "لغو سفارش" },
-  { value: "damageProduct", label: "محصول آسیب دیده" },
+  { value: "cancelRequest", label: "لغو سفارش" },
+  { value: "damagedProduct", label: "محصول آسیب‌دیده" },
   { value: "shippingDelay", label: "تاخیر ارسال" },
   { value: "changeAddress", label: "تغییر آدرس" },
-  { value: "prePurchaseConsultation", label: "مشاروه پیش از خرید" },
+  { value: "prePurchaseConsultation", label: "مشاوره پیش از خرید" },
   { value: "other", label: "سایر" },
 ];
 
+const ORDER_REQUIRED_FALLBACK = new Set([
+  "orderTracking",
+  "paymentIssue",
+  "returnRequest",
+  "cancelRequest",
+  "damagedProduct",
+  "shippingDelay",
+  "changeAddress",
+]);
+
+export const ORDER_ITEM_TICKET_CATEGORIES = ["returnRequest", "cancelRequest"];
+
 export const DEFAULT_TICKET_CATEGORY: TicketCategory = "orderTracking";
 export const DEFAULT_TICKET_PRIORITY: TicketPriority = "low";
+
+export function normalizeTicketCategoryKey(category: string): string {
+  const value = category?.trim() ?? "";
+  if (!value) return value;
+  return CATEGORY_ALIASES[value.toLowerCase()] ?? value;
+}
+
+export function fallbackTicketCategoryDefinitions(): TicketCategoryDefinition[] {
+  return TICKET_CATEGORIES.map((item) => ({
+    category: item.value,
+    categoryLabel: item.label,
+    requiredFields: ORDER_REQUIRED_FALLBACK.has(item.value)
+      ? [ORDER_NUMBER_FIELD]
+      : [],
+  }));
+}
+
+export function ticketCategoryRequiresOrder(
+  definition?: TicketCategoryDefinition | null,
+  category?: string,
+): boolean {
+  if (definition) {
+    return definition.requiredFields.some((field) => {
+      const name = String(field.name ?? "").toLowerCase();
+      const fieldType = String(field.fieldType ?? "").toLowerCase();
+      return (
+        name === "ordernumber" ||
+        name === "orderid" ||
+        fieldType === "ordernumber" ||
+        fieldType === "orderid"
+      );
+    });
+  }
+
+  return ORDER_REQUIRED_FALLBACK.has(normalizeTicketCategoryKey(category ?? ""));
+}
+
+export function resolveTicketCategoryLabel(
+  category: string,
+  apiLabel?: string | null,
+): string {
+  const normalized = normalizeTicketCategoryKey(category);
+  const fallback =
+    TICKET_CATEGORIES.find((item) => item.value === normalized)?.label ??
+    category;
+  const label = String(apiLabel ?? "").trim();
+  if (!label) return fallback;
+  if (/[\u0600-\u06FF]/.test(label)) return label;
+  return fallback;
+}
 
 export const TICKET_PRIORITIES: Array<{
   value: TicketPriority;
@@ -38,9 +118,7 @@ export const TICKET_PRIORITIES: Array<{
 ];
 
 export function getCategoryLabel(category: string): string {
-  return (
-    TICKET_CATEGORIES.find((item) => item.value === category)?.label ?? category
-  );
+  return resolveTicketCategoryLabel(category);
 }
 
 export function getPriorityMeta(priority: string): {

@@ -63,13 +63,13 @@ export default function UserSidebar({ variant = "desktop" }) {
       icon: "far fa-cart-shopping",
       disabled: false,
     },
-    {
-      id: 3,
-      title: "سفارش های برگشتی",
-      link: "/user-profile/orders-return",
-      icon: "far fa-rotate-left",
-      disabled: false,
-    },
+    // {
+    //   id: 3,
+    //   title: "سفارش های برگشتی",
+    //   link: "/user-profile/orders-return",
+    //   icon: "far fa-rotate-left",
+    //   disabled: true,
+    // },
     {
       id: 4,
       title: "اطلاعات حساب",

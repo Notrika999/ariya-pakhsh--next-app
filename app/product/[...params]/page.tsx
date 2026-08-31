@@ -2,10 +2,10 @@
 
 import { Metadata } from "next";
 import ProductDetails from "@/components/ui/ProductPageClient/ProductPageClient";
-import { getProductById } from "@/src/services/product/product.server";
 import { SITE_NAME, absoluteUrl } from "@/src/lib/seo/site";
 import { getProductImage } from "@/src/utils/product-image";
 import type { ProductDetail } from "@/src/lib/types/products/productDetail.types";
+import { getProductIdentifier, loadProduct } from "./load-product";
 
 interface PageProps {
   params: Promise<{
@@ -39,15 +39,16 @@ function getInitialVariantId(
   );
 }
 
-function getProductVariantPath(product: ProductDetail, variantId?: string) {
-  const basePath = `/product/${encodeURIComponent(product.publicCode)}/${encodeURIComponent(product.slug)}`;
-  const variantPublicCode = product.variants?.find(
-    (variant) => variant.variantId === variantId,
-  )?.publicCode;
+function getProductCanonicalPath(product: ProductDetail) {
+  if (product.publicCode && product.slug) {
+    return `/product/${product.publicCode}/${product.slug}`;
+  }
 
-  return variantPublicCode
-    ? `${basePath}?${PUBLIC_CODE_QUERY_KEY}=${encodeURIComponent(variantPublicCode)}`
-    : basePath;
+  if (product.slug) {
+    return `/product/${product.slug}`;
+  }
+
+  return `/product/${product.productId}`;
 }
 
 function getProductShareImage(product: ProductDetail, variantId?: string) {
@@ -76,21 +77,19 @@ export async function generateMetadata({
   const { params } = await pageParams;
   const searchParams = pageSearchParams ? await pageSearchParams : {};
 
-  const [publicCodeOrProductId = "", slug = "", variantId = ""] = params;
-  const productIdentifier = decodeURIComponent(slug || publicCodeOrProductId);
+  const [, , variantId = ""] = params;
+  const productIdentifier = getProductIdentifier(params);
   const requestedVariantId =
     getSearchParamValue(searchParams[PUBLIC_CODE_QUERY_KEY]) ??
     getSearchParamValue(searchParams[VARIANT_QUERY_KEY]) ??
     (variantId ? decodeURIComponent(variantId) : "");
 
-  const product = await getProductById(productIdentifier);
+  const product = await loadProduct(productIdentifier);
 
   const canonicalVariantId = getInitialVariantId(product, requestedVariantId);
   const title = `قیمت و خرید ${product?.metaTitle ?? product.name}`;
   const description = product?.metaDescription ?? product.shortDescription;
-  const canonicalUrl = absoluteUrl(
-    getProductVariantPath(product, canonicalVariantId),
-  );
+  const canonicalUrl = absoluteUrl(getProductCanonicalPath(product));
   const imageUrl = getProductShareImage(product, canonicalVariantId);
 
   return {
@@ -129,15 +128,15 @@ export default async function ProductDetailsPage({
 }: PageProps) {
   const { params } = await pageParams;
   const searchParams = pageSearchParams ? await pageSearchParams : {};
-  const [publicCodeOrProductId = "", slug = "", variantId = ""] = params;
+  const [, , variantId = ""] = params;
 
-  const productIdentifier = decodeURIComponent(slug || publicCodeOrProductId);
+  const productIdentifier = getProductIdentifier(params);
   const initialVariantId =
     getSearchParamValue(searchParams[PUBLIC_CODE_QUERY_KEY]) ??
     getSearchParamValue(searchParams[VARIANT_QUERY_KEY]) ??
     (variantId ? decodeURIComponent(variantId) : "");
 
-  const product = await getProductById(productIdentifier);
+  const product = await loadProduct(productIdentifier);
   const resolvedInitialVariantId = getInitialVariantId(
     product,
     initialVariantId,

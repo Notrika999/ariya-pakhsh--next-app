@@ -17,7 +17,7 @@ export default function HeaderLogo() {
             priority
             alt="کارآپ ۲۴"
           />
-          <h1 className="ms-3 md:text-xl md:font-bold font-semibold">کارآپ <span className="text-primary">۲۴</span></h1>
+          <span className="ms-3 md:text-xl md:font-bold font-semibold">کارآپ <span className="text-primary">۲۴</span></span>
         </div>
       </Link>
     </div>

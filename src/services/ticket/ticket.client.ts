@@ -6,11 +6,14 @@ import type {
   CreateTicketResponse,
   SendTicketMessageRequest,
   TicketAttachment,
+  TicketCategoryDefinition,
   TicketDetail,
   TicketListItem,
   TicketMessageItem,
+  TicketRequiredField,
   TicketsPage,
 } from "@/src/lib/types/tickets/ticket.types";
+import { normalizeTicketCategoryKey } from "@/src/lib/tickets/ticket-labels";
 
 function getRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object"
@@ -19,7 +22,6 @@ function getRecord(value: unknown): Record<string, unknown> {
 }
 
 function logApiError(label: string, error: unknown) {
- 
   if (error instanceof ApiError) {
     console.error(`[ticket.client] ${label} error body =>`, {
       status: error.status,
@@ -51,10 +53,43 @@ function createTicketFormData(
   return formData;
 }
 
+function mapRequiredField(value: unknown): TicketRequiredField {
+  const record = getRecord(value);
+  return {
+    name: String(record.name ?? ""),
+    label: String(record.label ?? ""),
+    fieldType: String(record.fieldType ?? ""),
+  };
+}
+
+function mapCategoryDefinition(value: unknown): TicketCategoryDefinition {
+  const record = getRecord(value);
+  const fieldsRaw = Array.isArray(record.requiredFields)
+    ? record.requiredFields
+    : [];
+
+  return {
+    category: String(record.category ?? ""),
+    categoryLabel: String(record.categoryLabel ?? record.category ?? ""),
+    requiredFields: fieldsRaw
+      .map(mapRequiredField)
+      .filter((field) => field.name || field.fieldType),
+  };
+}
+
+function unwrapTicketCategories(payload: unknown): TicketCategoryDefinition[] {
+  const root = getRecord(payload);
+  const data = Array.isArray(root.data)
+    ? root.data
+    : Array.isArray(payload)
+      ? payload
+      : [];
+
+  return data.map(mapCategoryDefinition).filter((item) => item.category);
+}
+
 function normalizeTicketCategory(category: string): string {
-  const value = category?.trim() ?? "";
-  if (value === "cancel") return "cancell";
-  return value;
+  return normalizeTicketCategoryKey(category);
 }
 
 function mapTicketListItem(value: unknown): TicketListItem {
@@ -130,7 +165,9 @@ function unwrapTicketDetail(payload: unknown): TicketDetail {
   const root = getRecord(payload);
   const data = getRecord(root.data ?? root);
   const messagesRaw = Array.isArray(data.messages) ? data.messages : [];
-  const attachmentsRaw = Array.isArray(data.attachments) ? data.attachments : [];
+  const attachmentsRaw = Array.isArray(data.attachments)
+    ? data.attachments
+    : [];
 
   return {
     id: String(data.id ?? ""),
@@ -158,6 +195,18 @@ function unwrapTicketDetail(payload: unknown): TicketDetail {
   };
 }
 
+export async function getTicketCategories(): Promise<
+  TicketCategoryDefinition[]
+> {
+  try {
+    const response = await apiClient.get("/Tickets/categories");
+    return unwrapTicketCategories(response.data);
+  } catch (error) {
+    logApiError("getTicketCategories", error);
+    throw error;
+  }
+}
+
 export async function getMyTickets(params?: {
   page?: number;
   pageSize?: number;
@@ -166,8 +215,6 @@ export async function getMyTickets(params?: {
     page: params?.page ?? 1,
     pageSize: params?.pageSize ?? 20,
   };
-
-
 
   try {
     const response = await apiClient.get("/Tickets/my", { params: query });
@@ -179,10 +226,10 @@ export async function getMyTickets(params?: {
 }
 
 export async function getTicketById(ticketId: string): Promise<TicketDetail> {
-
-
   try {
     const response = await apiClient.get(`/Tickets/${ticketId}`);
+
+    console.log("Response => ", response.data);
     return unwrapTicketDetail(response.data);
   } catch (error) {
     logApiError("getTicketById", error);
@@ -205,8 +252,6 @@ export async function createTicket(
   if (!payload.subject || !payload.body) {
     throw new ApiError(400, "موضوع و متن تیکت الزامی است", "VALIDATION_ERROR");
   }
-
-
 
   const attachmentFiles = (request.attachmentFiles ?? []).filter(isFile);
 
@@ -233,14 +278,12 @@ export async function sendTicketMessage(
   ticketId: string,
   body: SendTicketMessageRequest,
 ): Promise<unknown> {
-
-
   try {
     const response = await apiClient.post(
       `/Tickets/${ticketId}/messages`,
       body,
     );
-   
+
     return response.data;
   } catch (error) {
     logApiError("sendTicketMessage", error);
@@ -249,11 +292,9 @@ export async function sendTicketMessage(
 }
 
 export async function closeTicket(ticketId: string): Promise<unknown> {
- 
-
   try {
     const response = await apiClient.post(`/Tickets/${ticketId}/close`);
-   
+
     return response.data;
   } catch (error) {
     logApiError("closeTicket", error);

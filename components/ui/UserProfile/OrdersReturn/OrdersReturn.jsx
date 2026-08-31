@@ -288,8 +288,14 @@ export default function OrdersReturn() {
 
         {loadingDetail ? (
           <div className="space-y-4 py-6">
-            <div className="h-28 animate-pulse rounded-xl bg-gray-100 dark:bg-zinc-800" />
-            <div className="h-28 animate-pulse rounded-xl bg-gray-100 dark:bg-zinc-800" />
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={`return-item-skeleton-${index}`}
+                className="h-24 animate-pulse rounded-xl bg-gray-100 dark:bg-zinc-800"
+              />
+            ))}
+            <div className="h-12 animate-pulse rounded-lg bg-gray-100 dark:bg-zinc-800" />
+            <div className="h-24 animate-pulse rounded-xl bg-gray-100 dark:bg-zinc-800" />
           </div>
         ) : (
           <form

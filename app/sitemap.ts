@@ -1,50 +1,112 @@
-// app/sitemap.ts
-import { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
+import { blogPosts } from "@/components/ui/Blog/blogData";
 import { buildBackendApiUrl } from "@/src/lib/api/backend-base";
-import { absoluteUrl, SITE_URL } from "@/src/lib/seo/site";
+import { absoluteUrl } from "@/src/lib/seo/site";
 
-type SitemapProduct = {
-  publicCode?: string;
-  slug?: string;
-  id?: string;
+const REVALIDATE_SECONDS = 60 * 60;
+const PRODUCT_PAGE_SIZE = 100;
+const MAX_SITEMAP_URLS = 50_000;
+
+export const revalidate = 3600;
+
+type ApiEnvelope<T> = {
+  data?: T | null;
+  success?: boolean;
+  isSuccess?: boolean;
 };
 
-type SitemapBlog = {
-  slug?: string;
+type SitemapProduct = {
+  productId?: unknown;
+  id?: unknown;
+  publicCode?: unknown;
+  slug?: unknown;
+  primaryBrandSlug?: unknown;
+};
+
+type ProductPage = {
+  items?: unknown[];
+  totalPages?: number;
 };
 
 type SitemapCategory = {
-  slug?: string;
-  children?: SitemapCategory[];
+  slug?: unknown;
+  children?: unknown;
 };
 
-function unwrapList(payload: unknown): unknown[] {
-  if (Array.isArray(payload)) return payload;
-
-  if (!payload || typeof payload !== "object") return [];
-
-  const record = payload as Record<string, unknown>;
-
-  if (Array.isArray(record.data)) return record.data;
-
-  if (record.data && typeof record.data === "object") {
-    const inner = record.data as Record<string, unknown>;
-    if (Array.isArray(inner.items)) return inner.items;
-    if (Array.isArray(inner.data)) return inner.data;
-    if (Array.isArray(inner.rootCategories)) return inner.rootCategories;
-  }
-
-  return [];
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object";
 }
 
-async function fetchSitemapList(path: string): Promise<unknown[]> {
+function asNonEmptyString(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
+
+async function fetchProductPage(page: number): Promise<ProductPage | null> {
   try {
-    const res = await fetch(buildBackendApiUrl(path), {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return [];
-    const payload = await res.json();
-    return unwrapList(payload);
+    const response = await fetch(
+      buildBackendApiUrl("/api/v1/Products/filter"),
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ page, pageSize: PRODUCT_PAGE_SIZE }),
+        next: { revalidate: REVALIDATE_SECONDS },
+      },
+    );
+
+    if (!response.ok) return null;
+
+    const payload = (await response.json()) as ApiEnvelope<ProductPage>;
+    const succeeded = payload.success ?? payload.isSuccess ?? true;
+
+    return succeeded && payload.data && Array.isArray(payload.data.items)
+      ? payload.data
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchProducts(): Promise<unknown[]> {
+  const firstPage = await fetchProductPage(1);
+  if (!firstPage) return [];
+
+  const reportedPageCount = Number(firstPage.totalPages) || 1;
+  const maximumPageCount = Math.floor(
+    MAX_SITEMAP_URLS / PRODUCT_PAGE_SIZE,
+  );
+  const pageCount = Math.min(
+    Math.max(1, reportedPageCount),
+    maximumPageCount,
+  );
+
+  const remainingPages = await Promise.all(
+    Array.from({ length: pageCount - 1 }, (_, index) =>
+      fetchProductPage(index + 2),
+    ),
+  );
+
+  return [
+    ...(firstPage.items ?? []),
+    ...remainingPages.flatMap((page) => page?.items ?? []),
+  ];
+}
+
+async function fetchCategories(): Promise<unknown[]> {
+  try {
+    const response = await fetch(
+      buildBackendApiUrl("/api/v1/Categories/mega-menu"),
+      { next: { revalidate: REVALIDATE_SECONDS } },
+    );
+
+    if (!response.ok) return [];
+
+    const payload = (await response.json()) as ApiEnvelope<{
+      rootCategories?: unknown[];
+    }>;
+
+    return Array.isArray(payload.data?.rootCategories)
+      ? payload.data.rootCategories
+      : [];
   } catch {
     return [];
   }
@@ -52,130 +114,155 @@ async function fetchSitemapList(path: string): Promise<unknown[]> {
 
 function mapProducts(items: unknown[]): MetadataRoute.Sitemap {
   return items
-    .filter((item): item is SitemapProduct =>
-      Boolean(item && typeof item === "object"),
-    )
+    .filter((item): item is SitemapProduct => isRecord(item))
     .map((product) => {
-      if (product.publicCode && product.slug) {
-        return {
-          url: absoluteUrl(`/product/${product.publicCode}/${product.slug}`),
-          lastModified: new Date(),
-          priority: 0.9,
-        };
-      }
-      if (product.id) {
-        return {
-          url: absoluteUrl(`/product/${product.id}`),
-          lastModified: new Date(),
-          priority: 0.9,
-        };
-      }
-      return null;
+      const publicCode = asNonEmptyString(product.publicCode);
+      const slug = asNonEmptyString(product.slug);
+      const productId =
+        asNonEmptyString(product.productId) ?? asNonEmptyString(product.id);
+
+      const path =
+        publicCode && slug
+          ? `/product/${encodeURIComponent(publicCode)}/${encodeURIComponent(slug)}`
+          : productId
+            ? `/product/${encodeURIComponent(productId)}`
+            : null;
+
+      return path
+        ? {
+            url: absoluteUrl(path),
+            changeFrequency: "daily" as const,
+            priority: 0.8,
+          }
+        : null;
     })
     .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
 }
 
-function mapBlogs(items: unknown[]): MetadataRoute.Sitemap {
-  return items
-    .filter((item): item is SitemapBlog =>
-      Boolean(item && typeof item === "object"),
-    )
-    .filter((blog) => typeof blog.slug === "string" && blog.slug.length > 0)
-    .map((blog) => ({
-      url: absoluteUrl(`/blog/${blog.slug}`),
-      lastModified: new Date(),
-      priority: 0.7,
-    }));
+function mapBrandsFromProducts(items: unknown[]): MetadataRoute.Sitemap {
+  const slugs = new Set(
+    items
+      .filter((item): item is SitemapProduct => isRecord(item))
+      .map((product) => asNonEmptyString(product.primaryBrandSlug))
+      .filter((slug): slug is string => slug !== null),
+  );
+
+  return [...slugs].map((slug) => ({
+    url: absoluteUrl(`/products/${encodeURIComponent(slug)}`),
+    changeFrequency: "weekly",
+    priority: 0.7,
+  }));
 }
 
-function flattenCategorySlugs(categories: SitemapCategory[]): string[] {
-  const slugs: string[] = [];
-  const stack = [...categories];
+function flattenCategorySlugs(items: unknown[]): string[] {
+  const slugs = new Set<string>();
+  const stack = items.filter(
+    (item): item is SitemapCategory => isRecord(item),
+  );
 
   while (stack.length > 0) {
     const current = stack.pop();
     if (!current) continue;
 
-    if (typeof current.slug === "string" && current.slug.length > 0) {
-      slugs.push(current.slug);
-    }
+    const slug = asNonEmptyString(current.slug);
+    if (slug) slugs.add(slug);
 
-    if (Array.isArray(current.children) && current.children.length > 0) {
-      stack.push(...current.children);
+    if (Array.isArray(current.children)) {
+      stack.push(
+        ...current.children.filter(
+          (child): child is SitemapCategory => isRecord(child),
+        ),
+      );
     }
   }
 
-  return Array.from(new Set(slugs));
+  return [...slugs];
 }
 
 function mapCategories(items: unknown[]): MetadataRoute.Sitemap {
-  const categories = items.filter(
-    (item): item is SitemapCategory =>
-      Boolean(item && typeof item === "object"),
-  );
-
-  return flattenCategorySlugs(categories).map((slug) => ({
-    url: absoluteUrl(`/products/${slug}`),
-    lastModified: new Date(),
-    priority: 0.8,
+  return flattenCategorySlugs(items).map((slug) => ({
+    url: absoluteUrl(`/products/${encodeURIComponent(slug)}`),
+    changeFrequency: "weekly",
+    priority: 0.7,
   }));
 }
 
+function mapArticles(): MetadataRoute.Sitemap {
+  return blogPosts
+    .map((post) => asNonEmptyString(post.slug))
+    .filter((slug): slug is string => slug !== null)
+    .map((slug) => ({
+      url: absoluteUrl(`/mag/${encodeURIComponent(slug)}`),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    }));
+}
+
+function deduplicate(
+  entries: MetadataRoute.Sitemap,
+): MetadataRoute.Sitemap {
+  return [...new Map(entries.map((entry) => [entry.url, entry])).values()];
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [products, blogs, categories] = await Promise.all([
-    fetchSitemapList("api/v1/products/sitemap"),
-    fetchSitemapList("api/v1/blogs/sitemap"),
-    fetchSitemapList("api/v1/Categories/mega-menu"),
+  const [products, categories] = await Promise.all([
+    fetchProducts(),
+    fetchCategories(),
   ]);
 
-  return [
+  const staticEntries: MetadataRoute.Sitemap = [
     {
-      url: SITE_URL,
-      lastModified: new Date(),
+      url: absoluteUrl("/"),
+      changeFrequency: "daily",
       priority: 1,
     },
     {
       url: absoluteUrl("/products"),
-      lastModified: new Date(),
+      changeFrequency: "daily",
       priority: 0.9,
     },
     {
       url: absoluteUrl("/incredible-offers"),
-      lastModified: new Date(),
+      changeFrequency: "daily",
       priority: 0.8,
     },
     {
-      url: absoluteUrl("/blog"),
-      lastModified: new Date(),
+      url: absoluteUrl("/mag"),
+      changeFrequency: "weekly",
       priority: 0.7,
     },
     {
       url: absoluteUrl("/about"),
-      lastModified: new Date(),
+      changeFrequency: "monthly",
       priority: 0.4,
     },
     {
       url: absoluteUrl("/contact"),
-      lastModified: new Date(),
+      changeFrequency: "monthly",
       priority: 0.4,
     },
     {
       url: absoluteUrl("/faq"),
-      lastModified: new Date(),
+      changeFrequency: "monthly",
       priority: 0.4,
     },
     {
       url: absoluteUrl("/privacy-policy"),
-      lastModified: new Date(),
+      changeFrequency: "yearly",
       priority: 0.2,
     },
     {
       url: absoluteUrl("/rules"),
-      lastModified: new Date(),
+      changeFrequency: "yearly",
       priority: 0.2,
     },
-    ...mapCategories(categories),
-    ...mapProducts(products),
-    ...mapBlogs(blogs),
   ];
+
+  return deduplicate([
+    ...staticEntries,
+    ...mapCategories(categories),
+    ...mapBrandsFromProducts(products),
+    ...mapProducts(products),
+    ...mapArticles(),
+  ]).slice(0, MAX_SITEMAP_URLS);
 }

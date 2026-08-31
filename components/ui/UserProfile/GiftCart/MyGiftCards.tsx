@@ -1,6 +1,7 @@
 import GiftCardItem from "@/components/modules/GiftCardItem/GiftCardItem";
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
 import type { GiftCard } from "@/src/lib/types/userpanel/GiftCard";
+import { GiftCardsGridSkeleton } from "../skeletons/UserProfileSkeletons";
 
 interface MyGiftCardsProps {
   activeCards: GiftCard[];
@@ -15,19 +16,6 @@ function EmptyState({ message }: { message: string }) {
   return (
     <div className="rounded-xl border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400">
       {message}
-    </div>
-  );
-}
-
-function CardsSkeleton() {
-  return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <div
-          key={index}
-          className="h-72 animate-pulse rounded-2xl bg-gray-100 dark:bg-zinc-800"
-        />
-      ))}
     </div>
   );
 }
@@ -63,7 +51,7 @@ export default function MyGiftCards({
         <TitleAfter title="کارت‌های هدیه فعال" tag={false} />
 
         {loading ? (
-          <CardsSkeleton />
+          <GiftCardsGridSkeleton />
         ) : activeCards.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {activeCards.map((card) => (
@@ -79,7 +67,7 @@ export default function MyGiftCards({
         <TitleAfter title="کارت‌های هدیه استفاده‌شده" tag={false} />
 
         {loading ? (
-          <CardsSkeleton />
+          <GiftCardsGridSkeleton count={2} />
         ) : usedCards.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {usedCards.map((card) => (

@@ -1,8 +1,13 @@
 import Tickets from "@/components/ui/UserProfile/Tickets/Tickets";
-import React from "react";
+import { TicketsPageSkeleton } from "@/components/ui/UserProfile/skeletons/UserProfileSkeletons";
+import React, { Suspense } from "react";
 
 function TicketsPage() {
-  return <Tickets />;
+  return (
+    <Suspense fallback={<TicketsPageSkeleton />}>
+      <Tickets />
+    </Suspense>
+  );
 }
 
 export default TicketsPage;

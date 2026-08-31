@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getMyOrderById } from "@/src/services/orders/orders.client";
 import { getProductImage } from "@/src/utils/product-image";
+import { OrdersListSkeleton } from "../skeletons/UserProfileSkeletons";
 
 function formatMoney(value) {
   return `${new Intl.NumberFormat("fa-IR").format(
@@ -220,14 +221,7 @@ export default function UserOrdersList({
   return (
     <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
       {loading ? (
-        <div className="space-y-4 py-4">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div
-              key={`order-skeleton-${index}`}
-              className="h-40 animate-pulse rounded-2xl bg-gray-100 dark:bg-zinc-800"
-            />
-          ))}
-        </div>
+        <OrdersListSkeleton />
       ) : (
         <div className="space-y-4 py-2">
           {orders.map((order) => {

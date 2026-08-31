@@ -1,17 +1,18 @@
 
 import type { Metadata, Viewport } from "next";
 
-import Footer from "@/components/layout/Footer/Footer";
-import Header from "@/components/layout/Header/Header";
-import NavMobile from "@/components/layout/NavMobile/NavMobile";
 import "./globals.css";
-import { BackToTopButton } from "@/components/modules/BackToTopButton/BackToTopButton";
 import ToastProvider from "@/components/modules/providers/ToastProvider";
 import { SerwistProvider } from "@/components/modules/providers/SerwistProvider";
 import { CartProvider } from "@/src/context/CartContext";
 import AuthInitializer from "@/components/modules/AuthInitializer/AuthInitializer";
-import { SITE_NAME, SITE_URL } from "@/src/lib/seo/site";
-import StoryMiniPlayer from "@/components/ui/Home/Story/StoryMiniPlayer";
+import StoreChrome from "@/components/layout/StoreChrome";
+import {
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_THEME_COLOR,
+  SITE_URL,
+} from "@/src/lib/seo/site";
 
 
 
@@ -22,7 +23,32 @@ export const metadata: Metadata = {
     default: SITE_NAME,
     template: `%s | ${SITE_NAME}`,
   },
-  description: "فروشگاه اینترنتی کارآپ 24 — خرید آنلاین با بهترین قیمت",
+  description: SITE_DESCRIPTION,
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    type: "website",
+    locale: "fa_IR",
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: "/images/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: `${SITE_NAME} | CarUp24`,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: ["/images/og-image.jpg"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -34,7 +60,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ee384e",
+  themeColor: SITE_THEME_COLOR,
 };
 
 export default function RootLayout({
@@ -52,12 +78,7 @@ export default function RootLayout({
         <SerwistProvider swUrl="/serwist/sw.js">
           <CartProvider>
             <AuthInitializer />
-            <Header />
-            {children}
-            <Footer />
-            <NavMobile />
-            <BackToTopButton />
-            <StoryMiniPlayer />
+            <StoreChrome>{children}</StoreChrome>
             <ToastProvider />
           </CartProvider>
         </SerwistProvider>

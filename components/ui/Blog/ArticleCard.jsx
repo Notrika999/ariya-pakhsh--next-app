@@ -29,7 +29,7 @@ export default function ArticleCard({
         <div className={styles.media}>
           <Image
             src={image}
-            alt={post.title}
+            alt={post.imageAlt || post.title}
             fill
             sizes={MEDIA_SIZES[variant] ?? MEDIA_SIZES.default}
             priority={priority}
@@ -54,6 +54,12 @@ export default function ArticleCard({
           ) : null}
 
           <p className={styles.meta}>
+            {post.authorName ? <span>{post.authorName}</span> : null}
+            {post.authorName && (post.readTime || post.date) ? (
+              <span className={styles.metaDot} aria-hidden="true">
+                ·
+              </span>
+            ) : null}
             {post.readTime ? <span>{post.readTime}</span> : null}
             {post.readTime && post.date ? (
               <span className={styles.metaDot} aria-hidden="true">

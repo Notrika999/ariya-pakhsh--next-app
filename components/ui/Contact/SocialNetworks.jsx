@@ -1,7 +1,29 @@
+// components/ui/Contact/SocialNetworks.jsx
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+
+const socialMedia = [
+  {
+    id: 1,
+    src: "/images/social/aparat-white.svg",
+    link: "https://www.aparat.com/carup24.com",
+    alt: "آپارات",
+  },
+  {
+    id: 2,
+    src: "/images/social/instagram-white.svg",
+    link: "https://www.instagram.com/carup24.ir",
+    alt: "اینستاگرام",
+  },
+  {
+    id: 3,
+    src: "/images/social/telegram-white.svg",
+    link: "https://t.me/carup24",
+    alt: "تلگرام",
+  },
+];
 
 export default function SocialNetworks() {
   return (
@@ -14,73 +36,24 @@ export default function SocialNetworks() {
       </p>
 
       <div className="p-4">
-        <ul className="flex items-center justify-center space-x-4" role="list">
-          <li role="listitem">
-            <Link href="">
-              <Image
-                width={100}
-                height={100}
-                src="/images/social/rubika.png"
-                alt="روبیکا"
-                className="size-7"
-              />
-            </Link>
-          </li>
-          <li role="listitem">
-            <Link href="">
-              <Image
-                width={100}
-                height={100}
-                src="/images/social/aparat.png"
-                alt="آپارات"
-                className="size-7"
-              />
-            </Link>
-          </li>
-          <li role="listitem">
-            <Link href="">
-              <Image
-                width={100}
-                height={100}
-                src="/images/social/bale.png"
-                alt="بله"
-                className="size-7"
-              />
-            </Link>
-          </li>
-          <li role="listitem">
-            <Link href="">
-              <Image
-                width={100}
-                height={100}
-                src="/images/social/eitta.png"
-                alt="ایتا"
-                className="size-7"
-              />
-            </Link>
-          </li>
-          <li role="listitem">
-            <Link href="">
-              <Image
-                width={100}
-                height={100}
-                src="/images/social/igap.png"
-                alt="ایگپ"
-                className="size-7"
-              />
-            </Link>
-          </li>
-          <li role="listitem">
-            <Link href="">
-              <Image
-                width={100}
-                height={100}
-                src="/images/social/sorush.png"
-                alt="سروش"
-                className="size-7"
-              />
-            </Link>
-          </li>
+        <ul className="flex items-center justify-center gap-3" role="list">
+          {socialMedia.map((social) => (
+            <li key={social.id} role="listitem">
+              <Link
+                href={social.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-primary-500 w-12 h-12 rounded-full flex items-center justify-center transition-transform hover:-translate-y-2 dark:bg-primary-600 dark:hover:bg-primary-500"
+              >
+                <Image
+                  width={30}
+                  height={30}
+                  src={social.src}
+                  alt={social.alt}
+                />
+              </Link>
+            </li>
+          ))}
         </ul>
       </div>
     </div>

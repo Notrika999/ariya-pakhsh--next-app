@@ -1,13 +1,19 @@
-// app/cart/page.jsx
 import Cart from "@/components/ui/Cart/Cart";
+import CartEmpty from "@/components/ui/Cart/CartEmpty";
+import React from "react";
 
 function CartPage() {
-  return <Cart />;
+  return (
+    <>
+      <Cart />
+      <CartEmpty />
+    </>
+  );
 }
 
 export default CartPage;
 
-// NOINDEX
+// NOINDEX 
 export const metadata = {
   robots: {
     index: false,

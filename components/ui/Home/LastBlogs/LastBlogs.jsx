@@ -13,7 +13,7 @@ export default function LastBlogs({ lastBlogLits }) {
     <>
       <h2 className="sr-only">مقالات وبلاگ لوازم خودرو</h2>
 
-      <SectionHeader title={"مقالات دسته‌بندی محصولات خودرو"} href={"/blog"} />
+      <SectionHeader title={"مقالات دسته‌بندی محصولات خودرو"} href={"/mag"} />
 
       <Swiper
         modules={[Autoplay]}

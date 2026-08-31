@@ -1,15 +1,10 @@
 // app/user-profile/orders-return/page.jsx
 import React, { Suspense } from "react";
 import OrdersReturn from "@/components/ui/UserProfile/OrdersReturn/OrdersReturn";
-
+import { OrdersReturnPageSkeleton } from "@/components/ui/UserProfile/skeletons/UserProfileSkeletons";
 
 function OrdersReturnFallback() {
-  return (
-    <div className="space-y-8 lg:col-span-3">
-      <div className="h-28 animate-pulse rounded-2xl bg-gray-100 dark:bg-zinc-800" />
-      <div className="h-96 animate-pulse rounded-2xl bg-gray-100 dark:bg-zinc-800" />
-    </div>
-  );
+  return <OrdersReturnPageSkeleton />;
 }
 
 function OrdersReturnPage() {

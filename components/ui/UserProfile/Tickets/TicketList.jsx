@@ -7,10 +7,11 @@ import TicketStatCard from "../../../modules/TicketStatCard/TicketStatCard";
 import TicketCreateForm from "./TicketCreateForm";
 import {
   formatTicketDate,
-  getCategoryLabel,
   getPriorityMeta,
   getStatusMeta,
 } from "@/src/lib/tickets/ticket-labels";
+import { useTicketCategories } from "@/src/lib/hooks/use-ticket-categories";
+import { TicketsTableSkeleton } from "../skeletons/UserProfileSkeletons";
 
 export default function TicketList({
   tickets,
@@ -27,6 +28,7 @@ export default function TicketList({
   onFilterChange,
 }) {
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const { getLabel: getCategoryLabel } = useTicketCategories();
 
   const open = tickets.filter((t) => t.status === "open").length;
   const pending = tickets.filter(
@@ -111,11 +113,7 @@ export default function TicketList({
           </h2>
         </div>
 
-        {loading && (
-          <p className="py-8 text-center text-sm text-gray-500">
-            در حال بارگذاری تیکت‌ها...
-          </p>
-        )}
+        {loading && <TicketsTableSkeleton />}
 
         {!loading && error && (
           <p className="py-8 text-center text-sm text-red-500">{error}</p>

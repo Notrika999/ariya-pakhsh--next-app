@@ -15,6 +15,7 @@ import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
 import { getProductImage } from "@/src/utils/product-image";
 import { formatPrice } from "@/src/utils/formatPrice";
 import { notify } from "@/src/utils/toast";
+import { FavoritesGridSkeleton } from "../skeletons/UserProfileSkeletons";
 
 const PAGE_SIZE = 12;
 
@@ -209,14 +210,7 @@ export default function UserFavorites() {
         <TitleAfter title={"لیست محصولات ذخیره شده"} />
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <div
-                key={`skeleton-${index}`}
-                className="h-72 animate-pulse rounded-xl bg-gray-100 dark:bg-zinc-800"
-              />
-            ))}
-          </div>
+          <FavoritesGridSkeleton />
         ) : filteredFavorites.length === 0 ? (
           <div className="mt-4">
             <UserProfileEmptyState

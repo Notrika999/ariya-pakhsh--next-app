@@ -7,6 +7,13 @@ import { getCategoryBreadcrumb } from "@/src/services/category/category.server";
 import { getProductById } from "@/src/services/product/product.server";
 import type { ProductDetail } from "@/src/lib/types/products/productDetail.types";
 import { getProductImage } from "@/src/utils/product-image";
+import { resolveLandingHref } from "@/components/ui/landing/landingConfigs";
+import {
+  mapHomeLayoutSearchPromotion as mapSearchPromotionSections,
+  type HomeSearchPromotion,
+} from "@/src/services/home/search-promotion";
+
+export type { HomeSearchPromotion };
 
 export type HomeLayoutLink = {
   type: string | null;
@@ -78,6 +85,7 @@ export type HomeStory = {
   subtitle: string | null;
   thumbnailUrl: string;
   ctaText: string | null;
+  href: string | null;
   link: HomeLayoutLink | null;
   frames: HomeStoryFrame[];
 };
@@ -117,6 +125,8 @@ type BrandLookupItem = {
   id?: string | number | null;
   brandId?: string | number | null;
   slug?: string | null;
+  nameInEnglish?: string | null;
+  englishName?: string | null;
 };
 
 function normalizeMediaType(
@@ -144,7 +154,7 @@ function normalizeFrame(
     videoUrl: frame.videoUrl ? getProductImage(frame.videoUrl) : null,
     posterUrl: posterUrl ? getProductImage(posterUrl) : null,
     durationMs: frame.durationMs ?? DEFAULT_FRAME_DURATION_MS,
-    link: frame.link ?? fallback.link,
+    link: isUsableHomeLayoutLink(frame.link) ? frame.link : fallback.link,
   };
 }
 
@@ -167,6 +177,18 @@ function fallbackFrame(item: HomeLayoutItem): HomeStoryFrame {
   };
 }
 
+function isUsableHomeLayoutLink(link: HomeLayoutLink | null | undefined) {
+  if (!link) return false;
+
+  return Boolean(
+    link.href ||
+      link.url ||
+      link.targetId?.trim() ||
+      link.filterPayload ||
+      link.type?.trim(),
+  );
+}
+
 function encodePathSegment(value: string) {
   return encodeURIComponent(value.trim());
 }
@@ -175,12 +197,36 @@ function normalizeLookupValue(value: string | number | null | undefined) {
   return String(value ?? "").trim().toLowerCase();
 }
 
-function getBrandLookupId(brand: BrandLookupItem) {
-  return normalizeLookupValue(brand.id ?? brand.brandId);
+function isAsciiBrandSlug(value: string) {
+  return /^[a-z0-9]+(?:[-_][a-z0-9]+)*$/.test(value);
+}
+
+function normalizeBrandPathSlug(value: string | null | undefined) {
+  const trimmed = String(value ?? "").trim();
+  if (!trimmed) return "";
+
+  if (/^[a-zA-Z0-9][a-zA-Z0-9\s_-]*$/.test(trimmed)) {
+    return trimmed.toLowerCase().replace(/\s+/g, "-");
+  }
+
+  return trimmed;
+}
+
+function brandMatchesTargetId(brand: BrandLookupItem, targetId: string) {
+  const target = normalizeLookupValue(targetId);
+
+  return (
+    normalizeLookupValue(brand.id) === target ||
+    normalizeLookupValue(brand.brandId) === target
+  );
 }
 
 function getBrandLookupSlug(brand: BrandLookupItem) {
-  return brand.slug?.trim() ?? "";
+  const candidates = [brand.slug, brand.nameInEnglish, brand.englishName]
+    .map((value) => normalizeBrandPathSlug(value))
+    .filter(Boolean);
+
+  return candidates.find(isAsciiBrandSlug) ?? candidates[0] ?? "";
 }
 
 function getDefaultVariantPublicCode(product: ProductDetail) {
@@ -232,16 +278,14 @@ async function resolveCategoryHomeLayoutHref(targetId: string) {
 }
 
 async function resolveBrandHomeLayoutHref(targetId: string) {
-  const normalizedTargetId = normalizeLookupValue(targetId);
-
   for (let pageNumber = 1; pageNumber <= BRAND_LOOKUP_MAX_PAGES; pageNumber += 1) {
     const brands = await getBrands({
       pageNumber,
       pageSize: BRAND_LOOKUP_PAGE_SIZE,
       grouped: false,
     });
-    const brand = (brands.items as BrandLookupItem[]).find(
-      (item) => getBrandLookupId(item) === normalizedTargetId,
+    const brand = (brands.items as BrandLookupItem[]).find((item) =>
+      brandMatchesTargetId(item, targetId),
     );
     const slug = brand ? getBrandLookupSlug(brand) : "";
 
@@ -279,7 +323,8 @@ function shouldResolveHomeLayoutSection(section: HomeLayoutSection) {
   return (
     (type === "stories" && layout === "horizontalscroll") ||
     (type === "herocarousel" && layout === "carousel") ||
-    (type === "promocards" && layout === "grid")
+    (type === "promocards" && layout === "grid") ||
+    type === "searchpromotion"
   );
 }
 
@@ -358,7 +403,7 @@ async function resolveHomeLayoutLinks(
       items: section.items.map((item) => ({
         ...item,
         link: withResolvedHomeLayoutLink(item.link, resolvedLinks),
-        frames: item.frames.map((frame) => ({
+        frames: (item.frames ?? []).map((frame) => ({
           ...frame,
           link: withResolvedHomeLayoutLink(frame.link, resolvedLinks),
         })),
@@ -371,13 +416,15 @@ function resolveHomeLayoutHref(link: HomeLayoutLink | null | undefined) {
   if (!link) return null;
 
   const type = String(link.type ?? "").toLowerCase();
-  const targetId = link.targetId ? encodeURIComponent(link.targetId) : null;
+  const rawTargetId = String(link.targetId ?? "").trim();
+  const targetId = rawTargetId ? encodeURIComponent(rawTargetId) : null;
 
   if (link.href) return link.href;
   if (link.url) return link.url;
   if (type === "category" && targetId)
     return `/products?categoryId=${targetId}`;
-  if (type === "landing" && targetId) return `/landing/${targetId}`;
+  if (type === "brand" && targetId) return `/products?brandId=${targetId}`;
+  if (type === "landing") return resolveLandingHref(rawTargetId);
   if (type === "campaign" && targetId) {
     return `/incredible-offers?campaignId=${targetId}`;
   }
@@ -412,6 +459,7 @@ export function mapHomeLayoutStories(
           item.thumbnailUrl ?? item.mobileImageUrl ?? item.imageUrl,
         ),
         ctaText: item.ctaText,
+        href: resolveHomeLayoutHref(item.link),
         link: item.link,
         frames: frames.filter((frame) =>
           frame.mediaType === "Video"
@@ -491,20 +539,40 @@ export function mapHomeLayoutPromoCards(
     .filter((card): card is HomePromoCard => Boolean(card));
 }
 
-export async function getHomeLayout(): Promise<HomeLayoutData> {
+export function mapHomeLayoutSearchPromotion(
+  sections: HomeLayoutSection[] = [],
+): HomeSearchPromotion[] {
+  return mapSearchPromotionSections(sections);
+}
+
+async function fetchHomeLayoutSections(): Promise<HomeLayoutSection[]> {
   const response = await proxyToBackend<ApiResponse<HomeLayoutData>>({
     method: "GET",
     path: "/api/v1/Home/layout",
     cache: "no-store",
   });
 
-    
   const isSuccess = response.data.success ?? response.data.isSuccess;
   if (!response.ok || !isSuccess) {
     throw new Error(response.data.message ?? "Failed to fetch home layout");
   }
 
+  return response.data.data?.sections ?? [];
+}
+
+export async function getHomeSearchPromotions(): Promise<HomeSearchPromotion[]> {
+  const sections = await fetchHomeLayoutSections();
+  const searchSections = sections.filter(
+    (section) => section.type?.toLowerCase() === "searchpromotion",
+  );
+  const resolved = await resolveHomeLayoutLinks(searchSections);
+  return mapSearchPromotionSections(resolved);
+}
+
+export async function getHomeLayout(): Promise<HomeLayoutData> {
+  const sections = await fetchHomeLayoutSections();
+
   return {
-    sections: await resolveHomeLayoutLinks(response.data.data?.sections ?? []),
+    sections: await resolveHomeLayoutLinks(sections),
   };
 }

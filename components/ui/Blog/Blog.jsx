@@ -1,79 +1,69 @@
 import BlogHero from "./BlogHero";
 import BlogSearch from "./BlogSearch";
 import BlogCategories from "./BlogCategories";
-import FeaturedArticles from "./FeaturedArticles";
 import ArticleGrid from "./ArticleGrid";
-import BuyingGuides from "./BuyingGuides";
-import VideoArticles from "./VideoArticles";
-import PopularArticles from "./PopularArticles";
-import { blogPosts } from "./blogData";
-import {
-  BLOG_CATEGORIES,
-  filterPosts,
-  getBuyingGuidePosts,
-  getFeaturedPosts,
-  getLatestPosts,
-  getPopularPosts,
-  getVideoPosts,
-  normalizeCategory,
-} from "./blogHomeUtils";
+import MagazineSections from "./MagazineSections";
+import Pagination from "@/components/modules/Pagination/Pagination";
+import { getCategoryLabel } from "./blogHomeUtils";
 import styles from "./blogHome.module.css";
 
-export default function Blog({ query = "", category = "all" }) {
-  const activeCategory = normalizeCategory(category);
+export default function Blog({
+  query = "",
+  category = "all",
+  articleType = "",
+  tag = "",
+  sort = "",
+  categories = [],
+  sections = [],
+  posts = [],
+  page = 1,
+  totalPages = 1,
+  showListing = true,
+}) {
   const searchQuery = query.trim();
-  const isDefaultView = activeCategory === "all" && !searchQuery;
-  const filteredPosts = filterPosts(blogPosts, {
-    query: searchQuery,
-    category: activeCategory,
-  });
-
-  const sourcePosts = isDefaultView ? blogPosts : filteredPosts;
-  const useFeaturedLayout = isDefaultView || sourcePosts.length >= 3;
-  const featuredPosts = useFeaturedLayout
-    ? getFeaturedPosts(sourcePosts)
-    : [];
-  const latestPosts = useFeaturedLayout
-    ? getLatestPosts(sourcePosts, featuredPosts)
-    : sourcePosts;
-
   const latestTitle = searchQuery
     ? "نتایج جستجو"
-    : activeCategory === "all"
-      ? "آخرین مقالات"
-      : (BLOG_CATEGORIES.find((item) => item.id === activeCategory)?.label ??
-        "آخرین مقالات");
+    : getCategoryLabel(category, categories);
 
   return (
     <div className={styles.blogHome}>
       <div className={styles.container}>
         <BlogHero />
-        <BlogSearch query={searchQuery} category={activeCategory} />
-        <BlogCategories
-          activeCategory={activeCategory}
+        <BlogSearch
           query={searchQuery}
+          category={category}
+          articleType={articleType}
+          tag={tag}
+          sort={sort}
+        />
+        <BlogCategories
+          categories={categories}
+          activeCategory={category}
+          query={searchQuery}
+          articleType={articleType}
+          tag={tag}
+          sort={sort}
         />
 
-        {featuredPosts.length ? (
-          <FeaturedArticles posts={featuredPosts} />
-        ) : null}
-
-        {latestPosts.length || !featuredPosts.length ? (
-          <ArticleGrid
-            posts={latestPosts}
-            title={latestTitle}
-            viewAllHref={isDefaultView ? "#latest-articles" : undefined}
-            showViewAll
-          />
-        ) : null}
-
-        {isDefaultView ? (
+        {!showListing && sections.length ? (
+          <MagazineSections sections={sections} />
+        ) : (
           <>
-            <BuyingGuides posts={getBuyingGuidePosts(blogPosts)} />
-            <VideoArticles posts={getVideoPosts(blogPosts)} />
-            <PopularArticles posts={getPopularPosts(blogPosts)} />
+            <ArticleGrid
+              posts={posts}
+              title={latestTitle}
+              showViewAll={false}
+              emptyMessage={
+                searchQuery || category !== "all" || articleType || tag
+                  ? "مقاله‌ای با این مشخصات پیدا نشد."
+                  : "به‌زودی مقالات مجله اینجا منتشر می‌شوند."
+              }
+            />
+            {totalPages > 1 ? (
+              <Pagination page={page} totalPages={totalPages} />
+            ) : null}
           </>
-        ) : null}
+        )}
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 // components/ui/ProductListSection/ProductListSection.tsx
 
-import { memo, TransitionStartFunction, useState } from "react";
+import { memo, TransitionStartFunction, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Layers } from "lucide-react";
 
@@ -113,6 +113,32 @@ function getProductKey(product: ProductListItem | ProductCardModel): string {
   return "productId" in product ? product.productId : product.id;
 }
 
+function isProductOutOfStock(
+  product: ProductListItem | ProductCardModel,
+): boolean {
+  if (product.inStock === false) return true;
+
+  if (
+    "availableQuantity" in product &&
+    typeof product.availableQuantity === "number"
+  ) {
+    return product.availableQuantity <= 0;
+  }
+
+  return false;
+}
+
+function sortOutOfStockLast(
+  products: Array<ProductListItem | ProductCardModel>,
+) {
+  return [...products].sort((a, b) => {
+    const aOut = isProductOutOfStock(a);
+    const bOut = isProductOutOfStock(b);
+    if (aOut === bOut) return 0;
+    return aOut ? 1 : -1;
+  });
+}
+
 function getVisibleSortOptions(options?: SortOption[]) {
   return options ?? DEFAULT_VISIBLE_SORT_OPTIONS;
 }
@@ -206,6 +232,10 @@ export default function ProductListSection({
   const searchParams = useSearchParams();
   const visibleSortOptions = getVisibleSortOptions(sortOptions);
   const currentSortLabel = SORT_LABELS[filters.sort] ?? "پیش‌فرض";
+  const orderedProducts = useMemo(
+    () => sortOutOfStockLast(products),
+    [products],
+  );
 
   const handleSortChange = (newSort: SortOption) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -390,12 +420,12 @@ export default function ProductListSection({
             />
           ) : (
             <div className="mt-4 grid grid-cols-12 gap-2 [overflow-anchor:none]">
-              {products.length === 0 ? (
+              {orderedProducts.length === 0 ? (
                 <div className="col-span-12 py-16 text-center text-gray-400 dark:text-gray-500">
                   <p className="text-lg">محصولی یافت نشد</p>
                 </div>
               ) : (
-                products.map((product) => (
+                orderedProducts.map((product) => (
                   <div
                     key={getProductKey(product)}
                     className="col-span-12 sm:col-span-6 md:col-span-4 xl:col-span-3"

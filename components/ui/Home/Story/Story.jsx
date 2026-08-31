@@ -20,6 +20,7 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   disableNativePictureInPicture,
+  getStoryActionLink,
   getStoryActionText,
   resolveStoryHref,
 } from "./story-links";
@@ -56,8 +57,9 @@ export default function Story({ stories }) {
   const currentFrame = frames[frameIndex] ?? null;
   const isVideo = currentFrame?.mediaType === "Video";
   const duration = currentFrame?.durationMs ?? 5000;
-  const actionLink = currentFrame?.link ?? currentStory?.link;
-  const actionHref = resolveStoryHref(actionLink);
+  const actionLink = getStoryActionLink(currentFrame, currentStory);
+  const actionHref =
+    resolveStoryHref(actionLink) || currentStory?.href || null;
 
   const resetFrameState = useCallback(() => {
     setProgress(0);

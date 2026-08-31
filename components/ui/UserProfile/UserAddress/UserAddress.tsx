@@ -16,6 +16,7 @@ import {
   formatReceiver,
 } from "@/src/lib/address/address-form";
 import { notify } from "@/src/utils/toast";
+import { AddressListSkeleton } from "../skeletons/UserProfileSkeletons";
 
 export default function UserAddress() {
   const [addresses, setAddresses] = useState<CustomerAddressDto[]>([]);
@@ -113,9 +114,7 @@ export default function UserAddress() {
       </div>
 
       {loading ? (
-        <div className="rounded-2xl bg-white p-8 text-center text-gray-500 drop-shadow-lg dark:bg-custom-dark dark:text-gray-400">
-          در حال دریافت آدرس‌ها...
-        </div>
+        <AddressListSkeleton />
       ) : addresses.length === 0 ? (
         <div className="rounded-2xl bg-white p-8 text-center text-gray-500 drop-shadow-lg dark:bg-custom-dark dark:text-gray-400">
           هنوز آدرسی ثبت نشده است.

@@ -8,9 +8,11 @@ import ReturnReasons from "../OrdersReturn/formContent/ReturnReasons";
 import {
   DEFAULT_TICKET_CATEGORY,
   DEFAULT_TICKET_PRIORITY,
-  TICKET_CATEGORIES,
+  ORDER_ITEM_TICKET_CATEGORIES,
   TICKET_PRIORITIES,
+  normalizeTicketCategoryKey,
 } from "@/src/lib/tickets/ticket-labels";
+import { useTicketCategories } from "@/src/lib/hooks/use-ticket-categories";
 import { FieldError } from "@/src/utils/form.validation";
 import CustomSelect from "@/components/modules/UserProfile/CustomSelect";
 import OrderAutocomplete from "@/components/modules/UserProfile/OrderAutocomplete";
@@ -49,18 +51,6 @@ const formatFileSize = (size) => {
     maximumFractionDigits: 1,
   }).format(size / (1024 * 1024))} MB`;
 };
-
-const ORDER_REQUIRED_TICKET_CATEGORIES = [
-  DEFAULT_TICKET_CATEGORY,
-  "paymentIssue",
-  "returnRequest",
-  "cancell",
-  "damageProduct",
-  "shippingDelay",
-  "changeAddress",
-];
-
-const ORDER_ITEM_TICKET_CATEGORIES = ["returnRequest", "cancell"];
 
 const CANCEL_REASONS = [
   "ثبت اشتباه سفارش",
@@ -106,8 +96,7 @@ function canCancelOrderItem(order, item) {
 }
 
 function normalizeInitialTicketCategory(category) {
-  if (category === "cancel") return "cancell";
-  return category;
+  return normalizeTicketCategoryKey(category);
 }
 
 function toFa(value) {
@@ -167,10 +156,11 @@ export default function TicketCreateForm({
   const [returnReason, setReturnReason] = useState("");
   const [attachmentFiles, setAttachmentFiles] = useState([]);
   const [errors, setErrors] = useState({});
+  const { options: categoryOptions, requiresOrder } = useTicketCategories();
 
-  const isOrderTracking = ORDER_REQUIRED_TICKET_CATEGORIES.includes(category);
+  const isOrderTracking = requiresOrder(category);
   const isReturnRequest = category === "returnRequest";
-  const isCancelRequest = category === "cancell";
+  const isCancelRequest = category === "cancelRequest";
   const needsOrderItems = ORDER_ITEM_TICKET_CATEGORIES.includes(category);
   const orderItems = useMemo(() => orderDetail?.items ?? [], [orderDetail]);
   const returnOrderBlocked =
@@ -218,7 +208,7 @@ export default function TicketCreateForm({
         ? initialData.orderItemId
         : "";
 
-    if (initialCategory !== "cancell" || !initialOrderId) {
+    if (initialCategory !== "cancelRequest" || !initialOrderId) {
       return;
     }
 
@@ -226,7 +216,7 @@ export default function TicketCreateForm({
     initialOrderItemIdRef.current = initialOrderItemId;
 
     queueMicrotask(() => {
-      setCategory("cancell");
+      setCategory("cancelRequest");
       setPriority(DEFAULT_TICKET_PRIORITY);
       setOrderId(initialOrderId);
       setOrderNumber(initialOrderNumber || initialOrderId);
@@ -426,7 +416,7 @@ export default function TicketCreateForm({
     clearError("cancelDetails");
     setReturnReason("");
     setSelectedOrderItems({});
-    if (!ORDER_REQUIRED_TICKET_CATEGORIES.includes(nextCategory)) {
+    if (!requiresOrder(nextCategory)) {
       clearError("orderId");
     }
   };
@@ -542,7 +532,7 @@ export default function TicketCreateForm({
               </label>
               <CustomSelect
                 buttonClassName={ticketSelectButtonClass(errors.category)}
-                options={TICKET_CATEGORIES}
+                options={categoryOptions}
                 value={category}
                 onChange={handleCategoryChange}
                 disabled={loading}

@@ -12,11 +12,11 @@ export async function getBlogRelatedProducts(keyword, pageSize = 8) {
   const query = String(keyword ?? "").trim();
   if (!query) return EMPTY_RESULT;
 
-  const searchHref = `/search?q=${encodeURIComponent(query)}`;
+  const searchHref = `/search?Q=${encodeURIComponent(query)}`;
 
   try {
     const result = await getSearchProductsFromSearchParams({
-      q: query,
+      Q: query,
       PageSize: String(pageSize),
       pageSize: String(pageSize),
     });

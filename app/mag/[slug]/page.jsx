@@ -1,47 +1,52 @@
-// app/blog/[slug]/page.jsx
-import React from "react";
-import Breadcrumb from "@/components/modules/Breadcrumb/Breadcrumb";
-import BlogContent from "@/components/ui/Blog/slug/BlogContent";
-import {
-  blogPosts,
-  getBlogPostBySlug,
-} from "@/components/ui/Blog/blogData";
-import { getBlogRelatedProducts } from "@/components/ui/Blog/slug/getBlogRelatedProducts";
+import { notFound } from "next/navigation";
+import MagazineArticle from "@/components/ui/magazine/MagazineArticle";
+import { SITE_NAME } from "@/src/lib/seo/site";
+import { getMagazineArticleBySlug } from "@/src/services/magazine/magazine.server";
 
-export function generateStaticParams() {
-  return blogPosts.map((post) => ({
-    slug: post.slug,
-  }));
-}
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const article = await getMagazineArticleBySlug(slug);
+
+  if (!article) notFound();
+
+  const { seo } = article;
 
   return {
-    title: post.title,
-    description: post.description,
+    title: { absolute: seo.title },
+    description: seo.description,
+    alternates: { canonical: seo.canonicalUrl },
+    robots: seo.robots,
+    openGraph: {
+      title: seo.ogTitle,
+      description: seo.ogDescription,
+      type: "article",
+      locale: "fa_IR",
+      url: seo.canonicalUrl,
+      siteName: SITE_NAME,
+      publishedTime: article.publishedAtIso || undefined,
+      modifiedTime: article.updatedAtIso || undefined,
+      authors: article.author?.displayName ? [article.author.displayName] : undefined,
+      images: seo.ogImage
+        ? [{ url: seo.ogImage, alt: seo.ogTitle || article.title }]
+        : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seo.ogTitle,
+      description: seo.ogDescription,
+      images: seo.ogImage ? [seo.ogImage] : undefined,
+    },
   };
 }
 
-export default async function BlogPage({ params }) {
+export default async function MagazineArticlePage({ params }) {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
-  const relatedProducts = await getBlogRelatedProducts(post.keyword);
+  const article = await getMagazineArticleBySlug(slug);
 
-  return (
-    <section className="py-5">
-      <div className="container mx-auto">
-        <Breadcrumb
-          items={[
-            { id: "home", name: "کارآپ 24", slug: "", depth: -1 },
-            { id: "blog", name: "بلاگ", slug: "blog", depth: -2 },
-            { id: post.slug, name: post.keyword, slug: post.slug, depth: -2 },
-          ]}
-        />
+  if (!article) notFound();
 
-        <BlogContent post={post} relatedProducts={relatedProducts} />
-      </div>
-    </section>
-  );
+  return <MagazineArticle article={article} />;
 }

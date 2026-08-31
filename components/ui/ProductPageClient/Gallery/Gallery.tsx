@@ -26,6 +26,7 @@ import {
   getWishlistProductStatus,
   removeWishlistProduct,
 } from "@/src/services/wishlist/wishlist.client";
+import { getProductShare } from "@/src/services/product/product.client";
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
 import { notify } from "@/src/utils/toast";
 import type {
@@ -46,6 +47,7 @@ interface GalleryProps {
   productName: string;
   productPriceText?: string | null;
   productId: string;
+  productSlug?: string;
   variants?: ProductDetailVariant[];
   selectedVariantId?: string;
   initialIsInWishlist?: boolean;
@@ -63,6 +65,7 @@ export default function Gallery({
   productName,
   productPriceText,
   productId,
+  productSlug,
   variants: productVariants = [],
   selectedVariantId,
   initialIsInWishlist = false,
@@ -153,6 +156,22 @@ export default function Gallery({
     }
   }, [isAuthenticated, isInWishlist, productId, wishlistBusy]);
 
+  const handleOpenShare = useCallback(async () => {
+    setShareOpen(true);
+
+    const slug = productSlug?.trim();
+    if (!slug) {
+      console.log("[Gallery] product share skipped: missing slug");
+      return;
+    }
+
+    try {
+      const sharePayload = await getProductShare(slug);
+    } catch (error) {
+      console.error("[Gallery] product share failed =>", error);
+    }
+  }, [productSlug]);
+
   const handleThumbsSwiper = useCallback((swiper: SwiperInstance) => {
     setThumbsSwiper((prev) => (prev === swiper ? prev : swiper));
   }, []);
@@ -235,7 +254,7 @@ export default function Gallery({
         <div className="flex rounded-2xl px-2 bg-gray-100 dark:bg-custom-dark gap-2 absolute top-0.75 inset-e-1/2 -translate-x-1/2 z-10 ">
           {/* Share */}
           <button
-            onClick={() => setShareOpen(true)}
+            onClick={() => void handleOpenShare()}
             className="flex z-10 group relative items-center justify-center w-full p-2 transition dark:border-gray-700 drop-shadow rounded"
           >
             <i className="far fa-share-nodes"></i>

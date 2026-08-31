@@ -169,6 +169,41 @@ function getRelatedSaleBadge(
   };
 }
 
+function asPathSegment(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+
+  const trimmed = value.trim();
+  if (!trimmed || trimmed === "undefined" || trimmed === "null") {
+    return null;
+  }
+
+  return trimmed;
+}
+
+function getRelatedProductHref(product: RelatedProduct): string | null {
+  const variantPublicCode = asPathSegment(
+    product.variants?.find((variant) => variant.isDefault)?.publicCode ??
+      product.variants?.[0]?.publicCode,
+  );
+  const publicCode = asPathSegment(product.publicCode) ?? variantPublicCode;
+  const slug = asPathSegment(product.slug);
+  const productId = asPathSegment(product.productId);
+
+  if (publicCode && slug) {
+    return `/product/${publicCode}/${slug}`;
+  }
+
+  if (slug) {
+    return `/product/${slug}`;
+  }
+
+  if (productId) {
+    return `/product/${productId}`;
+  }
+
+  return null;
+}
+
 function getRelatedInStock(
   product: RelatedProduct,
   defaultVariant?: ProductDetailVariant,
@@ -190,7 +225,10 @@ function getRelatedInStock(
   return typeof availableQuantity === "number" ? availableQuantity > 0 : undefined;
 }
 
-function mapRelatedToCard(product: RelatedProduct): ProductCardModel {
+function mapRelatedToCard(product: RelatedProduct): ProductCardModel | null {
+  const href = getRelatedProductHref(product);
+  if (!href) return null;
+
   const defaultVariant =
     product.variants?.find((v) => v.isDefault) ?? product.variants?.[0];
 
@@ -212,8 +250,8 @@ function mapRelatedToCard(product: RelatedProduct): ProductCardModel {
   return {
     id: product.productId,
     title: product.name,
-    publicCode: product.publicCode,
-    slug: product.slug,
+    publicCode: asPathSegment(product.publicCode) ?? undefined,
+    slug: asPathSegment(product.slug) ?? undefined,
     image: getProductImage(imagePath),
     imageSlider: [],
     primaryBrandName: product.primaryBrandName,
@@ -231,7 +269,7 @@ function mapRelatedToCard(product: RelatedProduct): ProductCardModel {
     soldCount: product.soldCount ?? 0,
     inStock: getRelatedInStock(product, defaultVariant),
     isOnSale: pricing.isOnSale,
-    href: `/product/${product.publicCode}/${product.slug}`,
+    href,
     discountPercent: pricing.discountPercent,
     showSaleBadge: saleBadge,
     specialSale: Boolean(saleBadge || product.isAmazingOffer),
@@ -284,7 +322,11 @@ export default function ConsumerProducts({
 
   if (items.length === 0) return null;
 
-  const cards = items.map(mapRelatedToCard);
+  const cards = items
+    .map(mapRelatedToCard)
+    .filter((card): card is ProductCardModel => card !== null);
+
+  if (cards.length === 0) return null;
 
   return (
     <SectionContainer>

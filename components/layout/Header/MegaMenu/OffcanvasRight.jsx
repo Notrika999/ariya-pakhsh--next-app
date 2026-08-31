@@ -91,7 +91,7 @@ export default function OffcanvasRight({ isOpen, onClose, menu }) {
             </li>
 
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">
-              <Link href="/blog" onClick={onClose}>بلاگ</Link>
+              <Link href="/mag" onClick={onClose}>مجله</Link>
             </li>
 
             <li className="bg-gray-50 dark:bg-custom-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-800 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#1f242c] p-2 transition-colors duration-200">

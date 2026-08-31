@@ -1,6 +1,5 @@
+// app/user-profile/(dashboard)/page.jsx
 import UserProfile from "@/components/ui/UserProfile/UserProfile";
-import Image from "next/image";
-import React from "react";
 
 function UserProfilePage() {
   return <UserProfile />;
@@ -8,7 +7,7 @@ function UserProfilePage() {
 
 export default UserProfilePage;
 
-// NOINDEX 
+// NOINDEX
 export const metadata = {
   robots: {
     index: false,

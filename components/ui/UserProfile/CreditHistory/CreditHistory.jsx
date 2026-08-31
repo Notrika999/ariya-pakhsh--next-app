@@ -13,6 +13,7 @@ import {
 } from "@/src/services/wallet/wallet.client";
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
 import { notify } from "@/src/utils/toast";
+import { CreditTransactionsSkeleton } from "../skeletons/UserProfileSkeletons";
 
 const PAGE_SIZE = 20;
 const QUICK_AMOUNTS = [50000, 100000, 200000];
@@ -415,14 +416,9 @@ export default function CreditHistory() {
         </h2>
 
         <div className="space-y-4">
-          {loading
-            ? Array.from({ length: 3 }).map((_, index) => (
-                <div
-                  key={`tx-skeleton-${index}`}
-                  className="h-24 animate-pulse rounded-2xl bg-gray-100 dark:bg-zinc-800"
-                />
-              ))
-            : filteredTransactions.length > 0
+          {loading ? (
+            <CreditTransactionsSkeleton />
+          ) : filteredTransactions.length > 0
               ? filteredTransactions.map((item) => (
                   <TransactionCard key={item.id} item={item} />
                 ))

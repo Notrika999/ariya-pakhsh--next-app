@@ -1,11 +1,26 @@
 export type TicketCategory =
   | "orderTracking"
-  | "payment"
-  | "product"
-  | "technical"
-  | "sales"
-  | "general"
+  | "paymentIssue"
+  | "returnRequest"
+  | "cancelRequest"
+  | "damagedProduct"
+  | "shippingDelay"
+  | "changeAddress"
+  | "prePurchaseConsultation"
+  | "other"
   | string;
+
+export type TicketRequiredField = {
+  name: string;
+  label: string;
+  fieldType: string;
+};
+
+export type TicketCategoryDefinition = {
+  category: string;
+  categoryLabel: string;
+  requiredFields: TicketRequiredField[];
+};
 
 export type TicketPriority = "low" | "medium" | "high" | "urgent" | string;
 

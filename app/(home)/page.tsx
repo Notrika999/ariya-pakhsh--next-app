@@ -23,7 +23,6 @@ import SliderProduct from "@/components/modules/SliderProduct/SliderProduct";
 import { Metadata } from "next";
 import { absoluteUrl } from "@/src/lib/seo/site";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
-import HeroSection from "@/components/ui/IncredibleOffers/HeroSection/HeroSection";
 import { mapToBestSellingProducts } from "@/src/lib/mappers/best-selling-products.mapper";
 import { getCategoryImage } from "@/src/utils/product-image";
 
@@ -31,17 +30,26 @@ export const dynamic = "force-dynamic";
 
 // ساختار متاتگ‌ها به صورت استاندارد و حرفه‌ای
 export const metadata: Metadata = {
-  title:
-    "فروشگاه اینترنتی کارآپ 24 | خرید آنلاین کفپوش، روکش و لوازم لوکس خودرو",
+  metadataBase: new URL(absoluteUrl()),
+
+  title: {
+    default: "فروشگاه اینترنتی کارآپ 24 | CarUp24",
+    template: "%s | کارآپ 24",
+  },
+
   description:
-    "مرجع تخصصی خرید آنلاین انواع کالاهای ظاهری خودرو با بهترین قیمت و ضمانت اصالت کالا.",
+   "کارآپ 24؛ مرجع تخصصی خرید آنلاین لوازم جانبی، تزئینی و لوکس خودرو.",
   keywords: [
+    "کارآپ 24",
+    "کاراپ 24",
+    "CarUp24",
+    "Car Up 24",
+    "carup24",
     "خرید آنلاین",
     "فروشگاه اینترنتی",
     "قیمت کفپوش ماشین",
     "خرید روکش صندلی",
     "لوازم تزینی",
-    "کارآپ 24",
   ],
   robots: {
     index: true,
@@ -193,10 +201,6 @@ export default async function Home() {
         </SectionContainer>
       )}
       {/* <!-- END CATEGORY SECTION --> */}
-
-      <SectionContainer className="hidden">
-        <HeroSection />
-      </SectionContainer>
 
       {/* <!-- START BANNER SECTION --> */}
       {bannerItems.length > 0 ? (

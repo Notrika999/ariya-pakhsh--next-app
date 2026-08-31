@@ -2,7 +2,7 @@ import Link from "next/link";
 import ArticleCard from "./ArticleCard";
 import BlogSectionHeader from "./BlogSectionHeader";
 import styles from "./blogHome.module.css";
-import { getBlogHomeHref } from "./blogHomeUtils";
+import { getBlogHomeHref, getPostKey } from "./blogHomeUtils";
 
 export default function ArticleGrid({
   posts = [],
@@ -36,7 +36,7 @@ export default function ArticleGrid({
       {posts.length ? (
         <div className={styles.articleGrid}>
           {posts.map((post) => (
-            <ArticleCard key={post.id} post={post} />
+            <ArticleCard key={getPostKey(post)} post={post} />
           ))}
         </div>
       ) : (

@@ -60,3 +60,13 @@ export const landingConfigs: Record<string, LandingConfig> = {
     ]
   }
 }
+
+export function resolveLandingHref(targetId: unknown): string | null {
+  const slug = String(targetId ?? "").trim();
+
+  if (!slug || !Object.prototype.hasOwnProperty.call(landingConfigs, slug)) {
+    return null;
+  }
+
+  return `/landing/${encodeURIComponent(slug)}`;
+}

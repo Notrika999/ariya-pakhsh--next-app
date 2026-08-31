@@ -37,27 +37,24 @@ export default function Menus() {
         { id: 3, title: "درباره ما", link: "/about", new: false },
       ],
     },
-    // {
-    //   id: 4,
-    //   title: "<strong> نقشه </strong>استادینو",
-    //   subMenus: [
-    //     { id: 1, title: "درباره ما", link: "/about", new: false },
-    //     { id: 2, title: "تماس با ما", link: "/contact", new: false },
-    //     { id: 3, title: "همکاری و فرصت شغلی", link: "#", new: false },
-    //     { id: 4, title: "شعب گاج", link: "#", new: true },
-    //   ],
-    // },
   ];
 
   const socialMedia = [
-    { id: 1, src: "/images/social/aparat-white.svg", link: "https://www.aparat.com/carup24.com" },
+    {
+      id: 1,
+      src: "/images/social/aparat-white.svg",
+      link: "https://www.aparat.com/carup24.com",
+    },
     {
       id: 2,
       src: "/images/social/instagram-white.svg",
       link: "https://www.instagram.com/carup24.ir",
     },
-    { id: 3, src: "/images/social/telegram-white.svg", link: "#" },
-    { id: 4, src: "/images/social/youtube-white.svg", link: "#" },
+    {
+      id: 3,
+      src: "/images/social/telegram-white.svg",
+      link: "https://t.me/carup24",
+    },
   ];
   return (
     <div className="py-8 bg-gray-200/50 dark:bg-[#0d1117] transition-colors duration-300">

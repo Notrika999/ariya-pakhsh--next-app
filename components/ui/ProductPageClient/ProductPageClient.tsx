@@ -221,6 +221,7 @@ export default function ProductPageClient({
               productName={product.name}
               productPriceText={productPriceText}
               productId={product.productId}
+              productSlug={product.slug}
               variants={product.variants}
               selectedVariantId={selectedVariant?.variantId ?? ""}
               initialIsInWishlist={product.isInWishlist}

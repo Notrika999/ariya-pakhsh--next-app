@@ -4,9 +4,9 @@ import { useState } from "react";
 import {
   DEFAULT_TICKET_CATEGORY,
   DEFAULT_TICKET_PRIORITY,
-  TICKET_CATEGORIES,
   TICKET_PRIORITIES,
 } from "@/src/lib/tickets/ticket-labels";
+import { useTicketCategories } from "@/src/lib/hooks/use-ticket-categories";
 import { FieldError, fieldClass } from "@/src/utils/form.validation";
 import CustomSelect from "@/components/modules/UserProfile/CustomSelect";
 import OrderAutocomplete from "@/components/modules/UserProfile/OrderAutocomplete";
@@ -25,21 +25,13 @@ const formatFileSize = (size) => {
   }).format(size / (1024 * 1024))} MB`;
 };
 
-const ORDER_REQUIRED_TICKET_CATEGORIES = [
-  DEFAULT_TICKET_CATEGORY,
-  "paymentIssue",
-  "returnRequest",
-  "damageProduct",
-  "shippingDelay",
-  "changeAddress",
-];
-
 export default function CreateTicketModal({
   isOpen,
   onClose,
   onSubmit,
   loading,
 }) {
+  const { options: categoryOptions, requiresOrder } = useTicketCategories();
   const [subject, setSubject] = useState("");
   const [category, setCategory] = useState(DEFAULT_TICKET_CATEGORY);
   const [priority, setPriority] = useState(DEFAULT_TICKET_PRIORITY);
@@ -49,7 +41,7 @@ export default function CreateTicketModal({
   const [attachmentFiles, setAttachmentFiles] = useState([]);
   const [errors, setErrors] = useState({});
 
-  const isOrderTracking = ORDER_REQUIRED_TICKET_CATEGORIES.includes(category);
+  const isOrderTracking = requiresOrder(category);
 
   if (!isOpen) return null;
 
@@ -121,7 +113,7 @@ export default function CreateTicketModal({
   const handleCategoryChange = (nextCategory) => {
     setCategory(nextCategory);
     clearError("category");
-    if (!ORDER_REQUIRED_TICKET_CATEGORIES.includes(nextCategory)) {
+    if (!requiresOrder(nextCategory)) {
       clearError("orderId");
     }
   };
@@ -201,7 +193,7 @@ export default function CreateTicketModal({
                 fieldClass(errors.category),
                 "flex items-center justify-between gap-2 text-start",
               ].join(" ")}
-              options={TICKET_CATEGORIES}
+                options={categoryOptions}
               value={category}
               onChange={handleCategoryChange}
               disabled={loading}

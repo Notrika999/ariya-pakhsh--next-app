@@ -1,7 +1,7 @@
 "use client";
 
-import { TICKET_CATEGORIES } from "@/src/lib/tickets/ticket-labels";
 import CustomSelect from "@/components/modules/UserProfile/CustomSelect";
+import { useTicketCategories } from "@/src/lib/hooks/use-ticket-categories";
 
 const STATUS_OPTIONS = [
   { value: "", label: "همه وضعیت‌ها" },
@@ -19,15 +19,12 @@ const PRIORITY_OPTIONS = [
   { value: "urgent", label: "فوری" },
 ];
 
-const CATEGORY_OPTIONS = [
-  { value: "", label: "همه دسته‌ها" },
-  ...TICKET_CATEGORIES.map((item) => ({
-    value: item.value,
-    label: item.label,
-  })),
-];
-
 export default function TicketFilters({ filters, onFilterChange }) {
+  const { options } = useTicketCategories();
+  const categoryOptions = [
+    { value: "", label: "همه دسته‌ها" },
+    ...options,
+  ];
   return (
     <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
       <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0">
@@ -90,7 +87,7 @@ export default function TicketFilters({ filters, onFilterChange }) {
 
         <CustomSelect
           className="sm:w-44"
-          options={CATEGORY_OPTIONS}
+          options={categoryOptions}
           value={filters.category}
           onChange={(val) => onFilterChange({ category: val })}
         />

@@ -6,7 +6,7 @@ import { getSearchProductsFromSearchParams } from "@/src/services/search/search-
 import { absoluteUrl } from "@/src/lib/seo/site";
 
 export const metadata: Metadata = {
-  title: "جستجوی محصولات | کارآپ 24",
+  title: "جستجوی محصولات",
   description: "جستجو و فیلتر محصولات فروشگاه کارآپ 24.",
   alternates: {
     canonical: absoluteUrl("/search"),

@@ -508,10 +508,15 @@ export default function CategoryProductListPage({
     [categoryId, priceLimit.max, priceLimit.min, searchParams],
   );
 
+  const pageHeading =
+    category?.name?.trim() ||
+    breadcrumb[breadcrumb.length - 1]?.name?.trim() ||
+    "همه محصولات";
+
   return (
     <SectionContainer>
       <h1 className="sr-only">
-        فیلتربندی محصولات
+        {pageHeading}
       </h1>
       <Breadcrumb items={breadcrumb} />
 
