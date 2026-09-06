@@ -1,3 +1,5 @@
+// app/mag/[slug]/page.jsx
+
 import { notFound } from "next/navigation";
 import MagazineArticle from "@/components/ui/magazine/MagazineArticle";
 import { SITE_NAME } from "@/src/lib/seo/site";

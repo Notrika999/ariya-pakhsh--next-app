@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { getBlogHomeHref } from "@/components/ui/Blog/blogHomeUtils";
+import { getBlogHomeHref } from "@/components/ui/magazine/magazineHomeUtils";
 
 export default function MagazineNavigation({ categories = [] }) {
   const pathname = usePathname();

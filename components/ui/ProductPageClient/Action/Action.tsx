@@ -8,6 +8,7 @@ import {
 } from "@/src/lib/types/products/productDetail.types";
 import { useCart } from "@/src/context/CartContext";
 import { getProductImage } from "@/src/utils/product-image";
+import { useStockNotify } from "@/src/hooks/useStockNotify";
 
 interface Props {
   product: ProductDetail;
@@ -21,6 +22,7 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
   const [quantityUpdating, setQuantityUpdating] = useState(false);
 
   const { addItem, updateQty, items } = useCart();
+  const { requestNotify, stockNotifyModal } = useStockNotify();
 
   const price = variant?.salePrice ?? variant?.price ?? 0;
   const originalPrice = variant?.compareAtPrice ?? variant?.price ?? price;
@@ -222,6 +224,7 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
         />
 
           <button
+            data-track="add-to-cart"
             onClick={handleAddToCart}
             disabled={quantityUpdating}
             className={`ms-auto  text-white font-semibold rounded-xl px-2 py-3 text-sm cursor-pointer transition-colors ${
@@ -236,8 +239,12 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
       ) : (
         <>
           <div className="mt-3">
-            <button className="bg-primary shadow-primary-500 w-full hover:bg-primary-600 text-white font-semibold rounded-xl px-6 py-3 text-sm">
-              🔔 به من اطلاع بده
+            <button
+              type="button"
+              onClick={requestNotify}
+              className="bg-primary shadow-primary-500 w-full hover:bg-primary-600 text-white font-semibold rounded-xl px-6 py-3 text-sm"
+            >
+              موجود شد خبرم کن
             </button>
             <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
               وقتی محصول موجود شد به من اطلاع بده
@@ -259,6 +266,7 @@ export default function Action({ product, variant, isOutOfStock }: Props) {
           <span className="text-gray-600 dark:text-gray-300 text-sm">فروش</span>
         </div>
       </div>
+      {stockNotifyModal}
     </section>
   );
 }

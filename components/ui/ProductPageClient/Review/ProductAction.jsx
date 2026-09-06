@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import QuantitySelector from "../../../modules/QuantityProductSelector/QuantityProductSelector";
 import { useCart } from "@/src/context/CartContext";
 import { getProductImage } from "@/src/utils/product-image";
+import { useStockNotify } from "@/src/hooks/useStockNotify";
 
 export default function ProductAction({ product, variant, isOutOfStock }) {
   const router = useRouter();
@@ -15,6 +16,7 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
   const [stickyTop, setStickyTop] = useState(16);
 
   const { addItem, updateQty, items } = useCart();
+  const { requestNotify, stockNotifyModal } = useStockNotify();
 
   // تشخیص breakpoint واقعی
   useEffect(() => {
@@ -120,18 +122,20 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
 
           <button
             type="button"
-            onClick={handleAddToCart}
-            disabled={isOutOfStock || !variant}
+            onClick={isOutOfStock ? requestNotify : handleAddToCart}
+            disabled={!isOutOfStock && !variant}
             className={`h-10 flex-1 rounded-xl px-2 text-xs font-semibold text-white transition-colors ${
-              isOutOfStock || !variant
-                ? "cursor-not-allowed bg-gray-400"
-                : added
-                  ? "bg-green-500"
-                  : "bg-primary hover:bg-primary-600"
+              isOutOfStock
+                ? "bg-primary hover:bg-primary-600"
+                : !variant
+                  ? "cursor-not-allowed bg-gray-400"
+                  : added
+                    ? "bg-green-500"
+                    : "bg-primary hover:bg-primary-600"
             }`}
           >
             {isOutOfStock
-              ? "اتمام موجودی"
+              ? "موجود شد خبرم کن"
               : added
                 ? "افزوده شد"
                 : "افزودن به سبد خرید"}
@@ -321,8 +325,12 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
                 </button>
               </div> */}
               <div className="mt-3">
-                <button className="bg-primary shadow-primary-500 w-full hover:bg-primary-600 text-white font-semibold rounded-xl px-6 py-3 text-sm">
-                  🔔 به من اطلاع بده
+                <button
+                  type="button"
+                  onClick={requestNotify}
+                  className="bg-primary shadow-primary-500 w-full hover:bg-primary-600 text-white font-semibold rounded-xl px-6 py-3 text-sm"
+                >
+                  موجود شد خبرم کن
                 </button>
                 <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
                   وقتی محصول موجود شد به من اطلاع بده
@@ -347,6 +355,7 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
             </div>
           </div>
       </div>
+      {stockNotifyModal}
     </>
   );
 }

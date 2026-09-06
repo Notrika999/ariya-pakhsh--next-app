@@ -1,5 +1,12 @@
 import TitleAfter from "@/components/modules/TitleAfter/TitleAfter";
+import { absoluteUrl } from "@/src/lib/seo/site";
 import React from "react";
+
+export const metadata = {
+  alternates: {
+    canonical: absoluteUrl("/privacy-policy"),
+  },
+};
 
 function PrivacyPolicy() {
   return (

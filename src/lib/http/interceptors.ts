@@ -81,6 +81,10 @@ export function setupApiInterceptors(): void {
         }
 
         processRefreshQueue(true);
+        const { markAccessTokenRefreshed } = await import(
+          "@/src/lib/auth/token-refresh-scheduler"
+        );
+        markAccessTokenRefreshed();
         return apiClient(originalRequest);
       } catch (refreshError) {
         processRefreshQueue(false, refreshError);

@@ -161,7 +161,7 @@ export default function Gallery({
 
     const slug = productSlug?.trim();
     if (!slug) {
-      console.log("[Gallery] product share skipped: missing slug");
+  
       return;
     }
 

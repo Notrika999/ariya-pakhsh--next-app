@@ -22,8 +22,11 @@ export default function Slider({ sliders }) {
       <h2 className="sr-only">اسلایدر فروشگاه </h2>
 
       {/* <!-- Main slider --> */}
-      <div className="overflow-hidden">
-        <div className=" mx-auto relative!" aria-label="اسلایدر فروشگاه">
+      <div className="overflow-hidden px-4">
+        <div
+          className="relative mx-auto overflow-hidden rounded-xl"
+          aria-label="اسلایدر فروشگاه"
+        >
           {/* <!-- prev button --> */}
           <Swiper
             modules={[Navigation, Pagination, Autoplay]}
@@ -43,7 +46,7 @@ export default function Slider({ sliders }) {
               clickable: true,
             }}
           >
-            {sliders.map((slid) => (
+            {sliders.map((slid, index) => (
               <SwiperSlide key={slid.id} className="w-full">
                 <SliderItem
                   image={slid.image}
@@ -53,6 +56,7 @@ export default function Slider({ sliders }) {
                   title={slid.title}
                   subtitle={slid.subtitle}
                   ctaText={slid.ctaText}
+                  priority={index === 0}
                   onClick={() => trackHomeLayoutItemView(slid.id)}
                 />
               </SwiperSlide>

@@ -12,11 +12,11 @@ export default function SliderItem({
   subtitle,
   ctaText,
   onClick,
+  priority = false,
 }) {
   const desktopSrc = image ?? "/images/default.png";
   const mobileSrc = mobileImage ?? desktopSrc;
   const hasContent = Boolean(title || subtitle || ctaText);
-  const imageSizes = "100vw";
   const imageQuality = 100;
 
   return (
@@ -26,27 +26,28 @@ export default function SliderItem({
       className="group block"
       onClick={onClick}
     >
-      <div className="relative w-full mx-auto h-[200px]  overflow-hidden sm:h-[600px] ">
+      <div className="relative aspect-[2/1] w-full overflow-hidden lg:h-[350px] h-[125px] lg:aspect-auto">
         <Image
           fill
           src={desktopSrc}
-          className="hidden  object-fit lg:block"
-          loading="lazy"
+          className="hidden object-fill w-fit h-fit object-center lg:block"
+          loading={priority ? undefined : "lazy"}
+          priority={priority}
           quality={imageQuality}
-          sizes={imageSizes}
+       
           alt={alt}
         />
-        
         <Image
           fill
           src={mobileSrc}
-          className="object-fit lg:hidden"
-          loading="lazy"
+          className="object-fill w-fit h-fit object-center lg:hidden"
+          loading={priority ? undefined : "lazy"}
+          priority={priority}
           quality={imageQuality}
-          sizes={imageSizes}
+          sizes="100vw"
           alt={alt}
         />
-        {hasContent ? (
+        {/* {hasContent ? (
           <div className="absolute inset-0 flex items-end bg-linear-to-t from-black/60 via-black/10 to-transparent">
             <div className="w-full px-5 pb-6 text-white sm:px-12 sm:pb-14">
               {title ? (
@@ -66,7 +67,7 @@ export default function SliderItem({
               ) : null}
             </div>
           </div>
-        ) : null}
+        ) : null} */}
       </div>
     </Link>
   );

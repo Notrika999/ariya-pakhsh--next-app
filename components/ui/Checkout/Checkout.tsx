@@ -12,10 +12,13 @@ import type { CartItem } from "@/src/lib/types/cart/cartTypes";
 import type { CustomerAddressDto } from "@/src/lib/types/address/address.type";
 import type {
   CheckoutCouponDiscount,
+  CheckoutCouponPayload,
+  CheckoutGatewayFee,
   CheckoutPaymentMethod,
   CheckoutShippingGroupItem,
   CheckoutShippingMethod,
   CheckoutShippingOptionsResult,
+  PlaceOrderShippingAddress,
   PlaceOrderShippingSelection,
 } from "@/src/lib/types/checkout/checkout.types";
 import {
@@ -34,7 +37,8 @@ const formatMoney = (value: number) =>
   `${new Intl.NumberFormat("fa-IR").format(Math.max(0, Math.round(value)))} تومان`;
 
 const formatShippingPrice = (method: CheckoutShippingMethod) =>
-  method.formattedPrice ?? (method.price > 0 ? formatMoney(method.price) : "رایگان");
+  method.formattedPrice ??
+  (method.price > 0 ? formatMoney(method.price) : "رایگان");
 
 const GATEWAY_REDIRECT_SECONDS = 30;
 
@@ -52,15 +56,19 @@ type PendingGatewayPayment = {
   directPaymentUrl?: string;
   paymentMethodTitle: string;
   isGiftCardPayment: boolean;
+  isInstallmentPayment: boolean;
   addressTitle: string;
   itemCount: number;
   discount: number;
   shippingFee: number;
   totalAmount: number;
   payableAmount: number;
+  gatewayFee: CheckoutGatewayFee | null;
 };
 
-function isGiftCardPaymentMethod(method: CheckoutPaymentMethod | null): boolean {
+function isGiftCardPaymentMethod(
+  method: CheckoutPaymentMethod | null,
+): boolean {
   if (!method) return false;
 
   const value = `${method.code} ${method.title}`.toLowerCase();
@@ -73,7 +81,24 @@ function isGiftCardPaymentMethod(method: CheckoutPaymentMethod | null): boolean 
   );
 }
 
-function toShippingAddress(address: CustomerAddressDto) {
+function isInstallmentPaymentMethod(
+  method: CheckoutPaymentMethod | null,
+): boolean {
+  if (!method) return false;
+
+  const value =
+    `${method.code} ${method.title} ${method.description}`.toLowerCase();
+  return (
+    method.code === "installment_provider" ||
+    value.includes("installment") ||
+    value.includes("اقساط") ||
+    method.providers.some((provider) => provider.gatewayType === "installment")
+  );
+}
+
+function toShippingAddress(
+  address: CustomerAddressDto,
+): PlaceOrderShippingAddress {
   return {
     countryCode: "IR",
     countryName: "ایران",
@@ -81,6 +106,9 @@ function toShippingAddress(address: CustomerAddressDto) {
     city: address.city,
     postalCode: address.postalCode,
     addressLine: address.addressLine,
+    recipientFirstName: address.receiverFirstName,
+    recipientLastName: address.receiverLastName,
+    mobile: address.receiverMobile,
   };
 }
 
@@ -192,7 +220,8 @@ function getCheckoutItemColorLabel(item: CheckoutShippingGroupItem): string {
 function isBankGatewayPaymentMethod(method: CheckoutPaymentMethod): boolean {
   if (isGiftCardPaymentMethod(method)) return false;
 
-  const value = `${method.code} ${method.title} ${method.description}`.toLowerCase();
+  const value =
+    `${method.code} ${method.title} ${method.description}`.toLowerCase();
   return (
     method.providers.length > 0 ||
     value.includes("gateway") ||
@@ -212,10 +241,12 @@ export default function Checkout() {
     useState<CustomerAddressDto | null>(null);
   const [customerNote, setCustomerNote] = useState("");
   const [couponCode, setCouponCode] = useState("");
+  const [appliedCouponCode, setAppliedCouponCode] = useState<string | null>(
+    null,
+  );
   const [couponDiscount, setCouponDiscount] =
     useState<CheckoutCouponDiscount | null>(null);
   const [couponApplying, setCouponApplying] = useState(false);
-  const [couponPreviewing, setCouponPreviewing] = useState(false);
   const [giftCardCode, setGiftCardCode] = useState("");
 
   const [paymentMethods, setPaymentMethods] = useState<CheckoutPaymentMethod[]>(
@@ -226,9 +257,9 @@ export default function Checkout() {
   const [selectedPaymentCode, setSelectedPaymentCode] = useState<string | null>(
     null,
   );
-  const [selectedProviderCode, setSelectedProviderCode] = useState<string | null>(
-    null,
-  );
+  const [selectedProviderCode, setSelectedProviderCode] = useState<
+    string | null
+  >(null);
   const [selectedShippingIdsByClass, setSelectedShippingIdsByClass] = useState<
     Record<string, string>
   >({});
@@ -322,38 +353,44 @@ export default function Checkout() {
     };
   }, []);
 
-  const handleShippingOptionsChange = useCallback((result: CheckoutShippingOptionsResult | null) => {
-    const groups = result?.groups ?? [];
-    setShippingOptionsResult(result);
-    setSelectedShippingIdsByClass((prev) => {
-      const next: Record<string, string> = {};
+  const handleShippingOptionsChange = useCallback(
+    (result: CheckoutShippingOptionsResult | null) => {
+      const groups = result?.groups ?? [];
+      setShippingOptionsResult(result);
+      setSelectedShippingIdsByClass((prev) => {
+        const next: Record<string, string> = {};
 
-      for (const group of groups) {
-        const availableMethods = group.options.filter((item) => item.isAvailable);
-        if (availableMethods.length === 0) continue;
-        const classKey = group.shippingClassId;
-        const previousSelection = prev[classKey];
-        if (
-          previousSelection &&
-          availableMethods.some(
-            (item) => item.id === previousSelection,
-          )
-        ) {
-          next[classKey] = previousSelection;
-          continue;
+        for (const group of groups) {
+          const availableMethods = group.options.filter(
+            (item) => item.isAvailable,
+          );
+          if (availableMethods.length === 0) continue;
+          const classKey = group.shippingClassId;
+          const previousSelection = prev[classKey];
+          if (
+            previousSelection &&
+            availableMethods.some((item) => item.id === previousSelection)
+          ) {
+            next[classKey] = previousSelection;
+            continue;
+          }
+
+          next[classKey] = availableMethods[0].id;
         }
 
-        next[classKey] = availableMethods[0].id;
-      }
+        return next;
+      });
+    },
+    [],
+  );
 
-      return next;
-    });
-  }, []);
-
-  const handleSelectAddress = useCallback((address: CustomerAddressDto | null) => {
-    setSelectedAddress(address);
-    setCouponDiscount(null);
-  }, []);
+  const handleSelectAddress = useCallback(
+    (address: CustomerAddressDto | null) => {
+      setSelectedAddress(address);
+      setCouponDiscount(null);
+    },
+    [],
+  );
 
   const selectShippingMethod = useCallback(
     (classKey: string, methodId: string) => {
@@ -361,7 +398,6 @@ export default function Checkout() {
         ...prev,
         [classKey]: methodId,
       }));
-      setCouponDiscount(null);
     },
     [],
   );
@@ -390,9 +426,7 @@ export default function Checkout() {
             null
           );
         })
-        .filter(
-          (method): method is CheckoutShippingMethod => Boolean(method),
-        ),
+        .filter((method): method is CheckoutShippingMethod => Boolean(method)),
     [selectedShippingIdsByClass, shippingClassGroups],
   );
 
@@ -429,6 +463,13 @@ export default function Checkout() {
     [selectedPayment],
   );
 
+  const selectedIsInstallmentPayment = useMemo(
+    () =>
+      isInstallmentPaymentMethod(selectedPayment) ||
+      selectedProvider?.gatewayType === "installment",
+    [selectedPayment, selectedProvider?.gatewayType],
+  );
+
   const selectedAvailableProviders = useMemo(
     () =>
       selectedPayment?.providers.filter((provider) => provider.isAvailable) ??
@@ -438,9 +479,14 @@ export default function Checkout() {
 
   const selectedPaymentTitle = useMemo(
     () =>
-      [selectedPayment?.title, selectedIsGiftCardPayment ? null : selectedProvider?.title]
+      [
+        selectedPayment?.title,
+        selectedIsGiftCardPayment ? null : selectedProvider?.title,
+      ]
         .filter(Boolean)
-        .join(" - ") || selectedPaymentCode || "",
+        .join(" - ") ||
+      selectedPaymentCode ||
+      "",
     [
       selectedIsGiftCardPayment,
       selectedPayment?.title,
@@ -449,63 +495,71 @@ export default function Checkout() {
     ],
   );
 
-  const buildCouponPayload = useCallback(() => {
-    const code = couponCode.trim();
-    if (!code || !selectedAddress || !selectedShippingMethodId) return null;
+  const buildPreviewPayload = useCallback((): CheckoutCouponPayload | null => {
+    if (!selectedAddress && shippingSelections.length === 0) {
+      return null;
+    }
 
-    return {
-      couponCode: code,
-      shippingMethodId: selectedShippingMethodId,
-      shippingAddress: toShippingAddress(selectedAddress),
-    };
-  }, [couponCode, selectedAddress, selectedShippingMethodId]);
+    const payload: CheckoutCouponPayload = {};
 
-  const shippingCost = selectedShippingMethods.reduce(
-    (sum, method) => sum + method.price,
-    0,
-  );
+    if (selectedProviderCode) {
+      payload.providerCode = selectedProviderCode;
+    }
+    if (selectedShippingMethodId) {
+      payload.shippingMethodId = selectedShippingMethodId;
+    }
+    if (shippingSelections.length > 0) {
+      payload.shippingSelections = shippingSelections;
+    }
+    if (selectedAddress) {
+      payload.shippingAddress = toShippingAddress(selectedAddress);
+    }
+
+    return payload;
+  }, [
+    selectedAddress,
+    selectedProviderCode,
+    selectedShippingMethodId,
+    shippingSelections,
+  ]);
+
+  const shippingCost = couponDiscount
+    ? couponDiscount.shippingFee || couponDiscount.shippingPrice
+    : selectedShippingMethods.reduce((sum, method) => sum + method.price, 0);
   const discountAmount = couponDiscount?.couponIsApplicable
     ? couponDiscount.discount || couponDiscount.couponTotalDiscount
     : 0;
-  const payable =
-    couponDiscount?.couponIsApplicable && couponDiscount.payableAmount > 0
-      ? couponDiscount.payableAmount
-      : Math.max(0, totalPrice + shippingCost - discountAmount);
+  const gatewayFee = couponDiscount?.gatewayFee ?? null;
+  const payable = couponDiscount
+    ? couponDiscount.payableAmount || couponDiscount.onlinePayableAmount
+    : Math.max(0, totalPrice + shippingCost - discountAmount);
   const summarySubtotal =
     couponDiscount && couponDiscount.itemsSubtotal > 0
       ? couponDiscount.itemsSubtotal
       : totalPrice;
-  const summaryShippingLabel =
-    selectedShippingMethods.length === 0 &&
-    shippingOptionsResult?.formattedCheapestTotalCost
+  const summaryShippingLabel = couponDiscount
+    ? formatMoney(couponDiscount.shippingFee || couponDiscount.shippingPrice)
+    : selectedShippingMethods.length === 0 &&
+        shippingOptionsResult?.formattedCheapestTotalCost
       ? shippingOptionsResult.formattedCheapestTotalCost
       : selectedShippingMethods.length === 1
         ? formatShippingPrice(selectedShippingMethods[0])
         : formatMoney(shippingCost);
 
   useEffect(() => {
-    const payload = buildCouponPayload();
-    if (!couponDiscount?.couponIsApplicable || !payload) return;
-    if (payload.couponCode !== couponDiscount.couponCode) return;
+    const payload = buildPreviewPayload();
+    if (!payload) return;
     const requestPayload = payload;
 
     let cancelled = false;
 
     async function previewDiscount() {
-      setCouponPreviewing(true);
       try {
         const result = await previewCheckoutDiscount(requestPayload);
         if (cancelled) return;
         setCouponDiscount(result);
-      } catch (err) {
-        if (cancelled) return;
-        console.error("[Checkout] preview discount failed =>", err);
-        setCouponDiscount(null);
-        notify.error(getAuthErrorMessage(err));
-      } finally {
-        if (!cancelled) {
-          setCouponPreviewing(false);
-        }
+      } catch {
+        // preview بدون کد تخفیف است؛ خطای الزامی بودن کوپن نشان داده نمی‌شود
       }
     }
 
@@ -513,40 +567,71 @@ export default function Checkout() {
     return () => {
       cancelled = true;
     };
-  }, [buildCouponPayload, couponDiscount?.couponCode, couponDiscount?.couponIsApplicable]);
+  }, [buildPreviewPayload]);
 
   const handleCouponCodeChange = (value: string) => {
     setCouponCode(value);
-    setCouponDiscount(null);
+    if (appliedCouponCode && value.trim() !== appliedCouponCode) {
+      setAppliedCouponCode(null);
+    }
   };
 
   const handleApplyCoupon = async () => {
-    const payload = buildCouponPayload();
     if (!couponCode.trim()) {
-      notify.error("لطفاً کد تخفیف را وارد کنید");
+      notify.error("کد تخفیف الزامی است.");
       return;
     }
     if (!selectedAddress) {
       notify.error("لطفاً آدرس تحویل را انتخاب کنید");
       return;
     }
-    if (selectedShippingMethods.length === 0) {
+    if (selectedShippingMethods.length === 0 || !selectedShippingMethodId) {
       notify.error("لطفاً روش ارسال را انتخاب کنید");
       return;
     }
-    if (!payload) return;
+    if (!selectedPaymentCode) {
+      notify.error("لطفاً روش پرداخت را انتخاب کنید");
+      return;
+    }
+    if (shippingSelections.length === 0) {
+      notify.error(
+        "اطلاعات کلاس ارسال کامل نیست. لطفاً آدرس را دوباره انتخاب کنید.",
+      );
+      return;
+    }
+
+    if (
+      selectedPayment &&
+      !selectedIsGiftCardPayment &&
+      selectedPayment.providers.length > 0 &&
+      !selectedProviderCode
+    ) {
+      notify.error("لطفاً بانک مقصد را انتخاب کنید");
+      return;
+    }
+
+    const payload: CheckoutCouponPayload = {
+      couponCode: couponCode.trim(),
+      providerCode: selectedProviderCode || undefined,
+      shippingMethodId: selectedShippingMethodId,
+      shippingSelections,
+      shippingAddress: toShippingAddress(selectedAddress),
+    };
 
     setCouponApplying(true);
     try {
       const result = await applyCheckoutCoupon(payload);
       setCouponDiscount(result);
       if (result.couponIsApplicable) {
+        setAppliedCouponCode(couponCode.trim());
         notify.success(result.couponMessage || "کد تخفیف اعمال شد");
       } else {
+        setAppliedCouponCode(null);
         notify.error(result.couponMessage || "کد تخفیف قابل اعمال نیست");
       }
     } catch (err) {
       console.error("[Checkout] apply coupon failed =>", err);
+      setAppliedCouponCode(null);
       setCouponDiscount(null);
       notify.error(getAuthErrorMessage(err));
     } finally {
@@ -569,7 +654,9 @@ export default function Checkout() {
       return;
     }
     if (shippingSelections.length !== selectedShippingMethods.length) {
-      notify.error("اطلاعات کلاس ارسال کامل نیست. لطفاً آدرس را دوباره انتخاب کنید.");
+      notify.error(
+        "اطلاعات کلاس ارسال کامل نیست. لطفاً آدرس را دوباره انتخاب کنید.",
+      );
       return;
     }
     if (!selectedPaymentCode) {
@@ -630,12 +717,14 @@ export default function Checkout() {
           orderNumber: result.orderNumber,
           paymentMethodTitle: selectedPaymentTitle || "کارت هدیه",
           isGiftCardPayment: true,
+          isInstallmentPayment: false,
           addressTitle: selectedAddress.title,
           itemCount: totalItems,
           discount: discountAmount,
           shippingFee: shippingCost,
-          totalAmount: totalPrice + shippingCost,
+          totalAmount: couponDiscount?.totalOrderAmount || payable,
           payableAmount: payable,
+          gatewayFee,
         });
         return;
       }
@@ -646,15 +735,17 @@ export default function Checkout() {
         orderId: result.orderId,
         orderNumber: result.orderNumber,
         providerCode: selectedProviderCode || undefined,
-        directPaymentUrl: paymentUrl,
+        directPaymentUrl: selectedIsInstallmentPayment ? undefined : paymentUrl,
         paymentMethodTitle: selectedPaymentTitle,
         isGiftCardPayment: false,
+        isInstallmentPayment: selectedIsInstallmentPayment,
         addressTitle: selectedAddress.title,
         itemCount: totalItems,
         discount: discountAmount,
         shippingFee: shippingCost,
-        totalAmount: totalPrice + shippingCost,
+        totalAmount: couponDiscount?.totalOrderAmount || payable,
         payableAmount: payable,
+        gatewayFee,
       });
     } catch (err) {
       console.error("[Checkout] place order failed =>", err);
@@ -707,6 +798,9 @@ export default function Checkout() {
       const payment = await startOrderPayment({
         orderId: pendingGatewayPayment.orderId,
         providerCode: pendingGatewayPayment.providerCode,
+        digipayType: pendingGatewayPayment.isInstallmentPayment
+          ? "bnpl"
+          : undefined,
       });
 
       if (!payment.redirectUrl) {
@@ -774,6 +868,13 @@ export default function Checkout() {
             label: "هزینه ارسال",
             value: formatMoney(pendingGatewayPayment.shippingFee),
           },
+          pendingGatewayPayment.gatewayFee &&
+          pendingGatewayPayment.gatewayFee.amount > 0
+            ? {
+                label: pendingGatewayPayment.gatewayFee.title,
+                value: formatMoney(pendingGatewayPayment.gatewayFee.amount),
+              }
+            : { label: "کارمزد", value: null },
           {
             label: "مبلغ کل",
             value: formatMoney(pendingGatewayPayment.totalAmount),
@@ -827,7 +928,9 @@ export default function Checkout() {
                 <div className="timeline-icon dark:bg-gray-700 dark:text-gray-200">
                   <i className="far fa-credit-card"></i>
                 </div>
-                <div className="timeline-title dark:text-white">جزئیات سفارش</div>
+                <div className="timeline-title dark:text-white">
+                  جزئیات سفارش
+                </div>
               </div>
               <div className="timeline-step flex flex-col items-center text-center">
                 <div className="timeline-icon dark:bg-gray-700 dark:text-gray-200">
@@ -954,7 +1057,10 @@ export default function Checkout() {
                                   {item.title}
                                 </h3>
                                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                  تعداد: {new Intl.NumberFormat("fa-IR").format(item.quantity)}
+                                  تعداد:{" "}
+                                  {new Intl.NumberFormat("fa-IR").format(
+                                    item.quantity,
+                                  )}
                                 </p>
                               </div>
                             </div>
@@ -971,7 +1077,8 @@ export default function Checkout() {
                       })}
                     </div>
                     <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                      پس از انتخاب آدرس، گزینه‌های ارسال هر گروه کالا نمایش داده می‌شود.
+                      پس از انتخاب آدرس، گزینه‌های ارسال هر گروه کالا نمایش داده
+                      می‌شود.
                     </p>
                   </div>
                 ) : (
@@ -986,9 +1093,16 @@ export default function Checkout() {
                             {group.title}
                           </h3>
                           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                            {new Intl.NumberFormat("fa-IR").format(group.itemCount)} کالا
+                            {new Intl.NumberFormat("fa-IR").format(
+                              group.itemCount,
+                            )}{" "}
+                            کالا
                             {group.totalWeightGrams > 0
-                              ? " • " + new Intl.NumberFormat("fa-IR").format(group.totalWeightGrams) + " گرم"
+                              ? " • " +
+                                new Intl.NumberFormat("fa-IR").format(
+                                  group.totalWeightGrams,
+                                ) +
+                                " گرم"
                               : ""}
                           </p>
                         </div>
@@ -996,18 +1110,32 @@ export default function Checkout() {
 
                       <div className="space-y-3">
                         {group.items.map((shippingItem) => {
-                          const cartItem = findCartItemForShippingItem(shippingItem, items);
-                          const productTitle = formatCheckoutItemTitle(
-                            shippingItem.productName || cartItem?.title || "محصول",
+                          const cartItem = findCartItemForShippingItem(
+                            shippingItem,
+                            items,
                           );
-                          const productColorLabel = getCheckoutItemColorLabel(shippingItem);
-                          const quantity = shippingItem.quantity || cartItem?.quantity || 0;
-                          const unitPrice = cartItem ? getCartItemUnitPrice(cartItem) : 0;
+                          const productTitle = formatCheckoutItemTitle(
+                            shippingItem.productName ||
+                              cartItem?.title ||
+                              "محصول",
+                          );
+                          const productColorLabel =
+                            getCheckoutItemColorLabel(shippingItem);
+                          const quantity =
+                            shippingItem.quantity || cartItem?.quantity || 0;
+                          const unitPrice = cartItem
+                            ? getCartItemUnitPrice(cartItem)
+                            : 0;
                           const lineTotal = unitPrice * quantity;
 
                           return (
                             <div
-                              key={group.key + "-" + (shippingItem.productId || shippingItem.productName)}
+                              key={
+                                group.key +
+                                "-" +
+                                (shippingItem.productId ||
+                                  shippingItem.productName)
+                              }
                               className="grid grid-cols-1 gap-3 rounded-lg border border-gray-100 p-3 dark:border-gray-800 sm:grid-cols-[1fr_auto]"
                             >
                               <div className="flex min-w-0 items-center gap-3">
@@ -1015,7 +1143,9 @@ export default function Checkout() {
                                   <Image
                                     width={56}
                                     height={56}
-                                    src={cartItem?.image || "/images/default.png"}
+                                    src={
+                                      cartItem?.image || "/images/default.png"
+                                    }
                                     alt={productTitle}
                                     className="h-14 w-14 object-contain"
                                   />
@@ -1031,7 +1161,10 @@ export default function Checkout() {
                                         {shippingItem.productColorHex ? (
                                           <span
                                             className="inline-block h-3 w-3 rounded-full border border-gray-300 dark:border-gray-600"
-                                            style={{ backgroundColor: shippingItem.productColorHex }}
+                                            style={{
+                                              backgroundColor:
+                                                shippingItem.productColorHex,
+                                            }}
                                           />
                                         ) : null}
                                         <span>{productColorLabel}</span>
@@ -1039,7 +1172,10 @@ export default function Checkout() {
                                     ) : null}
                                   </div>
                                   <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                    تعداد: {new Intl.NumberFormat("fa-IR").format(quantity)}
+                                    تعداد:{" "}
+                                    {new Intl.NumberFormat("fa-IR").format(
+                                      quantity,
+                                    )}
                                   </p>
                                 </div>
                               </div>
@@ -1049,7 +1185,9 @@ export default function Checkout() {
                                     قیمت واحد
                                   </span>
                                   <span className="font-medium text-gray-800 dark:text-gray-100">
-                                    {unitPrice > 0 ? formatMoney(unitPrice) : "?"}
+                                    {unitPrice > 0
+                                      ? formatMoney(unitPrice)
+                                      : "?"}
                                   </span>
                                 </div>
                                 <div className="text-left">
@@ -1057,7 +1195,9 @@ export default function Checkout() {
                                     قیمت کل
                                   </span>
                                   <span className="font-bold text-gray-900 dark:text-white">
-                                    {lineTotal > 0 ? formatMoney(lineTotal) : "?"}
+                                    {lineTotal > 0
+                                      ? formatMoney(lineTotal)
+                                      : "?"}
                                   </span>
                                 </div>
                               </div>
@@ -1072,10 +1212,13 @@ export default function Checkout() {
                         </h4>
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                           {group.methods.map((method, methodIndex) => {
-                            const isSelected = selectedShippingIdsByClass[group.key] === method.id;
+                            const isSelected =
+                              selectedShippingIdsByClass[group.key] ===
+                              method.id;
                             const style =
                               SHIPPING_ICON_STYLES[
-                                (groupIndex + methodIndex) % SHIPPING_ICON_STYLES.length
+                                (groupIndex + methodIndex) %
+                                  SHIPPING_ICON_STYLES.length
                               ];
 
                             return (
@@ -1083,7 +1226,9 @@ export default function Checkout() {
                                 key={method.id}
                                 role="button"
                                 tabIndex={0}
-                                onClick={() => selectShippingMethod(group.key, method.id)}
+                                onClick={() =>
+                                  selectShippingMethod(group.key, method.id)
+                                }
                                 onKeyDown={(e) => {
                                   if (e.key === "Enter" || e.key === " ") {
                                     e.preventDefault();
@@ -1103,7 +1248,10 @@ export default function Checkout() {
                                 <div className="min-w-0">
                                   <div className="mb-3 flex items-start justify-between gap-2">
                                     <div
-                                      className={["flex h-11 w-11 shrink-0 items-center justify-center rounded-lg", style.wrap].join(" ")}
+                                      className={[
+                                        "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg",
+                                        style.wrap,
+                                      ].join(" ")}
                                     >
                                       <i className={style.icon}></i>
                                     </div>
@@ -1126,7 +1274,10 @@ export default function Checkout() {
                                   <div className="mb-3 flex flex-wrap gap-2 text-[11px]">
                                     {method.estimatedDeliveryDays ? (
                                       <span className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-600 dark:bg-zinc-800 dark:text-gray-300">
-                                        {new Intl.NumberFormat("fa-IR").format(method.estimatedDeliveryDays)} روز کاری
+                                        {new Intl.NumberFormat("fa-IR").format(
+                                          method.estimatedDeliveryDays,
+                                        )}{" "}
+                                        روز کاری
                                       </span>
                                     ) : null}
                                     {method.cashOnDelivery ? (
@@ -1161,10 +1312,9 @@ export default function Checkout() {
                 {paymentMethods.map((method, index) => {
                   const isSelected = selectedPaymentCode === method.code;
                   const isBankGateway = isBankGatewayPaymentMethod(method);
-                  const style =
-                    isBankGateway
-                      ? BANK_GATEWAY_ICON_STYLE
-                      : PAYMENT_ICON_STYLES[index % PAYMENT_ICON_STYLES.length];
+                  const style = isBankGateway
+                    ? BANK_GATEWAY_ICON_STYLE
+                    : PAYMENT_ICON_STYLES[index % PAYMENT_ICON_STYLES.length];
                   const methodImageSrc = isBankGateway
                     ? null
                     : getRenderableImageSrc(method.imageUrl);
@@ -1272,24 +1422,23 @@ export default function Checkout() {
 
               {selectedIsGiftCardPayment ? (
                 <div className="mt-4">
-                <label
-                  htmlFor="gift-card-code"
-                  className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  کد کارت هدیه
-                </label>
-                <input
-                  id="gift-card-code"
-                  type="text"
-                  value={giftCardCode}
-                  onChange={(e) => setGiftCardCode(e.target.value)}
-                  placeholder="کد کارت هدیه را وارد کنید"
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-zinc-800 dark:text-gray-200"
-                />
+                  <label
+                    htmlFor="gift-card-code"
+                    className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  >
+                    کد کارت هدیه
+                  </label>
+                  <input
+                    id="gift-card-code"
+                    type="text"
+                    value={giftCardCode}
+                    onChange={(e) => setGiftCardCode(e.target.value)}
+                    placeholder="کد کارت هدیه را وارد کنید"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-zinc-800 dark:text-gray-200"
+                  />
                 </div>
               ) : null}
             </div>
-
           </div>
         </div>
 
@@ -1321,18 +1470,14 @@ export default function Checkout() {
                 />
                 <button
                   type="button"
-                  disabled={couponApplying || couponPreviewing}
+                  disabled={couponApplying}
                   onClick={() => void handleApplyCoupon()}
                   className="shrink-0 rounded-e-lg bg-blue-600 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {couponApplying
-                    ? "اعمال..."
-                    : couponPreviewing
-                      ? "محاسبه..."
-                      : "اعمال"}
+                  {couponApplying ? "اعمال..." : "اعمال"}
                 </button>
               </div>
-              {couponDiscount ? (
+              {appliedCouponCode && couponDiscount ? (
                 <p
                   className={[
                     "mt-2 text-sm leading-6",
@@ -1351,30 +1496,57 @@ export default function Checkout() {
 
             <div className="mb-6 space-y-3">
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">جمع کالاها:</span>
-                <span className="font-medium text-gray-800 dark:text-gray-200" id="subtotal">
+                <span className="text-gray-600 dark:text-gray-400">
+                  جمع کالاها:
+                </span>
+                <span
+                  className="font-medium text-gray-800 dark:text-gray-200"
+                  id="subtotal"
+                >
                   {formatMoney(summarySubtotal)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">هزینه ارسال:</span>
-                <span className="font-medium text-gray-800 dark:text-gray-200" id="shipping-cost">
+                <span className="text-gray-600 dark:text-gray-400">
+                  هزینه ارسال:
+                </span>
+                <span
+                  className="font-medium text-gray-800 dark:text-gray-200"
+                  id="shipping-cost"
+                >
                   {summaryShippingLabel}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-gray-400">تخفیف:</span>
-                <span className="font-medium text-green-600 dark:text-green-400" id="discount">
+                <span
+                  className="font-medium text-green-600 dark:text-green-400"
+                  id="discount"
+                >
                   {formatMoney(discountAmount)}
                 </span>
               </div>
+
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500 dark:text-gray-400">تعداد کالا:</span>
+                <span className="text-gray-500 dark:text-gray-400">
+                  تعداد کالا:
+                </span>
                 <span className="text-gray-700 dark:text-gray-300">
                   {new Intl.NumberFormat("fa-IR").format(totalItems)}
                 </span>
               </div>
+
               <div className="border-t border-gray-300 pt-4 dark:border-gray-700">
+                {gatewayFee && gatewayFee.amount > 0 ? (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      {gatewayFee.title}:
+                    </span>
+                    <span className="font-medium text-gray-800 dark:text-gray-200">
+                      {formatMoney(gatewayFee.amount)}
+                    </span>
+                  </div>
+                ) : null}
                 <div className="flex justify-between gap-4">
                   <span className="font-bold text-gray-800 dark:text-gray-200">
                     مبلغ قابل پرداخت:

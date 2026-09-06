@@ -89,6 +89,12 @@ export async function performLogout(
 
     useAuthStore.getState().clearUser();
     useAuthStore.getState().clearAuthFlow();
+
+    const { stopProactiveTokenRefresh } = await import(
+      "@/src/lib/auth/token-refresh-scheduler"
+    );
+    stopProactiveTokenRefresh();
+
     redirectToHome();
   })();
 

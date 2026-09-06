@@ -13,8 +13,9 @@ import {
 import { AUTH_COOKIE_NAME_ALIASES, AUTH_COOKIE_NAMES } from "./constants";
 import {
   clearAllAuthCookies,
-  extractExpiresIn,
   rehostBackendCookies,
+  resolveAccessExpiresInSeconds,
+  setAccessExpiryCookie,
   setAuthCookiesFromBody,
   setAuthIndicator,
   setDeviceIdFromBody,
@@ -78,14 +79,19 @@ export async function handleCustomerAuthPost(
     });
 
     // 1) بکندهای cookie-based: Set-Cookie را rehost کن
-    rehostBackendCookies(nextResponse, extractSetCookieHeaders(response.headers));
+    const setCookies = extractSetCookieHeaders(response.headers);
+    rehostBackendCookies(nextResponse, setCookies);
 
     // 2) بکندهای Bearer-based: توکن‌ها را از body بخوان و کوکی کن
     setAuthCookiesFromBody(nextResponse, response.data);
     setDeviceIdFromBody(nextResponse, response.data);
+    setAccessExpiryCookie(nextResponse, response.data, setCookies);
 
     if (options?.setAuthIndicator) {
-      const expiresIn = extractExpiresIn(response.data);
+      const expiresIn = resolveAccessExpiresInSeconds(
+        response.data,
+        setCookies,
+      );
       setAuthIndicator(nextResponse, expiresIn);
     }
 
@@ -241,7 +247,11 @@ export async function handleCustomerAuthRefresh(
 
     rehostBackendCookies(nextResponse, setCookies);
     setAuthCookiesFromBody(nextResponse, responseData);
-    setAuthIndicator(nextResponse, extractExpiresIn(responseData));
+    setAccessExpiryCookie(nextResponse, responseData, setCookies);
+    setAuthIndicator(
+      nextResponse,
+      resolveAccessExpiresInSeconds(responseData, setCookies),
+    );
 
     return nextResponse;
   } catch {

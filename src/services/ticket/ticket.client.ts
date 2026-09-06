@@ -229,7 +229,6 @@ export async function getTicketById(ticketId: string): Promise<TicketDetail> {
   try {
     const response = await apiClient.get(`/Tickets/${ticketId}`);
 
-    console.log("Response => ", response.data);
     return unwrapTicketDetail(response.data);
   } catch (error) {
     logApiError("getTicketById", error);

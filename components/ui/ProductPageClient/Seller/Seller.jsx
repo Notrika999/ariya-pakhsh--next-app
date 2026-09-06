@@ -134,7 +134,7 @@ export default function Seller() {
           {/* <!-- Add To Cart --> */}
           <div className="lg:col-span-2 col-span-6">
             <div className="flex items-center justify-start xl:justify-end">
-              <button className="bg-primary shadow-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl px-5 py-3 text-sm">
+              <button data-track="add-to-cart" className="bg-primary shadow-primary-500 hover:bg-primary-600 text-white font-semibold rounded-xl px-5 py-3 text-sm">
                 افزودن به سبد خرید
               </button>
             </div>

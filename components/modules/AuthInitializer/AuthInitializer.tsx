@@ -11,6 +11,10 @@ import {
   isProtectedRoute,
   redirectToHome,
 } from "@/src/lib/auth/session-client";
+import {
+  stopProactiveTokenRefresh,
+  syncProactiveTokenRefresh,
+} from "@/src/lib/auth/token-refresh-scheduler";
 
 let interceptorsReady = false;
 
@@ -66,6 +70,7 @@ export default function AuthInitializer() {
               }
             : freshUser,
         );
+        syncProactiveTokenRefresh();
       } catch {
         if (cancelled) return;
         await handleSessionExpired();
@@ -78,8 +83,18 @@ export default function AuthInitializer() {
 
     void bootstrapSession();
 
+    const unsubscribeAuth = useAuthStore.subscribe((state, prev) => {
+      if (state.isAuthenticated && !prev.isAuthenticated) {
+        syncProactiveTokenRefresh();
+      }
+      if (!state.isAuthenticated && prev.isAuthenticated) {
+        stopProactiveTokenRefresh();
+      }
+    });
+
     return () => {
       cancelled = true;
+      unsubscribeAuth();
     };
   }, [hydrateUserFromStorage, setUser, clearUser, setAuthBootstrapping]);
 

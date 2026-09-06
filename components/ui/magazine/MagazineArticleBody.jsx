@@ -3,6 +3,65 @@ import Link from "next/link";
 import MagazineProductCollection from "./MagazineProductCollection";
 import MagazineProductEmbed from "./MagazineProductEmbed";
 
+const LINK_CLASS =
+  "font-semibold text-primary underline decoration-primary/40 underline-offset-4 transition hover:decoration-primary";
+
+function StyledText({ text, styles }) {
+  let node = text;
+  if (styles?.code) {
+    node = (
+      <code className="rounded bg-gray-100 px-1 py-0.5 text-[0.9em] dark:bg-zinc-800">
+        {node}
+      </code>
+    );
+  }
+  if (styles?.strike) node = <s>{node}</s>;
+  if (styles?.underline) node = <u>{node}</u>;
+  if (styles?.italic) node = <em>{node}</em>;
+  if (styles?.bold) node = <strong>{node}</strong>;
+  return node;
+}
+
+function RichText({ nodes, fallback = "" }) {
+  if (!nodes?.length) return fallback || null;
+
+  return nodes.map((node, index) => {
+    if (node.type === "link") {
+      const label = (
+        <RichText nodes={node.children} fallback="" />
+      );
+
+      if (node.external) {
+        return (
+          <a
+            key={`link-${index}`}
+            href={node.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={LINK_CLASS}
+          >
+            {label}
+          </a>
+        );
+      }
+
+      return (
+        <Link key={`link-${index}`} href={node.href} className={LINK_CLASS}>
+          {label}
+        </Link>
+      );
+    }
+
+    return (
+      <StyledText
+        key={`text-${index}`}
+        text={node.text}
+        styles={node.styles}
+      />
+    );
+  });
+}
+
 function isLocalOrAllowedImage(src) {
   if (!src || typeof src !== "string") return false;
   if (src.startsWith("/")) return true;
@@ -16,19 +75,21 @@ function isLocalOrAllowedImage(src) {
 
 function ArticleImage({ src, alt, caption, priority = false }) {
   const image = (
-    <div className="relative aspect-video overflow-hidden rounded-lg bg-gray-100 dark:bg-zinc-800">
+    <div className="overflow-hidden rounded-lg bg-gray-100 dark:bg-zinc-800">
       {isLocalOrAllowedImage(src) ? (
         <Image
           src={src}
           alt={alt || ""}
-          fill
+          width={1600}
+          height={900}
           sizes="(max-width: 1023px) 100vw, 760px"
           priority={priority}
-          className="object-cover"
+          className="h-auto w-full"
+          style={{ width: "100%", height: "auto" }}
         />
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt={alt || ""} className="h-full w-full object-cover" />
+        <img src={src} alt={alt || ""} className="h-auto w-full" />
       )}
     </div>
   );
@@ -123,9 +184,9 @@ export default function MagazineArticleBody({ blocks = [], articleId = "" }) {
           return (
             <p
               key={`p-${index}`}
-              className="mb-4 text-[15px] leading-8 text-gray-700 dark:text-gray-300"
+              className="mb-4 text-[15px] leading-8 text-gray-700 dark:text-gray-300 text-justify"
             >
-              {block.text}
+              <RichText nodes={block.inline} fallback={block.text} />
             </p>
           );
         }
@@ -145,7 +206,7 @@ export default function MagazineArticleBody({ blocks = [], articleId = "" }) {
               id={block.anchor || undefined}
               className={`mt-8 mb-3 scroll-mt-28 font-bold leading-8 text-gray-900 dark:text-white ${size}`}
             >
-              {block.text}
+              <RichText nodes={block.inline} fallback={block.text} />
             </Tag>
           );
         }
@@ -171,7 +232,7 @@ export default function MagazineArticleBody({ blocks = [], articleId = "" }) {
               key={`info-${index}`}
               className="my-6 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm leading-7 text-gray-800 dark:border-primary/30 dark:bg-primary/10 dark:text-gray-200"
             >
-              {block.text}
+              <RichText nodes={block.inline} fallback={block.text} />
             </aside>
           );
         }
@@ -186,7 +247,9 @@ export default function MagazineArticleBody({ blocks = [], articleId = "" }) {
               }`}
             >
               {block.items.map((item, itemIndex) => (
-                <li key={`${itemIndex}-${item}`}>{item}</li>
+                <li key={`${itemIndex}-${item.text}`}>
+                  <RichText nodes={item.inline} fallback={item.text} />
+                </li>
               ))}
             </ListTag>
           );

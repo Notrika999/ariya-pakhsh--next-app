@@ -14,6 +14,21 @@ const nextConfig: NextConfig = {
         hostname: "aryapakhsh.shop",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "www.aryapakhsh.shop",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "carup24.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "www.carup24.com",
+        pathname: "/**",
+      },
     ],
   },
   async redirects() {

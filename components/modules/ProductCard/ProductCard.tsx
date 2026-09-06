@@ -21,6 +21,7 @@ import {
   removeWishlistProduct,
 } from "@/src/services/wishlist/wishlist.client";
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
+import { useStockNotify } from "@/src/hooks/useStockNotify";
 
 interface ProductCardProps {
   product: ProductCardModel;
@@ -151,6 +152,7 @@ export default function ProductCard({
   const [adding, setAdding] = useState(false);
 
   const { addItem, items } = useCart();
+  const { requestNotify, stockNotifyModal } = useStockNotify();
   const isAuthenticated = useIsAuthenticated();
   const isAuthBootstrapping = useIsAuthBootstrapping();
   const productId = product.id?.trim() ?? "";
@@ -429,14 +431,16 @@ export default function ProductCard({
         {!noClick && (
           <div className="flex flex-col sm:flex-row gap-2">
             {isOutOfStock ? (
-              <Link
-                href={"#"}
+              <button
+                type="button"
+                onClick={requestNotify}
                 className="w-full py-2 rounded-xl text-sm text-center font-bold transition-all duration-200 bg-primary hover:bg-primary-600 text-white shadow-sm hover:shadow-md active:scale-95 dark:hover:bg-primary/80"
               >
-                به من اطلاع بده
-              </Link>
+                موجود شد خبرم کن
+              </button>
             ) : (
               <button
+                data-track="add-to-cart"
                 type="button"
                 onClick={() => void handleCart()}
                 disabled={expired || adding || showAdded}
@@ -469,6 +473,7 @@ export default function ProductCard({
           </div>
         )}
       </div>
+      {stockNotifyModal}
     </article>
   );
 }

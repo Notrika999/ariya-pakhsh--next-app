@@ -6,7 +6,11 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { apiClient } from "@/src/lib/http/api-client";
 import { useIsAuthenticated } from "@/src/lib/stores/auth/auth.store";
 import { getProductImage } from "@/src/utils/product-image";
-import { type HomeSearchPromotion } from "@/src/services/home/search-promotion";
+import {
+  getHomeLayoutSections,
+  mapHomeLayoutSearchPromotion,
+  type HomeSearchPromotion,
+} from "@/src/services/home/search-promotion";
 import Image from "next/image";
 import { Search as SearchIcon, X as XIcon } from "lucide-react";
 
@@ -365,8 +369,17 @@ function normalizeSearchPromotions(payload: unknown): HomeSearchPromotion[] {
   });
 }
 
+function isRemoteImageSrc(src: string) {
+  return /^(https?:)?\/\//i.test(src) || src.toLowerCase().includes(".svg");
+}
+
+async function fetchSearchPromotionsFromLayout() {
+  const response = await apiClient.get("/Home/layout");
+  return mapHomeLayoutSearchPromotion(getHomeLayoutSections(response.data));
+}
+
 function loadSearchPromotions() {
-  if (cachedSearchPromotions) {
+  if (cachedSearchPromotions?.length) {
     return Promise.resolve(cachedSearchPromotions);
   }
 
@@ -374,9 +387,21 @@ function loadSearchPromotions() {
 
   pendingSearchPromotions = apiClient
     .get("/api/home/search-promotions")
-    .then((response) => {
-      const promotions = normalizeSearchPromotions(response.data);
-      cachedSearchPromotions = promotions;
+    .then((response) => normalizeSearchPromotions(response.data))
+    .catch((error) => {
+      console.error("[HeaderSearch] search promotion route failed =>", error);
+      return [] as HomeSearchPromotion[];
+    })
+    .then(async (promotions) => {
+      if (promotions.length > 0) return promotions;
+      return fetchSearchPromotionsFromLayout();
+    })
+    .then((promotions) => {
+      if (promotions.length > 0) {
+        cachedSearchPromotions = promotions;
+      } else {
+        pendingSearchPromotions = null;
+      }
       return promotions;
     })
     .catch((error) => {
@@ -982,6 +1007,7 @@ export default function HeaderSearch({
                               fill
                               sizes="(min-width: 1024px) 560px, 92vw"
                               className="object-cover"
+                              unoptimized={isRemoteImageSrc(promotion.image)}
                             />
                           </Link>
                         ))}

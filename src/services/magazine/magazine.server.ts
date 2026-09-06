@@ -11,6 +11,7 @@ import type {
   MagazineRelatedProduct,
 } from "@/src/lib/types/magazine/magazine.types";
 import {
+  collectMagazineContentCategoryIds,
   collectMagazineContentProductIds,
   mapMagazineArticleDetail,
   mapMagazineArticlesPage,
@@ -18,7 +19,9 @@ import {
   mapMagazineRelatedCatalog,
   mapProductDetailToMagazineRelated,
   summarizeMagazineContentTypes,
+  type MagazineCategoryLink,
 } from "@/src/services/magazine/magazine.mapper";
+import { getCategoryBreadcrumb } from "@/src/services/category/category.server";
 import { getProductById } from "@/src/services/product/product.server";
 
 const EMPTY_HOME: MagazineHomeData = {
@@ -69,6 +72,47 @@ async function resolveMissingContentProducts(
   return results.filter((item): item is MagazineRelatedProduct => Boolean(item));
 }
 
+function encodeCategoryPath(slug: string): string {
+  return encodeURIComponent(slug.trim());
+}
+
+async function resolveContentCategories(
+  payload: unknown,
+): Promise<MagazineCategoryLink[]> {
+  const ids = collectMagazineContentCategoryIds(payload).slice(0, 12);
+  if (!ids.length) return [];
+
+  const results = await Promise.all(
+    ids.map(async (categoryId: string): Promise<MagazineCategoryLink | null> => {
+      try {
+        const breadcrumb = await getCategoryBreadcrumb({
+          categoryId,
+          includeHome: false,
+        });
+        const items = breadcrumb ?? [];
+        const match =
+          items.find((item) => item.id === categoryId) ||
+          [...items].reverse().find((item) => item.slug?.trim());
+        const slug = match?.slug?.trim() || "";
+        const title = match?.name?.trim() || "";
+        if (!slug && !title) return null;
+
+        return {
+          categoryId,
+          title,
+          href: slug
+            ? `/products/${encodeCategoryPath(slug)}`
+            : `/products?categoryId=${encodeURIComponent(categoryId)}`,
+        };
+      } catch {
+        return null;
+      }
+    }),
+  );
+
+  return results.filter((item): item is MagazineCategoryLink => Boolean(item));
+}
+
 export const getMagazineHome = cache(async function getMagazineHome(): Promise<MagazineHomeData> {
   try {
     const response = await proxyToBackend<ApiResponse<unknown>>({
@@ -78,6 +122,8 @@ export const getMagazineHome = cache(async function getMagazineHome(): Promise<M
       timeout: 8_000,
       retries: 0,
     });
+
+
 
     if (!response.ok || !isSuccess(response.data)) {
       return EMPTY_HOME;
@@ -139,7 +185,7 @@ export const getMagazineArticleBySlug = cache(
         retries: 0,
       });
 
-      console.log("Magazine Article Response", response);
+
 
       if (response.status === 404 || !response.ok || !isSuccess(response.data)) {
         console.warn("[magazine] getMagazineArticleBySlug", {
@@ -152,7 +198,12 @@ export const getMagazineArticleBySlug = cache(
 
       const payload = response.data.data;
       const extraCatalog = await resolveMissingContentProducts(payload);
-      const article = mapMagazineArticleDetail(payload, extraCatalog);
+      const categoryLinks = await resolveContentCategories(payload);
+      const article = mapMagazineArticleDetail(
+        payload,
+        extraCatalog,
+        categoryLinks,
+      );
       const mappedTypes: Record<string, number> = {};
       for (const block of article?.content ?? []) {
         mappedTypes[block.type] = (mappedTypes[block.type] || 0) + 1;

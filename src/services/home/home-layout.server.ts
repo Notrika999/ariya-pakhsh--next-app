@@ -565,8 +565,16 @@ export async function getHomeSearchPromotions(): Promise<HomeSearchPromotion[]> 
   const searchSections = sections.filter(
     (section) => section.type?.toLowerCase() === "searchpromotion",
   );
-  const resolved = await resolveHomeLayoutLinks(searchSections);
-  return mapSearchPromotionSections(resolved);
+
+  try {
+    const resolved = await resolveHomeLayoutLinks(searchSections);
+    const promotions = mapSearchPromotionSections(resolved);
+    if (promotions.length > 0) return promotions;
+  } catch (error) {
+    console.error("[home/search-promotions] link resolve failed =>", error);
+  }
+
+  return mapSearchPromotionSections(searchSections);
 }
 
 export async function getHomeLayout(): Promise<HomeLayoutData> {

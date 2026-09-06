@@ -539,7 +539,7 @@ export async function getMyOrderByNumber(
 
   const response = await apiClient.get(`${BASE}/by-number/${encoded}`);
 
-  console.log(response)
+ 
 
   assertSuccess(response.data, "سفارش با این شماره پیدا نشد");
   return unwrapOrderDetail(response.data);

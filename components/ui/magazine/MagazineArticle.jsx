@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import NewsletterCTA from "./NewsletterCTA";
+import MagazineTableOfContents from "./MagazineTableOfContents";
 import MagazineArticleBody from "./MagazineArticleBody";
 import MagazineRelatedProducts from "./MagazineRelatedProducts";
 import MagazineReadingProgress from "./MagazineReadingProgress";
 import ArticleGrid from "./ArticleGrid";
 import { toMagazineArticle } from "./magazineView";
-import { getBlogHomeHref } from "@/components/ui/Blog/blogHomeUtils";
+import { getBlogHomeHref } from "@/components/ui/magazine/magazineHomeUtils";
 
 function JsonLd({ data }) {
   if (!data?.length) return null;
@@ -24,7 +25,10 @@ function JsonLd({ data }) {
 
 function ArticleBreadcrumb({ article }) {
   return (
-    <nav aria-label="مسیر صفحه" className="text-sm text-gray-500 dark:text-gray-400">
+    <nav
+      aria-label="مسیر صفحه"
+      className="text-sm text-gray-500 dark:text-gray-400"
+    >
       <ol className="flex flex-wrap items-center gap-2">
         <li>
           <Link
@@ -71,41 +75,14 @@ function ArticleBreadcrumb({ article }) {
   );
 }
 
-function TableOfContents({ items }) {
-  if (!items?.length) return null;
-
-  return (
-    <nav
-      aria-label="فهرست مطالب"
-      className="rounded-lg border border-gray-200 bg-white p-4 dark:border-zinc-700 dark:bg-custom-dark"
-    >
-      <p className="mb-3 text-sm font-bold text-gray-900 dark:text-white">
-        فهرست مطالب
-      </p>
-      <ol className="space-y-1.5">
-        {items.map((item) => (
-          <li key={item.anchor}>
-            <a
-              href={`#${item.anchor}`}
-              className={`block text-sm leading-6 text-gray-600 hover:text-primary dark:text-gray-300 ${
-                item.level > 2 ? "pr-3 text-[13px]" : "font-medium"
-              }`}
-            >
-              {item.title}
-            </a>
-          </li>
-        ))}
-      </ol>
-    </nav>
-  );
-}
-
 export default function MagazineArticle({ article }) {
   const relatedArticles = article.relatedArticles
     .map(toMagazineArticle)
     .filter(Boolean);
   const extraFaqs = article.faqs || [];
-  const contentHasFaqs = article.content.some((block) => block.type === "faqGroup");
+  const contentHasFaqs = article.content.some(
+    (block) => block.type === "faqGroup",
+  );
   const metaParts = [
     article.author?.displayName,
     article.author?.jobTitle,
@@ -157,7 +134,10 @@ export default function MagazineArticle({ article }) {
               />
             ) : null}
             {metaParts.map((part, index) => (
-              <span key={`${part}-${index}`} className="inline-flex items-center gap-2">
+              <span
+                key={`${part}-${index}`}
+                className="inline-flex items-center gap-2"
+              >
                 {index > 0 ? (
                   <span aria-hidden="true" className="opacity-50">
                     ·
@@ -171,44 +151,37 @@ export default function MagazineArticle({ article }) {
       </header>
 
       {article.featuredImage ? (
-        <div className="relative aspect-video overflow-hidden rounded-xl bg-gray-100 dark:bg-zinc-800">
+        <div className="overflow-hidden rounded-xl bg-gray-100 dark:bg-zinc-800">
           <Image
             src={article.featuredImage}
             alt={article.featuredImageAlt || article.title}
-            fill
+            width={1600}
+            height={900}
             priority
             sizes="(max-width: 1023px) 100vw, 1120px"
-            className="object-cover"
+            className="h-auto w-full"
+            style={{ width: "100%", height: "auto" }}
           />
         </div>
       ) : null}
 
       <div className="grid gap-8 lg:grid-cols-12">
+        <aside className="lg:col-span-4">
+          <div className="hidden lg:sticky lg:top-24 lg:block">
+            <MagazineTableOfContents items={article.tableOfContents} />
+          </div>
+        </aside>
+
         <div
           id="magazine-article-content"
           className="min-w-0 rounded-xl bg-white p-5 md:p-8 lg:col-span-8 dark:bg-custom-dark"
         >
           {article.tableOfContents.length ? (
             <div className="mb-6 lg:hidden">
-              <details className="rounded-lg border border-gray-200 bg-white p-4 dark:border-zinc-700 dark:bg-custom-dark">
-                <summary className="cursor-pointer text-sm font-bold text-gray-900 dark:text-white">
-                  فهرست مطالب
-                </summary>
-                <ol className="mt-3 space-y-1.5">
-                  {article.tableOfContents.map((item) => (
-                    <li key={item.anchor}>
-                      <a
-                        href={`#${item.anchor}`}
-                        className={`block text-sm leading-6 text-gray-600 hover:text-primary ${
-                          item.level > 2 ? "pr-3" : ""
-                        }`}
-                      >
-                        {item.title}
-                      </a>
-                    </li>
-                  ))}
-                </ol>
-              </details>
+              <MagazineTableOfContents
+                items={article.tableOfContents}
+                collapsible
+              />
             </div>
           ) : null}
 
@@ -238,12 +211,6 @@ export default function MagazineArticle({ article }) {
             </ul>
           ) : null}
         </div>
-
-        <aside className="lg:col-span-4">
-          <div className="hidden lg:sticky lg:top-24 lg:block">
-            <TableOfContents items={article.tableOfContents} />
-          </div>
-        </aside>
       </div>
 
       <MagazineRelatedProducts

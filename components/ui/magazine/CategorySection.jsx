@@ -1,6 +1,6 @@
 import ArticleCard from "./ArticleCard";
 import SectionHeading from "./SectionHeading";
-import { getBlogHomeHref } from "@/components/ui/Blog/blogHomeUtils";
+import { getBlogHomeHref } from "@/components/ui/magazine/magazineHomeUtils";
 import { getArticleKey } from "./magazineUtils";
 
 export default function CategorySection({

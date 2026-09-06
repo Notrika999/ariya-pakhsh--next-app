@@ -6,7 +6,7 @@ import {
   normalizeCategory,
   parsePositiveInt,
   resolveMagazineArticleParams,
-} from "@/components/ui/Blog/blogHomeUtils";
+} from "@/components/ui/magazine/magazineHomeUtils";
 import MagazineHome, {
   MagazineListing,
 } from "@/components/ui/magazine/MagazineHome";
@@ -88,28 +88,30 @@ async function BlogsPage({ searchParams }) {
       ? requestedArticleType
       : "";
   const searchQuery = query.trim();
+  const showAllArticles = getSearchValue(resolvedSearchParams.list) === "1";
   const isFiltered =
     category !== "all" ||
     Boolean(searchQuery) ||
     Boolean(articleType) ||
     Boolean(tag.trim()) ||
     Boolean(vehicle.trim()) ||
-    page > 1;
-
-  const listing = await getMagazineArticles(
-    resolveMagazineArticleParams({
-      category,
-      articleType: requestedArticleType,
-      tag,
-      vehicle,
-      search: searchQuery,
-      page,
-      pageSize: isFiltered ? pageSize : 24,
-      sort,
-    }),
-  );
+    page > 1 ||
+    showAllArticles;
 
   if (isFiltered) {
+    const listing = await getMagazineArticles(
+      resolveMagazineArticleParams({
+        category,
+        articleType: requestedArticleType,
+        tag,
+        vehicle,
+        search: searchQuery,
+        page,
+        pageSize,
+        sort,
+      }),
+    );
+
     return (
       <MagazineListing
         query={searchQuery}
@@ -122,15 +124,30 @@ async function BlogsPage({ searchParams }) {
     );
   }
 
+  if (home.sections.length) {
+    return <MagazineHome sections={home.sections} />;
+  }
+
+  const listing = await getMagazineArticles(
+    resolveMagazineArticleParams({
+      category,
+      articleType: requestedArticleType,
+      tag,
+      vehicle,
+      search: searchQuery,
+      page,
+      pageSize: 24,
+      sort,
+    }),
+  );
+
   const model = buildMagazineHomeModel({
     apiPosts: listing.items,
     apiCategories: home.categories,
     apiSections: home.sections,
   });
 
-  return (
-    <MagazineHome model={model} />
-  );
+  return <MagazineHome model={model} />;
 }
 
 export default BlogsPage;

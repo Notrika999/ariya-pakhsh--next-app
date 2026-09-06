@@ -1,3 +1,6 @@
+import { getBlogHomeHref } from "@/components/ui/magazine/magazineHomeUtils";
+import { normalizeSectionType } from "@/src/lib/magazine/section-config";
+
 export function toMagazineArticle(post) {
   if (!post) return null;
 
@@ -5,11 +8,15 @@ export function toMagazineArticle(post) {
   const title = post.title;
   if (!slug || !title) return null;
 
+  const image = post.image || "/images/default.png";
+
   return {
+    id: post.id || "",
     slug,
     title,
     excerpt: post.excerpt || post.description || "",
-    image: post.image || "/images/default.png",
+    image,
+    thumbnail: post.thumbnail || image,
     imageAlt: post.imageAlt || title,
     category: post.category || post.keyword || "",
     categorySlug: post.categorySlug || "",
@@ -40,6 +47,40 @@ export function composeMagazineCategories(apiCategories = []) {
   return apiCategories.filter((item) => item.slug && item.title);
 }
 
+const SECTION_VIEW_ALL = {
+  latest: { list: true },
+  compactArticles: { list: true },
+  popular: { list: true, sort: "popular" },
+  recommended: { list: true },
+  buyingGuides: { articleType: "buyingGuide" },
+  reviews: { articleType: "review" },
+  comparisons: { articleType: "comparison" },
+  videoArticles: { articleType: "video" },
+};
+
+export function getSectionViewAllHref(section) {
+  if (section?.viewAllHref) return section.viewAllHref;
+
+  const filterType = section?.filters?.articleType || "";
+
+  if (section?.categorySlug) {
+    return getBlogHomeHref({
+      category: section.categorySlug,
+      articleType: filterType,
+    });
+  }
+
+  if (filterType) {
+    return getBlogHomeHref({ articleType: filterType });
+  }
+
+  const type = normalizeSectionType(section?.sectionType);
+  const mapped = type ? SECTION_VIEW_ALL[type] : null;
+  if (!mapped) return undefined;
+
+  return getBlogHomeHref(mapped);
+}
+
 function take(articles, start, count) {
   if (!articles.length) return [];
   return articles.slice(start, start + count);
@@ -65,7 +106,9 @@ export function buildMagazineHomeModel({
   const heroSource = featured.length ? featured : articles;
   const heroMain = heroSource[0] ?? null;
   const heroSide = take(heroSource, 1, 4);
-  const latest = latestFromApi.length ? take(latestFromApi, 0, 5) : take(articles, 0, 5);
+  const latest = latestFromApi.length
+    ? take(latestFromApi, 0, 5)
+    : take(articles, 0, 5);
   const editorialCandidate = featured[1] ?? articles[1] ?? null;
   const editorial =
     editorialCandidate && editorialCandidate.slug !== heroMain?.slug
@@ -82,7 +125,10 @@ export function buildMagazineHomeModel({
   const newest = take(articles, 0, 6);
 
   const categorySectionsFromApi = apiSections
-    .filter((section) => section.sectionType === "categoryArticles" && section.categorySlug)
+    .filter(
+      (section) =>
+        section.sectionType === "categoryArticles" && section.categorySlug,
+    )
     .map((section) => ({
       title: section.title,
       slug: section.categorySlug,

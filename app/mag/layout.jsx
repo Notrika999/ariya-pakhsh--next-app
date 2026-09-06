@@ -5,6 +5,7 @@ import MagazineFooter from "@/components/ui/magazine/MagazineFooter";
 import { composeMagazineCategories } from "@/components/ui/magazine/magazineView";
 import { getMagazineHome } from "@/src/services/magazine/magazine.server";
 import { BackToTopButton } from "@/components/modules/BackToTopButton/BackToTopButton";
+import { RaychatWidget } from "@/components/modules/RaychatWidget/RaychatWidget";
 
 export default async function MagazineLayout({ children }) {
   const home = await getMagazineHome();
@@ -22,6 +23,7 @@ export default async function MagazineLayout({ children }) {
       </Suspense>
       <div className="flex-1">{children}</div>
       <MagazineFooter categories={categories} />
+      <RaychatWidget />
       <BackToTopButton />
     </div>
   );

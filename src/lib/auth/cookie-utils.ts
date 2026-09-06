@@ -209,6 +209,7 @@ export function clearAllAuthCookies(response: NextResponse): void {
     AUTH_COOKIE_NAMES.REFRESH_TOKEN,
     AUTH_COOKIE_NAMES.DEVICE_ID,
     AUTH_COOKIE_NAMES.AUTH_INDICATOR,
+    AUTH_COOKIE_NAMES.ACCESS_EXPIRES_AT,
     LEGACY_AUTH_COOKIE_NAMES.ACCESS_TOKEN,
     LEGACY_AUTH_COOKIE_NAMES.REFRESH_TOKEN,
     LEGACY_AUTH_COOKIE_NAMES.DEVICE_ID,
@@ -219,6 +220,7 @@ export function clearAllAuthCookies(response: NextResponse): void {
     response.cookies.set(name, "", {
       httpOnly:
         name !== AUTH_COOKIE_NAMES.AUTH_INDICATOR &&
+        name !== AUTH_COOKIE_NAMES.ACCESS_EXPIRES_AT &&
         name !== LEGACY_AUTH_COOKIE_NAMES.AUTH_INDICATOR,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -226,6 +228,27 @@ export function clearAllAuthCookies(response: NextResponse): void {
       maxAge: 0,
     });
   }
+}
+
+function toPositiveSeconds(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value) && value > 0) {
+    return Math.floor(value);
+  }
+
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return Math.floor(parsed);
+    }
+
+    const fromDate = Date.parse(value);
+    if (!Number.isNaN(fromDate)) {
+      const seconds = Math.floor((fromDate - Date.now()) / 1000);
+      return seconds > 0 ? seconds : undefined;
+    }
+  }
+
+  return undefined;
 }
 
 export function extractExpiresIn(data: unknown): number | undefined {
@@ -236,11 +259,76 @@ export function extractExpiresIn(data: unknown): number | undefined {
       ? (record.data as Record<string, unknown>)
       : undefined;
 
-  const value =
-    record.expiresIn ??
-    nested?.expiresIn ??
-    record.ExpiresIn ??
-    nested?.ExpiresIn;
+  const sources = [record, nested];
+  for (const source of sources) {
+    if (!source) continue;
+    const fromExpiresIn = toPositiveSeconds(
+      source.expiresIn ?? source.ExpiresIn,
+    );
+    if (fromExpiresIn) return fromExpiresIn;
 
-  return typeof value === "number" ? value : undefined;
+    const fromExpiresAt = toPositiveSeconds(
+      source.accessTokenExpiresAt ?? source.AccessTokenExpiresAt,
+    );
+    if (fromExpiresAt) return fromExpiresAt;
+  }
+
+  return undefined;
+}
+
+function isAccessTokenCookieName(name: string): boolean {
+  return (
+    name === AUTH_COOKIE_NAMES.ACCESS_TOKEN ||
+    name === LEGACY_AUTH_COOKIE_NAMES.ACCESS_TOKEN
+  );
+}
+
+export function extractAccessMaxAgeFromSetCookies(
+  setCookieHeaders: string[],
+): number | undefined {
+  for (const raw of setCookieHeaders) {
+    const [cookiePart, ...attributes] = raw.split(";");
+    const name = cookiePart.slice(0, cookiePart.indexOf("=")).trim();
+    if (!isAccessTokenCookieName(name)) continue;
+
+    const attrs = parseCookieAttributes(attributes);
+    const fromMaxAge = toPositiveSeconds(attrs["max-age"]);
+    if (fromMaxAge) return fromMaxAge;
+
+    const fromExpires = toPositiveSeconds(attrs.expires);
+    if (fromExpires) return fromExpires;
+  }
+
+  return undefined;
+}
+
+export function resolveAccessExpiresInSeconds(
+  data: unknown,
+  setCookieHeaders: string[] = [],
+): number | undefined {
+  return (
+    extractExpiresIn(data) ?? extractAccessMaxAgeFromSetCookies(setCookieHeaders)
+  );
+}
+
+/** کوکی قابل‌خواندن در مرورگر تا کلاینت بداند access token کی منقضی می‌شود. */
+export function setAccessExpiryCookie(
+  response: NextResponse,
+  data: unknown,
+  setCookieHeaders: string[] = [],
+): void {
+  const expiresIn = resolveAccessExpiresInSeconds(data, setCookieHeaders);
+  if (!expiresIn) return;
+
+  response.cookies.set(
+    AUTH_COOKIE_NAMES.ACCESS_EXPIRES_AT,
+    String(Date.now() + expiresIn * 1000),
+    {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: expiresIn,
+    },
+  );
 }

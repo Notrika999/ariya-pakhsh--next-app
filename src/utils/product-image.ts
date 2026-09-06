@@ -4,14 +4,24 @@ const BASE_URL = "https://aryapakhsh.shop";
 const DEFAULT_IMAGE = "/images/default.png";
 
 export function getProductImage(path?: string | null) {
-  if (!path?.trim()) {
+  const trimmed = path?.trim();
+  if (!trimmed) {
     return DEFAULT_IMAGE;
   }
 
-  if (path.startsWith("http")) {
-    return path;
+  if (trimmed.startsWith("data:") || trimmed.startsWith("blob:")) {
+    return trimmed;
   }
-  return `${BASE_URL}/${path.replace(/^\/+/, "")}`;
+
+  if (trimmed.startsWith("//")) {
+    return `https:${trimmed}`;
+  }
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed.replace(/^http:\/\//i, "https://");
+  }
+
+  return `${BASE_URL}/${trimmed.replace(/^\/+/, "")}`;
 }
 
 type ImagePathLike =

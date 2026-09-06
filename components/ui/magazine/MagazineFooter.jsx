@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getBlogHomeHref } from "@/components/ui/Blog/blogHomeUtils";
+import { getBlogHomeHref } from "@/components/ui/magazine/magazineHomeUtils";
 
 const STORE_LINKS = [
   { href: "/", label: "فروشگاه کارآپ۲۴" },

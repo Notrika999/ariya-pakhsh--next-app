@@ -121,9 +121,12 @@ export default function CategoryGrid({ categories, title }: Props) {
   );
   const requiredStaticWidth =
     columnCount * ITEM_WIDTH + Math.max(0, columnCount - 1) * ITEM_GAP;
+  // Until the viewport is measured, treat the layout as overflowing so the
+  // first paint never stretches the page (mobile horizontal scroll).
   const shouldUseSwiper =
     categories.length > MAX_STATIC_ITEMS ||
-    (viewportWidth > 0 && requiredStaticWidth > viewportWidth);
+    viewportWidth <= 0 ||
+    requiredStaticWidth > viewportWidth;
   const categoryColumns = useMemo(
     () => buildSwiperColumns(topRow, bottomRow),
     [bottomRow, topRow],
@@ -133,7 +136,7 @@ export default function CategoryGrid({ categories, title }: Props) {
     <>
       <SectionHeader title={title} />
 
-      <div className="mt-1 space-y-1">
+      <div className="mt-1 w-full min-w-0 max-w-full space-y-1 overflow-hidden">
         {shouldUseSwiper && sliderState.canScroll && (
           <div className="flex justify-end">
             <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white p-1 shadow-sm dark:border-gray-700 dark:bg-custom-dark">
@@ -161,19 +164,19 @@ export default function CategoryGrid({ categories, title }: Props) {
 
         <div
           ref={viewportRef}
-          className="rounded-2xl bg-linear-to-b from-white to-transparent px-3 py-6 dark:from-[#121923]"
+          className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl bg-linear-to-b from-white to-transparent px-3 py-6 dark:from-[#121923]"
         >
-          <div className="relative" dir="rtl">
+          <div className="relative w-full min-w-0 max-w-full overflow-hidden" dir="rtl">
             {!shouldUseSwiper ? (
-              <div className="space-y-4">
-                <div className="flex justify-center gap-[18px]">
+              <div className="space-y-4 overflow-hidden">
+                <div className="flex justify-center gap-[18px] overflow-hidden">
                   {topRow.map((category) => (
                     <CategoryGridCard key={category.id} category={category} />
                   ))}
                 </div>
 
                 {bottomRow.length > 0 && (
-                  <div className="flex justify-center gap-[18px]">
+                  <div className="flex justify-center gap-[18px] overflow-hidden">
                     {bottomRow.map((category) => (
                       <CategoryGridCard
                         key={category.id}
@@ -200,6 +203,7 @@ export default function CategoryGrid({ categories, title }: Props) {
 
                 <Swiper
                   dir="rtl"
+                  className="!overflow-hidden"
                   slidesPerView="auto"
                   spaceBetween={18}
                   watchOverflow
@@ -247,7 +251,7 @@ function CategoryGridCard({ category }: { category: HomeCategoryGridItem }) {
     <Link
       href={`/products/${category.slug}`}
       prefetch={false}
-      className="group flex w-[150px] min-w-[150px] flex-col items-center text-center"
+      className="group flex w-[150px] max-w-[150px] min-w-0 shrink-0 flex-col items-center overflow-hidden text-center"
     >
       <div className="relative flex size-30 items-center justify-center rounded-full border border-gray-200 bg-[#f1f1f1] shadow-[inset_0_0_0_3px_#fff] transition duration-200 group-hover:-translate-y-1 group-hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:shadow-[inset_0_0_0_3px_#111827]">
         <Image
@@ -261,7 +265,7 @@ function CategoryGridCard({ category }: { category: HomeCategoryGridItem }) {
 
       <span
         title={category.name}
-        className="text-caption-180 h-9 text-center text-neutral-900 ellipsis-2 whitespace-nowrap dark:text-gray-100 lg:text-sm"
+        className="text-caption-180 h-9 w-full overflow-hidden text-center text-neutral-900 ellipsis-2 dark:text-gray-100 lg:text-sm"
       >
         {category.name}
       </span>

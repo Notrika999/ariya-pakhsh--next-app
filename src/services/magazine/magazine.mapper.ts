@@ -1,3 +1,9 @@
+import {
+  layoutFromDisplayVariant,
+  normalizeSectionSource,
+  normalizeSectionType,
+  resolveDisplayVariant,
+} from "@/src/lib/magazine/section-config";
 import { SITE_URL } from "@/src/lib/seo/site";
 import { getProductImage } from "@/src/utils/product-image";
 import type {
@@ -7,13 +13,13 @@ import type {
   MagazineAuthor,
   MagazineCategory,
   MagazineContentBlock,
-  MagazineDisplayVariant,
   MagazineHomeData,
   MagazineHomeSection,
+  MagazineInlineNode,
+  MagazineInlineStyle,
   MagazinePost,
   MagazineRelatedProduct,
-  MagazineSectionLayout,
-  MagazineSectionType,
+  MagazineSectionFilters,
   MagazineTableCell,
   MagazineTableRow,
   MagazineTag,
@@ -29,8 +35,39 @@ function asString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+/** CMS sometimes stores the same heading twice: "عنوان عنوان". */
+function collapseRepeatedTitle(title: string): string {
+  const value = title.replace(/\s+/g, " ").trim();
+  if (!value) return "";
+
+  const spaced = value.match(/^(.+?)\s+\1$/u);
+  if (spaced?.[1]) return spaced[1].trim();
+
+  if (value.length >= 4 && value.length % 2 === 0) {
+    const half = value.slice(0, value.length / 2);
+    if (half && half === value.slice(value.length / 2)) return half.trim();
+  }
+
+  return value;
+}
+
 function asNumber(value: unknown): number | null {
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim()) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+  return null;
+}
+
+function asBoolean(value: unknown): boolean | null {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "true" || normalized === "1") return true;
+    if (normalized === "false" || normalized === "0") return false;
+  }
+  return null;
 }
 
 function formatArticleDate(value: unknown): string {
@@ -53,7 +90,10 @@ function formatReadTime(value: unknown): string {
   return `${new Intl.NumberFormat("fa-IR").format(minutes)} دقیقه مطالعه`;
 }
 
-function resolveImage(value: unknown): string {
+function resolveImage(
+  value: unknown,
+  prefer: "url" | "thumbnail" = "url",
+): string {
   if (typeof value === "string") {
     return getProductImage(value);
   }
@@ -62,13 +102,17 @@ function resolveImage(value: unknown): string {
     return getProductImage();
   }
 
-  return getProductImage(
-    asString(value.url) ||
-      asString(value.thumbnailUrl) ||
-      asString(value.cardUrl) ||
-      asString(value.path) ||
-      null,
-  );
+  const url = asString(value.url) || asString(value.path);
+  const thumbnail =
+    asString(value.thumbnailUrl) ||
+    asString(value.cardUrl) ||
+    asString(value.thumbUrl);
+
+  if (prefer === "thumbnail") {
+    return getProductImage(thumbnail || url || null);
+  }
+
+  return getProductImage(url || thumbnail || null);
 }
 
 function unwrapArticle(value: unknown): Record<string, unknown> | null {
@@ -97,7 +141,9 @@ export function mapMagazineCategory(value: unknown): MagazineCategory | null {
 
   if (!slug || !title) return null;
 
-  return { slug, title };
+  const id = asString(value.id);
+
+  return id ? { id, slug, title } : { slug, title };
 }
 
 export function mapMagazinePost(value: unknown): MagazinePost | null {
@@ -114,66 +160,86 @@ export function mapMagazinePost(value: unknown): MagazinePost | null {
     asString(category?.name) ||
     asString(article.keyword);
   const categorySlug = asString(category?.slug);
-  const featuredImage = article.featuredImage ?? article.image ?? article.coverImage;
-  const imageAlt = isRecord(featuredImage)
-    ? asString(featuredImage.alt)
-    : "";
+  const featuredImage =
+    article.featuredImage ?? article.image ?? article.coverImage;
+  const imageAlt = isRecord(featuredImage) ? asString(featuredImage.alt) : "";
   const author = isRecord(article.author) ? article.author : null;
+  const excerpt = asString(article.excerpt) || asString(article.description);
+  const image = resolveImage(featuredImage, "url");
+  const thumbnail = resolveImage(featuredImage, "thumbnail");
+  const authorName =
+    asString(article.authorName) ||
+    (author ? asString(author.displayName) : "");
+  const date = formatArticleDate(article.publishedAt ?? article.date);
+  const readTime = formatReadTime(
+    article.readingTimeMinutes ?? article.readTimeMinutes,
+  );
+  const articleId = asString(article.id);
 
   return {
+    ...(articleId ? { id: articleId } : {}),
     slug,
     title,
-    description: asString(article.excerpt) || asString(article.description),
+    description: excerpt,
+    excerpt,
     keyword: categoryTitle,
+    category: categoryTitle,
     categorySlug,
-    image: resolveImage(featuredImage),
+    image,
+    thumbnail,
     imageAlt: imageAlt || title,
-    authorName:
-      asString(article.authorName) ||
-      (author ? asString(author.displayName) : ""),
-    date: formatArticleDate(article.publishedAt ?? article.date),
-    readTime: formatReadTime(
-      article.readingTimeMinutes ?? article.readTimeMinutes,
-    ),
+    authorName,
+    author: authorName,
+    date,
+    publishedAt: date,
+    readTime,
+    readingTime: readTime,
     href: `/mag/${encodeURIComponent(slug)}`,
     articleType: asString(article.articleType) || null,
   };
 }
 
-function mapSectionLayout(
-  sectionType: string,
-  displayVariant: string,
-): MagazineSectionLayout {
-  const type = sectionType.toLowerCase();
-  const display = displayVariant.toLowerCase();
+function readActiveFlag(section: Record<string, unknown>): boolean | null {
+  if ("isActive" in section) return asBoolean(section.isActive);
+  if ("active" in section) return asBoolean(section.active);
+  if ("isEnabled" in section) return asBoolean(section.isEnabled);
+  if ("enabled" in section) return asBoolean(section.enabled);
+  return null;
+}
 
-  if (
-    display === "herogrid" ||
-    display === "largewithsmallcards" ||
-    type === "featured"
-  ) {
-    return "featured";
-  }
+function mapSectionFilters(
+  section: Record<string, unknown>,
+): MagazineSectionFilters {
+  const filters = isRecord(section.filters) ? section.filters : {};
+  const category =
+    asString(filters.category) ||
+    asString(section.categorySlug) ||
+    asString(isRecord(section.category) ? section.category.slug : "");
+  const articleType =
+    asString(filters.articleType) || asString(section.articleType);
+  const tag = asString(filters.tag) || asString(section.tag);
+  const car =
+    asString(filters.car) ||
+    asString(filters.vehicle) ||
+    asString(section.vehicle) ||
+    asString(section.car);
+  const startAt =
+    asString(filters.startAt) ||
+    asString(section.startAt) ||
+    asString(section.startDate);
+  const endAt =
+    asString(filters.endAt) ||
+    asString(section.endAt) ||
+    asString(section.endDate);
 
-  if (
-    display === "videogrid" ||
-    display === "featuredvideo" ||
-    type === "videoarticles"
-  ) {
-    return "video";
-  }
-
-  if (
-    display === "compactlist" ||
-    type === "compactarticles" ||
-    type === "buyingguides" ||
-    type === "popular" ||
-    type === "recommended"
-  ) {
-    return "compact";
-  }
-
-  return "grid";
+  return {
+    ...(category ? { category } : {}),
+    ...(articleType ? { articleType } : {}),
+    ...(tag ? { tag } : {}),
+    ...(car ? { car } : {}),
+    ...(startAt ? { startAt } : {}),
+    ...(endAt ? { endAt } : {}),
+  };
 }
 
 function getSectionArticles(section: Record<string, unknown>): MagazinePost[] {
@@ -204,36 +270,82 @@ export function mapMagazineHomeSection(
 ): MagazineHomeSection | null {
   if (!isRecord(value)) return null;
 
-  const sectionType = (asString(value.sectionType) ||
-    asString(value.type)) as MagazineSectionType | "";
-  const displayVariant = (asString(value.displayVariant) ||
-    asString(value.layout)) as MagazineDisplayVariant | "";
+  const active = readActiveFlag(value);
+  if (active === false) return null;
+
+  const rawSectionType = asString(value.sectionType) || asString(value.type);
+  const sectionType = normalizeSectionType(rawSectionType);
+  const displayVariant = resolveDisplayVariant(
+    asString(value.displayVariant) || asString(value.layout),
+    rawSectionType,
+  );
   const posts = getSectionArticles(value);
 
   if (!posts.length) return null;
 
-  const title =
-    asString(value.title) || asString(value.name) || "مقالات مجله";
+  const maxArticles =
+    asNumber(value.maxArticles) ??
+    asNumber(value.maxCount) ??
+    asNumber(value.limit);
+  const limitedPosts =
+    maxArticles && maxArticles > 0 ? posts.slice(0, maxArticles) : posts;
+
+  if (!limitedPosts.length) return null;
+
+  const title = asString(value.title) || asString(value.name);
   const category = mapMagazineCategory(
     value.category ??
       (asString(value.categorySlug)
         ? { slug: value.categorySlug, title: value.categoryTitle }
         : null),
   );
+  const sectionId = asString(value.id);
+  const order =
+    asNumber(value.order) ?? asNumber(value.sortOrder) ?? asNumber(value.sort);
+  const viewAllHref =
+    asString(value.viewAllHref) ||
+    asString(value.viewAllUrl) ||
+    asString(value.seeAllUrl);
 
   return {
-    key: `${sectionType || "section"}-${index}`,
+    ...(sectionId ? { id: sectionId } : {}),
+    key: sectionId || `${sectionType || "section"}-${index}`,
     title,
     subtitle: asString(value.subtitle) || asString(value.description),
-    sectionType: sectionType || null,
-    layout: mapSectionLayout(sectionType, displayVariant),
-    categorySlug: category?.slug ?? null,
-    posts,
+    sectionType,
+    displayVariant,
+    layout: layoutFromDisplayVariant(displayVariant),
+    source: normalizeSectionSource(
+      asString(value.source) || asString(value.contentSource),
+    ),
+    categorySlug:
+      category?.slug ||
+      asString(value.categorySlug) ||
+      null,
+    viewAllHref: viewAllHref || null,
+    maxArticles,
+    order,
+    isActive: active ?? true,
+    filters: mapSectionFilters(value),
+    posts: limitedPosts,
   };
 }
 
 export function mapMagazineHome(value: unknown): MagazineHomeData {
   const data = isRecord(value) ? value : {};
+  const mappedSections = Array.isArray(data.sections)
+    ? data.sections
+        .map(mapMagazineHomeSection)
+        .filter((item): item is MagazineHomeSection => Boolean(item))
+    : [];
+
+  const hasExplicitOrder = mappedSections.some((section) => section.order != null);
+  const sections = hasExplicitOrder
+    ? [...mappedSections].sort(
+        (left, right) => (left.order ?? Number.MAX_SAFE_INTEGER) -
+          (right.order ?? Number.MAX_SAFE_INTEGER),
+      )
+    : mappedSections;
 
   return {
     categories: Array.isArray(data.categories)
@@ -241,11 +353,7 @@ export function mapMagazineHome(value: unknown): MagazineHomeData {
           .map(mapMagazineCategory)
           .filter((item): item is MagazineCategory => Boolean(item))
       : [],
-    sections: Array.isArray(data.sections)
-      ? data.sections
-          .map(mapMagazineHomeSection)
-          .filter((item): item is MagazineHomeSection => Boolean(item))
-      : [],
+    sections,
   };
 }
 
@@ -285,7 +393,9 @@ function parseRobots(value: unknown): { index: boolean; follow: boolean } {
 }
 
 function isSameSiteHost(hostname: string): boolean {
-  const siteHost = SITE_URL.replace(/^https?:\/\//, "").split("/")[0]?.toLowerCase();
+  const siteHost = SITE_URL.replace(/^https?:\/\//, "")
+    .split("/")[0]
+    ?.toLowerCase();
   const host = hostname.toLowerCase().replace(/^www\./, "");
   const site = (siteHost || "carup24.com").replace(/^www\./, "");
   return host === site || host === "carup24.com" || host === "localhost";
@@ -307,6 +417,109 @@ function resolveCtaHref(href: string): { href: string; external: boolean } {
   } catch {
     return { href, external: true };
   }
+}
+
+function isSafeHref(href: string): boolean {
+  const value = href.trim();
+  if (!value) return false;
+  if (value.startsWith("/")) return !value.startsWith("//");
+  if (value.startsWith("#")) return true;
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function mapInlineStyles(value: unknown): MagazineInlineStyle {
+  const styles = isRecord(value) ? value : {};
+  return {
+    bold: Boolean(styles.bold),
+    italic: Boolean(styles.italic),
+    underline: Boolean(styles.underline),
+    strike: Boolean(styles.strike) || Boolean(styles.strikethrough),
+    code: Boolean(styles.code),
+  };
+}
+
+function flattenInlineText(nodes: MagazineInlineNode[]): string {
+  return nodes
+    .map((node) =>
+      node.type === "text" ? node.text : flattenInlineText(node.children),
+    )
+    .join("");
+}
+
+function mapInlineNodes(value: unknown): MagazineInlineNode[] {
+  if (!Array.isArray(value)) return [];
+
+  const nodes: MagazineInlineNode[] = [];
+  for (const item of value) {
+    if (!isRecord(item)) continue;
+    const type = asString(item.type);
+
+    if (type === "text") {
+      const text = asString(item.text);
+      if (text) {
+        const previous = nodes[nodes.length - 1];
+        if (previous?.type === "text" && previous.text === text) {
+          continue;
+        }
+        nodes.push({
+          type: "text",
+          text,
+          styles: mapInlineStyles(item.styles),
+        });
+      }
+      continue;
+    }
+
+    if (type === "link") {
+      const rawHref = asString(item.href) || asString(item.url);
+      if (!isSafeHref(rawHref)) continue;
+      const resolved = resolveCtaHref(rawHref);
+      const children = mapInlineNodes(item.content ?? item.children);
+      if (!children.length) continue;
+      nodes.push({
+        type: "link",
+        href: resolved.href,
+        external: resolved.external,
+        children,
+      });
+    }
+  }
+
+  return nodes;
+}
+
+function mapRichText(data: Record<string, unknown>): {
+  text: string;
+  inline: MagazineInlineNode[];
+} {
+  const inline = mapInlineNodes(data.inlineContent ?? data.content);
+  const text =
+    collapseRepeatedTitle(asString(data.text)) ||
+    collapseRepeatedTitle(flattenInlineText(inline));
+  if (!inline.length && text) {
+    return {
+      text,
+      inline: [
+        {
+          type: "text",
+          text,
+          styles: {
+            bold: false,
+            italic: false,
+            underline: false,
+            strike: false,
+            code: false,
+          },
+        },
+      ],
+    };
+  }
+  return { text, inline };
 }
 
 function mapAuthor(value: unknown): MagazineAuthor | null {
@@ -339,7 +552,7 @@ function mapTag(value: unknown): MagazineTag | null {
 
 function mapTocItem(value: unknown): MagazineTocItem | null {
   if (!isRecord(value)) return null;
-  const title = asString(value.title);
+  const title = collapseRepeatedTitle(asString(value.title));
   const anchor = asString(value.anchor);
   if (!title || !anchor) return null;
   return {
@@ -347,6 +560,19 @@ function mapTocItem(value: unknown): MagazineTocItem | null {
     anchor,
     level: asNumber(value.level) ?? 2,
   };
+}
+
+function dedupeTocItems(items: MagazineTocItem[]): MagazineTocItem[] {
+  const seenAnchors = new Set<string>();
+  const result: MagazineTocItem[] = [];
+
+  for (const item of items) {
+    if (seenAnchors.has(item.anchor)) continue;
+    seenAnchors.add(item.anchor);
+    result.push(item);
+  }
+
+  return result;
 }
 
 function extractCellText(value: unknown): { text: string; bold: boolean } {
@@ -441,6 +667,7 @@ function mapContentBlocks(
   value: unknown,
   toc: MagazineTocItem[],
   catalog: MagazineRelatedProduct[] = [],
+  categoryLinks: MagazineCategoryLink[] = [],
 ): MagazineContentBlock[] {
   if (!Array.isArray(value)) return [];
 
@@ -459,20 +686,20 @@ function mapContentBlocks(
     const blockId = asString(item.id);
 
     if (type === "paragraph") {
-      const text = asString(data.text);
-      if (text) blocks.push({ type: "paragraph", text });
+      const rich = mapRichText(data);
+      if (rich.text) blocks.push({ type: "paragraph", ...rich });
       index += 1;
       continue;
     }
 
     if (type === "heading") {
-      const text = asString(data.text);
-      if (text) {
+      const rich = mapRichText(data);
+      if (rich.text) {
         blocks.push({
           type: "heading",
-          text,
+          ...rich,
           level: headingLevel(data.level),
-          anchor: headingAnchor(blockId, text, toc),
+          anchor: headingAnchor(blockId, rich.text, toc),
         });
       }
       index += 1;
@@ -498,8 +725,8 @@ function mapContentBlocks(
     }
 
     if (type === "infoBox" || type === "callout" || type === "note") {
-      const text = asString(data.text);
-      if (text) blocks.push({ type: "infoBox", text });
+      const rich = mapRichText(data);
+      if (rich.text) blocks.push({ type: "infoBox", ...rich });
       index += 1;
       continue;
     }
@@ -510,13 +737,13 @@ function mapContentBlocks(
       type === "orderedListItem"
     ) {
       const style = type === "bulletListItem" ? "bullet" : "number";
-      const items: string[] = [];
+      const items: { text: string; inline: MagazineInlineNode[] }[] = [];
       while (index < value.length) {
         const current = value[index];
         if (!isRecord(current) || asString(current.type) !== type) break;
         const currentData = isRecord(current.data) ? current.data : {};
-        const text = asString(currentData.text);
-        if (text) items.push(text);
+        const rich = mapRichText(currentData);
+        if (rich.text) items.push(rich);
         index += 1;
       }
       if (items.length) blocks.push({ type: "list", style, items });
@@ -568,6 +795,13 @@ function mapContentBlocks(
     if (type === "productCollection" || type === "products") {
       const collection = mapProductCollection(data, catalog);
       if (collection) blocks.push(collection);
+      index += 1;
+      continue;
+    }
+
+    if (type === "productCategory") {
+      const cta = mapProductCategory(data, categoryLinks);
+      if (cta) blocks.push(cta);
       index += 1;
       continue;
     }
@@ -652,6 +886,49 @@ function mapProductCollection(
   };
 }
 
+export interface MagazineCategoryLink {
+  categoryId: string;
+  title: string;
+  href: string;
+}
+
+function mapProductCategory(
+  data: Record<string, unknown>,
+  categoryLinks: MagazineCategoryLink[],
+): Extract<MagazineContentBlock, { type: "cta" }> | null {
+  const nested = isRecord(data.category) ? data.category : data;
+  const categoryId =
+    asString(data.categoryId) ||
+    asString(nested.categoryId) ||
+    asString(nested.id);
+  const fromCatalog = categoryLinks.find(
+    (item) => item.categoryId === categoryId,
+  );
+  const title =
+    asString(data.title) ||
+    asString(data.name) ||
+    asString(data.label) ||
+    asString(nested.title) ||
+    asString(nested.name) ||
+    fromCatalog?.title;
+  const rawHref =
+    asString(data.href) ||
+    asString(data.url) ||
+    fromCatalog?.href ||
+    (categoryId
+      ? `/products?categoryId=${encodeURIComponent(categoryId)}`
+      : "");
+  if (!rawHref) return null;
+
+  const resolved = resolveCtaHref(rawHref);
+  return {
+    type: "cta",
+    label: title ? `مشاهده محصولات ${title}` : "مشاهده محصولات این دسته",
+    href: resolved.href,
+    external: resolved.external,
+  };
+}
+
 function mapRelatedProduct(value: unknown): MagazineRelatedProduct | null {
   if (!isRecord(value)) return null;
   const title = asString(value.title) || asString(value.name);
@@ -714,6 +991,30 @@ export function collectMagazineContentProductIds(value: unknown): string[] {
     if (type === "productCollection" || type === "products") {
       ids.push(...collectProductIds(data));
     }
+  }
+
+  return [...new Set(ids)];
+}
+
+export function collectMagazineContentCategoryIds(value: unknown): string[] {
+  const article = unwrapArticle(value);
+  const content = Array.isArray(article?.content)
+    ? article.content
+    : Array.isArray(value)
+      ? value
+      : [];
+  const ids: string[] = [];
+
+  for (const item of content) {
+    if (!isRecord(item)) continue;
+    if (asString(item.type) !== "productCategory") continue;
+    const data = isRecord(item.data) ? item.data : {};
+    const nested = isRecord(data.category) ? data.category : data;
+    const id =
+      asString(data.categoryId) ||
+      asString(nested.categoryId) ||
+      asString(nested.id);
+    if (id) ids.push(id);
   }
 
   return [...new Set(ids)];
@@ -792,7 +1093,9 @@ function mergeProductCatalog(
   return [...map.values()];
 }
 
-function mapFaqItem(value: unknown): { question: string; answer: string } | null {
+function mapFaqItem(
+  value: unknown,
+): { question: string; answer: string } | null {
   if (!isRecord(value)) return null;
   const question = asString(value.question) || asString(value.title);
   const answer = asString(value.answer) || asString(value.body);
@@ -898,6 +1201,7 @@ function mapSeo(
 export function mapMagazineArticleDetail(
   value: unknown,
   extraCatalog: MagazineRelatedProduct[] = [],
+  categoryLinks: MagazineCategoryLink[] = [],
 ): MagazineArticleDetail | null {
   const article = unwrapArticle(value);
   if (!article) return null;
@@ -915,11 +1219,13 @@ export function mapMagazineArticleDetail(
     ? asString(article.featuredImage.alt)
     : "";
   const articleType = asString(article.articleType) || null;
-  const toc = Array.isArray(article.tableOfContents)
-    ? article.tableOfContents
-        .map(mapTocItem)
-        .filter((item): item is MagazineTocItem => Boolean(item))
-    : [];
+  const toc = dedupeTocItems(
+    Array.isArray(article.tableOfContents)
+      ? article.tableOfContents
+          .map(mapTocItem)
+          .filter((item): item is MagazineTocItem => Boolean(item))
+      : [],
+  );
   const relatedProducts = Array.isArray(article.relatedProducts)
     ? article.relatedProducts
         .map(mapRelatedProduct)
@@ -946,7 +1252,7 @@ export function mapMagazineArticleDetail(
     updatedAtIso: asIsoDate(article.updatedAt),
     readingTime: formatReadTime(article.readingTimeMinutes),
     tableOfContents: toc,
-    content: mapContentBlocks(article.content, toc, catalog),
+    content: mapContentBlocks(article.content, toc, catalog, categoryLinks),
     tags: Array.isArray(article.tags)
       ? article.tags
           .map(mapTag)

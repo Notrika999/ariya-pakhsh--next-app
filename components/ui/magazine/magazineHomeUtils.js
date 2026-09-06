@@ -64,6 +64,7 @@ export function getBlogHomeHref({
   articleType = "",
   tag = "",
   sort = "",
+  list = false,
 } = {}) {
   const params = new URLSearchParams();
   const query = q.trim();
@@ -88,6 +89,10 @@ export function getBlogHomeHref({
 
   if (sort.trim() && sort.trim() !== "latest") {
     params.set("sort", sort.trim());
+  }
+
+  if (list) {
+    params.set("list", "1");
   }
 
   const search = params.toString();

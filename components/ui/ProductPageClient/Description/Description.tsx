@@ -321,23 +321,19 @@ export default function Description({
             <i className="fas fa-car-side text-primary" aria-hidden="true" />
             خودروهای سازگار
           </h4>
-          <ul className="grid gap-3 lg:grid-cols-2 sm:grid-cols-2 grid-cols-1">
+          <ul className="flex flex-wrap gap-3 items-center">
             {product.compatibilities.map((item) => (
               <li
                 key={item.carId}
-                className="flex items-center justify-between gap-3 p-3 bg-gray-200 dark:bg-zinc-800 rounded-lg"
+                className="flex items-center w-fit gap-3 p-3 bg-gray-200 dark:bg-zinc-800 rounded-lg"
               >
                 <div className="min-w-0">
-                  <p className="line-clamp-1 text-sm font-semibold text-gray-800 dark:text-gray-100">
+                  <p className="line-clamp-1 text-sm font-semibold text-gray-700 dark:text-gray-100">
                     {item.name}
                   </p>
-                  {item.model && (
-                    <p className="line-clamp-1 mt-1 text-xs text-gray-600 dark:text-gray-300">
-                      مدل: {item.model}
-                    </p>
-                  )}
+                 
                 </div>
-                <span
+                {/* <span
                   className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${
                     item.isIranianCar
                       ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
@@ -345,7 +341,7 @@ export default function Description({
                   }`}
                 >
                   {item.isIranianCar ? "ایرانی" : "وارداتی"}
-                </span>
+                </span> */}
               </li>
             ))}
           </ul>

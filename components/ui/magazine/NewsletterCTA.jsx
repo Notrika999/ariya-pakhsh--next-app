@@ -11,7 +11,7 @@ export default function NewsletterCTA() {
   }
 
   return (
-    <section className="rounded-xl border border-gray-200 bg-gray-50 px-5 py-8 dark:border-zinc-700 dark:bg-zinc-900/60 md:px-8">
+    <section className="rounded-xl bg-white px-5 py-8 dark:bg-custom-dark md:px-8">
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">
           مطالب کاربردی خودرو را از دست ندهید

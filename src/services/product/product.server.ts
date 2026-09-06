@@ -200,7 +200,9 @@ function brandLookupMatches(brand: BrandLookupOption, values: string[]) {
     brand.brandId,
   ].map(normalizeLookupValue);
 
-  return values.some((value) => candidates.includes(normalizeLookupValue(value)));
+  return values.some((value) =>
+    candidates.includes(normalizeLookupValue(value)),
+  );
 }
 
 function getBrandLookupId(brand: BrandLookupOption) {
@@ -213,7 +215,11 @@ async function resolveBrandSlugsToIdsFromBrandList(slugs: string[]) {
 
   const resolvedIds = new Set<string>();
 
-  for (let pageNumber = 1; pageNumber <= BRAND_LOOKUP_MAX_PAGES; pageNumber += 1) {
+  for (
+    let pageNumber = 1;
+    pageNumber <= BRAND_LOOKUP_MAX_PAGES;
+    pageNumber += 1
+  ) {
     const brands = await getBrands({
       pageNumber,
       pageSize: BRAND_LOOKUP_PAGE_SIZE,
@@ -249,8 +255,9 @@ function getSearchSuggestionLabel(suggestion: BrandSearchSuggestion) {
 }
 
 function getSearchFacetLabel(facet: BrandSearchFacet) {
-  return String(facet.label ?? facet.name ?? facet.value ?? facet.slug ?? "")
-    .trim();
+  return String(
+    facet.label ?? facet.name ?? facet.value ?? facet.slug ?? "",
+  ).trim();
 }
 
 async function resolveBrandSlugsToIdsFromSearch(slugs: string[]) {
@@ -278,7 +285,11 @@ async function resolveBrandSlugsToIdsFromSearch(slugs: string[]) {
 
     for (const suggestion of data.suggestions ?? []) {
       if (String(suggestion.type ?? "").toLowerCase() !== "brand") continue;
-      if (!brandLookupMatches({ name: getSearchSuggestionLabel(suggestion) }, [slug])) {
+      if (
+        !brandLookupMatches({ name: getSearchSuggestionLabel(suggestion) }, [
+          slug,
+        ])
+      ) {
         continue;
       }
 
@@ -287,7 +298,11 @@ async function resolveBrandSlugsToIdsFromSearch(slugs: string[]) {
     }
 
     for (const facet of data.facets?.brands ?? []) {
-      if (!brandLookupMatches({ ...facet, name: getSearchFacetLabel(facet) }, [slug])) {
+      if (
+        !brandLookupMatches({ ...facet, name: getSearchFacetLabel(facet) }, [
+          slug,
+        ])
+      ) {
         continue;
       }
 
@@ -525,8 +540,6 @@ export async function getProducts(
     params: requestParams,
     cache: "no-store",
   });
-
-  console.log(response);
 
   if (!response.ok || !response.data.isSuccess) {
     throw new Error("Failed to fetch products");

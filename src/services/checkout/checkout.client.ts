@@ -6,6 +6,7 @@ import type {
   CheckoutApiErrorItem,
   CheckoutCouponDiscount,
   CheckoutCouponPayload,
+  CheckoutGatewayFee,
   CheckoutPaymentMethod,
   CheckoutPaymentProvider,
   CheckoutShippingGroup,
@@ -57,9 +58,7 @@ function toNumber(value: unknown): number {
 }
 
 function toOptionalString(value: unknown): string | undefined {
-  return typeof value === "string" && value.trim()
-    ? value.trim()
-    : undefined;
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
 
 function firstOptionalString(...values: unknown[]): string | undefined {
@@ -121,12 +120,15 @@ function mapPaymentProvider(value: unknown): CheckoutPaymentProvider | null {
       item.titleFa ?? item.title ?? item.name ?? item.bankName ?? code,
     ),
     description:
-      toOptionalString(item.descriptionFa) ?? toOptionalString(item.description),
+      toOptionalString(item.descriptionFa) ??
+      toOptionalString(item.description),
     isAvailable: item.isAvailable !== false,
     isDefault: Boolean(item.isDefault),
     gatewayType: toOptionalString(item.gatewayType),
-    minAmount: item.minAmount === undefined ? undefined : toNumber(item.minAmount),
-    maxAmount: item.maxAmount === undefined ? undefined : toNumber(item.maxAmount),
+    minAmount:
+      item.minAmount === undefined ? undefined : toNumber(item.minAmount),
+    maxAmount:
+      item.maxAmount === undefined ? undefined : toNumber(item.maxAmount),
     imageUrl,
     logoUrl: imageUrl,
   };
@@ -159,7 +161,9 @@ function mapPaymentMethod(value: unknown): CheckoutPaymentMethod | null {
 
   const providers = extractProviders(item)
     .map(mapPaymentProvider)
-    .filter((provider): provider is CheckoutPaymentProvider => Boolean(provider));
+    .filter((provider): provider is CheckoutPaymentProvider =>
+      Boolean(provider),
+    );
   const defaultProvider =
     providers.find((provider) => provider.isDefault && provider.isAvailable) ??
     providers.find((provider) => provider.isAvailable) ??
@@ -244,7 +248,9 @@ function mapShippingMethod(
   };
 }
 
-function mapShippingGroupItem(value: unknown): CheckoutShippingGroupItem | null {
+function mapShippingGroupItem(
+  value: unknown,
+): CheckoutShippingGroupItem | null {
   const item = getRecord(value);
   const productId = String(item.productId ?? item.id ?? "").trim();
   const productName = String(item.productName ?? item.name ?? item.title ?? "");
@@ -277,7 +283,9 @@ function mapShippingGroupItem(value: unknown): CheckoutShippingGroupItem | null 
 
 function mapShippingGroup(value: unknown): CheckoutShippingGroup | null {
   const group = getRecord(value);
-  const shippingClassId = String(group.shippingClassId ?? group.id ?? "").trim();
+  const shippingClassId = String(
+    group.shippingClassId ?? group.id ?? "",
+  ).trim();
   if (!shippingClassId) return null;
 
   const shippingClassName = String(
@@ -327,11 +335,32 @@ function mapShippingOptionsResult(raw: unknown): CheckoutShippingOptionsResult {
   };
 }
 
+function mapGatewayFee(value: unknown): CheckoutGatewayFee | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+
+  const item = getRecord(value);
+  const amount = toNumber(item.amount);
+  const title = String(item.title ?? "").trim();
+  const providerCode = String(item.providerCode ?? "").trim();
+  if (!providerCode && !title && amount <= 0) return null;
+
+  return {
+    providerCode,
+    title: title || "کارمزد",
+    percent: toNumber(item.percent),
+    amount,
+  };
+}
+
 function mapCouponDiscount(
   payload: unknown,
   raw: unknown,
 ): CheckoutCouponDiscount {
   const data = getRecord(payload);
+  const shippingFee = toNumber(data.shippingFee ?? data.shippingPrice);
+  const payableAmount = toNumber(
+    data.payableAmount ?? data.onlinePayableAmount ?? data.totalOrderAmount,
+  );
 
   return {
     couponCode: String(data.couponCode ?? ""),
@@ -347,9 +376,14 @@ function mapCouponDiscount(
     rejectedAmount: toNumber(data.rejectedAmount),
     decisionReason: String(data.decisionReason ?? ""),
     itemsSubtotal: toNumber(data.itemsSubtotal),
-    shippingFee: toNumber(data.shippingFee),
+    shippingFee,
+    shippingPrice: toNumber(data.shippingPrice ?? data.shippingFee),
+    gatewayFee: mapGatewayFee(data.gatewayFee),
     discount: toNumber(data.discount),
-    payableAmount: toNumber(data.payableAmount),
+    payableAmount,
+    onlinePayableAmount: toNumber(data.onlinePayableAmount ?? payableAmount),
+    totalOrderAmount: toNumber(data.totalOrderAmount ?? payableAmount),
+    isShippingPayAtDelivery: Boolean(data.isShippingPayAtDelivery),
     raw,
   };
 }
@@ -360,15 +394,11 @@ export async function getCheckoutPaymentMethods(): Promise<
 > {
   const response = await apiClient.get(`${BASE}/payment-methods`);
 
-  // Debug: ساختار خام پاسخ برای انتخاب بانک مقصد / provider
-
-
   assertSuccess(response.data, "دریافت روش‌های پرداخت ناموفق بود");
 
   const mapped = unwrapDataArray(response.data)
     .map(mapPaymentMethod)
     .filter((item): item is CheckoutPaymentMethod => Boolean(item));
-
 
   return mapped;
 }
@@ -399,12 +429,30 @@ export async function getCheckoutShippingOptions(payload: {
   return mapShippingOptionsResult(response.data);
 }
 
-function buildCouponPayload(payload: CheckoutCouponPayload): CheckoutCouponPayload {
-  return {
-    couponCode: payload.couponCode.trim(),
-    shippingMethodId: payload.shippingMethodId,
-    shippingAddress: payload.shippingAddress,
-  };
+function buildCouponPayload(
+  payload: CheckoutCouponPayload,
+): Record<string, unknown> {
+  const body: Record<string, unknown> = {};
+  const couponCode = payload.couponCode?.trim();
+  const providerCode = payload.providerCode?.trim();
+
+  if (couponCode) {
+    body.couponCode = couponCode;
+  }
+  if (providerCode) {
+    body.providerCode = providerCode;
+  }
+  if (payload.shippingMethodId) {
+    body.shippingMethodId = payload.shippingMethodId;
+  }
+  if (payload.shippingSelections && payload.shippingSelections.length > 0) {
+    body.shippingSelections = payload.shippingSelections;
+  }
+  if (payload.shippingAddress) {
+    body.shippingAddress = payload.shippingAddress;
+  }
+
+  return body;
 }
 
 export async function applyCheckoutCoupon(
@@ -453,7 +501,6 @@ export async function placeCheckoutOrder(
     body.giftCardCode = payload.giftCardCode.trim();
   }
 
-
   const response = await apiClient.post(`${BASE}/place-order`, body);
   assertSuccess(response.data, "ثبت سفارش ناموفق بود");
 
@@ -475,8 +522,7 @@ export async function placeCheckoutOrder(
           : undefined,
     code: typeof root.code === "string" ? root.code : undefined,
     errors: mapApiErrors(root.errors),
-    timestamp:
-      typeof root.timestamp === "string" ? root.timestamp : undefined,
+    timestamp: typeof root.timestamp === "string" ? root.timestamp : undefined,
     traceId: typeof root.traceId === "string" ? root.traceId : undefined,
     orderId:
       typeof data.orderId === "string"
@@ -490,8 +536,7 @@ export async function placeCheckoutOrder(
         : typeof data.publicOrderNumber === "string"
           ? data.publicOrderNumber
           : undefined,
-    paymentId:
-      typeof data.paymentId === "string" ? data.paymentId : undefined,
+    paymentId: typeof data.paymentId === "string" ? data.paymentId : undefined,
     paymentUrl,
     redirectUrl: paymentUrl,
     message:
@@ -512,7 +557,6 @@ export async function ensureServerCartHasItems(
 ): Promise<number> {
   let cart = await getCart();
 
-
   if (cart.items.length > 0) {
     return cart.items.length;
   }
@@ -520,7 +564,6 @@ export async function ensureServerCartHasItems(
   if (localItems.length === 0) {
     return 0;
   }
-
 
   for (const item of localItems) {
     const variantId = String(item.variantId ?? item.id ?? "").trim();
@@ -530,18 +573,24 @@ export async function ensureServerCartHasItems(
     try {
       cart = await addCartItem({ variantId, quantity });
     } catch (error) {
-      console.warn("[Checkout] addCartItem failed, trying update =>", variantId, error);
+      console.warn(
+        "[Checkout] addCartItem failed, trying update =>",
+        variantId,
+        error,
+      );
       try {
         cart = await updateCartItem(variantId, { quantity });
       } catch (updateError) {
-        console.error("[Checkout] updateCartItem failed =>", variantId, updateError);
+        console.error(
+          "[Checkout] updateCartItem failed =>",
+          variantId,
+          updateError,
+        );
       }
     }
   }
 
   cart = await getCart();
-
-  
 
   return cart.items.length;
 }
@@ -556,9 +605,16 @@ export async function startOrderPayment(
   if (payload.providerCode?.trim()) {
     body.providerCode = payload.providerCode.trim();
   }
+  if (payload.digipayType) {
+    body.digipayType = payload.digipayType;
+  }
 
+  console.log("startOrderPayment body => ", body);
 
   const response = await apiClient.post("/Payments/start", body);
+
+  console.log("startOrderPayment response => ", response);
+
   assertSuccess(response.data, "شروع پرداخت ناموفق بود");
 
   const data = unwrapDataObject(response.data);

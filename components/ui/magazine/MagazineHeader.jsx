@@ -38,11 +38,14 @@ export default function MagazineHeader() {
           </Suspense>
 
           <Link
-            href="/"
-            className="inline-flex shrink-0 rounded-md border border-gray-200 px-3 py-2 text-xs font-medium text-gray-700 transition hover:border-primary hover:text-primary dark:border-zinc-700 dark:text-gray-200"
-          >
-            فروشگاه کارآپ۲۴
-          </Link>
+  href="/"
+  className="group inline-flex shrink-0 rounded-md border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-primary hover:text-primary dark:border-zinc-700 dark:text-gray-200"
+>
+  فروشگاه کارآپ{" "}
+  <span className="text-primary transition-colors group-hover:text-gray-700 dark:group-hover:text-gray-300">
+    ۲۴
+  </span>
+</Link>
         </div>
       </div>
     </header>

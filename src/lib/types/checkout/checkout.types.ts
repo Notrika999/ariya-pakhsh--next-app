@@ -75,6 +75,13 @@ export type PlaceOrderShippingAddress = {
   city: string;
   postalCode: string;
   addressLine: string;
+  provinceId?: string;
+  cityId?: string;
+  recipientFirstName?: string;
+  recipientLastName?: string;
+  mobile?: string;
+  phone?: string;
+  email?: string;
 };
 
 export type PlaceOrderShippingSelection = {
@@ -109,9 +116,18 @@ export type PlaceOrderResult = {
 };
 
 export type CheckoutCouponPayload = {
-  couponCode: string;
-  shippingMethodId: string;
-  shippingAddress: PlaceOrderShippingAddress;
+  couponCode?: string | null;
+  providerCode?: string;
+  shippingMethodId?: string;
+  shippingSelections?: PlaceOrderShippingSelection[];
+  shippingAddress?: PlaceOrderShippingAddress;
+};
+
+export type CheckoutGatewayFee = {
+  providerCode: string;
+  title: string;
+  percent: number;
+  amount: number;
 };
 
 export type CheckoutCouponDiscount = {
@@ -129,14 +145,20 @@ export type CheckoutCouponDiscount = {
   decisionReason: string;
   itemsSubtotal: number;
   shippingFee: number;
+  shippingPrice: number;
+  gatewayFee: CheckoutGatewayFee | null;
   discount: number;
   payableAmount: number;
+  onlinePayableAmount: number;
+  totalOrderAmount: number;
+  isShippingPayAtDelivery: boolean;
   raw: unknown;
 };
 
 export type StartPaymentPayload = {
   orderId: string;
   providerCode?: string;
+  digipayType?: "bnpl";
 };
 
 export type StartPaymentResult = {

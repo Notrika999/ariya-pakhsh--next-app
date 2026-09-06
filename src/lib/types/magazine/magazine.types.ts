@@ -22,11 +22,16 @@ export type MagazineSectionType =
   | "buyingGuides"
   | "reviews"
   | "comparisons"
+  | "videos"
+  | "compact"
+  | "carArticles"
   | string;
 
 export type MagazineDisplayVariant =
   | "heroGrid"
   | "largeWithSmallCards"
+  | "threeColumnGrid"
+  | "fourColumnGrid"
   | "grid3"
   | "grid4"
   | "compactList"
@@ -34,39 +39,75 @@ export type MagazineDisplayVariant =
   | "featuredVideo"
   | string;
 
-export type MagazineSectionLayout =
-  | "featured"
-  | "grid"
-  | "compact"
-  | "video";
+export type MagazineSectionSource = "manual" | "automatic" | "mixed";
+
+export type MagazineSectionLayout = "featured" | "grid" | "compact" | "video";
+
+export interface MagazineFeaturedImage {
+  id?: string;
+  url: string;
+  thumbnailUrl: string;
+  alt: string | null;
+}
+
+export interface MagazineArticleCategory {
+  id?: string;
+  title: string;
+  slug: string;
+}
 
 export interface MagazineCategory {
+  id?: string;
   title: string;
   slug: string;
 }
 
 export interface MagazinePost {
+  id?: string;
   slug: string;
   title: string;
   description: string;
+  excerpt?: string;
   keyword: string;
+  category?: string;
   categorySlug: string;
   image: string;
+  thumbnail?: string;
   imageAlt: string;
   authorName: string;
+  author?: string;
   date: string;
+  publishedAt?: string;
   readTime: string;
+  readingTime?: string;
   href: string;
   articleType: string | null;
 }
 
+export interface MagazineSectionFilters {
+  category?: string | null;
+  articleType?: string | null;
+  tag?: string | null;
+  car?: string | null;
+  startAt?: string | null;
+  endAt?: string | null;
+}
+
 export interface MagazineHomeSection {
+  id?: string;
   key: string;
   title: string;
   subtitle: string;
   sectionType: MagazineSectionType | null;
+  displayVariant: MagazineDisplayVariant;
   layout: MagazineSectionLayout;
+  source?: MagazineSectionSource | null;
   categorySlug: string | null;
+  viewAllHref?: string | null;
+  maxArticles?: number | null;
+  order?: number | null;
+  isActive?: boolean;
+  filters?: MagazineSectionFilters;
   posts: MagazinePost[];
 }
 
@@ -74,6 +115,14 @@ export interface MagazineHomeData {
   categories: MagazineCategory[];
   sections: MagazineHomeSection[];
 }
+
+export type MagazineSection = MagazineHomeSection;
+export type Article = MagazinePost;
+export type ArticleCategory = MagazineArticleCategory;
+export type FeaturedImage = MagazineFeaturedImage;
+export type SectionType = MagazineSectionType;
+export type DisplayVariant = MagazineDisplayVariant;
+export type SectionSource = MagazineSectionSource;
 
 export interface MagazineArticlesPage {
   items: MagazinePost[];
@@ -136,13 +185,40 @@ export interface MagazineTableRow {
   cells: MagazineTableCell[];
 }
 
+export interface MagazineInlineStyle {
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  strike: boolean;
+  code: boolean;
+}
+
+export type MagazineInlineNode =
+  | { type: "text"; text: string; styles: MagazineInlineStyle }
+  | {
+      type: "link";
+      href: string;
+      external: boolean;
+      children: MagazineInlineNode[];
+    };
+
 export type MagazineContentBlock =
-  | { type: "paragraph"; text: string }
-  | { type: "heading"; text: string; level: 2 | 3 | 4; anchor: string }
+  | { type: "paragraph"; text: string; inline: MagazineInlineNode[] }
+  | {
+      type: "heading";
+      text: string;
+      level: 2 | 3 | 4;
+      anchor: string;
+      inline: MagazineInlineNode[];
+    }
   | { type: "image"; src: string; alt: string; caption: string }
   | { type: "table"; rows: MagazineTableRow[] }
-  | { type: "infoBox"; text: string }
-  | { type: "list"; style: "bullet" | "number"; items: string[] }
+  | { type: "infoBox"; text: string; inline: MagazineInlineNode[] }
+  | {
+      type: "list";
+      style: "bullet" | "number";
+      items: { text: string; inline: MagazineInlineNode[] }[];
+    }
   | { type: "cta"; label: string; href: string; external: boolean }
   | { type: "faqGroup"; items: { question: string; answer: string }[] }
   | {

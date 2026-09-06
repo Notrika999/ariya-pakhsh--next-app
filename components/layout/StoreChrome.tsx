@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer/Footer";
 import Header from "@/components/layout/Header/Header";
 import NavMobile from "@/components/layout/NavMobile/NavMobile";
 import { BackToTopButton } from "@/components/modules/BackToTopButton/BackToTopButton";
+import { RaychatWidget } from "@/components/modules/RaychatWidget/RaychatWidget";
 import StoryMiniPlayer from "@/components/ui/Home/Story/StoryMiniPlayer";
 
 function isMagazinePath(pathname: string) {
@@ -25,6 +26,7 @@ export default function StoreChrome({ children }: { children: ReactNode }) {
       {children}
       <Footer />
       <NavMobile />
+      <RaychatWidget liftAboveMobileNav />
       <BackToTopButton />
       <StoryMiniPlayer />
     </>

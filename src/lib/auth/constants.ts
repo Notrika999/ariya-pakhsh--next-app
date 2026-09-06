@@ -6,6 +6,7 @@ export const AUTH_COOKIE_NAMES = {
   ACCESS_TOKEN: "CUP_Customer_Access_Token",
   REFRESH_TOKEN: "CUP_Customer_Refresh_Token",
   AUTH_INDICATOR: "CUP_Auth_Indicator",
+  ACCESS_EXPIRES_AT: "CUP_Access_Expires_At",
   DEVICE_ID: "CUP_Customer_Device_Id",
 } as const;
 
@@ -29,6 +30,7 @@ export const AUTH_COOKIE_NAME_ALIASES = {
     AUTH_COOKIE_NAMES.AUTH_INDICATOR,
     LEGACY_AUTH_COOKIE_NAMES.AUTH_INDICATOR,
   ],
+  ACCESS_EXPIRES_AT: [AUTH_COOKIE_NAMES.ACCESS_EXPIRES_AT],
   DEVICE_ID: [AUTH_COOKIE_NAMES.DEVICE_ID, LEGACY_AUTH_COOKIE_NAMES.DEVICE_ID],
 } as const;
 
@@ -88,6 +90,9 @@ export const AUTH_INDICATOR_BUFFER = 24 * 60 * 60; // 1 day
 
 /** Fallback اگه بک‌اند expiresIn نفرسته */
 export const AUTH_INDICATOR_DEFAULT_MAX_AGE = 8 * 24 * 60 * 60; // 8 days
+
+/** رفرش پیش‌دستانه چند ثانیه زودتر از انقضای access token */
+export const TOKEN_REFRESH_LEAD_SECONDS = 3 * 60;
 
 export const AUTH_ROUTES = {
   LOGIN: "/login",
