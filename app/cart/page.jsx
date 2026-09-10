@@ -1,14 +1,10 @@
+// app/cart/page.jsx
+
 import Cart from "@/components/ui/Cart/Cart";
-import CartEmpty from "@/components/ui/Cart/CartEmpty";
 import React from "react";
 
 function CartPage() {
-  return (
-    <>
-      <Cart />
-      <CartEmpty />
-    </>
-  );
+  return <Cart />;
 }
 
 export default CartPage;

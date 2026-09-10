@@ -7,6 +7,12 @@ import QuantitySelector from "../../../modules/QuantityProductSelector/QuantityP
 import { useCart } from "@/src/context/CartContext";
 import { getProductImage } from "@/src/utils/product-image";
 import { useStockNotify } from "@/src/hooks/useStockNotify";
+import { Car } from "lucide-react";
+import { formatVehicleLabel } from "@/src/services/vehicle/vehicle.service";
+import {
+  useSelectedVehicles,
+  useVehicleStore,
+} from "@/src/lib/stores/vehicle/vehicle.store";
 
 export default function ProductAction({ product, variant, isOutOfStock }) {
   const router = useRouter();
@@ -17,6 +23,14 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
 
   const { addItem, updateQty, items } = useCart();
   const { requestNotify, stockNotifyModal } = useStockNotify();
+  const selectedVehicles = useSelectedVehicles();
+  const openVehicleModal = useVehicleStore((state) => state.openModal);
+  const selectedVehiclesSummary =
+    selectedVehicles.length === 0
+      ? null
+      : selectedVehicles.length === 1
+        ? formatVehicleLabel(selectedVehicles[0])
+        : `${formatVehicleLabel(selectedVehicles[0])} و ${selectedVehicles.length - 1} خودرو دیگر`;
 
   // تشخیص breakpoint واقعی
   useEffect(() => {
@@ -106,6 +120,9 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
   const handleBack = () => {
     router.back();
   };
+
+  const viewCount = product?.viewCount ?? 0;
+  const soldCount = product?.soldCount ?? 0;
 
   return (
     <>
@@ -218,18 +235,30 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
                 )}
               </div>
 
-              {/* Delivery */}
-              <div className="flex items-center space-x-2">
+              <button
+                type="button"
+                onClick={openVehicleModal}
+                className="flex w-full items-center space-x-2 rounded-lg text-start transition hover:bg-gray-200/60 dark:hover:bg-zinc-700/60"
+              >
                 <span className="size-8 flex items-center justify-center bg-gray-200 dark:bg-zinc-700 rounded-md">
-                  <i className="far fa-truck-fast text-gray-700 dark:text-gray-300 text-xs"></i>
+               
+                <i class="fa-duotone fa-solid fa-user-headset dark:text-gray-300"></i>
                 </span>
-                <span className="text-sm font-bold text-gray-800 dark:text-white">
-                  ارسال از فروشگاه اصلی
+                <span className="min-w-0">
+                  <span className="block md:text-sm text-xs font-semibold text-gray-800 dark:text-white">
+                    مشاوره سازگاری با خودرو
+                  </span>
+                  {selectedVehiclesSummary ? (
+                    <span className="mt-0.5 block truncate text-[11px] text-gray-500 dark:text-gray-400">
+                      خودروی من: {selectedVehiclesSummary}
+                    </span>
+                  ) : (
+                    <span className="mt-0.5 block text-[11px] text-gray-500 dark:text-gray-400">
+                      تغییر خودرو
+                    </span>
+                  )}
                 </span>
-                <span className="text-xs text-gray-500 dark:text-gray-300">
-                  آماده ارسال
-                </span>
-              </div>
+              </button>
 
               {/* Tags */}
               {/* <div className="flex items-center gap-2 pt-2 flex-wrap">
@@ -254,15 +283,17 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
           </div>
 
           {/* Likes / Stats */}
-          <div className="overflow-hidden h-10 my-3">
-            <div className="h-10 flex text-sm items-center text-gray-700 dark:text-gray-300">
-              👁️{" "}
-              <b className="mx-1">
-                {new Intl.NumberFormat("fa-IR").format(product?.viewCount ?? 0)}
-              </b>{" "}
-              نفر این کالا را مشاهده کرده‌اند
+          {viewCount > 0 && (
+            <div className="overflow-hidden h-10 my-3">
+              <div className="h-10 flex text-sm items-center text-gray-700 dark:text-gray-300">
+                👁️{" "}
+                <b className="mx-1">
+                  {new Intl.NumberFormat("fa-IR").format(viewCount)}
+                </b>{" "}
+                نفر این کالا را مشاهده کرده‌اند
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Price & Quantity */}
           <div className="flex items-center space-x-4 justify-between mt-4 mb-2">
@@ -340,20 +371,22 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
           )}
 
           {/* Points */}
-          <div className="flex items-center mt-2 justify-between pt-2">
-            {/* <span className="text-sm text-gray-600 dark:text-gray-300 flex items-center space-x-1">
-              <i className="fa fa-star text-amber-400 me-1"></i>
-              امتیاز باشگاه مشتریان
-            </span> */}
-            <div className="flex items-center space-x-2">
-              <span className="font-black text-sm dark:text-white">
-                {new Intl.NumberFormat("fa-IR").format(product?.soldCount ?? 0)}
-              </span>
-              <span className="text-gray-600 dark:text-gray-300 text-sm">
-                فروش
-              </span>
+          {soldCount > 0 && (
+            <div className="flex items-center mt-2 justify-between pt-2">
+              {/* <span className="text-sm text-gray-600 dark:text-gray-300 flex items-center space-x-1">
+                <i className="fa fa-star text-amber-400 me-1"></i>
+                امتیاز باشگاه مشتریان
+              </span> */}
+              <div className="flex items-center space-x-2">
+                <span className="font-black text-sm dark:text-white">
+                  {new Intl.NumberFormat("fa-IR").format(soldCount)}
+                </span>
+                <span className="text-gray-600 dark:text-gray-300 text-sm">
+                  فروش
+                </span>
+              </div>
             </div>
-          </div>
+          )}
       </div>
       {stockNotifyModal}
     </>

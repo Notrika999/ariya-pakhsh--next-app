@@ -4,6 +4,7 @@
 import LoginModal from "@/components/modules/auth/LoginModal";
 import UserMenu from "@/components/modules/auth/UserMenu";
 import HeaderCart from "@/components/modules/HeaderCart/HeaderCart";
+import VehicleSelectorTrigger from "@/components/modules/VehicleSelector/VehicleSelectorTrigger";
 import React, {
   useEffect,
   useRef,
@@ -71,6 +72,13 @@ export default function HeaderSetting() {
           {/* <a href="" className="hidden">
             <i className="fa-regular fa-heart"></i>
           </a> */}
+
+          <span className="inline-flex min-[1200px]:hidden">
+            <VehicleSelectorTrigger compact />
+          </span>
+          <span className="hidden min-[1200px]:inline-flex">
+            <VehicleSelectorTrigger />
+          </span>
 
           {/* basket  */}
           <div

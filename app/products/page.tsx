@@ -11,21 +11,18 @@ import {
 import { getProductListFromSearchParams } from "@/src/services/product/product.server";
 
 import type { Metadata } from "next";
-import { absoluteUrl } from "@/src/lib/seo/site";
+import { buildPaginatedCanonical } from "@/src/lib/seo/canonical";
 
-export const metadata: Metadata = {
+const PRODUCTS_METADATA = {
   title: "همه محصولات | خرید آنلاین",
   description: "خرید آنلاین انواع محصولات با بهترین قیمت از فروشگاه ما.",
-  alternates: {
-    canonical: absoluteUrl("/products"),
-  },
   openGraph: {
     title: "همه محصولات | خرید آنلاین",
     description: "خرید آنلاین انواع محصولات با بهترین قیمت از فروشگاه ما.",
-    type: "website",
+    type: "website" as const,
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary_large_image" as const,
     title: "همه محصولات | خرید آنلاین",
     description: "خرید آنلاین انواع محصولات با بهترین قیمت از فروشگاه ما.",
   },
@@ -35,6 +32,19 @@ export const metadata: Metadata = {
 type Props = {
   searchParams: Promise<ProductPageSearchParams>;
 };
+
+export async function generateMetadata({
+  searchParams,
+}: Props): Promise<Metadata> {
+  const resolvedSearchParams = await searchParams;
+
+  return {
+    ...PRODUCTS_METADATA,
+    alternates: {
+      canonical: buildPaginatedCanonical("/products", resolvedSearchParams.page),
+    },
+  };
+}
 
 export default async function StorePage({ searchParams }: Props) {
   const resolvedSearchParams = await searchParams;

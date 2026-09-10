@@ -22,6 +22,7 @@ import SliderProduct from "@/components/modules/SliderProduct/SliderProduct";
 
 import { Metadata } from "next";
 import { absoluteUrl } from "@/src/lib/seo/site";
+import { buildCanonical } from "@/src/lib/seo/canonical";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 import { mapToBestSellingProducts } from "@/src/lib/mappers/best-selling-products.mapper";
 import { getCategoryImage } from "@/src/utils/product-image";
@@ -79,7 +80,7 @@ export const metadata: Metadata = {
     images: ["/images/og-image.jpg"],
   },
   alternates: {
-    canonical: absoluteUrl(),
+    canonical: buildCanonical("/"),
   },
 };
 

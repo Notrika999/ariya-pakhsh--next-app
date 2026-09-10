@@ -17,6 +17,7 @@ import ShareModal from "./ShareModal";
 import ChartModal from "./ChartModal";
 import GalleryLightbox from "./GalleryLightbox";
 import DiscountCountdown from "./DiscountCountdown";
+import { buildProductColorOptions } from "../Description/Description";
 import {
   useIsAuthenticated,
   useIsAuthBootstrapping,
@@ -191,21 +192,32 @@ export default function Gallery({
     [thumbsSwiper],
   );
 
-  const variants = useMemo(
-    () =>
-      productVariants.flatMap((variant) => {
-        const id = variant.variantId?.trim();
-        if (!id) return [];
+  const colorOptions = buildProductColorOptions(productVariants);
+  const variants =
+    colorOptions.length > 0
+      ? colorOptions.map((color) => ({
+          id: color.variantId,
+          label: color.titles.filter(Boolean).join(" / "),
+          titles: color.titles,
+          codes: color.codes,
+          inStock: color.inStock,
+        }))
+      : productVariants.flatMap((variant) => {
+          const id = variant.variantId?.trim();
+          if (!id) return [];
 
-        return [
-          {
-            id,
-            label: variant.name?.trim() || id,
-          },
-        ];
-      }),
-    [productVariants],
-  );
+          const label = variant.name?.trim() || id;
+
+          return [
+            {
+              id,
+              label,
+              titles: [label],
+              codes: [],
+              inStock: variant.inStock,
+            },
+          ];
+        });
 
   const selectedVariantImageIndex = useMemo(() => {
     const variantId = selectedVariantId?.trim();

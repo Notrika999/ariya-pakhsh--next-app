@@ -4,7 +4,7 @@ import {
   normalizeSectionType,
   resolveDisplayVariant,
 } from "@/src/lib/magazine/section-config";
-import { SITE_URL } from "@/src/lib/seo/site";
+import { SITE_NAME, SITE_URL } from "@/src/lib/seo/site";
 import { getProductImage } from "@/src/utils/product-image";
 import type {
   MagazineArticleDetail,
@@ -33,6 +33,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 function asString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
+}
+
+/** Inline body text must keep leading/trailing spaces around links and marks. */
+function asInlineText(value: unknown): string {
+  return typeof value === "string" ? value : "";
 }
 
 /** CMS sometimes stores the same heading twice: "عنوان عنوان". */
@@ -382,6 +387,15 @@ function asIsoDate(value: unknown): string {
 }
 
 function parseRobots(value: unknown): { index: boolean; follow: boolean } {
+  if (isRecord(value)) {
+    const index = asBoolean(value.index);
+    const follow = asBoolean(value.follow);
+    return {
+      index: index !== false,
+      follow: follow !== false,
+    };
+  }
+
   const raw = asString(value).toLowerCase();
   if (!raw) return { index: true, follow: true };
 
@@ -390,6 +404,38 @@ function parseRobots(value: unknown): { index: boolean; follow: boolean } {
     index: !tokens.includes("noindex"),
     follow: !tokens.includes("nofollow"),
   };
+}
+
+function isPublicMagazineArticle(article: Record<string, unknown>): boolean {
+  const status = asString(article.status).toLowerCase();
+  if (
+    ["draft", "deleted", "inactive", "archived", "unpublished"].includes(status)
+  ) {
+    return false;
+  }
+
+  const isPublished = asBoolean(article.isPublished ?? article.published);
+  const isDeleted = asBoolean(article.isDeleted ?? article.deleted);
+  const isActive = asBoolean(article.isActive ?? article.active);
+  const isIndexable = asBoolean(
+    article.isIndexable ?? article.indexable ?? article.isPublic,
+  );
+
+  if (isPublished === false || isDeleted === true || isActive === false) {
+    return false;
+  }
+
+  if (isIndexable === false) {
+    return false;
+  }
+
+  const visibility = asString(article.visibility).toLowerCase();
+  if (["private", "draft", "hidden", "internal"].includes(visibility)) {
+    return false;
+  }
+
+  const seo = isRecord(article.seo) ? article.seo : {};
+  return parseRobots(seo.robots).index;
 }
 
 function isSameSiteHost(hostname: string): boolean {
@@ -443,12 +489,68 @@ function mapInlineStyles(value: unknown): MagazineInlineStyle {
   };
 }
 
+const EMPTY_INLINE_STYLES: MagazineInlineStyle = {
+  bold: false,
+  italic: false,
+  underline: false,
+  strike: false,
+  code: false,
+};
+
 function flattenInlineText(nodes: MagazineInlineNode[]): string {
   return nodes
     .map((node) =>
       node.type === "text" ? node.text : flattenInlineText(node.children),
     )
     .join("");
+}
+
+function joinRichTextGroups(
+  groups: { text: string; inline: MagazineInlineNode[] }[],
+): { text: string; inline: MagazineInlineNode[] } {
+  const inline: MagazineInlineNode[] = [];
+  for (const group of groups) {
+    if (!group.text) continue;
+    if (inline.length) {
+      inline.push({ type: "text", text: "\n", styles: EMPTY_INLINE_STYLES });
+    }
+    inline.push(...group.inline);
+  }
+  return { text: flattenInlineText(inline), inline };
+}
+
+function mapQuoteRichText(
+  item: Record<string, unknown>,
+  data: Record<string, unknown>,
+): { text: string; inline: MagazineInlineNode[] } {
+  const direct = mapRichText(data);
+  if (direct.text) return direct;
+
+  const plainContent =
+    (typeof data.content === "string" ? data.content.trim() : "") ||
+    (typeof data.body === "string" ? data.body.trim() : "");
+  if (plainContent) {
+    return {
+      text: plainContent,
+      inline: [{ type: "text", text: plainContent, styles: EMPTY_INLINE_STYLES }],
+    };
+  }
+
+  const fromItem = mapRichText(item);
+  if (fromItem.text) return fromItem;
+
+  const nested = [
+    ...(Array.isArray(data.children) ? data.children : []),
+    ...(Array.isArray(item.children) ? item.children : []),
+  ];
+  const groups: { text: string; inline: MagazineInlineNode[] }[] = [];
+  for (const child of nested) {
+    if (!isRecord(child)) continue;
+    const childData = isRecord(child.data) ? child.data : child;
+    const rich = mapRichText(childData);
+    if (rich.text) groups.push(rich);
+  }
+  return joinRichTextGroups(groups);
 }
 
 function mapInlineNodes(value: unknown): MagazineInlineNode[] {
@@ -460,16 +562,25 @@ function mapInlineNodes(value: unknown): MagazineInlineNode[] {
     const type = asString(item.type);
 
     if (type === "text") {
-      const text = asString(item.text);
+      const text = asInlineText(item.text);
       if (text) {
+        const styles = mapInlineStyles(item.styles);
         const previous = nodes[nodes.length - 1];
-        if (previous?.type === "text" && previous.text === text) {
+        if (
+          previous?.type === "text" &&
+          previous.text === text &&
+          previous.styles.bold === styles.bold &&
+          previous.styles.italic === styles.italic &&
+          previous.styles.underline === styles.underline &&
+          previous.styles.strike === styles.strike &&
+          previous.styles.code === styles.code
+        ) {
           continue;
         }
         nodes.push({
           type: "text",
           text,
-          styles: mapInlineStyles(item.styles),
+          styles,
         });
       }
       continue;
@@ -727,6 +838,26 @@ function mapContentBlocks(
     if (type === "infoBox" || type === "callout" || type === "note") {
       const rich = mapRichText(data);
       if (rich.text) blocks.push({ type: "infoBox", ...rich });
+      index += 1;
+      continue;
+    }
+
+    if (type.toLowerCase() === "quote" || type.toLowerCase() === "blockquote") {
+      const props = isRecord(data.props) ? data.props : {};
+      const rich = mapQuoteRichText(item, data);
+      if (rich.text) {
+        blocks.push({
+          type: "quote",
+          ...rich,
+          citation:
+            asString(data.citation) ||
+            asString(data.caption) ||
+            asString(data.author) ||
+            asString(props.citation) ||
+            asString(props.caption) ||
+            asString(props.author),
+        });
+      }
       index += 1;
       continue;
     }
@@ -1103,6 +1234,128 @@ function mapFaqItem(
   return { question, answer };
 }
 
+function collectVisibleFaqs(
+  content: MagazineContentBlock[],
+  extraFaqs: { question: string; answer: string }[],
+): { question: string; answer: string }[] {
+  const fromContent: { question: string; answer: string }[] = [];
+
+  for (const block of content) {
+    if (block.type !== "faqGroup") continue;
+    for (const item of block.items) {
+      const question = asString(item.question);
+      const answer = asString(item.answer);
+      if (question && answer) fromContent.push({ question, answer });
+    }
+  }
+
+  return fromContent.length ? fromContent : extraFaqs;
+}
+
+function buildFaqPageJsonLd(
+  faqs: { question: string; answer: string }[],
+): Record<string, unknown> | null {
+  if (!faqs.length) return null;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+}
+
+function sitePublisherJsonLd(): Record<string, unknown> {
+  return {
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_URL}/images/logo/carup24-logo.png`,
+    },
+  };
+}
+
+function mergePublisherJsonLd(existing: unknown): Record<string, unknown> {
+  const sitePublisher = sitePublisherJsonLd();
+  if (!isRecord(existing)) return sitePublisher;
+
+  const name = asString(existing.name);
+  if (!name) return sitePublisher;
+
+  const existingLogo = isRecord(existing.logo) ? existing.logo : null;
+  const logoUrl = existingLogo ? asString(existingLogo.url) : "";
+
+  return {
+    "@type": asString(existing["@type"]) || "Organization",
+    name,
+    url: asString(existing.url) || SITE_URL,
+    logo: logoUrl
+      ? { "@type": "ImageObject", url: logoUrl }
+      : sitePublisher.logo,
+  };
+}
+
+type ArticleJsonLdContext = {
+  title: string;
+  description: string;
+  image: string;
+  datePublished: string;
+  dateModified: string;
+  authorName: string;
+  articleUrl: string;
+};
+
+function applyRealArticleJsonLdFields(
+  jsonLd: Record<string, unknown>,
+  ctx: ArticleJsonLdContext,
+): Record<string, unknown> {
+  const next: Record<string, unknown> = { ...jsonLd };
+  const type = asString(next["@type"]);
+  if (type !== "Article" && type !== "BlogPosting") return next;
+
+  next.headline = ctx.title;
+  if (ctx.description) next.description = ctx.description;
+  if (ctx.image) next.image = ctx.image;
+  if (ctx.datePublished) next.datePublished = ctx.datePublished;
+  if (ctx.dateModified) next.dateModified = ctx.dateModified;
+  if (ctx.authorName) {
+    next.author = {
+      "@type": "Person",
+      name: ctx.authorName,
+    };
+  } else {
+    delete next.author;
+  }
+  next.publisher = mergePublisherJsonLd(next.publisher);
+  next.mainEntityOfPage = {
+    "@type": "WebPage",
+    "@id": ctx.articleUrl,
+  };
+  if (!asString(next.url)) next.url = ctx.articleUrl;
+
+  return next;
+}
+
+function buildArticleJsonLd(
+  ctx: ArticleJsonLdContext,
+): Record<string, unknown> {
+  return applyRealArticleJsonLdFields(
+    {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+    },
+    ctx,
+  );
+}
+
 function toJsonLd(
   item: unknown,
   article: {
@@ -1114,6 +1367,8 @@ function toJsonLd(
   if (!isRecord(item)) return null;
   const type = asString(item.type) || asString(item["@type"]);
   if (!type) return null;
+
+  if (type === "FAQPage") return null;
 
   if (type === "BreadcrumbList") {
     const crumbs = Array.isArray(item.data) ? item.data : [];
@@ -1209,6 +1464,7 @@ export function mapMagazineArticleDetail(
   const slug = asString(article.slug);
   const title = asString(article.title);
   if (!slug || !title) return null;
+  if (!isPublicMagazineArticle(article)) return null;
 
   const category = mapMagazineCategory(article.category);
   const excerpt = asString(article.excerpt) || asString(article.description);
@@ -1232,6 +1488,62 @@ export function mapMagazineArticleDetail(
         .filter((item): item is MagazineRelatedProduct => Boolean(item))
     : [];
   const catalog = mergeProductCatalog(relatedProducts, extraCatalog);
+  const author = mapAuthor(article.author);
+  const content = mapContentBlocks(
+    article.content,
+    toc,
+    catalog,
+    categoryLinks,
+  );
+  const faqs = Array.isArray(article.faqs)
+    ? article.faqs
+        .map(mapFaqItem)
+        .filter((item): item is { question: string; answer: string } =>
+          Boolean(item),
+        )
+    : [];
+  const seo = mapSeo(article.seo, {
+    title,
+    excerpt,
+    slug,
+    image: featuredImage,
+  });
+  const publishedAtIso = asIsoDate(article.publishedAt);
+  const updatedAtIso = asIsoDate(article.updatedAt) || publishedAtIso;
+  const articleUrl = seo.canonicalUrl;
+  const schemaImage =
+    featuredImage && featuredImage !== "/images/default.png"
+      ? featuredImage.startsWith("/")
+        ? `${SITE_URL}${featuredImage}`
+        : featuredImage
+      : "";
+  const articleJsonLdCtx: ArticleJsonLdContext = {
+    title,
+    description: seo.description || excerpt,
+    image: schemaImage,
+    datePublished: publishedAtIso,
+    dateModified: updatedAtIso,
+    authorName: author?.displayName || "",
+    articleUrl,
+  };
+  const structuredData = (
+    Array.isArray(article.structuredData) ? article.structuredData : []
+  )
+    .map((item) => toJsonLd(item, { slug, title, category }))
+    .filter((item): item is Record<string, unknown> => Boolean(item))
+    .map((item) => applyRealArticleJsonLdFields(item, articleJsonLdCtx));
+
+  if (
+    !structuredData.some((item) => {
+      const type = asString(item["@type"]);
+      return type === "Article" || type === "BlogPosting";
+    })
+  ) {
+    structuredData.unshift(buildArticleJsonLd(articleJsonLdCtx));
+  }
+
+  const faqJsonLd = buildFaqPageJsonLd(collectVisibleFaqs(content, faqs));
+  if (faqJsonLd) structuredData.push(faqJsonLd);
 
   return {
     articleId: asString(article.id),
@@ -1245,14 +1557,14 @@ export function mapMagazineArticleDetail(
     featuredImage,
     featuredImageAlt: featuredAlt || title,
     category,
-    author: mapAuthor(article.author),
+    author,
     publishedAt: formatArticleDate(article.publishedAt),
-    publishedAtIso: asIsoDate(article.publishedAt),
+    publishedAtIso,
     updatedAt: formatArticleDate(article.updatedAt),
-    updatedAtIso: asIsoDate(article.updatedAt),
+    updatedAtIso,
     readingTime: formatReadTime(article.readingTimeMinutes),
     tableOfContents: toc,
-    content: mapContentBlocks(article.content, toc, catalog, categoryLinks),
+    content,
     tags: Array.isArray(article.tags)
       ? article.tags
           .map(mapTag)
@@ -1264,23 +1576,8 @@ export function mapMagazineArticleDetail(
           .map(mapMagazinePost)
           .filter((item): item is MagazinePost => Boolean(item))
       : [],
-    faqs: Array.isArray(article.faqs)
-      ? article.faqs
-          .map(mapFaqItem)
-          .filter((item): item is { question: string; answer: string } =>
-            Boolean(item),
-          )
-      : [],
-    seo: mapSeo(article.seo, {
-      title,
-      excerpt,
-      slug,
-      image: featuredImage,
-    }),
-    structuredData: Array.isArray(article.structuredData)
-      ? article.structuredData
-          .map((item) => toJsonLd(item, { slug, title, category }))
-          .filter((item): item is Record<string, unknown> => Boolean(item))
-      : [],
+    faqs,
+    seo,
+    structuredData,
   };
 }

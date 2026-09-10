@@ -235,7 +235,14 @@ function isBankGatewayPaymentMethod(method: CheckoutPaymentMethod): boolean {
 
 export default function Checkout() {
   const router = useRouter();
-  const { items, totalItems, totalPrice, clearCart } = useCart();
+  const {
+    items,
+    totalItems,
+    totalPrice,
+    loading: cartLoading,
+    syncing: cartSyncing,
+    clearCart,
+  } = useCart();
 
   const [selectedAddress, setSelectedAddress] =
     useState<CustomerAddressDto | null>(null);
@@ -641,6 +648,10 @@ export default function Checkout() {
 
   // handlePlaceOrder is a function that places an order and redirects to the payment gateway
   const handlePlaceOrder = async () => {
+    if (cartLoading || cartSyncing) {
+      notify.info("سبد خرید در حال آماده‌سازی است");
+      return;
+    }
     if (items.length === 0) {
       notify.error("سبد خرید خالی است");
       return;
@@ -894,6 +905,16 @@ export default function Checkout() {
         onCancel={handleCancelGatewayRedirect}
         onProceed={() => void handleProceedToGateway()}
       />
+    );
+  }
+
+  if (cartLoading || cartSyncing) {
+    return (
+      <SectionContainer>
+        <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-gray-500 dark:border-gray-700 dark:bg-custom-dark dark:text-gray-400">
+          در حال آماده‌سازی سبد خرید...
+        </div>
+      </SectionContainer>
     );
   }
 

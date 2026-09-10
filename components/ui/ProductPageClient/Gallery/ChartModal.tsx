@@ -4,9 +4,19 @@
 import ProductPriceChart, {
   type PriceChartItem,
 } from "@/components/modules/ProductPriceChart/ProductPriceChart";
+import {
+  isLightHex,
+  swatchStyle,
+} from "@/components/ui/ProductPageClient/Description/Description";
 import { apiClient } from "@/src/lib/http/api-client";
 import { useEffect, useMemo, useState } from "react";
-type Variant = { id: string; label: string };
+type Variant = {
+  id: string;
+  label: string;
+  titles?: string[];
+  codes?: string[];
+  inStock?: boolean;
+};
 
 function getRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object"
@@ -76,6 +86,13 @@ export default function ChartModal({
   const [data, setData] = useState<PriceChartItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const selectedVariant =
+    variants.find((variant) => variant.id === selectedVariantId) ??
+    variants[0];
+  const selectedTitles =
+    selectedVariant?.titles?.filter(Boolean) ??
+    (selectedVariant?.label ? [selectedVariant.label] : []);
+  const selectedCodes = selectedVariant?.codes?.filter(Boolean) ?? [];
 
   useEffect(() => {
     if (!open || !productId || !selectedVariantId) return;
@@ -141,25 +158,113 @@ export default function ChartModal({
 
         {/* VARIANT CONTROL (بالای چارت) */}
         <div className="px-5 pt-5">
-          <div className="flex items-center  gap-2 flex-wrap">
-            <span className="text-sm text-gray-700 dark:text-gray-200 font-bold">
-              انتخاب رنگ
-            </span>
+          <div className="space-y-4">
+            {selectedVariant && (
+              <div className="flex flex-wrap items-center gap-2">
+                {selectedCodes.length > 0 && (
+                  <span
+                    className="size-4 shrink-0 rounded-full border border-gray-300"
+                    style={swatchStyle(selectedCodes)}
+                  />
+                )}
+                <p className="text-sm font-bold text-gray-700 dark:text-gray-200">
+                  رنگ:{" "}
+                  <span className="inline-flex flex-wrap items-center gap-x-1 gap-y-1 font-semibold text-gray-900 dark:text-white">
+                    {selectedTitles.map((title, index) => (
+                      <span
+                        key={`${selectedVariant.id}-label-${index}`}
+                        className="inline-flex items-center gap-1.5"
+                      >
+                        {index > 0 && (
+                          <span className="text-gray-400 dark:text-gray-500">
+                            /
+                          </span>
+                        )}
+                        {title}
+                      </span>
+                    ))}
+                  </span>
+                </p>
+              </div>
+            )}
 
-            {variants.map((v) => (
-              <button
-                key={v.id}
-                onClick={() => setSelectedVariantId(v.id)}
-                className={[
-                  "px-4 py-2 rounded-xl border text-sm",
-                  selectedVariantId === v.id
-                    ? "border-gray-900 dark:border-white text-gray-900 dark:text-white"
-                    : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300",
-                ].join(" ")}
-              >
-                {v.label}
-              </button>
-            ))}
+            <div className="flex flex-wrap items-center gap-4">
+              {variants.map((variant) => {
+                const isActive = selectedVariantId === variant.id;
+                const titleText =
+                  variant.titles?.filter(Boolean).join(" / ") ||
+                  variant.label;
+                const codes = variant.codes?.filter(Boolean) ?? [];
+                const avgLight =
+                  codes.length > 0 &&
+                  codes.filter(isLightHex).length >=
+                    Math.ceil(codes.length / 2);
+                const checkClass = avgLight
+                  ? "text-gray-800"
+                  : "text-white drop-shadow";
+
+                if (codes.length === 0) {
+                  return (
+                    <button
+                      key={variant.id}
+                      type="button"
+                      title={titleText}
+                      aria-label={`انتخاب رنگ ${titleText}`}
+                      aria-pressed={isActive}
+                      onClick={() => setSelectedVariantId(variant.id)}
+                      className={[
+                        "rounded-xl border px-4 py-2 text-sm transition",
+                        isActive
+                          ? "border-gray-900 text-gray-900 dark:border-white dark:text-white"
+                          : "border-gray-200 text-gray-600 dark:border-gray-700 dark:text-gray-300",
+                        variant.inStock === false ? "opacity-50" : "",
+                      ].join(" ")}
+                    >
+                      {variant.label}
+                    </button>
+                  );
+                }
+
+                return (
+                  <button
+                    key={variant.id}
+                    type="button"
+                    title={titleText}
+                    aria-label={`انتخاب رنگ ${titleText}`}
+                    aria-pressed={isActive}
+                    onClick={() => setSelectedVariantId(variant.id)}
+                    className={[
+                      "relative flex h-12 w-12 items-center justify-center rounded-full",
+                      variant.inStock === false ? "opacity-50" : "",
+                    ].join(" ")}
+                  >
+                    {isActive && (
+                      <span className="absolute inset-0 rounded-full border-4 border-sky-400" />
+                    )}
+                    <span
+                      className="relative z-10 flex size-8 items-center justify-center rounded-full border border-gray-300"
+                      style={swatchStyle(codes)}
+                    >
+                      {isActive && (
+                        <svg
+                          className={`size-4 ${checkClass}`}
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="3"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 

@@ -60,7 +60,7 @@ export default function MagazineFooter({ categories = [] }) {
               alt="کارآپ ۲۴"
               width={40}
               height={40}
-              className="dark:invert dark:hue-rotate-180"
+              className="object-contain"
             />
             <span className="font-bold">
               مجله خودرو کارآپ<span className="text-primary">۲۴</span>

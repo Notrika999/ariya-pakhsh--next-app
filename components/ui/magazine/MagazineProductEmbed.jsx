@@ -16,13 +16,13 @@ export default function MagazineProductEmbed({
     product.compareAtPrice && product.compareAtPrice > product.price;
 
   return (
-    <aside className="my-6 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-zinc-700 dark:bg-custom-dark">
+    <aside className="my-6 w-fit max-w-md overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-zinc-700 dark:bg-custom-dark">
       {text ? (
         <p className="border-b border-gray-200 px-4 py-3 text-sm leading-7 text-gray-700 dark:border-zinc-700 dark:text-gray-200">
           {text}
         </p>
       ) : null}
-      <div className="flex flex-col sm:flex-row">
+      <div className="flex flex-row">
         <Link
           href={product.href}
           onClick={() => {
@@ -33,7 +33,7 @@ export default function MagazineProductEmbed({
               productId: product.productId,
             });
           }}
-          className="relative aspect-square w-full shrink-0 bg-gray-50 sm:w-44 dark:bg-zinc-800"
+          className="relative size-32 shrink-0 bg-gray-50 sm:size-44 dark:bg-zinc-800"
         >
           <Image
             src={product.image}
@@ -43,7 +43,7 @@ export default function MagazineProductEmbed({
             className="object-contain p-3"
           />
         </Link>
-        <div className="flex min-w-0 flex-1 flex-col justify-center gap-3 p-4">
+        <div className="flex min-w-0 flex-col justify-center gap-3 p-4">
           <h3 className="text-base font-bold leading-7 text-gray-900 dark:text-white">
             <Link
               href={product.href}

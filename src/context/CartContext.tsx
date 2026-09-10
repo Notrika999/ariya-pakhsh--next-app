@@ -147,12 +147,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(cartReducer, { items: [] });
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
+  const [authTransitionPending, setAuthTransitionPending] = useState(false);
   const hydratedLocalRef = useRef(false);
   const prevAuthRef = useRef<boolean | null>(null);
   const mergeInFlightRef = useRef(false);
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isAuthBootstrapping = useAuthStore((s) => s.isAuthBootstrapping);
+
+  useEffect(() => {
+    return useAuthStore.subscribe((next, prev) => {
+      if (next.isAuthenticated && !prev.isAuthenticated) {
+        setAuthTransitionPending(true);
+      }
+    });
+  }, []);
 
   const hydrateFromApi = useCallback(async () => {
     const cart = await getCart();
@@ -268,6 +277,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           if (prev === false) {
             // Just logged in — merge whatever HeaderCart / guest had
             await mergeGuestCart();
+            setAuthTransitionPending(false);
           } else if (prev === null) {
             // Session restore on refresh
             setLoading(true);
@@ -283,6 +293,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           // Logged out — show local guest cart (usually empty after merge)
           const saved = cartStorage.get();
           dispatch({ type: "HYDRATE", payload: saved });
+          setAuthTransitionPending(false);
+        } else {
+          setAuthTransitionPending(false);
         }
 
         prevAuthRef.current = isAuthenticated;
@@ -463,7 +476,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         items: state.items,
         totalItems,
         totalPrice,
-        loading,
+        loading: loading || authTransitionPending,
         syncing,
         addItem,
         removeItem,

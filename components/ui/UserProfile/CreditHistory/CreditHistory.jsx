@@ -6,6 +6,7 @@ import CreditHistorySummary from "./CreditHistorySummary";
 import FilterBar from "../../../modules/FilterBar/FilterBar";
 import TransactionCard from "../../../modules/Transactions/TransactionCard";
 import GatewayRedirectConfirmation from "@/components/modules/GatewayRedirectConfirmation/GatewayRedirectConfirmation";
+import GatewaySelectModal from "./GatewaySelectModal";
 import {
   getMyWallet,
   getMyWalletTransactions,
@@ -140,6 +141,7 @@ export default function CreditHistory() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [topUpLoading, setTopUpLoading] = useState(false);
+  const [pendingTopUpAmount, setPendingTopUpAmount] = useState(null);
   const [pendingTopUpGateway, setPendingTopUpGateway] = useState(null);
 
   const [type, setType] = useState("all");
@@ -272,8 +274,23 @@ export default function CreditHistory() {
     };
   }, [cardItems]);
 
-  const handleTopUp = async (amountValue) => {
+  const handlePayClick = (amountValue) => {
     const amount = parseAmountInput(amountValue);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      notify.error("مبلغ افزایش اعتبار معتبر نیست");
+      return;
+    }
+
+    setPendingTopUpAmount(amount);
+  };
+
+  const handleCancelGatewaySelect = useCallback(() => {
+    if (topUpLoading) return;
+    setPendingTopUpAmount(null);
+  }, [topUpLoading]);
+
+  const handleConfirmGatewaySelect = async (gateway) => {
+    const amount = Number(pendingTopUpAmount) || 0;
     if (!Number.isFinite(amount) || amount <= 0) {
       notify.error("مبلغ افزایش اعتبار معتبر نیست");
       return;
@@ -281,17 +298,23 @@ export default function CreditHistory() {
 
     setTopUpLoading(true);
     try {
-      const result = await topUpMyWallet(amount);
+      const result = await topUpMyWallet(amount, {
+        providerCode: gateway?.providerCode,
+        paymentMethodCode: gateway?.methodCode,
+      });
       if (result.paymentUrl) {
         setPendingTopUpGateway({
           amount,
           paymentUrl: result.paymentUrl,
+          gatewayTitle: gateway?.title,
         });
+        setPendingTopUpAmount(null);
         setTopUpLoading(false);
         return;
       }
 
       notify.success(result.message || "درخواست افزایش اعتبار ثبت شد");
+      setPendingTopUpAmount(null);
       await Promise.all([loadWallet(), loadTransactions(1)]);
       setCustomAmount("");
       setSelectedQuickAmount(null);
@@ -344,6 +367,14 @@ export default function CreditHistory() {
             label: "موجودی پس از پرداخت",
             value: formatMoney(balance + topUpAmount),
           },
+          ...(pendingTopUpGateway.gatewayTitle
+            ? [
+                {
+                  label: "درگاه پرداخت",
+                  value: pendingTopUpGateway.gatewayTitle,
+                },
+              ]
+            : []),
         ]}
         amountLabel="مبلغ قابل پرداخت"
         amountValue={formatMoney(topUpAmount)}
@@ -527,14 +558,14 @@ export default function CreditHistory() {
                   );
                   setSelectedQuickAmount(null);
                 }}
-                className="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary dark:border-gray-600 dark:bg-zinc-800 dark:text-white"
+                className="flex-1 ms-1 rounded-lg border border-gray-300 px-4 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary dark:border-gray-600 dark:bg-zinc-800 dark:text-white"
                 placeholder="مبلغ به تومان"
               />
               <button
                 id="payment-btn"
                 type="button"
                 disabled={topUpLoading}
-                onClick={() => void handleTopUp(customAmount)}
+                onClick={() => handlePayClick(customAmount)}
                 className="rounded-lg bg-primary px-6 py-2 font-medium text-white transition duration-200 hover:bg-primary/90 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {topUpLoading ? "در حال پرداخت..." : "پرداخت"}
@@ -543,6 +574,16 @@ export default function CreditHistory() {
           </div>
         </div>
       </div>
+
+      <GatewaySelectModal
+        open={pendingTopUpAmount != null && !pendingTopUpGateway}
+        amountLabel={
+          pendingTopUpAmount != null ? formatMoney(pendingTopUpAmount) : ""
+        }
+        confirming={topUpLoading}
+        onClose={handleCancelGatewaySelect}
+        onConfirm={(gateway) => void handleConfirmGatewaySelect(gateway)}
+      />
     </div>
   );
 }

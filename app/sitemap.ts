@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { buildBackendApiUrl } from "@/src/lib/api/backend-base";
 import { absoluteUrl } from "@/src/lib/seo/site";
+import { buildProductCanonicalPath } from "@/src/lib/seo/canonical";
 
 const REVALIDATE_SECONDS = 60 * 60;
 const PRODUCT_PAGE_SIZE = 100;
@@ -340,7 +341,7 @@ function mapProducts(items: unknown[]): MetadataRoute.Sitemap {
       }
 
       return createSitemapEntry(
-        `/product/${encodeURIComponent(publicCode)}/${encodeURIComponent(slug)}`,
+        buildProductCanonicalPath({ publicCode, slug }),
         {
           changeFrequency: "daily" as const,
           priority: 0.8,

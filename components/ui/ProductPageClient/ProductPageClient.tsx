@@ -39,7 +39,7 @@ const PRODUCT_SERVICE_ITEMS = [
   },
   {
     title: "هفت روز ضمانت بازگشت کالا",
-    icon: "far fa-box-arrow-left",
+    icon: "far fa-rotate-left",
   },
   {
     title: "ضمانت اصل بودن کالا",
@@ -247,18 +247,19 @@ export default function ProductPageClient({
             />
           </div>
 
-          <div className="mt-2 grid justify-center border-y border-gray-100 py-5 dark:border-gray-700">
-            <ul className="grid grid-cols-2 gap-x-4 gap-y-5 text-gray-400 dark:text-gray-500 sm:grid-cols-3 lg:grid-cols-5">
+          {/* Product Service Items */}
+          <div className="mt-2 border-y border-gray-100 py-5 dark:border-gray-700">
+            <ul className="grid w-full grid-cols-1 gap-x-4 gap-y-5 text-gray-400 dark:text-gray-500 sm:grid-cols-2 lg:grid-cols-4">
               {PRODUCT_SERVICE_ITEMS.map((item) => (
                 <li
                   key={item.title}
-                  className="flex items-center justify-center gap-1 text-center"
+                  className="flex items-center justify-center gap-2 text-center"
                 >
                   <i
-                    className={`${item.icon}  leading-none`}
+                    className={`${item.icon} shrink-0 text-base leading-none`}
                     aria-hidden="true"
                   />
-                  <span className="text-xs text-nowrap font-semibold leading-6">
+                  <span className="text-sm font-semibold leading-6">
                     {item.title}
                   </span>
                 </li>

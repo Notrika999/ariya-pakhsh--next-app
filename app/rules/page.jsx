@@ -1,10 +1,10 @@
 import Rules from '@/components/ui/Rules/Rules'
-import { absoluteUrl } from "@/src/lib/seo/site";
+import { buildCanonical } from "@/src/lib/seo/canonical";
 import React from 'react'
 
 export const metadata = {
   alternates: {
-    canonical: absoluteUrl("/rules"),
+    canonical: buildCanonical("/rules"),
   },
 };
 

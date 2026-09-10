@@ -125,6 +125,21 @@ export interface RelatedProduct {
   variants?: ProductDetailVariant[];
 }
 
+export interface ProductRelatedArticle {
+  articleId: string;
+  title: string;
+  slug: string;
+  excerpt?: string | null;
+  featuredImageUrl?: string | null;
+  featuredImageThumbnailUrl?: string | null;
+  featuredImageAlt?: string | null;
+  categoryId?: string | null;
+  categoryTitle?: string | null;
+  categorySlug?: string | null;
+  publishedAt?: string | null;
+  readingTimeMinutes?: number | null;
+}
+
 export interface ProductDetailCompatibility {
   carId: string;
   name: string;
@@ -161,6 +176,7 @@ export interface ProductDetail {
   variants: ProductDetailVariant[];
   attributes: ProductDetailAttribute[];
   relatedProducts: RelatedProduct[];
+  relatedArticles?: ProductRelatedArticle[];
   crossSellProducts: RelatedProduct[]; // Cross-sell products are products that are related to the current product and are displayed on the product page
   upsellProducts: RelatedProduct[]; // Upsell products are products that are related to the current product and are displayed on the product page
   compatibilities: ProductDetailCompatibility[];

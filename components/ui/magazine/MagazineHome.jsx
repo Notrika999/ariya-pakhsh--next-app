@@ -5,7 +5,7 @@ import ArticleGrid from "./ArticleGrid";
 import MagazineSidebar from "./MagazineSidebar";
 import CategorySection from "./CategorySection";
 import NewsletterCTA from "./NewsletterCTA";
-import Pagination from "@/components/modules/Pagination/Pagination";
+import MagazinePagination from "@/components/ui/magazine/MagazinePagination";
 import { getCategoryLabel } from "@/components/ui/magazine/magazineHomeUtils";
 import Link from "next/link";
 import SectionRenderer from "./sections/SectionRenderer";
@@ -53,6 +53,12 @@ export function MagazineListing({
   posts = [],
   page = 1,
   totalPages = 1,
+  articleType = "",
+  tag = "",
+  vehicle = "",
+  sort = "",
+  list = false,
+  pageSize,
 }) {
   const title = query.trim()
     ? "نتایج جستجو"
@@ -74,9 +80,20 @@ export function MagazineListing({
           articles={posts}
           emptyMessage="مقاله‌ای با این مشخصات پیدا نشد."
         />
-        {totalPages > 1 ? (
-          <Pagination page={page} totalPages={totalPages} />
-        ) : null}
+        <MagazinePagination
+          page={page}
+          totalPages={totalPages}
+          hrefParams={{
+            category,
+            q: query,
+            articleType,
+            tag,
+            vehicle,
+            sort,
+            list,
+            pageSize,
+          }}
+        />
       </section>
     </MagazinePageFrame>
   );

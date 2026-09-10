@@ -58,13 +58,65 @@ export function getArticleTypeForCategory(category) {
   return CATEGORY_SLUG_TO_ARTICLE_TYPE[category] ?? "";
 }
 
+function getSearchValue(value) {
+  if (Array.isArray(value)) return value[0] ?? "";
+  return typeof value === "string" ? value : "";
+}
+
+export function parseMagazineHomeSearchParams(searchParams) {
+  const resolved = searchParams ?? {};
+
+  return {
+    query: getSearchValue(resolved.q),
+    tag: getSearchValue(resolved.tag),
+    vehicle: getSearchValue(resolved.vehicle),
+    sort: getSearchValue(resolved.sort) || "latest",
+    requestedCategory: getSearchValue(resolved.category) || "all",
+    requestedArticleType: normalizeArticleType(
+      getSearchValue(resolved.articleType),
+    ),
+    page: parsePositiveInt(resolved.page, 1),
+    pageSize: parsePositiveInt(resolved.pageSize, 12, 48),
+    showAllArticles: getSearchValue(resolved.list) === "1",
+  };
+}
+
+export function getMagazineQueryPageSeo({
+  category = "all",
+  query = "",
+  tag = "",
+  vehicle = "",
+  articleType = "",
+  showAllArticles = false,
+  page = 1,
+  sort = "latest",
+} = {}) {
+  const isSearch = Boolean(String(query).trim());
+  const isTag = Boolean(String(tag).trim());
+  const isInternalFilter =
+    Boolean(String(vehicle).trim()) ||
+    Boolean(articleType) ||
+    Boolean(showAllArticles) ||
+    (sort && sort !== "latest") ||
+    (page > 1 && category === "all");
+
+  if (isSearch || isTag || isInternalFilter) {
+    return { index: false, follow: true };
+  }
+
+  return { index: true, follow: true };
+}
+
 export function getBlogHomeHref({
   category = "all",
   q = "",
   articleType = "",
   tag = "",
+  vehicle = "",
   sort = "",
   list = false,
+  page = 1,
+  pageSize,
 } = {}) {
   const params = new URLSearchParams();
   const query = q.trim();
@@ -83,6 +135,10 @@ export function getBlogHomeHref({
     params.set("tag", tag.trim());
   }
 
+  if (vehicle.trim()) {
+    params.set("vehicle", vehicle.trim());
+  }
+
   if (query) {
     params.set("q", query);
   }
@@ -93,6 +149,14 @@ export function getBlogHomeHref({
 
   if (list) {
     params.set("list", "1");
+  }
+
+  if (page > 1) {
+    params.set("page", String(page));
+  }
+
+  if (pageSize && pageSize !== 12) {
+    params.set("pageSize", String(pageSize));
   }
 
   const search = params.toString();

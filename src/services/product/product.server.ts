@@ -39,6 +39,30 @@ export class ProductServiceError extends Error {
   }
 }
 
+type ProductLookupCandidate = {
+  productId?: string | null;
+  id?: string | null;
+  slug?: string | null;
+  publicCode?: string | null;
+  productPublicCode?: string | null;
+  productCode?: string | null;
+  title?: string | null;
+  name?: string | null;
+};
+
+type ProductSearchLookupResponse = {
+  data?: {
+    products?: ProductLookupCandidate[];
+    items?: ProductLookupCandidate[];
+    results?: ProductLookupCandidate[];
+    suggestions?: ProductLookupCandidate[];
+  };
+  products?: ProductLookupCandidate[];
+  items?: ProductLookupCandidate[];
+  results?: ProductLookupCandidate[];
+  suggestions?: ProductLookupCandidate[];
+};
+
 export interface GetProductsParams {
   FeaturedCount?: number;
   NewestCount?: number;
@@ -331,6 +355,124 @@ function warnOptionalProductRequest(endpoint: string, error: unknown) {
   console.warn(
     `[product.server] Optional ${endpoint} request failed: ${message}`,
   );
+}
+
+function asLookupString(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function normalizeProductCode(value: string): string {
+  return value.trim().toUpperCase();
+}
+
+function looksLikeProductPublicCode(value: string): boolean {
+  return /^CUP-[A-Z0-9-]+$/i.test(value.trim());
+}
+
+function getProductLookupItems(
+  payload: ProductSearchLookupResponse | null | undefined,
+): ProductLookupCandidate[] {
+  const data = payload?.data;
+
+  return (
+    data?.products ??
+    data?.items ??
+    data?.results ??
+    data?.suggestions ??
+    payload?.products ??
+    payload?.items ??
+    payload?.results ??
+    payload?.suggestions ??
+    []
+  );
+}
+
+function getProductLookupCode(product: ProductLookupCandidate): string {
+  return (
+    asLookupString(product.publicCode) ||
+    asLookupString(product.productPublicCode) ||
+    asLookupString(product.productCode)
+  );
+}
+
+function getProductLookupIdentifier(product: ProductLookupCandidate): string {
+  return (
+    asLookupString(product.slug) ||
+    asLookupString(product.productId) ||
+    asLookupString(product.id)
+  );
+}
+
+async function findProductIdentifierByPublicCode(publicCode: string) {
+  const normalizedPublicCode = normalizeProductCode(publicCode);
+
+  const response = await proxyToBackend<ProductSearchLookupResponse>({
+    method: "GET",
+    path: "/api/v1/Search/products",
+    params: {
+      q: publicCode,
+      Page: 1,
+      PageSize: 10,
+    },
+    cache: "no-store",
+    timeout: 5_000,
+    retries: 0,
+  });
+
+  if (!response.ok) return "";
+
+  const products = getProductLookupItems(response.data);
+  const exactMatch = products.find(
+    (product) =>
+      normalizeProductCode(getProductLookupCode(product)) ===
+      normalizedPublicCode,
+  );
+  const fallbackMatch = products.find((product) =>
+    getProductLookupIdentifier(product),
+  );
+
+  return exactMatch
+    ? getProductLookupIdentifier(exactMatch)
+    : fallbackMatch
+      ? getProductLookupIdentifier(fallbackMatch)
+      : "";
+}
+
+async function fetchProductDetail(productIdOrSlug: string) {
+  const response = await proxyToBackend<ApiResponse<ProductDetail>>({
+    method: "GET",
+    path: `/api/v1/Products/${productIdOrSlug}`,
+    cache: "no-store",
+  });
+
+  const payload = response.data;
+  const isSuccess = payload?.isSuccess ?? payload?.success;
+  const product = payload?.data;
+  const notFoundMessage =
+    (payload as { error?: string } | undefined)?.error ??
+    payload?.message ??
+    "Product not found";
+
+  const isHttpNotFound = response.status === 404;
+  const isApiNotFound =
+    response.ok &&
+    isSuccess === false &&
+    !product &&
+    /پیدا نشد|یافت نشد|not found/i.test(String(notFoundMessage));
+
+  if (isHttpNotFound || isApiNotFound) {
+    throw new ProductServiceError(404, notFoundMessage, payload);
+  }
+
+  if (!response.ok || !isSuccess) {
+    throw new Error(payload?.message ?? "Failed to fetch product");
+  }
+
+  if (!product) {
+    throw new ProductServiceError(404, "Product not found", payload);
+  }
+
+  return product;
 }
 
 type RawFilterAttribute = {
@@ -905,38 +1047,24 @@ export async function getProductListFromSearchParams(
 export const getProductById = cache(async function getProductById(
   productIdOrSlug: string,
 ): Promise<ProductDetail> {
-  const response = await proxyToBackend<ApiResponse<ProductDetail>>({
-    method: "GET",
-    path: `/api/v1/Products/${productIdOrSlug}`,
-    cache: "no-store",
-  });
+  try {
+    return await fetchProductDetail(productIdOrSlug);
+  } catch (error) {
+    if (
+      !(error instanceof ProductServiceError) ||
+      error.status !== 404 ||
+      !looksLikeProductPublicCode(productIdOrSlug)
+    ) {
+      throw error;
+    }
 
-  const payload = response.data;
-  const isSuccess = payload?.isSuccess ?? payload?.success;
-  const product = payload?.data;
-  const notFoundMessage =
-    (payload as { error?: string } | undefined)?.error ??
-    payload?.message ??
-    "Product not found";
+    const resolvedIdentifier =
+      await findProductIdentifierByPublicCode(productIdOrSlug);
 
-  const isHttpNotFound = response.status === 404;
-  const isApiNotFound =
-    response.ok &&
-    isSuccess === false &&
-    !product &&
-    /پیدا نشد|یافت نشد|not found/i.test(String(notFoundMessage));
+    if (!resolvedIdentifier) {
+      throw error;
+    }
 
-  if (isHttpNotFound || isApiNotFound) {
-    throw new ProductServiceError(404, notFoundMessage, payload);
+    return fetchProductDetail(resolvedIdentifier);
   }
-
-  if (!response.ok || !isSuccess) {
-    throw new Error(payload?.message ?? "Failed to fetch product");
-  }
-
-  if (!product) {
-    throw new ProductServiceError(404, "Product not found", payload);
-  }
-
-  return product;
 });

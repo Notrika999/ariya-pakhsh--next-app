@@ -17,7 +17,7 @@ export default function MagazineHeader() {
               alt="کارآپ ۲۴"
               width={44}
               height={44}
-              className="dark:invert dark:hue-rotate-180"
+              className="object-contain"
             />
           </Link>
           <Link href="/mag" className="min-w-0">

@@ -126,8 +126,16 @@ export async function getMyWalletTransactions(
 
 export async function topUpMyWallet(
   amount: number,
+  options?: { providerCode?: string; paymentMethodCode?: string },
 ): Promise<WalletTopUpResult> {
-  const response = await apiClient.post(`${BASE}/top-up`, { amount });
+  const body: Record<string, unknown> = { amount };
+  const providerCode = options?.providerCode?.trim();
+  const paymentMethodCode = options?.paymentMethodCode?.trim();
+
+  if (providerCode) body.providerCode = providerCode;
+  if (paymentMethodCode) body.paymentMethodCode = paymentMethodCode;
+
+  const response = await apiClient.post(`${BASE}/top-up`, body);
 
   assertSuccess(response.data, "افزایش اعتبار ناموفق بود");
 

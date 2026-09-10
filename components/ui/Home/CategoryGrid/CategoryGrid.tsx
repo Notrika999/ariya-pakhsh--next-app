@@ -265,7 +265,7 @@ function CategoryGridCard({ category }: { category: HomeCategoryGridItem }) {
 
       <span
         title={category.name}
-        className="text-caption-180 h-9 w-full overflow-hidden text-center text-neutral-900 ellipsis-2 dark:text-gray-100 lg:text-sm"
+        className="text-caption-180 h-14 pt-1 w-full overflow-hidden text-center text-neutral-900 ellipsis-2 dark:text-gray-100 lg:text-sm"
       >
         {category.name}
       </span>

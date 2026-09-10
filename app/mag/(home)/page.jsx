@@ -1,10 +1,10 @@
-// app/mag/page.jsx
+// app/mag/(home)/page.jsx
 
 import {
   getArticleTypeForCategory,
-  normalizeArticleType,
+  getMagazineQueryPageSeo,
   normalizeCategory,
-  parsePositiveInt,
+  parseMagazineHomeSearchParams,
   resolveMagazineArticleParams,
 } from "@/components/ui/magazine/magazineHomeUtils";
 import MagazineHome, {
@@ -16,6 +16,7 @@ import {
   toMagazineArticle,
 } from "@/components/ui/magazine/magazineView";
 import { absoluteUrl, SITE_NAME } from "@/src/lib/seo/site";
+import { buildMagazineCanonical } from "@/src/lib/seo/canonical";
 import {
   getMagazineArticles,
   getMagazineHome,
@@ -29,13 +30,9 @@ const MAG_DESCRIPTION =
   "مجله خودرو کارآپ۲۴؛ راهنمای خرید لوازم جانبی، نگهداری، دیتیلینگ و مقایسه تجهیزات خودرو.";
 const MAG_URL = absoluteUrl("/mag");
 
-export const metadata = {
+const MAG_METADATA_BASE = {
   title: { absolute: MAG_TITLE },
   description: MAG_DESCRIPTION,
-  alternates: {
-    canonical: MAG_URL,
-  },
-  robots: { index: true, follow: true },
   openGraph: {
     title: MAG_TITLE,
     description: MAG_DESCRIPTION,
@@ -60,35 +57,69 @@ export const metadata = {
   },
 };
 
-function getSearchValue(value) {
-  if (Array.isArray(value)) return value[0] ?? "";
-  return typeof value === "string" ? value : "";
+async function resolveMagazineHomeState(searchParams) {
+  const parsed = parseMagazineHomeSearchParams(await searchParams);
+  const home = await getMagazineHome();
+  const categories = composeMagazineCategories(home.categories);
+  const category = normalizeCategory(parsed.requestedCategory, categories);
+  const mappedType = getArticleTypeForCategory(category);
+  const articleType =
+    parsed.requestedArticleType && parsed.requestedArticleType !== mappedType
+      ? parsed.requestedArticleType
+      : "";
+  const searchQuery = parsed.query.trim();
+
+  return {
+    ...parsed,
+    home,
+    categories,
+    category,
+    articleType,
+    searchQuery,
+  };
+}
+
+export async function generateMetadata({ searchParams }) {
+  const state = await resolveMagazineHomeState(searchParams);
+  const robots = getMagazineQueryPageSeo({
+    category: state.category,
+    query: state.searchQuery,
+    tag: state.tag,
+    vehicle: state.vehicle,
+    articleType: state.articleType,
+    showAllArticles: state.showAllArticles,
+    page: state.page,
+    sort: state.sort,
+  });
+
+  return {
+    ...MAG_METADATA_BASE,
+    alternates: {
+      canonical: buildMagazineCanonical({
+        category: state.category,
+        page: state.page,
+      }),
+    },
+    robots,
+  };
 }
 
 async function BlogsPage({ searchParams }) {
-  const resolvedSearchParams = (await searchParams) ?? {};
-  const query = getSearchValue(resolvedSearchParams.q);
-  const tag = getSearchValue(resolvedSearchParams.tag);
-  const vehicle = getSearchValue(resolvedSearchParams.vehicle);
-  const sort = getSearchValue(resolvedSearchParams.sort) || "latest";
-  const requestedCategory =
-    getSearchValue(resolvedSearchParams.category) || "all";
-  const requestedArticleType = normalizeArticleType(
-    getSearchValue(resolvedSearchParams.articleType),
-  );
-  const page = parsePositiveInt(resolvedSearchParams.page, 1);
-  const pageSize = parsePositiveInt(resolvedSearchParams.pageSize, 12, 48);
+  const {
+    home,
+    categories,
+    category,
+    articleType,
+    searchQuery,
+    requestedArticleType,
+    tag,
+    vehicle,
+    sort,
+    page,
+    pageSize,
+    showAllArticles,
+  } = await resolveMagazineHomeState(searchParams);
 
-  const home = await getMagazineHome();
-  const categories = composeMagazineCategories(home.categories);
-  const category = normalizeCategory(requestedCategory, categories);
-  const mappedType = getArticleTypeForCategory(category);
-  const articleType =
-    requestedArticleType && requestedArticleType !== mappedType
-      ? requestedArticleType
-      : "";
-  const searchQuery = query.trim();
-  const showAllArticles = getSearchValue(resolvedSearchParams.list) === "1";
   const isFiltered =
     category !== "all" ||
     Boolean(searchQuery) ||
@@ -120,6 +151,12 @@ async function BlogsPage({ searchParams }) {
         posts={listing.items.map(toMagazineArticle).filter(Boolean)}
         page={listing.pageNumber || page}
         totalPages={Math.max(listing.totalPages || 1, 1)}
+        articleType={articleType}
+        tag={tag}
+        vehicle={vehicle}
+        sort={sort}
+        list={showAllArticles}
+        pageSize={pageSize}
       />
     );
   }

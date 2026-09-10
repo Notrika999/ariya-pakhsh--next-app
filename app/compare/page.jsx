@@ -1,3 +1,5 @@
+// app/compare/page.jsx
+
 import CompareProducts from "@/components/ui/CompareProducts/CompareProducts";
 import React from "react";
 

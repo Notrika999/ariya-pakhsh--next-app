@@ -457,6 +457,39 @@ export default function PaymentResult() {
   const amountLabel =
     result.status === "success" ? "مبلغ پرداختی" : "مبلغ قابل پرداخت";
 
+  const actionButtons = (
+    <div className="flex w-full flex-col gap-3">
+      {retryError ? (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm leading-6 text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
+          {retryError}
+        </div>
+      ) : null}
+
+      {result.status !== "success" ? (
+        <button
+          type="button"
+          onClick={() => void handleRetryPayment()}
+          disabled={retrying}
+          className="inline-flex w-full items-center justify-center rounded-lg bg-primary px-5 py-3 text-sm font-bold text-white transition-colors duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {retrying ? "در حال انتقال..." : "پرداخت مجدد"}
+        </button>
+      ) : null}
+      <Link
+        href={order?.orderId ? `${ORDERS_PATH}/${order.orderId}` : ORDERS_PATH}
+        className="inline-flex w-full items-center justify-center rounded-lg bg-green-600 px-5 py-3 text-sm font-bold text-white transition-colors duration-200 hover:bg-green-700"
+      >
+        مشاهده جزئیات سفارش
+      </Link>
+      <Link
+        href={result.status === "success" ? ORDERS_PATH : HOME_PATH}
+        className="inline-flex w-full items-center justify-center rounded-lg border border-gray-300 px-5 py-3 text-sm font-bold text-gray-700 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+      >
+        {result.status === "success" ? "سفارش‌های من" : "صفحه اصلی"}
+      </Link>
+    </div>
+  );
+
   return (
     <section className="py-6">
       <div className="container mx-auto px-4">
@@ -645,40 +678,13 @@ export default function PaymentResult() {
                     </p>
                   ) : null}
                 </div>
+
+                {actionButtons}
               </aside>
             </div>
+          ) : !orderLoading ? (
+            <div className="max-w-md">{actionButtons}</div>
           ) : null}
-
-          {retryError ? (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm leading-6 text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">
-              {retryError}
-            </div>
-          ) : null}
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-            {result.status !== "success" ? (
-              <button
-                type="button"
-                onClick={() => void handleRetryPayment()}
-                disabled={retrying}
-                className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-3 text-sm font-bold text-white transition-colors duration-200 hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {retrying ? "در حال انتقال..." : "پرداخت مجدد"}
-              </button>
-            ) : null}
-            <Link
-              href={order?.orderId ? `${ORDERS_PATH}/${order.orderId}` : ORDERS_PATH}
-              className="inline-flex items-center justify-center rounded-lg bg-green-600 px-5 py-3 text-sm font-bold text-white transition-colors duration-200 hover:bg-green-700"
-            >
-              مشاهده جزئیات سفارش
-            </Link>
-            <Link
-              href={result.status === "success" ? ORDERS_PATH : HOME_PATH}
-              className="inline-flex items-center justify-center rounded-lg border border-gray-300 px-5 py-3 text-sm font-bold text-gray-700 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
-            >
-              {result.status === "success" ? "سفارش‌های من" : "صفحه اصلی"}
-            </Link>
-          </div>
         </div>
       </div>
     </section>

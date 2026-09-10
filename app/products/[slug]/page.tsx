@@ -25,7 +25,10 @@ import {
   parseSortOrder,
   normalizeProductSearchParams,
 } from "@/src/lib/helper/productListHelpers";
-import { absoluteUrl } from "@/src/lib/seo/site";
+import {
+  buildPaginatedCanonical,
+  encodePathSegment,
+} from "@/src/lib/seo/canonical";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -216,11 +219,11 @@ export default CategoryPage;
 
 export async function generateMetadata({
   params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+  searchParams,
+}: Props): Promise<Metadata> {
   const { slug: rawSlug } = await params;
   const slug = normalizeSlug(rawSlug);
+  const resolvedSearchParams = await searchParams;
 
   let category: CategoryType | null = null;
 
@@ -248,7 +251,10 @@ export async function generateMetadata({
     description,
     ...(keywords && { keywords }),
     alternates: {
-      canonical: absoluteUrl(`/products/${encodeURIComponent(slug)}`),
+      canonical: buildPaginatedCanonical(
+        `/products/${encodePathSegment(slug)}`,
+        resolvedSearchParams.page,
+      ),
     },
     openGraph: { title, description, type: "website" },
     twitter: { card: "summary_large_image", title, description },

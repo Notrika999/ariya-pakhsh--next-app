@@ -1,7 +1,6 @@
-// components/modules/ProductCard/ProductCard.tsx
 
 "use client";
-
+// components/modules/ProductCard/ProductCard.tsx
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ProductCardModel } from "@/src/lib/types/productTypes";
@@ -145,6 +144,8 @@ export default function ProductCard({
   noClick = false,
   noTimer = false,
 }: ProductCardProps) {
+
+  // console.log(product);
   const [wishlist, setWishlist] = useState(false);
   const [wishlistBusy, setWishlistBusy] = useState(false);
   const [expired, setExpired] = useState(false);
@@ -262,10 +263,9 @@ export default function ProductCard({
     }
   }, [addItem, adding, expired, isInCart, isOutOfStock, product]);
 
-  const review = {
-    rating: product.rating,
-    count: product.reviewCount,
-  };
+  const rating = product.rating ?? 0;
+  const reviewCount = product.reviewCount ?? 0;
+  const showReview = rating > 0 || reviewCount > 0;
 
   const showStockBadge = typeof product.inStock === "boolean";
   const saleBadge = product.showSaleBadge;
@@ -369,9 +369,7 @@ export default function ProductCard({
 
         <div className="flex items-center justify-between">
           {/* Rating */}
-          {review && (
-            <StarRating rating={review.rating ?? 0} count={review.count ?? 0} />
-          )}
+          {showReview && <StarRating rating={rating} count={reviewCount} />}
           {showStockBadge && (
             <span
               className={`text-[8px] font-extrabold px-2 py-0.5 rounded-full border shadow-sm ${

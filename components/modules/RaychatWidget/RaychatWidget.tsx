@@ -6,6 +6,7 @@ const RAYCHAT_TOKEN = "4e8b6cdf-894b-4436-834c-05fc26762403";
 const SCRIPT_ID = "raychat-widget";
 const FRAME_ID = "raychat_widget";
 const STYLE_ID = "raychat-widget-offset";
+const STORY_HIDE_STYLE_ID = "raychat-widget-story-hide";
 const DESKTOP_QUERY = "(min-width: 1024px)";
 const MOBILE_BOTTOM = "calc(5rem + env(safe-area-inset-bottom, 0px))";
 const DESKTOP_BOTTOM = "16px";
@@ -16,6 +17,16 @@ const MOBILE_NAV_OFFSET_CSS = `
   #${FRAME_ID} {
     bottom: ${MOBILE_BOTTOM} !important;
   }
+}
+`;
+
+const STORY_HIDE_CSS = `
+body.home-story-open #${FRAME_ID},
+body.home-story-open #${FRAME_ID}.raychat_frame {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
 }
 `;
 
@@ -74,6 +85,13 @@ export function RaychatWidget({
       style.id = STYLE_ID;
       style.textContent = MOBILE_NAV_OFFSET_CSS;
       document.head.appendChild(style);
+    }
+
+    if (!document.getElementById(STORY_HIDE_STYLE_ID)) {
+      const storyHideStyle = document.createElement("style");
+      storyHideStyle.id = STORY_HIDE_STYLE_ID;
+      storyHideStyle.textContent = STORY_HIDE_CSS;
+      document.head.appendChild(storyHideStyle);
     }
 
     if (!liftAboveMobileNav) {

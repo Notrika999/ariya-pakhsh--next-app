@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import MagazineProductCollection from "./MagazineProductCollection";
@@ -6,8 +7,76 @@ import MagazineProductEmbed from "./MagazineProductEmbed";
 const LINK_CLASS =
   "font-semibold text-primary underline decoration-primary/40 underline-offset-4 transition hover:decoration-primary";
 
+function splitEdgeWhitespace(text) {
+  if (typeof text !== "string" || !text) {
+    return { leading: "", core: "", trailing: "" };
+  }
+
+  const leadingLength = text.match(/^\s*/u)?.[0].length ?? 0;
+  if (leadingLength === text.length) {
+    return { leading: text, core: "", trailing: "" };
+  }
+
+  const trailingLength = text.match(/\s*$/u)?.[0].length ?? 0;
+  return {
+    leading: text.slice(0, leadingLength),
+    core: text.slice(leadingLength, text.length - trailingLength),
+    trailing: trailingLength ? text.slice(text.length - trailingLength) : "",
+  };
+}
+
+function hasTextMark(styles) {
+  return Boolean(
+    styles?.bold ||
+      styles?.italic ||
+      styles?.underline ||
+      styles?.strike ||
+      styles?.code,
+  );
+}
+
+function hoistLinkEdgeSpaces(children = []) {
+  if (!children.length) {
+    return { leading: "", trailing: "", children };
+  }
+
+  const next = children.map((child) =>
+    child.type === "text" ? { ...child, styles: { ...child.styles } } : child,
+  );
+  let leading = "";
+  let trailing = "";
+
+  const first = next[0];
+  if (first?.type === "text") {
+    const parts = splitEdgeWhitespace(first.text);
+    leading = parts.leading;
+    first.text = next.length === 1 ? parts.core : `${parts.core}${parts.trailing}`;
+    if (next.length === 1) trailing = parts.trailing;
+  }
+
+  if (next.length > 1) {
+    const last = next[next.length - 1];
+    if (last?.type === "text") {
+      const parts = splitEdgeWhitespace(last.text);
+      trailing = parts.trailing;
+      last.text = `${parts.leading}${parts.core}`;
+    }
+  }
+
+  return {
+    leading,
+    trailing,
+    children: next.filter((child) => child.type !== "text" || child.text),
+  };
+}
+
 function StyledText({ text, styles }) {
-  let node = text;
+  if (!hasTextMark(styles)) return text;
+
+  const { leading, core, trailing } = splitEdgeWhitespace(text);
+  if (!core) return text;
+
+  let node = core;
   if (styles?.code) {
     node = (
       <code className="rounded bg-gray-100 px-1 py-0.5 text-[0.9em] dark:bg-zinc-800">
@@ -19,7 +88,14 @@ function StyledText({ text, styles }) {
   if (styles?.underline) node = <u>{node}</u>;
   if (styles?.italic) node = <em>{node}</em>;
   if (styles?.bold) node = <strong>{node}</strong>;
-  return node;
+
+  return (
+    <>
+      {leading}
+      {node}
+      {trailing}
+    </>
+  );
 }
 
 function RichText({ nodes, fallback = "" }) {
@@ -27,28 +103,30 @@ function RichText({ nodes, fallback = "" }) {
 
   return nodes.map((node, index) => {
     if (node.type === "link") {
-      const label = (
-        <RichText nodes={node.children} fallback="" />
-      );
+      const hoisted = hoistLinkEdgeSpaces(node.children);
+      const label = <RichText nodes={hoisted.children} fallback="" />;
 
-      if (node.external) {
-        return (
-          <a
-            key={`link-${index}`}
-            href={node.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={LINK_CLASS}
-          >
-            {label}
-          </a>
-        );
-      }
-
-      return (
-        <Link key={`link-${index}`} href={node.href} className={LINK_CLASS}>
+      const anchor = node.external ? (
+        <a
+          href={node.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={LINK_CLASS}
+        >
+          {label}
+        </a>
+      ) : (
+        <Link href={node.href} className={LINK_CLASS}>
           {label}
         </Link>
+      );
+
+      return (
+        <Fragment key={`link-${index}`}>
+          {hoisted.leading}
+          {anchor}
+          {hoisted.trailing}
+        </Fragment>
       );
     }
 
@@ -234,6 +312,22 @@ export default function MagazineArticleBody({ blocks = [], articleId = "" }) {
             >
               <RichText nodes={block.inline} fallback={block.text} />
             </aside>
+          );
+        }
+
+        if (block.type === "quote") {
+          return (
+            <blockquote
+              key={`quote-${index}`}
+              className="my-6 border-s-4 border-primary bg-gray-50 px-4 py-3 text-[15px] leading-8 whitespace-pre-line text-gray-700 dark:bg-zinc-900/50 dark:text-gray-300"
+            >
+              <RichText nodes={block.inline} fallback={block.text} />
+              {block.citation ? (
+                <footer className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  {block.citation}
+                </footer>
+              ) : null}
+            </blockquote>
           );
         }
 

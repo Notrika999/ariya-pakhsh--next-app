@@ -215,6 +215,12 @@ export type MagazineContentBlock =
   | { type: "table"; rows: MagazineTableRow[] }
   | { type: "infoBox"; text: string; inline: MagazineInlineNode[] }
   | {
+      type: "quote";
+      text: string;
+      inline: MagazineInlineNode[];
+      citation: string;
+    }
+  | {
       type: "list";
       style: "bullet" | "number";
       items: { text: string; inline: MagazineInlineNode[] }[];

@@ -1,12 +1,21 @@
 "use client";
 // components/ui/ProductPageClient/Description/Description.tsx
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import {
   ProductDetail,
   ProductDetailAttribute,
+  ProductDetailCompatibility,
   ProductDetailVariant,
 } from "@/src/lib/types/products/productDetail.types";
+import {
+  useIsAuthenticated,
+  useIsAuthBootstrapping,
+} from "@/src/lib/stores/auth/auth.store";
+import { useSelectedVehicles } from "@/src/lib/stores/vehicle/vehicle.store";
+import { getDefaultMyVehicle } from "@/src/services/vehicle/vehicle.client";
+import { vehicleCookie } from "@/src/utils/vehicleCookie";
 
 export type ProductColorOption = {
   variantId: string;
@@ -59,7 +68,7 @@ function resolveColorLabel(
   return attr?.displayText?.trim() || attr?.value?.trim() || fallback;
 }
 
-function isLightHex(hex: string) {
+export function isLightHex(hex: string) {
   const clean = hex.replace("#", "");
   if (clean.length < 6) return false;
   const r = parseInt(clean.slice(0, 2), 16);
@@ -69,7 +78,7 @@ function isLightHex(hex: string) {
 }
 
 /** Hard split from the center — no soft blend edge */
-function swatchStyle(codes: string[]): CSSProperties {
+export function swatchStyle(codes: string[]): CSSProperties {
   if (codes.length === 0) return { backgroundColor: "#e5e7eb" };
   if (codes.length === 1) return { backgroundColor: codes[0] };
   if (codes.length === 2) {
@@ -122,12 +131,78 @@ export function buildProductColorOptions(
   return options;
 }
 
+type DefaultVehicleSummary = {
+  id: string;
+  name: string;
+};
+
+function getCompatibilityVehicleId(item: ProductDetailCompatibility) {
+  return item.carId?.trim() ?? "";
+}
+
+function isCompatibleWithVehicle(
+  compatibilities: ProductDetailCompatibility[] | undefined,
+  vehicleId: string,
+) {
+  if (!compatibilities?.length) return true;
+  return compatibilities.some(
+    (item) => getCompatibilityVehicleId(item) === vehicleId,
+  );
+}
+
 export default function Description({
   product,
   selectedVariantId,
   onSelectVariant,
   isOutOfStock,
 }: Props) {
+  const isAuthenticated = useIsAuthenticated();
+  const isAuthBootstrapping = useIsAuthBootstrapping();
+  const selectedVehicles = useSelectedVehicles();
+  const [defaultVehicle, setDefaultVehicle] =
+    useState<DefaultVehicleSummary | null>(null);
+
+  useEffect(() => {
+    if (isAuthBootstrapping) return;
+
+    let cancelled = false;
+
+    async function loadDefaultVehicle() {
+      try {
+        if (isAuthenticated) {
+          const vehicle = await getDefaultMyVehicle();
+          if (!cancelled && vehicle) {
+            setDefaultVehicle({
+              id: vehicle.vehicleId,
+              name: vehicle.pathLabel || vehicle.name,
+            });
+            return;
+          }
+        } else {
+          const cookieVehicles = vehicleCookie.get();
+          if (!cancelled && cookieVehicles.length === 1) {
+            const vehicle = cookieVehicles[0];
+            setDefaultVehicle({
+              id: vehicle.id,
+              name: vehicle.label || vehicle.name,
+            });
+            return;
+          }
+        }
+      } catch {
+        // keep current empty state
+      }
+
+      if (!cancelled) setDefaultVehicle(null);
+    }
+
+    void loadDefaultVehicle();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthBootstrapping, isAuthenticated, selectedVehicles]);
+
   const selectedVariant =
     product.variants?.find((v) => v.variantId === selectedVariantId) ??
     product.variants?.find((v) => v.isDefault) ??
@@ -147,6 +222,15 @@ export default function Description({
     product.categories?.find((c) => c.isPrimary) ?? product.categories?.[0];
   const primaryBrand =
     product.brands?.find((b) => b.isPrimary) ?? product.brands?.[0];
+
+  const rating = product.averageRating ?? 0;
+  const reviewCount = product.reviewCount ?? 0;
+  const showReview = rating > 0 || reviewCount > 0;
+  const compatibilities = product.compatibilities ?? [];
+  const hasCompatibilities = compatibilities.length > 0;
+  const isCompatible = defaultVehicle
+    ? isCompatibleWithVehicle(compatibilities, defaultVehicle.id)
+    : null;
 
   return (
     <section className="xl:col-span-5 md:mt-7 mt-1 col-span-12 md:pb-10 w-full dark:text-gray-200">
@@ -189,32 +273,30 @@ export default function Description({
       </div>
 
       {/* Rating, Comments */}
-      <div className="flex flex-wrap items-center pt-2 mt-2 space-x-2">
-        <div className="flex items-center space-x-1">
-          <i className="fas fa-star text-amber-400"></i>
-          <h4 className="text-sm font-bold">
-            {product.averageRating?.toFixed(1) ?? "0.0"}
-          </h4>
-          <span className="text-xs text-gray-400 dark:text-gray-500">
-            (امتیاز{" "}
-            {new Intl.NumberFormat("fa-IR").format(product.reviewCount ?? 0)}{" "}
-            خریدار)
-          </span>
-        </div>
-
-        <div>
-          <a
-            href="#comments"
-            className="bg-gray-200 hover:bg-primary/20 transition dark:bg-zinc-800 dark:text-gray-200 px-2 py-1 space-x-1 rounded-full flex items-center"
-          >
-            <span className="text-xs">
-              {new Intl.NumberFormat("fa-IR").format(product.reviewCount ?? 0)}{" "}
-              دیدگاه
+      {showReview && (
+        <div className="flex flex-wrap items-center pt-2 mt-2 space-x-2">
+          <div className="flex items-center space-x-1">
+            <i className="fas fa-star text-amber-400"></i>
+            <h4 className="text-sm font-bold">{rating.toFixed(1)}</h4>
+            <span className="text-xs text-gray-400 dark:text-gray-500">
+              (امتیاز {new Intl.NumberFormat("fa-IR").format(reviewCount)}{" "}
+              خریدار)
             </span>
-            <i className="far fa-angle-left"></i>
-          </a>
+          </div>
+
+          <div>
+            <a
+              href="#comments"
+              className="bg-gray-200 hover:bg-primary/20 transition dark:bg-zinc-800 dark:text-gray-200 px-2 py-1 space-x-1 rounded-full flex items-center"
+            >
+              <span className="text-xs">
+                {new Intl.NumberFormat("fa-IR").format(reviewCount)} دیدگاه
+              </span>
+              <i className="far fa-angle-left"></i>
+            </a>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Out of Stock Notice */}
       {isOutOfStock && (
@@ -285,7 +367,7 @@ export default function Description({
                   ].join(" ")}
                 >
                   {isActive && (
-                    <span className="absolute inset-0 rounded-full ring-4 ring-sky-400" />
+                    <span className="absolute inset-0 rounded-full border-4 border-sky-400" />
                   )}
                   <span
                     className="relative z-10 flex size-8 items-center justify-center rounded-full border border-gray-300"
@@ -315,55 +397,67 @@ export default function Description({
       )}
 
       {/* Compatibilities */}
-      {product.compatibilities?.length > 0 ? (
-        <div className="mt-8 space-y-3">
-          <h4 className="font-bold text-lg flex items-center gap-2">
-            <i className="fas fa-car-side text-primary" aria-hidden="true" />
-            خودروهای سازگار
-          </h4>
-          <ul className="flex flex-wrap gap-3 items-center">
-            {product.compatibilities.map((item) => (
-              <li
-                key={item.carId}
-                className="flex items-center w-fit gap-3 p-3 bg-gray-200 dark:bg-zinc-800 rounded-lg"
-              >
-                <div className="min-w-0">
-                  <p className="line-clamp-1 text-sm font-semibold text-gray-700 dark:text-gray-100">
+      <div className="mt-8 space-y-3">
+        <h4 className="flex items-center gap-2 text-lg font-bold">
+          <i className="fas fa-car-side text-primary" aria-hidden="true" />
+          خودروهای سازگار
+        </h4>
+
+        {hasCompatibilities ? (
+          <ul className="flex flex-wrap items-center gap-3">
+            {compatibilities.map((item) => {
+              const isDefaultMatch =
+                defaultVehicle?.id === getCompatibilityVehicleId(item);
+              const chipClass = isDefaultMatch
+                ? isCompatible
+                  ? "border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
+                  : "border border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/40 dark:text-red-300"
+                : "bg-gray-200 text-gray-700 dark:bg-zinc-800 dark:text-gray-100";
+
+              return (
+                <li
+                  key={item.carId}
+                  className={`flex w-fit items-center gap-3 rounded-lg p-3 ${chipClass}`}
+                >
+                  <p className="line-clamp-1 text-sm font-semibold">
                     {item.name}
                   </p>
-                 
-                </div>
-                {/* <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                    item.isIranianCar
-                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
-                      : "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300"
-                  }`}
-                >
-                  {item.isIranianCar ? "ایرانی" : "وارداتی"}
-                </span> */}
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
-        </div>
-      ) : (
-        <div className="mt-8 space-y-3">
-          <h4 className="font-bold text-lg flex items-center gap-2">
-            <i className="fas fa-car-side text-primary" aria-hidden="true" />
-            خودروهای سازگار
-          </h4>
-          <ul className="grid gap-3 lg:grid-cols-2 sm:grid-cols-2 grid-cols-1">
-            <li className="flex items-center justify-between gap-3 p-3 bg-gray-200 dark:bg-zinc-800 rounded-lg">
-              <span
-                className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium 
-              `}
-              >
-                همه خودرها
-              </span>
+        ) : (
+          <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-2">
+            <li
+              className={`flex items-center justify-between gap-3 rounded-lg p-3 ${
+                isCompatible === true
+                  ? "border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
+                  : "bg-gray-200 dark:bg-zinc-800"
+              }`}
+            >
+              <span className="text-sm font-medium">همه خودروها</span>
             </li>
           </ul>
-        </div>
-      )}
+        )}
+
+        {defaultVehicle && isCompatible !== null ? (
+          <p
+            className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold ${
+              isCompatible
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
+                : "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300"
+            }`}
+          >
+            <i
+              className={`far ${isCompatible ? "fa-circle-check" : "fa-circle-xmark"}`}
+              aria-hidden="true"
+            />
+            {isCompatible
+              ? "با خودرو شما سازگار است"
+              : "با خودرو شما سازگار نیست"}
+          </p>
+        ) : null}
+      </div>
 
       {/* Compatibilities
       {product.compatibilities?.length > 0 && (

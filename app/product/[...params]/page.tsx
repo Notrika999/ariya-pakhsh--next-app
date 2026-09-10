@@ -3,9 +3,15 @@
 import { Metadata } from "next";
 import ProductDetails from "@/components/ui/ProductPageClient/ProductPageClient";
 import { SITE_NAME, absoluteUrl } from "@/src/lib/seo/site";
+import { buildCanonical } from "@/src/lib/seo/canonical";
 import { getProductImage } from "@/src/utils/product-image";
+import { formatPrice } from "@/src/utils/formatPrice";
 import type { ProductDetail } from "@/src/lib/types/products/productDetail.types";
 import { getProductIdentifier, loadProduct } from "./load-product";
+import {
+  getProductCanonicalPath,
+  redirectLegacyProductPath,
+} from "./product-url";
 
 interface PageProps {
   params: Promise<{
@@ -39,18 +45,6 @@ function getInitialVariantId(
   );
 }
 
-function getProductCanonicalPath(product: ProductDetail) {
-  if (product.publicCode && product.slug) {
-    return `/product/${product.publicCode}/${product.slug}`;
-  }
-
-  if (product.slug) {
-    return `/product/${product.slug}`;
-  }
-
-  return `/product/${product.productId}`;
-}
-
 function getProductShareImage(product: ProductDetail, variantId?: string) {
   const variantImages =
     product.variants?.find((variant) => variant.variantId === variantId)
@@ -70,6 +64,29 @@ function getProductShareImage(product: ProductDetail, variantId?: string) {
   return imageUrl.startsWith("http") ? imageUrl : absoluteUrl(imageUrl);
 }
 
+function getProductPreviewPrice(product: ProductDetail, variantId?: string) {
+  const variant =
+    product.variants?.find((item) => item.variantId === variantId) ??
+    product.variants?.find((item) => item.isDefault) ??
+    product.variants?.[0];
+  const price =
+    variant?.salePrice ?? variant?.finalPrice ?? variant?.price ?? null;
+
+  if (typeof price !== "number" || price <= 0) return "";
+
+  return `${formatPrice(price)} تومان`;
+}
+
+function getProductPreviewDescription(
+  product: ProductDetail,
+  variantId?: string,
+) {
+  const priceText = getProductPreviewPrice(product, variantId);
+  const description = product.metaDescription ?? product.shortDescription ?? "";
+
+  return [priceText, description].filter(Boolean).join(" | ");
+}
+
 export async function generateMetadata({
   params: pageParams,
   searchParams: pageSearchParams,
@@ -85,11 +102,12 @@ export async function generateMetadata({
     (variantId ? decodeURIComponent(variantId) : "");
 
   const product = await loadProduct(productIdentifier);
+  redirectLegacyProductPath(params, product, searchParams);
 
   const canonicalVariantId = getInitialVariantId(product, requestedVariantId);
   const title = `قیمت و خرید ${product?.metaTitle ?? product.name}`;
-  const description = product?.metaDescription ?? product.shortDescription;
-  const canonicalUrl = absoluteUrl(getProductCanonicalPath(product));
+  const description = getProductPreviewDescription(product, canonicalVariantId);
+  const canonicalUrl = buildCanonical(getProductCanonicalPath(product));
   const imageUrl = getProductShareImage(product, canonicalVariantId);
 
   return {
@@ -137,6 +155,8 @@ export default async function ProductDetailsPage({
     (variantId ? decodeURIComponent(variantId) : "");
 
   const product = await loadProduct(productIdentifier);
+  redirectLegacyProductPath(params, product, searchParams);
+
   const resolvedInitialVariantId = getInitialVariantId(
     product,
     initialVariantId,

@@ -1,10 +1,10 @@
 import About from "@/components/ui/About/About";
-import { absoluteUrl } from "@/src/lib/seo/site";
+import { buildCanonical } from "@/src/lib/seo/canonical";
 import React from "react";
 
 export const metadata = {
   alternates: {
-    canonical: absoluteUrl("/about"),
+    canonical: buildCanonical("/about"),
   },
 };
 

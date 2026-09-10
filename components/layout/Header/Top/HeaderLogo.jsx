@@ -10,14 +10,14 @@ export default function HeaderLogo() {
       <Link href="/">
         <div className="flex items-center justify-end xl:justify-start">
           <Image
-            width={60}
-            height={60}
-            className="dark:invert dark:hue-rotate-180"
+            width={50}
+            height={50}
+            className="object-contain"
             src="/images/logo/carup24-logo.png"
             priority
             alt="کارآپ ۲۴"
           />
-          <span className="ms-3 md:text-xl md:font-bold font-semibold">کارآپ <span className="text-primary">۲۴</span></span>
+          <span className="ms-3 md:text-[22px] md:font-bold font-semibold">کارآپ <span className="text-primary">۲۴</span></span>
         </div>
       </Link>
     </div>

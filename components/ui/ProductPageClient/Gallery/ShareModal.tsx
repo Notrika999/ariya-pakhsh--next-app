@@ -1,5 +1,5 @@
 "use client";
-
+// components/ui/ProductPageClient/Gallery/ShareModal.tsx
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { notify } from "@/src/utils/toast";

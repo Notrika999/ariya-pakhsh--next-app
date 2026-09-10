@@ -7,6 +7,7 @@ import {
 } from "@/src/services/promotion/promotion.server";
 import { Metadata } from "next";
 import { absoluteUrl, SITE_NAME } from "@/src/lib/seo/site";
+import { buildPaginatedCanonical } from "@/src/lib/seo/canonical";
 import {
   colorPaletteParams,
   getColorOptionLabel,
@@ -18,8 +19,7 @@ import {
   toAmazingFilterParams,
 } from "@/src/lib/helper/amazingProductListHelpers";
 
-// تعریف متادیتای سئو
-export const metadata: Metadata = {
+const INCREDIBLE_OFFERS_METADATA = {
   title: "پیشنهادهای شگفت انگیز کارآپ 24 | تخفیف‌های ویژه امروز",
   description:
     "در صفحه پیشنهادهای شگفت‌انگیز کارآپ 24 هر روز منتظر بهترین تخفیف‌ها باشید. خرید محصولات با قیمت ویژه و تخفیف‌های باورنکردنی در دسته‌بندی‌های مختلف.",
@@ -30,17 +30,32 @@ export const metadata: Metadata = {
     "حراج کارآپ 24",
     "قیمت های باورنکردنی",
   ],
-  alternates: {
-    canonical: absoluteUrl("/incredible-offers"),
-  },
   openGraph: {
     title: "پیشنهادهای شگفت انگیز | تخفیف‌های ویژه روزانه",
     description: "بهترین تخفیف‌های روز را در پیشنهاد شگفت‌انگیز تجربه کنید.",
     url: absoluteUrl("/incredible-offers"),
     siteName: SITE_NAME,
-    type: "website",
+    type: "website" as const,
   },
 };
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: Promise<AmazingPageSearchParams>;
+}): Promise<Metadata> {
+  const resolvedSearchParams = (await searchParams) ?? {};
+
+  return {
+    ...INCREDIBLE_OFFERS_METADATA,
+    alternates: {
+      canonical: buildPaginatedCanonical(
+        "/incredible-offers",
+        resolvedSearchParams.page ?? resolvedSearchParams.Page,
+      ),
+    },
+  };
+}
 
 async function IncredibleOffersPage({
   searchParams,

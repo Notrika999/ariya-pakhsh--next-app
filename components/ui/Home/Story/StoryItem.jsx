@@ -1,3 +1,4 @@
+// components/ui/Home/Story/StoryItem.jsx
 import React from "react";
 
 import storyStyle from "./Story.module.css";

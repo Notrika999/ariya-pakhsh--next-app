@@ -186,7 +186,6 @@ export const getMagazineArticleBySlug = cache(
       });
 
 
-
       if (response.status === 404 || !response.ok || !isSuccess(response.data)) {
         console.warn("[magazine] getMagazineArticleBySlug", {
           slug: safeSlug,

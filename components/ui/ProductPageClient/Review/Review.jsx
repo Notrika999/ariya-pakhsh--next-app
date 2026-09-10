@@ -10,6 +10,7 @@ import Question from "./Question";
 import ProductAction from "./ProductAction";
 import TabBar from "@/components/modules/TabBar/TabBar";
 import ConsumerProducts from "../ConsumerProducts/ConsumerProducts";
+import RelatedArticles from "../RelatedArticles/RelatedArticles";
 
 const TABS = [
   { id: "desc", label: "معرفی اجمالی" },
@@ -148,6 +149,8 @@ export default function Review({ product, attributes, variant, isOutOfStock }) {
               // variant={variant}
             />
           </div>
+
+          <RelatedArticles articles={product.relatedArticles} />
           
           {/* <!--Tab 2 - Supplementary Introduction--> */}
           <div

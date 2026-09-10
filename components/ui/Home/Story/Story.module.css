@@ -90,9 +90,18 @@
 
   padding: 20px;
 
-  z-index: 2000;
+  z-index: 2147483000;
 
   backdrop-filter: blur(6px);
+}
+
+:global(body.home-story-open #raychat_widget),
+:global(body.home-story-open #raychat_widget.raychat_frame),
+:global(body.home-story-open iframe[src*="raychat"]) {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
 }
 
 .viewport {

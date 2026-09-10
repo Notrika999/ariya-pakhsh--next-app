@@ -25,6 +25,7 @@ import {
   resolveStoryHref,
 } from "./story-links";
 import { Pause, Play } from "lucide-react";
+import { createPortal } from "react-dom";
 import { trackHomeLayoutItemView } from "@/src/services/home/home-layout.client";
 
 const STORY_MINIMIZE_EVENT = "home-story:minimize";
@@ -161,6 +162,11 @@ export default function Story({ stories }) {
   }, [currentFrame?.id, storyIndex]);
 
   useEffect(() => {
+    document.body.classList.toggle("home-story-open", open);
+    return () => document.body.classList.remove("home-story-open");
+  }, [open]);
+
+  useEffect(() => {
     if (!open || !currentFrame || isVideo) return;
 
     startTs.current = performance.now();
@@ -274,7 +280,8 @@ export default function Story({ stories }) {
         </Swiper>
       </div>
 
-      {open && currentStory && currentFrame ? (
+      {open && currentStory && currentFrame
+        ? createPortal(
         <div
           className={storyStyle.overlay}
           onMouseDown={(e) => e.target === e.currentTarget && close()}
@@ -446,8 +453,10 @@ export default function Story({ stories }) {
               ) : null}
             </div>
           </div>
-        </div>
-      ) : null}
+        </div>,
+            document.body,
+          )
+        : null}
     </>
   );
 }

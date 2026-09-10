@@ -762,3 +762,38 @@ export function GiftCardsGridSkeleton({ count = 3 }) {
     </div>
   );
 }
+
+export function MyCarsListSkeleton({ count = 4 }) {
+  return (
+    <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+      {times(count).map((index) => (
+        <Card key={`my-car-${index}`} className="px-4 py-4">
+          <div className="flex items-start gap-3">
+            <Pulse className="size-11 shrink-0 rounded-xl" />
+            <div className="min-w-0 flex-1 space-y-2 pt-1">
+              <Pulse className="h-5 w-36" />
+              <Pulse className="h-3 w-48 max-w-full" />
+            </div>
+            <Pulse className="h-6 w-16 rounded-full" />
+          </div>
+          <div className="mt-4 flex items-center gap-2 border-t border-gray-100 pt-4 dark:border-gray-700">
+            <Pulse className="h-10 flex-1 rounded-lg" />
+            <Pulse className="size-10 rounded-lg" />
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+export function MyCarsPageSkeleton() {
+  return (
+    <div className="space-y-4 lg:col-span-3">
+      <PageHeaderSkeleton />
+      <Card>
+        <Pulse className="h-14 w-full rounded-lg" />
+      </Card>
+      <MyCarsListSkeleton />
+    </div>
+  );
+}

@@ -166,10 +166,10 @@ export default function Menus() {
                        inset-s-2 inset-e-0 text-center dark:mt-0 md:mt-19 mt-10 block "
                     >
                       <Image
-                        width={60}
-                        height={60}
+                        width={50}
+                        height={50}
                         src="/images/logo/carup24-logo.png"
-                        className=" mt-2 inline-block mx-auto dark:invert dark:hue-rotate-180"
+                        className="mt-2 inline-block mx-auto object-contain"
                         alt="کارآپ ۲۴"
                       />
                     </a>

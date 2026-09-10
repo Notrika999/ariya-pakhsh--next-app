@@ -1,7 +1,30 @@
 // components/ui/ProductPageClient/Review/Specifications.jsx
 
+function formatBooleanLabel(value) {
+  if (typeof value === "boolean") {
+    return value ? "دارد" : "ندارد";
+  }
+
+  const normalized = String(value).trim().toLowerCase();
+
+  if (normalized === "true") {
+    return "دارد";
+  }
+
+  if (normalized === "false") {
+    return "ندارد";
+  }
+
+  return null;
+}
+
 function attributeValue(attribute) {
-  return attribute?.displayText || attribute?.value || "";
+  const displayText = String(attribute?.displayText ?? "").trim();
+  const raw = displayText || attribute?.value;
+
+  if (raw === undefined || raw === null || raw === "") return "";
+
+  return formatBooleanLabel(raw) ?? String(raw);
 }
 
 function normalizeListValue(value) {

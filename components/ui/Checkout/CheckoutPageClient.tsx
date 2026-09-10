@@ -1,26 +1,36 @@
 "use client";
 // components/ui/Checkout/CheckoutPageClient.tsx
 import { useRouter } from "next/navigation";
+import { useSyncExternalStore } from "react";
 import Checkout from "@/components/ui/Checkout/Checkout";
 import LoginModal from "@/components/modules/auth/LoginModal";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 import {
+  useAuthStore,
   useIsAuthenticated,
   useIsAuthBootstrapping,
 } from "@/src/lib/stores/auth/auth.store";
+import { hasLikelySession } from "@/src/lib/auth/session-client";
 
 export default function CheckoutPageClient() {
   const router = useRouter();
   const isAuthenticated = useIsAuthenticated();
   const isAuthBootstrapping = useIsAuthBootstrapping();
-  const loginModalOpen = !isAuthBootstrapping && !isAuthenticated;
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+  const hasPendingSession = mounted && !isAuthenticated && hasLikelySession();
+  const checkingAuth = !mounted || isAuthBootstrapping || hasPendingSession;
+  const loginModalOpen = !checkingAuth && !isAuthenticated;
 
   const handleCloseLogin = () => {
-    if (isAuthenticated) return;
+    if (useAuthStore.getState().isAuthenticated) return;
     router.replace("/cart");
   };
 
-  if (isAuthBootstrapping) {
+  if (checkingAuth) {
     return (
       <SectionContainer>
         <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center text-gray-500 dark:border-gray-700 dark:bg-custom-dark dark:text-gray-400">

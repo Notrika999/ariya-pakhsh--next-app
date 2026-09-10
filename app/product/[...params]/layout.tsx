@@ -1,5 +1,9 @@
 import type { ReactNode } from "react";
 import { getProductIdentifier, loadProduct } from "./load-product";
+import {
+  getRequestSearchParams,
+  redirectLegacyProductPath,
+} from "./product-url";
 
 type ProductLayoutProps = {
   children: ReactNode;
@@ -13,6 +17,7 @@ export default async function ProductLayout({
   params: pageParams,
 }: ProductLayoutProps) {
   const { params } = await pageParams;
-  await loadProduct(getProductIdentifier(params));
+  const product = await loadProduct(getProductIdentifier(params));
+  redirectLegacyProductPath(params, product, await getRequestSearchParams());
   return children;
 }
