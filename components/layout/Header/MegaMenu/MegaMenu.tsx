@@ -34,7 +34,11 @@ export default function MegaMenu() {
           setMenu(data);
         }
       } catch (error) {
+<<<<<<< HEAD
+        // console.error("[MegaMenu] failed to load menu:", error);
+=======
         console.error("[MegaMenu] failed to load menu:", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         if (!cancelled) {
           setMenu([]);
         }
@@ -78,6 +82,8 @@ export default function MegaMenu() {
               </Link>
             </li>
 
+<<<<<<< HEAD
+=======
             {/* <li className="">
               <Link
                 href="/products"
@@ -101,6 +107,7 @@ export default function MegaMenu() {
               </Link>
             </li> */}
 
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             <li>
               <Link
                 href="/faq"

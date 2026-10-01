@@ -951,7 +951,17 @@ function getAttributeFilterKind(attribute: FilterAttribute): DynamicAttributeKin
 }
 
 function getAttributeOptionLabel(option: ColorOption) {
+<<<<<<< HEAD
+  const label = String(option.displayText ?? option.value ?? "").trim();
+  const normalizedLabel = label.toLowerCase();
+
+  if (normalizedLabel === "true") return "دارد";
+  if (normalizedLabel === "false") return "ندارد";
+
+  return label;
+=======
   return String(option.displayText ?? option.value ?? "").trim();
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 }
 
 function getAttributeOptionId(option: ColorOption) {
@@ -1092,8 +1102,13 @@ function DynamicAttributeFilter({
     return (
       <div className="grid grid-cols-2 gap-2" dir="rtl">
         {[
+<<<<<<< HEAD
+          { label: "دارد", value: true },
+          { label: "ندارد", value: false },
+=======
           { label: "بله", value: true },
           { label: "خیر", value: false },
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         ].map((item) => {
           const selected = boolValue === item.value;
 

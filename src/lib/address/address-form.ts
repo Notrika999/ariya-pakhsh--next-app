@@ -8,6 +8,11 @@ export const EMPTY_ADDRESS_FORM: CustomerAddressPayload = {
   title: "",
   province: "",
   city: "",
+<<<<<<< HEAD
+  provinceId: "",
+  cityId: "",
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   addressLine: "",
   postalCode: "",
   receiverFirstName: "",
@@ -41,6 +46,11 @@ export function addressToFormPayload(
     title: address.title,
     province: address.province,
     city: address.city,
+<<<<<<< HEAD
+    provinceId: address.provinceId ?? "",
+    cityId: address.cityId ?? "",
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     addressLine: address.addressLine,
     postalCode: address.postalCode,
     receiverFirstName: address.receiverFirstName,
@@ -95,6 +105,15 @@ export function validateAddressForm(
 
   const lat = Number(formData.latitude);
   const lng = Number(formData.longitude);
+<<<<<<< HEAD
+  const hasLocation = !(lat === 0 && lng === 0);
+  if (hasLocation) {
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      nextErrors.latitude = "موقعیت انتخاب‌شده معتبر نیست";
+    } else if (lat < 24 || lat > 40 || lng < 43 || lng > 64) {
+      nextErrors.latitude = "موقعیت انتخاب‌شده خارج از محدوده ایران است";
+    }
+=======
   if (
     !Number.isFinite(lat) ||
     !Number.isFinite(lng) ||
@@ -103,6 +122,7 @@ export function validateAddressForm(
     nextErrors.latitude = "موقعیت روی نقشه را انتخاب کنید";
   } else if (lat < 24 || lat > 40 || lng < 43 || lng > 64) {
     nextErrors.latitude = "موقعیت انتخاب‌شده خارج از محدوده ایران است";
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   }
 
   return nextErrors;
@@ -115,6 +135,11 @@ export function buildAddressPayload(
     title: formData.title.trim(),
     province: formData.province.trim(),
     city: formData.city.trim(),
+<<<<<<< HEAD
+    provinceId: formData.provinceId?.trim() || undefined,
+    cityId: formData.cityId?.trim() || undefined,
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     addressLine: formData.addressLine.trim(),
     postalCode: formData.postalCode.trim(),
     receiverFirstName: formData.receiverFirstName.trim(),

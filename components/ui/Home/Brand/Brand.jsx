@@ -27,6 +27,10 @@ function getBrandImage(brand) {
     brand.image?.logoMdUrl ??
       brand.image?.logoLgUrl ??
       brand.image?.logoSmUrl ??
+<<<<<<< HEAD
+      brand.logoSmUrl ??
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       brand.logoUrl ??
       brand.imageUrl,
   );

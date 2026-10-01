@@ -48,6 +48,10 @@ export default function SectionRenderer({
   const Layout = DISPLAY_VARIANT_REGISTRY[variant] ?? ThreeColumnArticleGrid;
   const titleId = `magazine-section-${section.key}`;
   const href = getSectionViewAllHref(section);
+<<<<<<< HEAD
+  const categorySlug = section.categorySlug || section.filters?.category || null;
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   return (
     <MagazineSection
@@ -55,8 +59,20 @@ export default function SectionRenderer({
       subtitle={section.subtitle}
       titleId={titleId}
       href={href}
+<<<<<<< HEAD
+      sectionType={section.sectionType}
+      categorySlug={categorySlug}
+    >
+      <Layout
+        articles={articles}
+        titleAs="h3"
+        priority={priority}
+        sectionType={section.sectionType ?? undefined}
+      />
+=======
     >
       <Layout articles={articles} titleAs="h3" priority={priority} />
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     </MagazineSection>
   );
 }

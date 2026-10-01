@@ -9,7 +9,11 @@ import {
   handleSessionExpired,
   hasLikelySession,
   isProtectedRoute,
+<<<<<<< HEAD
+  redirectToLogin,
+=======
   redirectToHome,
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 } from "@/src/lib/auth/session-client";
 import {
   stopProactiveTokenRefresh,
@@ -41,7 +45,11 @@ export default function AuthInitializer() {
           typeof window !== "undefined" &&
           isProtectedRoute(window.location.pathname)
         ) {
+<<<<<<< HEAD
+          redirectToLogin();
+=======
           redirectToHome();
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         }
         return;
       }

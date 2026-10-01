@@ -34,6 +34,19 @@ function toggleVehicle(
   return [...current, next];
 }
 
+<<<<<<< HEAD
+function hasSelectionChanged(
+  initial: SelectedVehicle[],
+  draft: SelectedVehicle[],
+): boolean {
+  if (initial.length !== draft.length) return true;
+
+  const initialIds = new Set(initial.map((vehicle) => vehicle.id));
+  return draft.some((vehicle) => !initialIds.has(vehicle.id));
+}
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 export default function VehicleSelectorModal({
   open,
   catalog,
@@ -53,6 +66,10 @@ export default function VehicleSelectorModal({
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+<<<<<<< HEAD
+    document.body.classList.add("vehicle-selector-open");
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -62,6 +79,10 @@ export default function VehicleSelectorModal({
 
     return () => {
       document.body.style.overflow = previousOverflow;
+<<<<<<< HEAD
+      document.body.classList.remove("vehicle-selector-open");
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [open, onClose]);
@@ -84,9 +105,16 @@ export default function VehicleSelectorModal({
   const isSearching = normalizedQuery.length > 0;
   const searchResults = isSearching ? searchVehicles(normalizedQuery, catalog) : [];
   const catalogLoading = !catalogError && catalog.length === 0;
+<<<<<<< HEAD
+  const selectionChanged = hasSelectionChanged(initialSelected, draftSelected);
+
+  const handleConfirm = async () => {
+    if (!selectionChanged || saving) return;
+=======
 
   const handleConfirm = async () => {
     if (draftSelected.length === 0 || saving) return;
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     try {
       await onConfirm(draftSelected);
     } catch {
@@ -271,7 +299,11 @@ export default function VehicleSelectorModal({
 
           <button
             type="button"
+<<<<<<< HEAD
+            disabled={!selectionChanged || saving}
+=======
             disabled={draftSelected.length === 0 || saving}
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             onClick={() => void handleConfirm()}
             className="w-full rounded-xl bg-primary py-3 text-sm font-semibold text-white transition hover:bg-primary-600 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500 dark:disabled:bg-zinc-700 dark:disabled:text-gray-400"
           >

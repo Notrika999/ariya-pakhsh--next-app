@@ -97,7 +97,11 @@ export default function DiscountAndPoints() {
 
       setCouponPages({ active, used, expired });
     } catch (error) {
+<<<<<<< HEAD
+      // console.error("[DiscountAndPoints] load coupons failed =>", error);
+=======
       console.error("[DiscountAndPoints] load coupons failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setCouponsError(getAuthErrorMessage(error));
     } finally {
       setCouponsLoading(false);
@@ -123,7 +127,11 @@ export default function DiscountAndPoints() {
         setPointsHistory(history);
         setPointsRules(rules);
       } catch (error) {
+<<<<<<< HEAD
+        // console.error("[DiscountAndPoints] load points failed =>", error);
+=======
         console.error("[DiscountAndPoints] load points failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         setPointsError(getAuthErrorMessage(error));
       } finally {
         setPointsLoading(false);
@@ -135,7 +143,11 @@ export default function DiscountAndPoints() {
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     void loadPointsSummary().catch((error) => {
+<<<<<<< HEAD
+      // console.error("[DiscountAndPoints] load points summary failed =>", error);
+=======
       console.error("[DiscountAndPoints] load points summary failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     });
   }, [loadPointsSummary]);
 
@@ -159,7 +171,11 @@ export default function DiscountAndPoints() {
       notify.success("امتیاز با موفقیت تبدیل شد");
       await loadPointsTab(pointsHistoryPage);
     } catch (error) {
+<<<<<<< HEAD
+      // console.error("[DiscountAndPoints] redeem points failed =>", error);
+=======
       console.error("[DiscountAndPoints] redeem points failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
     } finally {
       setRedeeming(false);

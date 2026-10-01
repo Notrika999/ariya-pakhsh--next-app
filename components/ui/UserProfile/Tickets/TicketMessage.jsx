@@ -99,7 +99,11 @@ export default function TicketMessage({ ticketId, onBack }) {
       setTicket(result);
 
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[TicketMessage] loadTicket failed =>", err);
+=======
       console.error("[TicketMessage] loadTicket failed =>", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setError(getAuthErrorMessage(err));
       setTicket(null);
     } finally {
@@ -129,7 +133,11 @@ export default function TicketMessage({ ticketId, onBack }) {
       setReplyText("");
       await loadTicket();
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[TicketMessage] send message failed =>", err);
+=======
       console.error("[TicketMessage] send message failed =>", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(err));
     } finally {
       setSending(false);
@@ -145,7 +153,11 @@ export default function TicketMessage({ ticketId, onBack }) {
       notify.success("تیکت بسته شد");
       await loadTicket();
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[TicketMessage] close ticket failed =>", err);
+=======
       console.error("[TicketMessage] close ticket failed =>", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(err));
     } finally {
       setClosing(false);

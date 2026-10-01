@@ -8,6 +8,39 @@ export type ProductReviewReply = {
   createdAt: string;
 };
 
+<<<<<<< HEAD
+export type ProductReviewMediaType = "image" | "video";
+
+export type ProductReviewMediaProcessingStatus =
+  | "pendingUpload"
+  | "uploaded"
+  | "processing"
+  | "ready"
+  | "failed"
+  | "rejected"
+  | "deleted";
+
+export type ProductReviewMedia = {
+  id: string;
+  mediaType: ProductReviewMediaType | string;
+  processingStatus: ProductReviewMediaProcessingStatus | string;
+  fileName: string;
+  contentType: string;
+  url?: string | null;
+  previewUrl?: string | null;
+  thumbnailUrl?: string | null;
+  posterUrl?: string | null;
+  videoUrl?: string | null;
+  moderationStatus?: string | null;
+  width?: number | null;
+  height?: number | null;
+  durationSeconds?: number | null;
+  sortOrder?: number | null;
+  rejectionReason?: string | null;
+};
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 export type ProductReview = {
   id: string;
   productId: string;
@@ -25,6 +58,10 @@ export type ProductReview = {
   userVote?: ReviewVoteType | null;
   createdAt: string;
   replies: ProductReviewReply[];
+<<<<<<< HEAD
+  media: ProductReviewMedia[];
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 };
 
 export type ProductReviewsPage = {
@@ -50,6 +87,10 @@ export type CreateProductReviewRequest = {
   advantages: string[];
   disadvantages: string[];
   recommendStatus: ReviewRecommendStatus;
+<<<<<<< HEAD
+  mediaIds?: string[];
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 };
 
 export type ProductReviewsSummary = {
@@ -76,3 +117,35 @@ export type ReportReviewRequest = {
   reason: string;
   description: string;
 };
+<<<<<<< HEAD
+
+export type ReviewMediaCapabilities = {
+  enabled: boolean;
+  maxImagesPerReview: number;
+  maxVideosPerReview: number;
+  maxImageSizeBytes: number;
+  maxVideoSizeBytes: number;
+  maxVideoDurationSeconds: number;
+  allowedImageExtensions: string[];
+  allowedImageMimeTypes: string[];
+  allowedVideoExtensions: string[];
+  allowedVideoMimeTypes: string[];
+  uploadSessionMinutes: number;
+  requireMediaModeration: boolean;
+};
+
+export type CreateReviewMediaUploadRequest = {
+  fileName: string;
+  mediaType: ProductReviewMediaType;
+  contentType: string;
+  size: number;
+};
+
+export type ReviewMediaUploadSession = {
+  mediaId: string;
+  uploadUrl: string;
+  expiresAt?: string;
+  maxAllowedSize?: number;
+};
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c

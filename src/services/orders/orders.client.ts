@@ -3,6 +3,11 @@
 
 import { apiClient, ApiError } from "@/src/lib/http/api-client";
 import type {
+<<<<<<< HEAD
+  CancelOrderPayload,
+  CancelOrderResult,
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   CancelOrderItemPayload,
   CancelOrderItemResult,
   CreateOrderReturnResult,
@@ -96,10 +101,14 @@ function assertSuccess(payload: unknown, fallback: string) {
   }
 }
 
+<<<<<<< HEAD
+function getHeaderValue(headers: unknown, key: string): string | undefined {
+=======
 function getHeaderValue(
   headers: unknown,
   key: string,
 ): string | undefined {
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   if (!headers || typeof headers !== "object") return undefined;
 
   const record = headers as Record<string, unknown>;
@@ -131,6 +140,53 @@ function getInvoiceFileName(contentDisposition?: string): string {
   return plainMatch?.[1]?.trim() || "invoice.pdf";
 }
 
+<<<<<<< HEAD
+async function toVerifiedPdfBlob(
+  value: unknown,
+  contentType?: string,
+): Promise<Blob> {
+  if (!(value instanceof Blob) || value.size === 0) {
+    throw new ApiError(
+      502,
+      "فایل فاکتور از سرور دریافت نشد",
+      "INVALID_INVOICE_PDF",
+    );
+  }
+
+  const sample = await value.slice(0, 1024).arrayBuffer();
+  const signature = new TextDecoder("latin1").decode(sample);
+
+  if (!signature.includes("%PDF-")) {
+    let message = "فایل فاکتور دریافتی معتبر نیست";
+    const normalizedType = (contentType || value.type).toLowerCase();
+
+    if (
+      normalizedType.includes("application/json") ||
+      normalizedType.startsWith("text/") ||
+      signature.trimStart().startsWith("{")
+    ) {
+      try {
+        const payload = getRecord(JSON.parse(await value.text()));
+        const nested = getRecord(payload.data);
+        const serverMessage = payload.message ?? nested.message;
+        if (typeof serverMessage === "string" && serverMessage.trim()) {
+          message = serverMessage.trim();
+        }
+      } catch {
+        // پاسخ متنی نامعتبر است؛ پیام عمومی دقیق‌تر است.
+      }
+    }
+
+    throw new ApiError(502, message, "INVALID_INVOICE_PDF");
+  }
+
+  return value.type === "application/pdf"
+    ? value
+    : new Blob([value], { type: "application/pdf" });
+}
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function mapOrderListItem(value: unknown): MyOrderListItem {
   const item = getRecord(value);
   const itemsRaw = Array.isArray(item.items)
@@ -255,6 +311,35 @@ function mapOrderItem(value: unknown): MyOrderItem | null {
   const variantTitle = String(
     item.variantTitle ?? item.variantName ?? item.skuName ?? "",
   );
+<<<<<<< HEAD
+  const colorName =
+    toString(item.productColorName) ||
+    toString(item.colorName) ||
+    toString(item.colorTitle) ||
+    toString(item.productColor) ||
+    toString(item.variantColorName) ||
+    toString(item.variantColor) ||
+    toString(item.color) ||
+    toString(item.colour) ||
+    toString(variant.productColorName) ||
+    toString(variant.colorName) ||
+    toString(variant.colorTitle) ||
+    toString(variant.color) ||
+    "";
+  const colorHex =
+    toString(item.productColorHex) ||
+    toString(item.colorHex) ||
+    toString(item.colorHexCode) ||
+    toString(item.hexCode) ||
+    toString(item.colorCode) ||
+    toString(variant.productColorHex) ||
+    toString(variant.colorHex) ||
+    toString(variant.colorHexCode) ||
+    toString(variant.hexCode) ||
+    toString(variant.colorCode) ||
+    "";
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const publicCode =
     toString(item.publicCode) ||
     toString(item.productPublicCode) ||
@@ -274,16 +359,31 @@ function mapOrderItem(value: unknown): MyOrderItem | null {
   return {
     orderItemId,
     id: orderItemId,
+<<<<<<< HEAD
+    productId:
+      toString(item.productId) || toString(product.productId) || undefined,
+=======
     productId: toString(item.productId) || toString(product.productId) || undefined,
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     productCode: publicCode || null,
     productSlug: slug || null,
     publicCode,
     slug,
+<<<<<<< HEAD
+    variantId:
+      toString(item.variantId) || toString(variant.variantId) || undefined,
+=======
     variantId: toString(item.variantId) || toString(variant.variantId) || undefined,
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     productTitle,
     productName: productTitle,
     variantTitle,
     variantName: variantTitle,
+<<<<<<< HEAD
+    colorName: colorName || null,
+    colorHex: colorHex || null,
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     quantity,
     unitPrice,
     lineTotal: finalLineAmount,
@@ -475,6 +575,12 @@ function unwrapOrderDetail(payload: unknown): MyOrderDetail {
     shippingFee: toNumber(data.shippingFee),
     shippingDiscountAmount: toNumber(data.shippingDiscountAmount),
     taxAmount: toNumber(data.taxAmount),
+<<<<<<< HEAD
+    gatewayFeeAmount: toNumber(data.gatewayFeeAmount),
+    gatewayFeePercent: toNumber(data.gatewayFeePercent),
+    gatewayFeeTitle: String(data.gatewayFeeTitle ?? "").trim(),
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     refundedAmount: toNumber(data.refundedAmount),
     customerNote: String(data.customerNote ?? ""),
     selectedShippingMethodId: String(data.selectedShippingMethodId ?? ""),
@@ -485,6 +591,10 @@ function unwrapOrderDetail(payload: unknown): MyOrderDetail {
     shippingAddressSnapshot: toShippingAddressSnapshot(
       data.shippingAddressSnapshot ?? data.shippingAddressSnapshotJson,
     ),
+<<<<<<< HEAD
+    primaryTrackingCode: String(data.primaryTrackingCode ?? "").trim(),
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     estimatedDeliveryDays: toNumber(data.estimatedDeliveryDays),
     cancelledAt: toNullableString(data.cancelledAt),
     closedAt: toNullableString(data.closedAt),
@@ -506,7 +616,12 @@ function cleanParams(
 ): Record<string, string | number> {
   const query: Record<string, string | number> = {};
 
+<<<<<<< HEAD
+  // The orders endpoint accepts `page`; `pageNumber` is only our internal name.
+  if (params.pageNumber != null) query.page = params.pageNumber;
+=======
   if (params.pageNumber != null) query.pageNumber = params.pageNumber;
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   if (params.pageSize != null) query.pageSize = params.pageSize;
   if (params.statusKey?.trim()) query.statusKey = params.statusKey.trim();
   if (params.paymentStatusKey?.trim()) {
@@ -539,8 +654,11 @@ export async function getMyOrderByNumber(
 
   const response = await apiClient.get(`${BASE}/by-number/${encoded}`);
 
+<<<<<<< HEAD
+=======
  
 
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   assertSuccess(response.data, "سفارش با این شماره پیدا نشد");
   return unwrapOrderDetail(response.data);
 }
@@ -550,8 +668,11 @@ export async function getMyOrderById(orderId: string): Promise<MyOrderDetail> {
 
   const response = await apiClient.get(`${BASE}/${encoded}`);
 
+<<<<<<< HEAD
+=======
     
 
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   assertSuccess(response.data, "دریافت جزئیات سفارش ناموفق بود");
   return unwrapOrderDetail(response.data);
 }
@@ -598,9 +719,16 @@ export async function downloadMyOrderInvoice(
     response.headers,
     "content-disposition",
   );
+<<<<<<< HEAD
+  const contentType = getHeaderValue(response.headers, "content-type");
+
+  return {
+    blob: await toVerifiedPdfBlob(response.data, contentType),
+=======
 
   return {
     blob: response.data as Blob,
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     fileName: getInvoiceFileName(contentDisposition),
   };
 }
@@ -611,10 +739,14 @@ export async function createMyOrderReturn(
 ): Promise<CreateOrderReturnResult> {
   const encoded = encodeURIComponent(orderId.trim());
 
+<<<<<<< HEAD
+  const response = await apiClient.post(`${BASE}/${encoded}/returns`, payload);
+=======
   const response = await apiClient.post(
     `${BASE}/${encoded}/returns`,
     payload,
   );
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   assertSuccess(response.data, "ثبت درخواست مرجوعی ناموفق بود");
 
@@ -631,6 +763,26 @@ export async function createMyOrderReturn(
   };
 }
 
+<<<<<<< HEAD
+export async function cancelMyOrder(
+  orderId: string,
+  payload: CancelOrderPayload = {},
+): Promise<CancelOrderResult> {
+  const encoded = encodeURIComponent(orderId.trim());
+
+  const response = await apiClient.post(`${BASE}/${encoded}/cancel`, payload);
+
+  assertSuccess(response.data, "لغو سفارش ناموفق بود");
+
+  const root = getRecord(response.data);
+  return {
+    message: typeof root.message === "string" ? root.message : undefined,
+    raw: response.data,
+  };
+}
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 export async function cancelMyOrderItem(
   orderId: string,
   orderItemId: string,

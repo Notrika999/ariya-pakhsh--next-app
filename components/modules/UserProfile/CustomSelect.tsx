@@ -1,6 +1,10 @@
 "use client";
 
+<<<<<<< HEAD
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+=======
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import { createPortal } from "react-dom";
 
 export type SelectOption = {
@@ -42,14 +46,25 @@ export default function CustomSelect({
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
+<<<<<<< HEAD
+=======
   const [mounted, setMounted] = useState(false);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   const triggerRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
   const selected = options.find((o) => o.value === value);
 
+<<<<<<< HEAD
+  const openSelect = useCallback(() => {
+    const idx = options.findIndex((o) => o.value === value);
+    setActiveIndex(idx >= 0 ? idx : 0);
+    setIsOpen(true);
+  }, [options, value]);
+=======
   useEffect(() => setMounted(true), []);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   const updateCoords = () => {
     const rect = triggerRef.current?.getBoundingClientRect();
@@ -68,7 +83,10 @@ export default function CustomSelect({
   useLayoutEffect(() => {
     if (!isOpen) return;
     updateCoords();
+<<<<<<< HEAD
+=======
     // eslint-disable-next-line react-hooks/exhaustive-deps
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   }, [isOpen]);
 
   useEffect(() => {
@@ -98,6 +116,8 @@ export default function CustomSelect({
   }, [isOpen]);
 
   useEffect(() => {
+<<<<<<< HEAD
+=======
     if (isOpen) {
       const idx = options.findIndex((o) => o.value === value);
       setActiveIndex(idx >= 0 ? idx : 0);
@@ -106,6 +126,7 @@ export default function CustomSelect({
   }, [isOpen]);
 
   useEffect(() => {
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     if (isOpen && activeIndex >= 0 && listRef.current) {
       listRef.current.children[activeIndex]?.scrollIntoView({ block: "nearest" });
     }
@@ -121,7 +142,11 @@ export default function CustomSelect({
     if (disabled) return;
     if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
       e.preventDefault();
+<<<<<<< HEAD
+      openSelect();
+=======
       setIsOpen(true);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     }
   };
 
@@ -150,7 +175,18 @@ export default function CustomSelect({
         ref={triggerRef}
         type="button"
         disabled={disabled}
+<<<<<<< HEAD
+        onClick={() => {
+          if (disabled) return;
+          if (isOpen) {
+            setIsOpen(false);
+          } else {
+            openSelect();
+          }
+        }}
+=======
         onClick={() => !disabled && setIsOpen((v) => !v)}
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         onKeyDown={handleTriggerKeyDown}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
@@ -169,7 +205,11 @@ export default function CustomSelect({
         ></i>
       </button>
 
+<<<<<<< HEAD
+      {typeof document !== "undefined" &&
+=======
       {mounted &&
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         isOpen &&
         createPortal(
           <ul
@@ -220,4 +260,8 @@ export default function CustomSelect({
         )}
     </div>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c

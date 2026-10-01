@@ -13,7 +13,11 @@ export default function LastBlogs({ lastBlogLits }) {
     <>
       <h2 className="sr-only">مقالات وبلاگ لوازم خودرو</h2>
 
+<<<<<<< HEAD
+      <SectionHeader title="آخرین مقالات" href="/mag" />
+=======
       <SectionHeader title={"مقالات دسته‌بندی محصولات خودرو"} href={"/mag"} />
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
       <Swiper
         modules={[Autoplay]}
@@ -44,10 +48,11 @@ export default function LastBlogs({ lastBlogLits }) {
                 <figure className="overflow-hidden rounded-xl">
                   <Image
                     className="h-40 w-full object-cover rounded-xl transition-transform duration-300 group-hover:scale-105"
-                    src={blog.image ?? "/images/default.png"}
-                    alt={blog.title}
+                    src={blog.thumbnail ?? blog.image ?? "/images/default.png"}
+                    alt={blog.imageAlt ?? blog.title}
                     width={240}
                     height={160}
+                    unoptimized
                   />
                 </figure>
 
@@ -58,13 +63,17 @@ export default function LastBlogs({ lastBlogLits }) {
                   <h2 className="font-bold text-gray-900 dark:text-gray-100 text-base h-12 leading-6 line-clamp-2 mt-1">
                     {blog.title}
                   </h2>
+<<<<<<< HEAD
+                  <p className="text-xs text-gray-600 dark:text-gray-400 h-12 leading-6 line-clamp-2 mt-2">
+=======
                   <p className="text-sm text-gray-600 dark:text-gray-400 h-12 leading-6 line-clamp-2 mt-2">
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                     {blog.description}
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between text-gray-600 dark:text-gray-400">
-                  <h4 className="text-sm">{blog.date}</h4>
+                  <h4 className="text-xs text-gray-400">{blog.date}</h4>
 
                   <div className="flex items-center gap-1 transition-colors duration-200 group-hover:text-primary dark:group-hover:text-primary-400">
                     <span className="text-sm">ادامه مطلب</span>

@@ -2,12 +2,19 @@
 // components/ui/ProductPageClient/Review/ProductAction.jsx
 
 import React, { useEffect, useState } from "react";
+<<<<<<< HEAD
+import Link from "next/link";
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import { useRouter } from "next/navigation";
 import QuantitySelector from "../../../modules/QuantityProductSelector/QuantityProductSelector";
 import { useCart } from "@/src/context/CartContext";
 import { getProductImage } from "@/src/utils/product-image";
 import { useStockNotify } from "@/src/hooks/useStockNotify";
+<<<<<<< HEAD
+=======
 import { Car } from "lucide-react";
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import { formatVehicleLabel } from "@/src/services/vehicle/vehicle.service";
 import {
   useSelectedVehicles,
@@ -19,9 +26,17 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
   const [quantity, setQuantity] = useState(1);
   const [isDesktop, setIsDesktop] = useState(false);
   const [added, setAdded] = useState(false);
+<<<<<<< HEAD
+  const [showAddedNotice, setShowAddedNotice] = useState(false);
+  const [quantityUpdating, setQuantityUpdating] = useState(false);
+  const [stickyTop, setStickyTop] = useState(16);
+
+  const { addItem, updateQty, removeItem, items } = useCart();
+=======
   const [stickyTop, setStickyTop] = useState(16);
 
   const { addItem, updateQty, items } = useCart();
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const { requestNotify, stockNotifyModal } = useStockNotify();
   const selectedVehicles = useSelectedVehicles();
   const openVehicleModal = useVehicleStore((state) => state.openModal);
@@ -76,9 +91,31 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
     queueMicrotask(() => {
       setQuantity(1);
       setAdded(false);
+<<<<<<< HEAD
+      setShowAddedNotice(false);
     });
   }, [items, variant?.variantId]);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    const noticeIsVisible = showAddedNotice && added && !isOutOfStock;
+
+    if (noticeIsVisible) {
+      root.dataset.productCartNotice = "visible";
+    } else {
+      delete root.dataset.productCartNotice;
+    }
+
+    return () => {
+      delete root.dataset.productCartNotice;
+    };
+  }, [added, isOutOfStock, showAddedNotice]);
+
+=======
+    });
+  }, [items, variant?.variantId]);
+
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const price = variant?.salePrice ?? variant?.price ?? 0;
   const originalPrice = variant?.compareAtPrice ?? variant?.price ?? price;
   const hasDiscount = originalPrice > price;
@@ -91,6 +128,33 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
     product?.maxQuantityPerOrder ?? 99,
   );
 
+<<<<<<< HEAD
+  const handleAddToCart = async () => {
+    if (!variant || isOutOfStock) return;
+    setQuantityUpdating(true);
+
+    const wasAdded = await addItem(
+      {
+        id: variant.variantId,
+        variantId: variant.variantId,
+        productId: product.productId,
+        title: product.name,
+        image: getProductImage(
+          variant.images?.[0]?.thumbnailPath ||
+            product.variants?.[0]?.images?.[0]?.thumbnailPath,
+        ),
+        price,
+        oldPrice: originalPrice,
+        href: `/product/${product.publicCode}/${product.slug}`,
+        quantity,
+      },
+      { showSuccessToast: false },
+    );
+
+    setQuantityUpdating(false);
+    if (!wasAdded) return;
+
+=======
   const handleAddToCart = () => {
     if (!variant || isOutOfStock) return;
     void addItem({
@@ -107,16 +171,59 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
       href: `/product/${product.publicCode}/${product.slug}`,
       quantity,
     });
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     setAdded(true);
+    setShowAddedNotice(true);
   };
 
-  const handleQtyChange = (newQty) => {
-    setQuantity(newQty);
+  const handleQtyChange = (nextValue) => {
+    const newQty =
+      typeof nextValue === "function" ? nextValue(quantity) : nextValue;
+    const normalizedQty = Math.min(Math.max(newQty, 1), maxQty);
+
+    if (normalizedQty === quantity) return;
+
+    setQuantity(normalizedQty);
     if (added && variant) {
+<<<<<<< HEAD
+      setQuantityUpdating(true);
+      void updateQty(variant.variantId, normalizedQty).finally(() => {
+        setQuantityUpdating(false);
+      });
+    }
+  };
+
+  const handleMobileDecrease = () => {
+    if (!variant || quantityUpdating) return;
+
+    setQuantityUpdating(true);
+    const operation =
+      quantity <= 1
+        ? removeItem(variant.variantId)
+        : updateQty(variant.variantId, quantity - 1);
+
+    if (quantity > 1) setQuantity((current) => Math.max(1, current - 1));
+
+    void operation.finally(() => setQuantityUpdating(false));
+  };
+
+  const handleMobileIncrement = () => {
+    if (!variant || quantityUpdating || quantity >= maxQty) return;
+
+    const nextQuantity = quantity + 1;
+    setQuantity(nextQuantity);
+    setQuantityUpdating(true);
+    void updateQty(variant.variantId, nextQuantity).finally(() => {
+      setQuantityUpdating(false);
+    });
+  };
+
+=======
       void updateQty(variant.variantId, newQty);
     }
   };
 
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const handleBack = () => {
     router.back();
   };
@@ -126,6 +233,113 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
 
   return (
     <>
+<<<<<<< HEAD
+      <div className="fixed inset-x-0 bottom-0 z-40 space-y-2.5 border-t border-gray-200 bg-white px-3 py-2.5 pb-[calc(env(safe-area-inset-bottom)+10px)] shadow-[0_-8px_24px_rgba(15,23,42,0.08)] lg:hidden dark:border-gray-700 dark:bg-custom-dark">
+        {showAddedNotice && added && !isOutOfStock && (
+          <div
+            className="flex min-h-12 items-center gap-2 rounded-xl bg-white px-1 text-sm shadow-sm dark:bg-zinc-900"
+            role="status"
+          >
+            <button
+              type="button"
+              onClick={() => setShowAddedNotice(false)}
+              aria-label="بستن پیام"
+              className="flex size-9 shrink-0 items-center justify-center rounded-lg text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-zinc-800"
+            >
+              <i className="far fa-xmark text-xl" aria-hidden="true" />
+            </button>
+
+            <i
+              className="fas fa-circle-check text-xl text-green-600 dark:text-green-500"
+              aria-hidden="true"
+            />
+            <span className="font-bold text-green-700 dark:text-green-500">
+              کالا اضافه شد!
+            </span>
+
+            <Link
+              href="/cart"
+              className="ms-auto inline-flex h-9 shrink-0 items-center gap-2 rounded-full bg-gray-100 px-3 font-semibold text-gray-900 transition-colors hover:bg-gray-200 dark:bg-zinc-800 dark:text-gray-100 dark:hover:bg-zinc-700"
+            >
+              برو به سبد خرید
+              <i className="far fa-angle-left" aria-hidden="true" />
+            </Link>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between gap-3">
+          <button
+            type="button"
+            aria-label="بازگشت به صفحه قبل"
+            onClick={handleBack}
+            className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-800 shadow-sm transition-colors hover:bg-gray-50 active:scale-95 dark:border-gray-700 dark:bg-zinc-900 dark:text-gray-100 dark:hover:bg-zinc-800"
+          >
+            <i className="far fa-angle-right text-lg" aria-hidden="true" />
+          </button>
+
+          {added && !isOutOfStock ? (
+            <div
+              dir="ltr"
+              className="flex h-10 flex-1 items-center justify-between rounded-xl border border-gray-100 bg-white px-1 text-primary shadow-md dark:border-zinc-700 dark:bg-zinc-900 dark:text-primary-400"
+              aria-label="تغییر تعداد محصول در سبد خرید"
+            >
+              <button
+                type="button"
+                onClick={handleMobileDecrease}
+                disabled={quantityUpdating}
+                aria-label={quantity <= 1 ? "حذف از سبد خرید" : "کاهش تعداد"}
+                className="flex size-9 items-center justify-center rounded-lg text-primary transition-colors hover:bg-primary/10 disabled:cursor-wait disabled:opacity-50 dark:text-primary-400"
+              >
+                <i
+                  className={`far ${quantity <= 1 ? "fa-trash-can" : "fa-minus"} text-lg`}
+                  aria-hidden="true"
+                />
+              </button>
+
+              <span
+                className="min-w-8 text-center text-sm font-black"
+                aria-live="polite"
+              >
+                {quantityUpdating ? (
+                  <i className="far fa-spinner-third animate-spin" aria-hidden="true" />
+                ) : (
+                  new Intl.NumberFormat("fa-IR").format(quantity)
+                )}
+              </span>
+
+              <button
+                type="button"
+                onClick={handleMobileIncrement}
+                disabled={quantityUpdating || quantity >= maxQty}
+                aria-label="افزایش تعداد"
+                className="flex size-9 items-center justify-center rounded-lg text-primary transition-colors hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-40 dark:text-primary-400"
+              >
+                <i className="far fa-plus text-lg" aria-hidden="true" />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={isOutOfStock ? requestNotify : handleAddToCart}
+              disabled={quantityUpdating || (!isOutOfStock && !variant)}
+              className={`h-10 flex-1 rounded-xl px-2 text-xs font-semibold text-white transition-colors ${
+                isOutOfStock
+                  ? "bg-primary hover:bg-primary-600"
+                  : !variant
+                    ? "cursor-not-allowed bg-gray-400"
+                    : "bg-primary hover:bg-primary-600"
+              }`}
+            >
+              {quantityUpdating ? (
+                <i className="far fa-spinner-third animate-spin" aria-hidden="true" />
+              ) : isOutOfStock ? (
+                "موجود شد خبرم کن"
+              ) : (
+                "افزودن به سبد خرید"
+              )}
+            </button>
+          )}
+=======
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white px-3 py-2.5 pb-[calc(env(safe-area-inset-bottom)+10px)] shadow-[0_-8px_24px_rgba(15,23,42,0.08)] lg:hidden dark:border-gray-700 dark:bg-custom-dark">
         <div className="flex items-center justify-between gap-3">
           <button
@@ -157,6 +371,7 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
                 ? "افزوده شد"
                 : "افزودن به سبد خرید"}
           </button>
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
           <div className="min-w-28 text-start" dir="rtl">
             {hasDiscount && (
@@ -247,6 +462,21 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
                 <span className="min-w-0">
                   <span className="block md:text-sm text-xs font-semibold text-gray-800 dark:text-white">
                     مشاوره سازگاری با خودرو
+<<<<<<< HEAD
+                  </span>
+                  {selectedVehiclesSummary ? (
+                    <span className="mt-0.5 block truncate text-[11px] text-gray-500 dark:text-gray-400">
+                      خودروی من: {selectedVehiclesSummary}
+                    </span>
+                  ) : (
+                    <span className="mt-0.5 block text-[11px] text-gray-500 dark:text-gray-400">
+                      تغییر خودرو
+                    </span>
+                  )}
+                </span>
+              </button>
+
+=======
                   </span>
                   {selectedVehiclesSummary ? (
                     <span className="mt-0.5 block truncate text-[11px] text-gray-500 dark:text-gray-400">
@@ -279,6 +509,7 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
                   </span>
                 )}
               </div> */}
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             </div>
           </div>
 
@@ -303,6 +534,8 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
                 onChange={handleQtyChange}
                 min={1}
                 max={maxQty}
+                loading={quantityUpdating}
+                disabled={quantityUpdating}
               />
             )}
 

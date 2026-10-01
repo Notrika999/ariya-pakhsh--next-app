@@ -3,9 +3,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+<<<<<<< HEAD
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
+import GatewayRedirectConfirmation from "@/components/modules/GatewayRedirectConfirmation/GatewayRedirectConfirmation";
+import CartSynchronizationModal from "@/components/ui/Cart/CartSynchronizationModal";
+import { useCartSynchronization } from "@/components/ui/Cart/useCartSynchronization";
+=======
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 import GatewayRedirectConfirmation from "@/components/modules/GatewayRedirectConfirmation/GatewayRedirectConfirmation";
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import CheckoutDeliveryAddress from "./CheckoutDeliveryAddress";
 import { useCart } from "@/src/context/CartContext";
 import type { CartItem } from "@/src/lib/types/cart/cartTypes";
@@ -15,6 +23,10 @@ import type {
   CheckoutCouponPayload,
   CheckoutGatewayFee,
   CheckoutPaymentMethod,
+<<<<<<< HEAD
+  PendingCheckoutOrder,
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   CheckoutShippingGroupItem,
   CheckoutShippingMethod,
   CheckoutShippingOptionsResult,
@@ -24,14 +36,31 @@ import type {
 import {
   applyCheckoutCoupon,
   ensureServerCartHasItems,
+<<<<<<< HEAD
+  getPendingCheckoutOrder,
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   getCheckoutPaymentMethods,
   placeCheckoutOrder,
   previewCheckoutDiscount,
   startOrderPayment,
 } from "@/src/services/checkout/checkout.client";
+<<<<<<< HEAD
+import {
+  cancelMyOrder,
+  retryMyOrderPayment,
+} from "@/src/services/orders/orders.client";
+import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
+import { resolveCustomerAddressLocationIds } from "@/src/services/location/location.client";
+import { getProductImage } from "@/src/utils/product-image";
+import { notify } from "@/src/utils/toast";
+import { rememberPendingPaymentOrder } from "@/src/utils/paymentRetryStorage";
+import { useCurrentUser } from "@/src/lib/stores/auth/auth.store";
+=======
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
 import { notify } from "@/src/utils/toast";
 import { rememberPendingPaymentOrder } from "@/src/utils/paymentRetryStorage";
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 const formatMoney = (value: number) =>
   `${new Intl.NumberFormat("fa-IR").format(Math.max(0, Math.round(value)))} تومان`;
@@ -66,6 +95,40 @@ type PendingGatewayPayment = {
   gatewayFee: CheckoutGatewayFee | null;
 };
 
+<<<<<<< HEAD
+function formatPendingExpiresAt(value: string | null): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+
+  return new Intl.DateTimeFormat("fa-IR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function formatRemainingTime(remainingSeconds: number): string {
+  const safeSeconds = Math.max(0, Math.floor(remainingSeconds));
+  const totalMinutes = Math.floor(safeSeconds / 60);
+  const seconds = safeSeconds % 60;
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  const formatter = new Intl.NumberFormat("fa-IR", {
+    minimumIntegerDigits: 2,
+  });
+
+  if (hours > 0) {
+    return `${formatter.format(hours)}:${formatter.format(minutes)}:${formatter.format(seconds)}`;
+  }
+
+  return `${formatter.format(minutes)}:${formatter.format(seconds)}`;
+}
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function isGiftCardPaymentMethod(
   method: CheckoutPaymentMethod | null,
 ): boolean {
@@ -98,17 +161,33 @@ function isInstallmentPaymentMethod(
 
 function toShippingAddress(
   address: CustomerAddressDto,
+<<<<<<< HEAD
+  userEmail: string,
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 ): PlaceOrderShippingAddress {
   return {
     countryCode: "IR",
     countryName: "ایران",
     state: address.province,
     city: address.city,
+<<<<<<< HEAD
+    provinceId: address.provinceId,
+    cityId: address.cityId,
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     postalCode: address.postalCode,
     addressLine: address.addressLine,
     recipientFirstName: address.receiverFirstName,
     recipientLastName: address.receiverLastName,
     mobile: address.receiverMobile,
+<<<<<<< HEAD
+    phone: address.receiverMobile,
+    email: userEmail.trim(),
+    latitude: address.latitude,
+    longitude: address.longitude,
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   };
 }
 
@@ -233,8 +312,155 @@ function isBankGatewayPaymentMethod(method: CheckoutPaymentMethod): boolean {
   );
 }
 
+<<<<<<< HEAD
+function PendingPaymentWarning({
+  order,
+  loading,
+  action,
+  onPay,
+  onCancel,
+}: {
+  order: PendingCheckoutOrder;
+  loading: boolean;
+  action: "pay" | "cancel" | null;
+  onPay: () => void;
+  onCancel: () => void;
+}) {
+  const [remainingSeconds, setRemainingSeconds] = useState(
+    order.remainingSeconds,
+  );
+  const items = order.items;
+  const visibleItems = items.slice(0, 4);
+  const hiddenItemsCount = Math.max(0, items.length - visibleItems.length);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(
+      () => setRemainingSeconds((value) => Math.max(0, value - 1)),
+      1000,
+    );
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  return (
+    <div className="mb-6 rounded-2xl border-2 border-red-700 bg-white p-4 text-red-800 dark:border-red-500 dark:bg-custom-dark dark:text-red-300 sm:p-6">
+      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <span className="flex size-8 items-center justify-center rounded-full bg-red-700 text-white dark:bg-red-500">
+            <i className="fa-solid fa-info text-sm"></i>
+          </span>
+          <div>
+            <h2 className="text-lg font-black sm:text-xl">
+              {order.displayStatus || "در انتظار پرداخت"}
+            </h2>
+            <p className="mt-1 text-sm font-bold">
+              سفارش شما ثبت نهایی نشده
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 text-red-500">
+          <i className="far fa-clock text-2xl"></i>
+          <span className="text-xl font-black" dir="ltr">
+            {formatRemainingTime(remainingSeconds)}
+          </span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 overflow-x-auto pb-1">
+            {visibleItems.length ? (
+              <>
+                {visibleItems.map((item) => (
+                  <div
+                    key={item.orderItemId}
+                    className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray-100 dark:bg-zinc-900 sm:size-20"
+                    title={item.productTitle || "محصول"}
+                  >
+                    <Image
+                      src={getProductImage(item.imageUrl)}
+                      alt={item.productTitle || "محصول"}
+                      width={80}
+                      height={80}
+                      unoptimized
+                      className="h-[85%] w-[85%] object-contain"
+                    />
+                  </div>
+                ))}
+                {hiddenItemsCount > 0 ? (
+                  <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-sm font-black text-gray-700 dark:bg-zinc-900 dark:text-gray-200 sm:size-20">
+                    +{new Intl.NumberFormat("fa-IR").format(hiddenItemsCount)}
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <div className="flex size-16 items-center justify-center rounded-xl bg-gray-100 dark:bg-zinc-900 sm:size-20">
+                <Image
+                  src="/images/default.png"
+                  alt="محصول"
+                  width={80}
+                  height={80}
+                  className="h-[85%] w-[85%] object-contain"
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 gap-2 text-sm text-gray-700 dark:text-gray-300 sm:grid-cols-2">
+            <span>
+              کد سفارش:{" "}
+              <b className="text-gray-900 dark:text-gray-100">
+                {order.publicOrderNumber || order.orderId}
+              </b>
+            </span>
+            <span>
+              انقضا:{" "}
+              <b className="text-gray-900 dark:text-gray-100">
+                {formatPendingExpiresAt(order.expiresAt)}
+              </b>
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-[minmax(180px,1fr)_auto] lg:min-w-[520px]">
+          <div className="flex items-center text-xl font-black text-gray-900 dark:text-gray-100">
+            {formatMoney(order.payableAmount)}
+          </div>
+          <div className="flex flex-wrap gap-3 sm:min-w-80 sm:justify-end">
+            {order.allowedActions.canCancel ? (
+              <button
+                type="button"
+                disabled={loading || Boolean(action)}
+                onClick={onCancel}
+                className="min-w-28 flex-1 rounded-xl border border-red-300 px-4 py-4 font-black text-red-700 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-950/30"
+              >
+                {action === "cancel" ? "در حال لغو..." : "لغو سفارش"}
+              </button>
+            ) : null}
+            {order.allowedActions.canContinuePayment ? (
+              <button
+                type="button"
+                disabled={loading || Boolean(action)}
+                onClick={onPay}
+                className="min-w-40 flex-1 rounded-xl bg-red-600 px-4 py-4 font-black text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {action === "pay" ? "در حال انتقال..." : "ادامه پرداخت"}
+              </button>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Checkout() {
   const router = useRouter();
+  const currentUser = useCurrentUser();
+=======
+export default function Checkout() {
+  const router = useRouter();
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const {
     items,
     totalItems,
@@ -242,7 +468,17 @@ export default function Checkout() {
     loading: cartLoading,
     syncing: cartSyncing,
     clearCart,
+<<<<<<< HEAD
+    refreshCart,
   } = useCart();
+  const cartSync = useCartSynchronization({
+    enabled: !cartLoading && !cartSyncing && items.length > 0,
+    refreshCart,
+    autoCheck: false,
+  });
+=======
+  } = useCart();
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   const [selectedAddress, setSelectedAddress] =
     useState<CustomerAddressDto | null>(null);
@@ -275,6 +511,47 @@ export default function Checkout() {
   const [pendingGatewayPayment, setPendingGatewayPayment] =
     useState<PendingGatewayPayment | null>(null);
   const [gatewayStarting, setGatewayStarting] = useState(false);
+<<<<<<< HEAD
+  const [pendingPaymentOrder, setPendingPaymentOrder] =
+    useState<PendingCheckoutOrder | null>(null);
+  const [pendingPaymentLoading, setPendingPaymentLoading] = useState(true);
+  const [pendingPaymentError, setPendingPaymentError] = useState<string | null>(
+    null,
+  );
+  const [pendingPaymentAction, setPendingPaymentAction] = useState<
+    "pay" | "cancel" | null
+  >(null);
+  const gatewayEntryFailureHandledRef = useRef(false);
+
+  const handleGatewayEntryFailure = useCallback(
+    (message: string) => {
+      if (gatewayEntryFailureHandledRef.current) return;
+
+      gatewayEntryFailureHandledRef.current = true;
+      notify.error(message);
+      setPendingGatewayPayment(null);
+      setGatewayStarting(false);
+      setPendingPaymentAction(null);
+      router.replace("/");
+    },
+    [router],
+  );
+
+  const loadPendingPaymentOrder = useCallback(async () => {
+    setPendingPaymentLoading(true);
+    setPendingPaymentError(null);
+    try {
+      const order = await getPendingCheckoutOrder();
+      setPendingPaymentOrder(order);
+    } catch (err) {
+      // console.error("[Checkout] load pending payment order failed =>", err);
+      setPendingPaymentError(getAuthErrorMessage(err));
+    } finally {
+      setPendingPaymentLoading(false);
+    }
+  }, []);
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   const selectPaymentMethod = (method: CheckoutPaymentMethod) => {
     setSelectedPaymentCode(method.code);
@@ -336,6 +613,38 @@ export default function Checkout() {
   }, []);
 
   useEffect(() => {
+<<<<<<< HEAD
+    const timer = window.setTimeout(() => {
+      void loadPendingPaymentOrder();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [loadPendingPaymentOrder]);
+
+  useEffect(() => {
+    if (!pendingPaymentOrder) return;
+
+    const refreshDelay =
+      pendingPaymentOrder.remainingSeconds > 0
+        ? (pendingPaymentOrder.remainingSeconds + 1) * 1000
+        : 5000;
+    const timer = window.setTimeout(
+      () => void loadPendingPaymentOrder(),
+      Math.min(refreshDelay, 2_147_000_000),
+    );
+
+    return () => window.clearTimeout(timer);
+  }, [loadPendingPaymentOrder, pendingPaymentOrder]);
+
+  useEffect(() => {
+    if (!pendingGatewayPayment) return;
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [pendingGatewayPayment]);
+
+  useEffect(() => {
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     const header = document.querySelector("body > header");
 
     const updateStickyTop = () => {
@@ -519,12 +828,23 @@ export default function Checkout() {
       payload.shippingSelections = shippingSelections;
     }
     if (selectedAddress) {
+<<<<<<< HEAD
+      payload.shippingAddress = toShippingAddress(
+        selectedAddress,
+        currentUser?.email ?? "",
+      );
+=======
       payload.shippingAddress = toShippingAddress(selectedAddress);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     }
 
     return payload;
   }, [
     selectedAddress,
+<<<<<<< HEAD
+    currentUser?.email,
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     selectedProviderCode,
     selectedShippingMethodId,
     shippingSelections,
@@ -617,6 +937,25 @@ export default function Checkout() {
       return;
     }
 
+<<<<<<< HEAD
+    setCouponApplying(true);
+    try {
+      const resolvedAddress =
+        await resolveCustomerAddressLocationIds(selectedAddress);
+      setSelectedAddress(resolvedAddress);
+
+      const payload: CheckoutCouponPayload = {
+        couponCode: couponCode.trim(),
+        providerCode: selectedProviderCode || undefined,
+        shippingMethodId: selectedShippingMethodId,
+        shippingSelections,
+        shippingAddress: toShippingAddress(
+          resolvedAddress,
+          currentUser?.email ?? "",
+        ),
+      };
+
+=======
     const payload: CheckoutCouponPayload = {
       couponCode: couponCode.trim(),
       providerCode: selectedProviderCode || undefined,
@@ -627,6 +966,7 @@ export default function Checkout() {
 
     setCouponApplying(true);
     try {
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       const result = await applyCheckoutCoupon(payload);
       setCouponDiscount(result);
       if (result.couponIsApplicable) {
@@ -637,7 +977,11 @@ export default function Checkout() {
         notify.error(result.couponMessage || "کد تخفیف قابل اعمال نیست");
       }
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[Checkout] apply coupon failed =>", err);
+=======
       console.error("[Checkout] apply coupon failed =>", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setAppliedCouponCode(null);
       setCouponDiscount(null);
       notify.error(getAuthErrorMessage(err));
@@ -646,6 +990,67 @@ export default function Checkout() {
     }
   };
 
+<<<<<<< HEAD
+  const handlePayPendingPaymentOrder = async () => {
+    if (
+      !pendingPaymentOrder?.orderId ||
+      !pendingPaymentOrder.allowedActions.canContinuePayment ||
+      pendingPaymentAction
+    ) {
+      return;
+    }
+
+    setPendingPaymentAction("pay");
+    try {
+      const result = await retryMyOrderPayment(pendingPaymentOrder.orderId);
+      const paymentUrl = result.paymentUrl || result.redirectUrl;
+
+      if (!paymentUrl) {
+        notify.error(
+          "ورود به درگاه پرداخت انجام نشد. لطفاً بعداً دوباره تلاش کنید.",
+        );
+        return;
+      }
+
+      rememberPendingPaymentOrder(
+        pendingPaymentOrder.orderId,
+        pendingPaymentOrder.publicOrderNumber,
+      );
+      window.location.href = paymentUrl;
+    } catch (err) {
+      // console.error("[Checkout] retry pending payment failed =>", err);
+      notify.error(getAuthErrorMessage(err));
+    } finally {
+      setPendingPaymentAction(null);
+    }
+  };
+
+  const handleCancelPendingPaymentOrder = async () => {
+    if (
+      !pendingPaymentOrder?.orderId ||
+      !pendingPaymentOrder.allowedActions.canCancel ||
+      pendingPaymentAction
+    ) {
+      return;
+    }
+
+    setPendingPaymentAction("cancel");
+    try {
+      const result = await cancelMyOrder(pendingPaymentOrder.orderId, {
+        reason: "customer_cancelled_pending_payment",
+      });
+      notify.success(result.message || "سفارش در انتظار پرداخت لغو شد");
+      await loadPendingPaymentOrder();
+    } catch (err) {
+      // console.error("[Checkout] cancel pending order failed =>", err);
+      notify.error(getAuthErrorMessage(err));
+    } finally {
+      setPendingPaymentAction(null);
+    }
+  };
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   // handlePlaceOrder is a function that places an order and redirects to the payment gateway
   const handlePlaceOrder = async () => {
     if (cartLoading || cartSyncing) {
@@ -656,6 +1061,29 @@ export default function Checkout() {
       notify.error("سبد خرید خالی است");
       return;
     }
+<<<<<<< HEAD
+    if (pendingPaymentLoading) {
+      notify.info("وضعیت سفارش در انتظار پرداخت در حال بررسی است");
+      return;
+    }
+    if (pendingPaymentError) {
+      notify.error(
+        "بررسی سفارش در انتظار پرداخت انجام نشد. ابتدا دوباره تلاش کنید.",
+      );
+      return;
+    }
+    if (pendingPaymentOrder) {
+      notify.error(
+        "ابتدا سفارش در انتظار پرداخت را تعیین تکلیف کنید، سپس سفارش جدید ثبت کنید.",
+      );
+      return;
+    }
+
+    const cartIsCurrent = await cartSync.checkCart();
+    if (!cartIsCurrent) return;
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     if (!selectedAddress) {
       notify.error("لطفاً آدرس تحویل را انتخاب کنید");
       return;
@@ -691,7 +1119,10 @@ export default function Checkout() {
       notify.error("لطفاً ابتدا کد تخفیف را اعمال کنید");
       return;
     }
+<<<<<<< HEAD
+=======
 
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     setSubmitting(true);
     try {
       const serverItemCount = await ensureServerCartHasItems(items);
@@ -702,10 +1133,25 @@ export default function Checkout() {
         return;
       }
 
+<<<<<<< HEAD
+      const resolvedAddress =
+        await resolveCustomerAddressLocationIds(selectedAddress);
+      setSelectedAddress(resolvedAddress);
+
+      const shippingAddress = toShippingAddress(
+        resolvedAddress,
+        currentUser?.email ?? "",
+      );
+      const placeOrderPayload = {
+        shippingMethodId: selectedShippingMethodId,
+        shippingSelections,
+        shippingAddress,
+=======
       const result = await placeCheckoutOrder({
         shippingMethodId: selectedShippingMethodId,
         shippingSelections,
         shippingAddress: toShippingAddress(selectedAddress),
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         paymentMethodCode: selectedPaymentCode,
         providerCode: selectedIsGiftCardPayment
           ? undefined
@@ -715,7 +1161,13 @@ export default function Checkout() {
           : undefined,
         customerNote: customerNote.trim() || undefined,
         giftCardCode: giftCardCode.trim() || undefined,
+<<<<<<< HEAD
+      };
+
+      const result = await placeCheckoutOrder(placeOrderPayload);
+=======
       });
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
       const paymentUrl = result.paymentUrl || result.redirectUrl;
 
@@ -759,7 +1211,11 @@ export default function Checkout() {
         gatewayFee,
       });
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[Checkout] place order failed =>", err);
+=======
       console.error("[Checkout] place order failed =>", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(err));
     } finally {
       setSubmitting(false);
@@ -800,7 +1256,13 @@ export default function Checkout() {
     }
 
     if (!pendingGatewayPayment.orderId) {
+<<<<<<< HEAD
+      handleGatewayEntryFailure(
+        "ورود به درگاه پرداخت انجام نشد. لطفاً بعداً دوباره تلاش کنید.",
+      );
+=======
       notify.error("شناسه سفارش برای شروع پرداخت دریافت نشد");
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       return;
     }
 
@@ -815,8 +1277,14 @@ export default function Checkout() {
       });
 
       if (!payment.redirectUrl) {
+<<<<<<< HEAD
+        handleGatewayEntryFailure(
+          "ورود به درگاه پرداخت انجام نشد. لطفاً بعداً دوباره تلاش کنید.",
+        );
+=======
         notify.error("آدرس درگاه از سرویس پرداخت دریافت نشد");
         setGatewayStarting(false);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         return;
       }
 
@@ -825,12 +1293,26 @@ export default function Checkout() {
         payment.orderNumber || pendingGatewayPayment.orderNumber,
       );
       window.location.href = payment.redirectUrl;
+<<<<<<< HEAD
+    } catch {
+      handleGatewayEntryFailure(
+        "ورود به درگاه پرداخت انجام نشد. لطفاً بعداً دوباره تلاش کنید.",
+      );
+    }
+  }, [
+    gatewayStarting,
+    handleGatewayEntryFailure,
+    pendingGatewayPayment,
+    router,
+  ]);
+=======
     } catch (err) {
       console.error("[Checkout] start payment failed =>", err);
       notify.error(getAuthErrorMessage(err));
       setGatewayStarting(false);
     }
   }, [gatewayStarting, pendingGatewayPayment, router]);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   if (pendingGatewayPayment) {
     return (
@@ -920,6 +1402,37 @@ export default function Checkout() {
 
   return (
     <SectionContainer>
+<<<<<<< HEAD
+      <CartSynchronizationModal {...cartSync.modalProps} />
+      {pendingPaymentOrder ? (
+        <PendingPaymentWarning
+          key={pendingPaymentOrder.orderId}
+          order={pendingPaymentOrder}
+          loading={pendingPaymentLoading}
+          action={pendingPaymentAction}
+          onPay={() => void handlePayPendingPaymentOrder()}
+          onCancel={() => void handleCancelPendingPaymentOrder()}
+        />
+      ) : null}
+      {pendingPaymentError && !pendingPaymentOrder ? (
+        <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-900 dark:border-amber-700 dark:bg-amber-950/20 dark:text-amber-200 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm font-bold">
+            بررسی سفارش در انتظار پرداخت انجام نشد. تا زمان بررسی مجدد، ثبت
+            سفارش جدید غیرفعال است.
+          </p>
+          <button
+            type="button"
+            disabled={pendingPaymentLoading}
+            onClick={() => void loadPendingPaymentOrder()}
+            className="shrink-0 rounded-xl border border-amber-500 px-4 py-2 text-sm font-black transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60 dark:hover:bg-amber-900/30"
+          >
+            {pendingPaymentLoading ? "در حال بررسی..." : "تلاش دوباره"}
+          </button>
+        </div>
+      ) : null}
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Right section */}
         <div className="lg:col-span-2">
@@ -1025,6 +1538,10 @@ export default function Checkout() {
 
             <CheckoutDeliveryAddress
               selectedAddressId={selectedAddress?.id ?? null}
+<<<<<<< HEAD
+              userEmail={currentUser?.email ?? ""}
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
               onSelectAddress={handleSelectAddress}
               onShippingOptionsChange={handleShippingOptionsChange}
               customerNote={customerNote}
@@ -1231,7 +1748,11 @@ export default function Checkout() {
                         <h4 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
                           روش ارسال این بخش
                         </h4>
+<<<<<<< HEAD
+                        <div className="grid grid-cols-1 gap-3 max-[559px]:grid-cols-2 max-[559px]:gap-2 sm:grid-cols-2 lg:grid-cols-4">
+=======
                         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                           {group.methods.map((method, methodIndex) => {
                             const isSelected =
                               selectedShippingIdsByClass[group.key] ===
@@ -1257,7 +1778,11 @@ export default function Checkout() {
                                   }
                                 }}
                                 className={[
+<<<<<<< HEAD
+                                  "shipping-method flex aspect-square cursor-pointer flex-col justify-between rounded-lg border p-4 transition-all max-[559px]:aspect-auto max-[559px]:min-h-44 max-[559px]:p-2.5",
+=======
                                   "shipping-method flex aspect-square cursor-pointer flex-col justify-between rounded-lg border p-4 transition-all",
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                                   isSelected
                                     ? "selected border-primary-500 bg-blue-50 ring-2 ring-primary-500/20 dark:bg-zinc-800"
                                     : "border-gray-300 hover:border-primary-500 dark:border-gray-600",
@@ -1267,22 +1792,37 @@ export default function Checkout() {
                                 data-shipping-cost={method.price}
                               >
                                 <div className="min-w-0">
+<<<<<<< HEAD
+                                  <div className="mb-3 flex items-start justify-between gap-2 max-[559px]:mb-2">
+                                    <div
+                                      className={[
+                                        "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg max-[559px]:h-9 max-[559px]:w-9 max-[559px]:text-sm",
+=======
                                   <div className="mb-3 flex items-start justify-between gap-2">
                                     <div
                                       className={[
                                         "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg",
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                                         style.wrap,
                                       ].join(" ")}
                                     >
                                       <i className={style.icon}></i>
                                     </div>
                                     {isSelected ? (
+<<<<<<< HEAD
+                                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs text-white max-[559px]:h-5 max-[559px]:w-5 max-[559px]:text-[10px]">
+=======
                                       <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs text-white">
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                                         <i className="far fa-check"></i>
                                       </span>
                                     ) : null}
                                   </div>
+<<<<<<< HEAD
+                                  <h3 className="line-clamp-2 min-h-8 font-bold leading-6 text-gray-800 max-[559px]:text-sm max-[559px]:leading-5 dark:text-white">
+=======
                                   <h3 className="line-clamp-2 min-h-8 font-bold leading-6 text-gray-800 dark:text-white">
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                                     {method.title}
                                   </h3>
                                   {method.description ? (
@@ -1292,7 +1832,11 @@ export default function Checkout() {
                                   ) : null}
                                 </div>
                                 <div>
+<<<<<<< HEAD
+                                  <div className="mb-3 flex flex-wrap gap-2 text-[11px] max-[559px]:mb-2 max-[559px]:gap-1 max-[559px]:text-[10px]">
+=======
                                   <div className="mb-3 flex flex-wrap gap-2 text-[11px]">
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                                     {method.estimatedDeliveryDays ? (
                                       <span className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-600 dark:bg-zinc-800 dark:text-gray-300">
                                         {new Intl.NumberFormat("fa-IR").format(
@@ -1307,7 +1851,11 @@ export default function Checkout() {
                                       </span>
                                     ) : null}
                                   </div>
+<<<<<<< HEAD
+                                  <div className="font-bold text-gray-900 max-[559px]:text-sm dark:text-white">
+=======
                                   <div className="font-bold text-gray-900 dark:text-white">
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                                     {formatShippingPrice(method)}
                                   </div>
                                 </div>
@@ -1329,7 +1877,11 @@ export default function Checkout() {
                 روش پرداخت
               </h2>
 
+<<<<<<< HEAD
+              <div className="flex flex-wrap gap-4 max-[559px]:grid max-[559px]:grid-cols-2 max-[559px]:gap-2">
+=======
               <div className="flex flex-wrap gap-4">
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                 {paymentMethods.map((method, index) => {
                   const isSelected = selectedPaymentCode === method.code;
                   const isBankGateway = isBankGatewayPaymentMethod(method);
@@ -1344,7 +1896,11 @@ export default function Checkout() {
                     <div
                       key={method.code}
                       className={[
+<<<<<<< HEAD
+                        "payment-method flex h-[200px] w-[200px] max-w-full rounded-lg border p-4 transition-all max-[559px]:h-36 max-[559px]:w-full max-[559px]:p-2.5",
+=======
                         "payment-method flex h-[200px] w-[200px] max-w-full rounded-lg border p-4 transition-all",
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                         isSelected
                           ? "selected border-primary-500 bg-blue-50 dark:bg-zinc-800"
                           : "border-gray-300 hover:border-primary-500 dark:border-gray-600",
@@ -1361,10 +1917,17 @@ export default function Checkout() {
                             selectPaymentMethod(method);
                           }
                         }}
+<<<<<<< HEAD
+                        className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-3 text-center max-[559px]:gap-2"
+                      >
+                        <div
+                          className={`flex h-14 w-14 items-center justify-center rounded-lg max-[559px]:h-10 max-[559px]:w-10 ${style.wrap}`}
+=======
                         className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-3 text-center"
                       >
                         <div
                           className={`flex h-14 w-14 items-center justify-center rounded-lg ${style.wrap}`}
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                         >
                           {methodImageSrc ? (
                             <Image
@@ -1373,17 +1936,28 @@ export default function Checkout() {
                               width={56}
                               height={56}
                               unoptimized
+<<<<<<< HEAD
+                              className="h-12 w-12 object-contain max-[559px]:h-9 max-[559px]:w-9"
+=======
                               className="h-12 w-12 object-contain"
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                             />
                           ) : (
                             <i className={style.icon}></i>
                           )}
                         </div>
                         <div className="space-y-1">
+<<<<<<< HEAD
+                          <h3 className="font-medium text-gray-800 max-[559px]:text-sm dark:text-white">
+                            {method.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 max-[559px]:line-clamp-2 max-[559px]:text-xs dark:text-gray-400">
+=======
                           <h3 className="font-medium text-gray-800 dark:text-white">
                             {method.title}
                           </h3>
                           <p className="text-sm text-gray-600 dark:text-gray-400">
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                             {method.description}
                           </p>
                         </div>
@@ -1399,7 +1973,11 @@ export default function Checkout() {
                   <p className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
                     بانک مقصد
                   </p>
+<<<<<<< HEAD
+                  <div className="flex flex-wrap gap-4 max-[559px]:grid max-[559px]:grid-cols-2 max-[559px]:gap-2">
+=======
                   <div className="flex flex-wrap gap-4">
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                     {selectedAvailableProviders.map((provider) => {
                       const isProviderSelected =
                         selectedProviderCode === provider.code;
@@ -1413,7 +1991,11 @@ export default function Checkout() {
                           type="button"
                           onClick={() => setSelectedProviderCode(provider.code)}
                           className={[
+<<<<<<< HEAD
+                            "flex h-[200px] w-[200px] max-w-full flex-col items-center justify-center gap-3 rounded-lg border p-4 text-center transition-all max-[559px]:h-36 max-[559px]:w-full max-[559px]:gap-2 max-[559px]:p-2.5",
+=======
                             "flex h-[200px] w-[200px] max-w-full flex-col items-center justify-center gap-3 rounded-lg border p-4 text-center transition-all",
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                             isProviderSelected
                               ? "border-primary-500 bg-white ring-2 ring-primary-500/30 dark:bg-zinc-900"
                               : "border-gray-300 bg-white hover:border-primary-500 dark:border-gray-600 dark:bg-zinc-900",
@@ -1426,12 +2008,21 @@ export default function Checkout() {
                               width={72}
                               height={72}
                               unoptimized
+<<<<<<< HEAD
+                              className="h-16 w-16 object-contain max-[559px]:h-10 max-[559px]:w-10"
+                            />
+                          ) : (
+                            <i className="far fa-building-columns text-2xl text-primary-500 max-[559px]:text-xl"></i>
+                          )}
+                          <span className="text-sm font-medium text-gray-800 max-[559px]:text-xs dark:text-gray-200">
+=======
                               className="h-16 w-16 object-contain"
                             />
                           ) : (
                             <i className="far fa-building-columns text-2xl text-primary-500"></i>
                           )}
                           <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                             {provider.title}
                           </span>
                         </button>
@@ -1584,11 +2175,35 @@ export default function Checkout() {
 
             <button
               type="button"
+<<<<<<< HEAD
+              disabled={
+                submitting ||
+                !cartSync.canCheckout ||
+                pendingPaymentLoading ||
+                Boolean(pendingPaymentError) ||
+                Boolean(pendingPaymentOrder)
+              }
+              onClick={() => void handlePlaceOrder()}
+              className="flex w-full items-center justify-center rounded-lg bg-green-600 px-4 py-4 font-medium text-white transition-colors duration-200 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {pendingPaymentOrder
+                ? "ابتدا سفارش در انتظار پرداخت را تعیین تکلیف کنید"
+                : pendingPaymentLoading
+                  ? "در حال بررسی سفارش در انتظار پرداخت..."
+                  : pendingPaymentError
+                    ? "بررسی سفارش در انتظار پرداخت ناموفق بود"
+                : cartSync.checking
+                  ? "در حال بررسی وضعیت سبد خرید..."
+                  : submitting
+                  ? "در حال ثبت سفارش..."
+                  : "پرداخت و تکمیل سفارش"}
+=======
               disabled={submitting}
               onClick={() => void handlePlaceOrder()}
               className="flex w-full items-center justify-center rounded-lg bg-green-600 px-4 py-4 font-medium text-white transition-colors duration-200 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {submitting ? "در حال ثبت سفارش..." : "پرداخت و تکمیل سفارش"}
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             </button>
 
             <p className="mt-3 text-center text-xs text-gray-500 dark:text-gray-400">

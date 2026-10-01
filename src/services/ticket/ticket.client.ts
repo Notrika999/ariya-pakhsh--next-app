@@ -23,12 +23,21 @@ function getRecord(value: unknown): Record<string, unknown> {
 
 function logApiError(label: string, error: unknown) {
   if (error instanceof ApiError) {
+<<<<<<< HEAD
+    // console.error(`[ticket.client] ${label} error body =>`, {
+    //   status: error.status,
+    //   code: error.code,
+    //   message: error.message,
+    //   data: error.data,
+    // });
+=======
     console.error(`[ticket.client] ${label} error body =>`, {
       status: error.status,
       code: error.code,
       message: error.message,
       data: error.data,
     });
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   }
 }
 

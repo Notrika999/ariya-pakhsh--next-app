@@ -1,6 +1,7 @@
 // components/modules/auth/UserMenu.tsx
 
 "use client";
+// components/modules/auth/UserMenu.tsx
 
 import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
@@ -15,7 +16,11 @@ interface UserMenuProps {
 
 const MENU_ITEMS = [
   { href: "/user-profile", label: "پنل کاربر", icon: "fa-gauge" },
+<<<<<<< HEAD
+  { href: "/user-profile/favorites", label: "علاقمندی ها", icon: "fa-heart" },
+=======
   { href: "/user-profile/favorites", label: "علاقمندی ها", icon: "fa-haert" },
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   { href: "/user-profile/orders", label: "سفارش‌های من", icon: "fa-box" },
   {
     href: "/user-profile/tickets",

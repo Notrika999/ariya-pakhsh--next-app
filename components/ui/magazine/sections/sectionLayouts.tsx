@@ -8,6 +8,10 @@ type LayoutProps = {
   articles: Array<Record<string, unknown>>;
   titleAs?: "h2" | "h3";
   priority?: boolean;
+<<<<<<< HEAD
+  sectionType?: string;
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 };
 
 export function HeroGrid({ articles, titleAs = "h3", priority = false }: LayoutProps) {
@@ -76,8 +80,23 @@ export function FourColumnArticleGrid({ articles, titleAs = "h3" }: LayoutProps)
   );
 }
 
+<<<<<<< HEAD
+export function CompactArticleList({
+  articles,
+  titleAs = "h3",
+  sectionType,
+}: LayoutProps) {
+  return (
+    <SidebarArticleList
+      articles={articles}
+      titleAs={titleAs}
+      showRank={sectionType === "popular"}
+    />
+  );
+=======
 export function CompactArticleList({ articles, titleAs = "h3" }: LayoutProps) {
   return <SidebarArticleList articles={articles} titleAs={titleAs} />;
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 }
 
 export function VideoGrid({ articles, titleAs = "h3" }: LayoutProps) {

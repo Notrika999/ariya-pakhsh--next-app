@@ -72,6 +72,10 @@ const SORT_QUERY_TO_OPTION: Record<string, SortOption> = {
 };
 
 const PRODUCT_LIST_API_PATH = "/products/api";
+<<<<<<< HEAD
+const ERROR_AUTO_RETRY_INTERVAL_MS = 10_000;
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 function parseSortOption(value: string | null): SortOption {
   if (value && SORT_QUERY_TO_OPTION[value]) return SORT_QUERY_TO_OPTION[value];
@@ -181,6 +185,10 @@ export default function CategoryProductListPage({
     useState<ClientFilterResult | null>(null);
   const [isFilterFetching, setIsFilterFetching] = useState(false);
   const filterRequestIdRef = useRef(0);
+<<<<<<< HEAD
+  const errorRetryInFlightRef = useRef(false);
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const activeFilterOptions =
     clientFilterResult?.key === queryKey
       ? clientFilterResult.filterOptions
@@ -324,7 +332,11 @@ export default function CategoryProductListPage({
           });
         })
         .catch((error) => {
+<<<<<<< HEAD
+          // console.error("Filter products error:", error);
+=======
           console.error("Filter products error:", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
           if (filterRequestIdRef.current !== requestId) return;
 
@@ -349,6 +361,67 @@ export default function CategoryProductListPage({
     },
     [activeFilterOptions, categoryId, pathname, router, slug, startTransition],
   );
+<<<<<<< HEAD
+
+  const handleErrorRetry = useCallback(() => {
+    if (errorRetryInFlightRef.current) return;
+    errorRetryInFlightRef.current = true;
+
+    if (clientFilterResult?.key === queryKey) {
+      handleFilterNavigate(new URLSearchParams(searchParams.toString()));
+      return;
+    }
+
+    startTransition(() => {
+      router.refresh();
+    });
+  }, [
+    clientFilterResult?.key,
+    handleFilterNavigate,
+    queryKey,
+    router,
+    searchParams,
+    startTransition,
+  ]);
+
+  useEffect(() => {
+    if (!isFilterFetching && !isPending) {
+      errorRetryInFlightRef.current = false;
+    }
+  }, [isFilterFetching, isPending]);
+
+  useEffect(() => {
+    if (!activeErrorMessage) return;
+
+    const retryWhenOnline = () => {
+      if (!navigator.onLine || document.visibilityState === "hidden") return;
+      handleErrorRetry();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        retryWhenOnline();
+      }
+    };
+
+    window.addEventListener("online", retryWhenOnline);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    const initialRetryTimer = window.setTimeout(retryWhenOnline, 1_500);
+    const retryInterval = window.setInterval(
+      retryWhenOnline,
+      ERROR_AUTO_RETRY_INTERVAL_MS,
+    );
+
+    return () => {
+      window.removeEventListener("online", retryWhenOnline);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.clearTimeout(initialRetryTimer);
+      window.clearInterval(retryInterval);
+    };
+  }, [activeErrorMessage, handleErrorRetry]);
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   const {
     items: products,
@@ -414,7 +487,7 @@ export default function CategoryProductListPage({
         };
       });
     } catch (error) {
-      console.error("Load more products error:", error);
+      // console.error("Load more products error:", error);
       setLoadMoreError("خطا در بارگذاری محصولات بیشتر");
     } finally {
       if (inFlightPageRef.current === nextPage) {
@@ -543,6 +616,10 @@ export default function CategoryProductListPage({
         isLoading={isFilterFetching || (isPending && !hasClientList)}
         startTransition={handleStartTransition}
         onFilterNavigate={handleFilterNavigate}
+<<<<<<< HEAD
+        onErrorRetry={handleErrorRetry}
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       />
 
       {hasMore && (

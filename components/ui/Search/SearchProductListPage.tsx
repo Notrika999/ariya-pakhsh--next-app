@@ -347,7 +347,11 @@ export default function SearchProductListPage({
         })
         .catch((error) => {
           if (requestIdRef.current !== requestId) return;
+<<<<<<< HEAD
+          // console.error("[SearchProductListPage] filter failed =>", error);
+=======
           console.error("[SearchProductListPage] filter failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           setClientResult({
             key: nextQueryKey,
             products: [],
@@ -439,7 +443,11 @@ export default function SearchProductListPage({
           };
         });
       } catch (error) {
+<<<<<<< HEAD
+        // console.error("[SearchProductListPage] load more failed =>", error);
+=======
         console.error("[SearchProductListPage] load more failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         setLoadMoreError(
           error instanceof Error
             ? error.message

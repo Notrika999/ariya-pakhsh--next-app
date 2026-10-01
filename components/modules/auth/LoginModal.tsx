@@ -1,6 +1,9 @@
 "use client";
 
+<<<<<<< HEAD
+=======
 import Image from "next/image";
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import React, { useEffect, useState } from "react";
 import StepMobile from "./StepMobile";
 import StepMethod from "./StepMethod";
@@ -9,6 +12,7 @@ import StepRegister from "./StepRegister";
 import StepReset from "./StepReset";
 import LoginWithPass from "./LoginWithPass";
 import { useAuthStore } from "@/src/lib/stores/auth/auth.store";
+import BrandLogo from "@/components/modules/BrandLogo/BrandLogo";
 
 interface LoginModalProps {
   open: boolean;
@@ -83,6 +87,11 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
           </button>
 
           <div className="flex items-center mb-5 justify-center">
+<<<<<<< HEAD
+            <BrandLogo
+              logoClassName="h-12 w-12"
+              textClassName="h-9"
+=======
             <Image
               width={80}
               height={80}
@@ -90,6 +99,7 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
               src="/images/logo/carup24-logo.png"
               loading="lazy"
               alt="کارآپ ۲۴"
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             />
           </div>
 

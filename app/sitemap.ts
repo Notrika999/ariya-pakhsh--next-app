@@ -219,7 +219,11 @@ async function fetchProductPage(page: number): Promise<ProductPage> {
 
     return payload.data;
   } catch (error) {
+<<<<<<< HEAD
+    // console.error("[sitemap] Failed to fetch products", { page, error });
+=======
     console.error("[sitemap] Failed to fetch products", { page, error });
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     throw error;
   }
 }
@@ -270,7 +274,11 @@ async function fetchCategories(): Promise<unknown[]> {
 
     return payload.data.rootCategories;
   } catch (error) {
+<<<<<<< HEAD
+    // console.error("[sitemap] Failed to fetch categories", error);
+=======
     console.error("[sitemap] Failed to fetch categories", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     throw error;
   }
 }
@@ -303,10 +311,14 @@ async function fetchArticlePage(page: number): Promise<ArticlePage> {
 
     return payload.data;
   } catch (error) {
+<<<<<<< HEAD
+    // console.error("[sitemap] Failed to fetch magazine articles", { page, error });
+=======
     console.error("[sitemap] Failed to fetch magazine articles", {
       page,
       error,
     });
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     throw error;
   }
 }
@@ -458,11 +470,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   );
   const collisions = [...categorySlugs].filter((slug) => brandSlugs.has(slug));
 
+<<<<<<< HEAD
+  // if (collisions.length > 0) {
+  //   console.warn("[sitemap] Category/brand slug collisions detected", {
+  //     collisions,
+  //   });
+  // }
+=======
   if (collisions.length > 0) {
     console.warn("[sitemap] Category/brand slug collisions detected", {
       collisions,
     });
   }
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   const staticEntries: MetadataRoute.Sitemap = [
     {

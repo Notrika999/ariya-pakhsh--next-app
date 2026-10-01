@@ -5,6 +5,8 @@ import {
   ProductListItem,
 } from "@/src/lib/types/productTypes";
 import { ProductIndexData } from "@/src/lib/types/productTypes";
+import type { ProductIndexArticle } from "@/src/lib/types/productTypes";
+import type { MagazinePost } from "@/src/lib/types/magazine/magazine.types";
 import { getProductImage } from "@/src/utils/product-image";
 
 function isProductListItem(
@@ -215,6 +217,8 @@ function toProduct(item: Product | ProductListItem): Product {
     return item;
   }
 
+  const pricing = getProductListPricing(item);
+
   return {
     id: item.productId,
     title: item.name,
@@ -225,17 +229,11 @@ function toProduct(item: Product | ProductListItem): Product {
 
     brandId: "",
 
-    price: item.price,
-    oldPrice: item.compareAtPrice ?? item.price,
+    price: pricing.price,
+    oldPrice: pricing.oldPrice,
 
     discount:
-      item.compareAtPrice && item.price
-        ? String(
-            Math.round(
-              ((item.compareAtPrice - item.price) / item.compareAtPrice) * 100,
-            ),
-          )
-        : null,
+      pricing.discountPercent > 0 ? String(pricing.discountPercent) : null,
 
     rating: item.averageRating ?? 0,
     count: item.reviewCount ?? 0,
@@ -244,21 +242,80 @@ function toProduct(item: Product | ProductListItem): Product {
     href: `/product/${item.publicCode}/${item.slug}`,
 
     inStock: item.inStock,
-    offer: item.isOnSale,
+    offer: pricing.isOnSale,
     dealEndsAt: undefined,
   };
 }
 
+function formatArticleDate(value?: string | null): string {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  return new Intl.DateTimeFormat("fa-IR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(date);
+}
+
+function toMagazinePost(article: ProductIndexArticle): MagazinePost | null {
+  const slug = article.slug?.trim();
+  const title = article.title?.trim();
+  if (!slug || !title) return null;
+
+  const description = article.excerpt?.trim() ?? "";
+  const categoryTitle = article.categoryTitle?.trim() ?? "";
+  const publishedAt = formatArticleDate(article.publishedAt);
+  const readingTime = article.readingTimeMinutes
+    ? `${new Intl.NumberFormat("fa-IR").format(article.readingTimeMinutes)} دقیقه مطالعه`
+    : "";
+
+  return {
+    id: article.articleId,
+    slug,
+    title,
+    description,
+    excerpt: description,
+    keyword: categoryTitle,
+    category: categoryTitle,
+    categorySlug: article.categorySlug?.trim() ?? "",
+    image: getProductImage(
+      article.featuredImageUrl ?? article.featuredImageThumbnailUrl,
+    ),
+    thumbnail: getProductImage(
+      article.featuredImageThumbnailUrl ?? article.featuredImageUrl,
+    ),
+    imageAlt: article.featuredImageAlt?.trim() || title,
+    authorName: article.authorName?.trim() ?? "",
+    author: article.authorName?.trim() ?? "",
+    date: publishedAt,
+    publishedAt,
+    readTime: readingTime,
+    readingTime,
+    href: `/mag/${encodeURIComponent(slug)}`,
+    articleType:
+      article.articleType === null || article.articleType === undefined
+        ? null
+        : String(article.articleType),
+  };
+}
+
 export function mapProductIndex(data: ProductIndexData) {
-  const featuredProducts = data.featuredProducts.map(toProduct);
-  const newestProducts = data.newestProducts.map(toProduct);
-  const bestSellingProducts = data.bestSellingProducts.map(toProduct);
-  const onSaleProducts = data.onSaleProducts.map(toProduct);
+  const featuredProducts = (data.featuredProducts ?? []).map(toProduct);
+  const newestProducts = (data.newestProducts ?? []).map(toProduct);
+  const bestSellingProducts = (data.bestSellingProducts ?? []).map(toProduct);
+  const onSaleProducts = (data.onSaleProducts ?? []).map(toProduct);
+  const latestArticles = (data.latestArticles ?? [])
+    .map(toMagazinePost)
+    .filter((article): article is MagazinePost => Boolean(article));
 
   const merge = [
     ...featuredProducts,
     ...newestProducts,
     ...bestSellingProducts,
+    ...onSaleProducts,
   ];
 
   return {
@@ -266,6 +323,7 @@ export function mapProductIndex(data: ProductIndexData) {
     newestProducts,
     bestSellingProducts,
     onSaleProducts,
+    latestArticles,
     products: Array.from(new Map(merge.map((p) => [p.id, p])).values()),
   };
 }

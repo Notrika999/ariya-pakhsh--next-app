@@ -12,7 +12,11 @@ export default async function MagazineLayout({ children }) {
   const categories = composeMagazineCategories(home.categories);
 
   return (
+<<<<<<< HEAD
+    <div className="flex min-h-dvh flex-col bg-[#f3f5f7] dark:bg-[#0d1117]">
+=======
     <div className="flex min-h-dvh flex-col bg-[#f7f8fa] dark:bg-[#0d1117]">
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       <MagazineHeader />
       <Suspense
         fallback={

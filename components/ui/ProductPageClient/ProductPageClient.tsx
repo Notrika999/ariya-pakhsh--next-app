@@ -53,8 +53,23 @@ function isVariantOutOfStock(variant?: ProductDetailVariant): boolean {
   return variant.inStock === false;
 }
 
+<<<<<<< HEAD
+function getPreferredVariant(product: ProductDetail) {
+  const defaultVariant = product.variants?.find((variant) => variant.isDefault);
+
+  if (defaultVariant && !isVariantOutOfStock(defaultVariant)) {
+    return defaultVariant;
+  }
+
+  return (
+    product.variants?.find((variant) => !isVariantOutOfStock(variant)) ??
+    defaultVariant ??
+    product.variants?.[0]
+  );
+=======
 function getDefaultVariant(product: ProductDetail) {
   return product.variants?.find((v) => v.isDefault) ?? product.variants?.[0];
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 }
 
 function getProductVariant(product: ProductDetail, variantId?: string) {
@@ -133,6 +148,23 @@ export default function ProductPageClient({
     },
   ];
 
+<<<<<<< HEAD
+  const preferredVariant = useMemo(
+    () => getPreferredVariant(product),
+    [product],
+  );
+
+  const [selectedVariantId, setSelectedVariantId] = useState(() => {
+    const initialVariant = getProductVariant(product, initialVariantId);
+
+    return (
+      (initialVariant && !isVariantOutOfStock(initialVariant)
+        ? initialVariant
+        : preferredVariant
+      )?.variantId ?? ""
+    );
+  });
+=======
   const defaultVariant = useMemo(() => getDefaultVariant(product), [product]);
 
   const [selectedVariantId, setSelectedVariantId] = useState(
@@ -141,6 +173,7 @@ export default function ProductPageClient({
       defaultVariant?.variantId ??
       "",
   );
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   useEffect(() => {
     const slug = product.slug?.trim();
@@ -148,13 +181,21 @@ export default function ProductPageClient({
 
     viewedSlugsRef.current.add(slug);
     void createProductView(slug).catch((error) => {
+<<<<<<< HEAD
+      // console.error("[ProductPageClient] create product view failed =>", error);
+=======
       console.error("[ProductPageClient] create product view failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     });
   }, [product.slug]);
 
   const selectedVariant =
     product.variants?.find((v) => v.variantId === selectedVariantId) ??
+<<<<<<< HEAD
+    preferredVariant;
+=======
     defaultVariant;
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const selectedVariantPrice =
     selectedVariant?.salePrice ??
     selectedVariant?.finalPrice ??

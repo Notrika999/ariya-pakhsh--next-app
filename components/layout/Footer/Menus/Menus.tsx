@@ -1,10 +1,12 @@
 // components/layout/Footer/Menus/Menus.tsx
 import React from "react";
+import Link from "next/link";
 import footerStyles from "../Footer.module.css";
 import MenuItems from "./MenuItems";
 import SocialMediaItem from "./SocialMediaItem";
-import Image from "next/image";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
+import BrandLogo from "@/components/modules/BrandLogo/BrandLogo";
+import { all } from "axios";
 
 export default function Menus() {
   const footerMenus = [
@@ -44,16 +46,28 @@ export default function Menus() {
       id: 1,
       src: "/images/social/aparat-white.svg",
       link: "https://www.aparat.com/carup24.com",
+<<<<<<< HEAD
+      alt: "aparat",
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     },
     {
       id: 2,
       src: "/images/social/instagram-white.svg",
       link: "https://www.instagram.com/carup24.ir",
+<<<<<<< HEAD
+      alt: "instagram",
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     },
     {
       id: 3,
       src: "/images/social/telegram-white.svg",
       link: "https://t.me/carup24",
+<<<<<<< HEAD
+      alt: "telegram",
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     },
   ];
   return (
@@ -142,6 +156,10 @@ export default function Menus() {
                             key={social.id}
                             image={social.src}
                             link={social.link}
+<<<<<<< HEAD
+                            alt={social.alt}
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                           />
                         ))}
                       </div>
@@ -160,6 +178,18 @@ export default function Menus() {
                     <div
                       className={`absolute -inset-3 inset-e-0 md:top-11 top-4 h-24 w-64 dark:hidden dark:opacity-70 ${footerStyles.footerLogoShadow}`}
                     ></div>
+<<<<<<< HEAD
+                    <Link
+                      href="/"
+                      className="absolute 
+                       inset-s-2 inset-e-0 text-center dark:mt-0 md:mt-19 mt-10 block "
+                      aria-label="صفحه اصلی آریا پخش"
+                    >
+                      <BrandLogo
+                        className="mt-2 justify-center"
+                        logoClassName="h-12 w-12"
+                        showText={false}
+=======
                     <a
                       href="#"
                       className="absolute 
@@ -171,8 +201,9 @@ export default function Menus() {
                         src="/images/logo/carup24-logo.png"
                         className="mt-2 inline-block mx-auto object-contain"
                         alt="کارآپ ۲۴"
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                       />
-                    </a>
+                    </Link>
                   </div>
                 </div>
                 {/* <!--Description--> */}

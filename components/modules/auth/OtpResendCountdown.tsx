@@ -24,6 +24,13 @@ export default function OtpResendCountdown({
   onExpire,
   className,
 }: OtpResendCountdownProps) {
+<<<<<<< HEAD
+  const targetRef = useRef<number | null>(null);
+  const [remaining, setRemaining] = useState<number>(seconds);
+
+  useEffect(() => {
+    targetRef.current = Date.now() + seconds * 1000;
+=======
   // هر بار که seconds عوض بشه (مثلاً بعد از ارسال مجدد کد)، یک تارگت تایم جدید ساخته میشه
   const targetRef = useRef<number>(Date.now() + seconds * 1000);
 
@@ -35,11 +42,19 @@ export default function OtpResendCountdown({
   useEffect(() => {
     targetRef.current = Date.now() + seconds * 1000;
     setRemaining(computeRemaining());
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     if (seconds <= 0) return;
 
     const id = setInterval(() => {
+<<<<<<< HEAD
+      const target = targetRef.current;
+      const left = target
+        ? Math.max(0, Math.ceil((target - Date.now()) / 1000))
+        : 0;
+=======
       const left = computeRemaining();
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setRemaining(left);
       if (left <= 0) {
         clearInterval(id);
@@ -58,4 +73,8 @@ export default function OtpResendCountdown({
       ارسال مجدد تا {remaining} ثانیه دیگر
     </p>
   );
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c

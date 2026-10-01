@@ -1,9 +1,10 @@
-// components/HeaderCart/HeaderCart.tsx
 
 "use client";
+// components/HeaderCart/HeaderCart.tsx
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React from "react";
 import CartSynchronizationModal from "@/components/ui/Cart/CartSynchronizationModal";
 import { useCartSynchronization } from "@/components/ui/Cart/useCartSynchronization";
@@ -17,6 +18,10 @@ interface HeaderCartProps {
 }
 
 export default function HeaderCart({ open, onClose }: HeaderCartProps) {
+<<<<<<< HEAD
+  const router = useRouter();
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const { items, totalPrice, removeItem, updateQty, clearCart, refreshCart } = useCart();
   const [clearing, setClearing] = React.useState(false);
   const [busyId, setBusyId] = React.useState<string | null>(null);
@@ -54,6 +59,19 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
       setBusyId((current) => (current === itemId ? null : current));
     }
   };
+<<<<<<< HEAD
+
+  const handleCheckout = async () => {
+    if (!cartSync.canCheckout) return;
+
+    const cartIsCurrent = await cartSync.checkCart();
+    if (!cartIsCurrent) return;
+
+    onClose();
+    router.push("/checkout");
+  };
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   return (
     <>
@@ -231,6 +249,31 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
               </h3>
             </div>
             <div className="text-end">
+<<<<<<< HEAD
+              <button
+                type="button"
+                disabled={!cartSync.canCheckout}
+                onClick={() => void handleCheckout()}
+                className={`inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 shadow-sm transition-colors duration-200 ${
+                  cartSync.canCheckout
+                    ? "bg-primary text-white hover:bg-primary-600 dark:bg-primary-500 dark:hover:bg-primary-400"
+                    : "cursor-not-allowed bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+                }`}
+                aria-label="تکمیل فرایند خرید"
+              >
+                {cartSync.checking ? (
+                  <i
+                    className="far fa-spinner-third animate-spin"
+                    aria-hidden="true"
+                  />
+                ) : null}
+                {cartSync.checking
+                  ? "بررسی سبد"
+                  : cartSync.canCheckout
+                    ? "تکمیل خرید"
+                    : "نیازمند تأیید"}
+              </button>
+=======
               {cartSync.canCheckout ? (
                 <Link
                   href="/checkout"
@@ -257,6 +300,7 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
                   {cartSync.checking ? "بررسی سبد" : "نیازمند تأیید"}
                 </button>
               )}
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             </div>
           </div>
         </footer>

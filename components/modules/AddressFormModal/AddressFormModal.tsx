@@ -67,11 +67,38 @@ function mapLocationOption(
 function findProvinceOption(
   options: LocationAutocompleteOption[],
   province: string,
+<<<<<<< HEAD
+  provinceId?: string,
+): LocationAutocompleteOption | undefined {
+  const normalized = province.trim();
+  const normalizedId = provinceId?.trim();
+  if (!normalized && !normalizedId) return undefined;
+
+  return (
+    options.find((option) => option.id === normalizedId) ??
+    options.find((option) => option.name === normalized) ??
+    options.find((option) => option.id === normalized)
+  );
+}
+
+function findLocationOption(
+  options: LocationAutocompleteOption[],
+  value: string,
+  id?: string,
+): LocationAutocompleteOption | undefined {
+  const normalized = value.trim();
+  const normalizedId = id?.trim();
+  if (!normalized && !normalizedId) return undefined;
+
+  return (
+    options.find((option) => option.id === normalizedId) ??
+=======
 ): LocationAutocompleteOption | undefined {
   const normalized = province.trim();
   if (!normalized) return undefined;
 
   return (
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     options.find((option) => option.name === normalized) ??
     options.find((option) => option.id === normalized)
   );
@@ -138,6 +165,10 @@ function AddressFormModalContent({
   const selectedProvince = findProvinceOption(
     provinceOptions,
     formData.province,
+<<<<<<< HEAD
+    formData.provinceId,
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   );
   const cityOptions = selectedProvince
     ? (citiesByProvinceId[selectedProvince.id] ?? [])
@@ -154,7 +185,11 @@ function AddressFormModalContent({
         const provinces = await fetchProvinces();
         if (!cancelled) setProvinceOptions(provinces);
       } catch (error) {
+<<<<<<< HEAD
+        // console.error("[AddressFormModal] provinces failed =>", error);
+=======
         console.error("[AddressFormModal] provinces failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         if (!cancelled) setProvinceOptions([]);
       } finally {
         if (!cancelled) setLoadingProvinces(false);
@@ -182,7 +217,11 @@ function AddressFormModalContent({
         setCitiesByProvinceId((prev) => ({ ...prev, [provinceId]: cities }));
       })
       .catch((error) => {
+<<<<<<< HEAD
+        // console.error("[AddressFormModal] cities failed =>", error);
+=======
         console.error("[AddressFormModal] cities failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         if (cancelled) return;
         setCitiesByProvinceId((prev) => ({ ...prev, [provinceId]: [] }));
       });
@@ -202,10 +241,20 @@ function AddressFormModalContent({
   };
 
   const handleProvinceChange = (province: string) => {
+<<<<<<< HEAD
+    const nextProvince = findLocationOption(provinceOptions, province);
+    setFormData((prev) => ({
+      ...prev,
+      province,
+      provinceId: nextProvince?.id ?? "",
+      city: province !== prev.province ? "" : prev.city,
+      cityId: province !== prev.province ? "" : prev.cityId,
+=======
     setFormData((prev) => ({
       ...prev,
       province,
       city: province !== prev.province ? "" : prev.city,
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     }));
     clearFieldError("province");
     if (province !== formData.province) {
@@ -225,8 +274,19 @@ function AddressFormModalContent({
     const selectedProvince = findProvinceOption(
       provinceOptions,
       formData.province,
+<<<<<<< HEAD
+      formData.provinceId,
     );
     const cityName = formData.city.trim();
+    const selectedCity = findLocationOption(
+      cityOptions,
+      formData.city,
+      formData.cityId,
+    );
+=======
+    );
+    const cityName = formData.city.trim();
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     if (!formData.province.trim()) {
       nextErrors.province = "استان الزامی است";
@@ -238,7 +298,11 @@ function AddressFormModalContent({
 
     if (!cityName) {
       nextErrors.city = "شهر الزامی است";
+<<<<<<< HEAD
+    } else if (!selectedCity) {
+=======
     } else if (!cityOptions.some((option) => option.name === cityName)) {
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       nextErrors.city = "لطفاً شهر را از لیست انتخاب کنید";
     } else {
       delete nextErrors.city;
@@ -249,7 +313,15 @@ function AddressFormModalContent({
       return;
     }
 
+<<<<<<< HEAD
+    const payload = buildAddressPayload({
+      ...formData,
+      provinceId: selectedProvince?.id,
+      cityId: selectedCity?.id,
+    });
+=======
     const payload = buildAddressPayload(formData);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     setSubmitting(true);
 
@@ -265,7 +337,11 @@ function AddressFormModalContent({
       onSuccess?.();
       onClose();
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[AddressFormModal] submit failed =>", err);
+=======
       console.error("[AddressFormModal] submit failed =>", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(err));
     } finally {
       setSubmitting(false);
@@ -411,7 +487,16 @@ function AddressFormModalContent({
               value={formData.city}
               options={cityOptions}
               onChange={(city) => {
+<<<<<<< HEAD
+                const nextCity = findLocationOption(cityOptions, city);
+                setFormData({
+                  ...formData,
+                  city,
+                  cityId: nextCity?.id ?? "",
+                });
+=======
                 setFormData({ ...formData, city });
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                 clearFieldError("city");
               }}
               placeholder={
@@ -480,7 +565,14 @@ function AddressFormModalContent({
 
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+<<<<<<< HEAD
+              موقعیت روی نقشه
+              <span className="ms-2 text-xs font-normal text-gray-400">
+                اختیاری
+              </span>
+=======
               موقعیت روی نقشه <span className="text-red-500">*</span>
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             </label>
             <AddressLocationMap
               latitude={formData.latitude}

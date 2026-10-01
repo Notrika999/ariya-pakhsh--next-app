@@ -44,9 +44,6 @@ export const Captcha = forwardRef<CaptchaHandle, CaptchaProps>(function Captcha(
   );
   const [inputValue, setInputValue] = useState<string>("");
   const [isValid, setIsValid] = useState<boolean | null>(null);
-  const [secondsLeft, setSecondsLeft] = useState<number>(
-    DEFAULTS.expiryMs / 1000,
-  );
   const [expired, setExpired] = useState<boolean>(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -63,11 +60,9 @@ export const Captcha = forwardRef<CaptchaHandle, CaptchaProps>(function Captcha(
     [captchaText, caseSensitive],
   );
 
-  const startExpiryTimer = useCallback(() => {
+  const beginExpiryInterval = useCallback(() => {
     if (expiryIntervalRef.current)
       window.clearInterval(expiryIntervalRef.current);
-    setSecondsLeft(DEFAULTS.expiryMs / 1000);
-    setExpired(false);
 
     const startTime = Date.now();
     expiryIntervalRef.current = window.setInterval(() => {
@@ -76,13 +71,17 @@ export const Captcha = forwardRef<CaptchaHandle, CaptchaProps>(function Captcha(
         0,
         Math.round((DEFAULTS.expiryMs - elapsed) / 1000),
       );
-      setSecondsLeft(remaining);
       if (remaining === 0) {
         window.clearInterval(expiryIntervalRef.current!);
         setExpired(true);
       }
     }, 1000);
   }, []);
+
+  const startExpiryTimer = useCallback(() => {
+    setExpired(false);
+    beginExpiryInterval();
+  }, [beginExpiryInterval]);
 
   const refresh = useCallback(() => {
     setCaptchaText(generateCaptchaText(length, charset));
@@ -129,12 +128,12 @@ export const Captcha = forwardRef<CaptchaHandle, CaptchaProps>(function Captcha(
 
   // Start expiry timer on mount
   useEffect(() => {
-    startExpiryTimer();
+    beginExpiryInterval();
     return () => {
       if (expiryIntervalRef.current)
         window.clearInterval(expiryIntervalRef.current);
     };
-  }, [startExpiryTimer]);
+  }, [beginExpiryInterval]);
 
   // Optional external auto-refresh interval
   useEffect(() => {
@@ -144,9 +143,9 @@ export const Captcha = forwardRef<CaptchaHandle, CaptchaProps>(function Captcha(
   }, [autoRefreshInterval, refresh]);
 
   useEffect(() => {
+    const timeoutId = refreshTimeoutRef.current;
     return () => {
-      if (refreshTimeoutRef.current !== null)
-        window.clearTimeout(refreshTimeoutRef.current);
+      if (timeoutId !== null) window.clearTimeout(timeoutId);
     };
   }, []);
 
@@ -180,13 +179,6 @@ export const Captcha = forwardRef<CaptchaHandle, CaptchaProps>(function Captcha(
   }, [isValid, expired]);
 
   // Timer colour: green → yellow → red
-  const timerColor =
-    secondsLeft > 90
-      ? "text-emerald-600"
-      : secondsLeft > 30
-        ? "text-amber-500"
-        : "text-rose-600";
-
   const inputAriaInvalid = isValid === false ? true : undefined;
 
   return (
@@ -241,12 +233,6 @@ export const Captcha = forwardRef<CaptchaHandle, CaptchaProps>(function Captcha(
               >
                 <RefreshIcon />
               </button>
-              {/* <span
-                className={`text-[10px] font-mono font-semibold tabular-nums leading-none ${timerColor}`}
-                aria-live="polite"
-              >
-                {String(Math.floor(secondsLeft / 60)).padStart(2, "0")}:{String(secondsLeft % 60).padStart(2, "0")}
-              </span> */}
             </div>
             <div className="overflow-hidden rounded-md bg-slate-100">
               <canvas

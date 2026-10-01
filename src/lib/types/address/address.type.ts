@@ -3,6 +3,11 @@ export interface CustomerAddressDto {
   title: string;
   province: string;
   city: string;
+<<<<<<< HEAD
+  provinceId?: string;
+  cityId?: string;
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   addressLine: string;
   postalCode: string;
   receiverFirstName: string;
@@ -17,6 +22,11 @@ export interface CustomerAddressPayload {
   title: string;
   province: string;
   city: string;
+<<<<<<< HEAD
+  provinceId?: string;
+  cityId?: string;
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   addressLine: string;
   postalCode: string;
   receiverFirstName: string;

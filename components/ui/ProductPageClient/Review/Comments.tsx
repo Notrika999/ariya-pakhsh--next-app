@@ -1,5 +1,21 @@
 "use client";
 // components/ui/ProductPageClient/Review/Comments.tsx
+<<<<<<< HEAD
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  completeReviewMediaUpload,
+  createProductReview,
+  createReviewMediaUpload,
+  deleteProductReview,
+  deleteReviewMedia,
+  getReviewMedia,
+  getReviewMediaCapabilities,
+  getReviewMediaTypeFromFile,
+  getProductReviews,
+  getProductReviewsSummary,
+  reportProductReview,
+  uploadReviewMediaContent,
+=======
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   createProductReview,
@@ -7,17 +23,29 @@ import {
   getProductReviews,
   getProductReviewsSummary,
   reportProductReview,
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   voteProductReview,
 } from "@/src/services/product/review.client";
 import type {
   ProductReview,
+<<<<<<< HEAD
+  ProductReviewMedia,
+  ProductReviewMediaType,
   ProductReviewsSummary,
+  ReviewMediaCapabilities,
+=======
+  ProductReviewsSummary,
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   ReviewRecommendStatus,
   ReviewVoteType,
 } from "@/src/lib/types/products/review.types";
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
 import { useAuthStore } from "@/src/lib/stores/auth/auth.store";
 import { notify } from "@/src/utils/toast";
+<<<<<<< HEAD
+import { getProductImage } from "@/src/utils/product-image";
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 type CommentsProps = {
   productId: string;
@@ -27,6 +55,29 @@ type CommentsProps = {
 
 const PAGE_SIZE = 10;
 const DEFAULT_REVIEW_RATING = 5;
+<<<<<<< HEAD
+const REVIEW_MEDIA_POLL_INTERVAL_MS = 2000;
+const REVIEW_MEDIA_MAX_POLL_ATTEMPTS = 60;
+
+type UploadStatus =
+  | "selected"
+  | "uploading"
+  | "processing"
+  | "ready"
+  | "failed";
+
+type UploadItem = {
+  id: string;
+  file: File;
+  mediaId?: string;
+  mediaType: ProductReviewMediaType;
+  previewUrl: string;
+  progress: number;
+  status: UploadStatus;
+  error?: string;
+};
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 const REPORT_REASONS = [
   "محتوای نامناسب",
@@ -36,6 +87,147 @@ const REPORT_REASONS = [
   "سایر",
 ];
 
+<<<<<<< HEAD
+function createUploadItemId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function formatBytes(value: number): string {
+  if (!Number.isFinite(value) || value <= 0) return "";
+  const units = ["B", "KB", "MB", "GB"];
+  let size = value;
+  let unitIndex = 0;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex += 1;
+  }
+
+  return `${new Intl.NumberFormat("fa-IR", {
+    maximumFractionDigits: unitIndex === 0 ? 0 : 1,
+  }).format(size)} ${units[unitIndex]}`;
+}
+
+function getMediaDisplayUrl(media: ProductReviewMedia): string | null {
+  const mediaType = String(media.mediaType).toLowerCase();
+  const path =
+    mediaType === "video"
+      ? (media.thumbnailUrl ?? media.posterUrl ?? null)
+      : (media.previewUrl ?? media.thumbnailUrl ?? media.url ?? null);
+
+  return path ? getProductImage(path) : null;
+}
+
+function getMediaVideoUrl(media: ProductReviewMedia): string | null {
+  const path = media.videoUrl ?? media.url ?? media.previewUrl ?? null;
+  return path ? getProductImage(path) : null;
+}
+
+function getVideoPosterUrl(media: ProductReviewMedia): string | undefined {
+  const path = media.thumbnailUrl ?? media.posterUrl ?? null;
+  return path ? getProductImage(path) : undefined;
+}
+
+function isReviewMediaReady(media: ProductReviewMedia): boolean {
+  return String(media.processingStatus).toLowerCase() === "ready";
+}
+
+function isReviewMediaFailed(media: ProductReviewMedia): boolean {
+  return ["failed", "rejected", "deleted"].includes(
+    String(media.processingStatus).toLowerCase(),
+  );
+}
+
+function getUploadStatusText(item: UploadItem): string {
+  if (item.status === "ready") return "آماده";
+  if (item.status === "processing") return "در حال پردازش";
+  if (item.status === "uploading") {
+    return `در حال آپلود ${new Intl.NumberFormat("fa-IR").format(item.progress)}٪`;
+  }
+  if (item.status === "failed") return item.error || "ناموفق";
+  return "انتخاب شده";
+}
+
+function hasAllowedExtension(fileName: string, extensions: string[]): boolean {
+  if (extensions.length === 0) return true;
+  const normalizedFileName = fileName.toLowerCase();
+
+  return extensions.some((extension) =>
+    normalizedFileName.endsWith(extension.toLowerCase()),
+  );
+}
+
+function validateFiles(
+  files: File[],
+  existingItems: UploadItem[],
+  config: ReviewMediaCapabilities,
+) {
+  if (!config.enabled) {
+    throw new Error("ارسال تصویر و ویدیو غیرفعال است.");
+  }
+
+  const existingImageCount = existingItems.filter(
+    (item) => item.mediaType === "image",
+  ).length;
+  const existingVideoCount = existingItems.filter(
+    (item) => item.mediaType === "video",
+  ).length;
+  let nextImageCount = existingImageCount;
+  let nextVideoCount = existingVideoCount;
+
+  for (const file of files) {
+    const mediaType = getReviewMediaTypeFromFile(file, config);
+
+    if (!mediaType) {
+      throw new Error(`فرمت ${file.name} مجاز نیست.`);
+    }
+
+    if (mediaType === "image") {
+      nextImageCount += 1;
+      if (!config.allowedImageMimeTypes.includes(file.type)) {
+        throw new Error(`نوع فایل ${file.name} مجاز نیست.`);
+      }
+      if (!hasAllowedExtension(file.name, config.allowedImageExtensions)) {
+        throw new Error(`پسوند ${file.name} مجاز نیست.`);
+      }
+      if (file.size > config.maxImageSizeBytes) {
+        throw new Error(`حجم ${file.name} بیشتر از حد مجاز است.`);
+      }
+    }
+
+    if (mediaType === "video") {
+      nextVideoCount += 1;
+      if (!config.allowedVideoMimeTypes.includes(file.type)) {
+        throw new Error(`نوع فایل ${file.name} مجاز نیست.`);
+      }
+      if (!hasAllowedExtension(file.name, config.allowedVideoExtensions)) {
+        throw new Error(`پسوند ${file.name} مجاز نیست.`);
+      }
+      if (file.size > config.maxVideoSizeBytes) {
+        throw new Error(`حجم ${file.name} بیشتر از حد مجاز است.`);
+      }
+    }
+  }
+
+  if (nextImageCount > config.maxImagesPerReview) {
+    throw new Error(`حداکثر ${config.maxImagesPerReview} تصویر مجاز است.`);
+  }
+
+  if (nextVideoCount > config.maxVideosPerReview) {
+    throw new Error(`حداکثر ${config.maxVideosPerReview} ویدیو مجاز است.`);
+  }
+}
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function formatReviewDate(value: string): string {
   if (!value) return "";
   const date = new Date(value);
@@ -131,6 +323,184 @@ function TagInput({
   );
 }
 
+<<<<<<< HEAD
+function ReviewMediaGallery({ mediaItems }: { mediaItems: ProductReviewMedia[] }) {
+  const [activeMedia, setActiveMedia] = useState<ProductReviewMedia | null>(null);
+  const [expanded, setExpanded] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  const activeMediaType = activeMedia
+    ? String(activeMedia.mediaType).toLowerCase()
+    : "";
+  const activeImageUrl =
+    activeMedia && activeMediaType !== "video"
+      ? getMediaDisplayUrl(activeMedia)
+      : null;
+  const activeVideoUrl =
+    activeMedia && activeMediaType === "video"
+      ? getMediaVideoUrl(activeMedia)
+      : null;
+
+  useEffect(() => {
+    if (!activeMedia || activeMediaType !== "video" || !videoRef.current) {
+      return;
+    }
+
+    videoRef.current.currentTime = 0;
+    void videoRef.current.play().catch(() => undefined);
+  }, [activeMedia, activeMediaType]);
+
+  const stopVideo = () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    video.pause();
+    video.currentTime = 0;
+  };
+
+  const closeMedia = () => {
+    stopVideo();
+    setActiveMedia(null);
+    setExpanded(false);
+  };
+
+  const visibleMediaItems = mediaItems.filter(
+    (media) =>
+      String(media.processingStatus).toLowerCase() === "ready" &&
+      getMediaDisplayUrl(media),
+  );
+
+  if (visibleMediaItems.length === 0) return null;
+
+  return (
+    <>
+      <div className="mb-5 flex flex-wrap gap-3">
+        {visibleMediaItems.map((media) => {
+          const source = getMediaDisplayUrl(media);
+          if (!source) return null;
+
+          const mediaType = String(media.mediaType).toLowerCase();
+          const videoUrl = getMediaVideoUrl(media);
+
+          return (
+            <div
+              key={media.id || source}
+              className="overflow-hidden rounded-lg border border-gray-200 bg-custom-light dark:border-gray-700 dark:bg-zinc-900"
+            >
+              {mediaType === "video" ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (videoUrl) setActiveMedia(media);
+                  }}
+                  disabled={!videoUrl}
+                  className="group relative block h-24 w-24 disabled:cursor-not-allowed sm:h-28 sm:w-28"
+                  aria-label="پخش ویدیو"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={source}
+                    alt={media.fileName || "ویدیو نظر"}
+                    className="h-full w-full bg-white object-contain dark:bg-zinc-950"
+                    loading="lazy"
+                  />
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/25 transition group-hover:bg-black/35">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-primary shadow">
+                      <i className="fas fa-play text-xs" />
+                    </span>
+                  </span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setActiveMedia(media)}
+                  className="group block h-24 w-24 sm:h-28 sm:w-28"
+                  aria-label="بزرگ کردن تصویر"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={source}
+                    alt={media.fileName || "تصویر نظر"}
+                    className="h-full w-full bg-white object-contain transition group-hover:opacity-90 dark:bg-zinc-950"
+                    loading="lazy"
+                  />
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {activeMedia && (activeVideoUrl || activeImageUrl) && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4"
+          role="dialog"
+          aria-modal="true"
+          onClick={closeMedia}
+        >
+          <div
+            className={`w-full overflow-hidden rounded-lg bg-black shadow-2xl ${
+              expanded ? "max-w-6xl" : "max-w-2xl"
+            }`}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-end gap-2 bg-zinc-950 p-2">
+              <button
+                type="button"
+                onClick={() => setExpanded((value) => !value)}
+                className="flex h-9 w-9 items-center justify-center rounded bg-white/10 text-white transition hover:bg-white/20"
+                aria-label={expanded ? "کوچک کردن رسانه" : "بزرگ کردن رسانه"}
+              >
+                <i className={`fas ${expanded ? "fa-compress" : "fa-expand"}`} />
+              </button>
+              {activeVideoUrl && (
+                <button
+                  type="button"
+                  onClick={stopVideo}
+                  className="flex h-9 w-9 items-center justify-center rounded bg-white/10 text-white transition hover:bg-white/20"
+                  aria-label="توقف ویدیو"
+                >
+                  <i className="fas fa-stop" />
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={closeMedia}
+                className="flex h-9 w-9 items-center justify-center rounded bg-white/10 text-white transition hover:bg-white/20"
+                aria-label="بستن رسانه"
+              >
+                ×
+              </button>
+            </div>
+
+            {activeVideoUrl ? (
+              <video
+                ref={videoRef}
+                src={activeVideoUrl}
+                poster={getVideoPosterUrl(activeMedia)}
+                controls
+                playsInline
+                className="max-h-[78vh] w-full bg-black object-contain"
+              />
+            ) : (
+              activeImageUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={activeImageUrl}
+                  alt={activeMedia.fileName || "تصویر نظر"}
+                  className="max-h-[78vh] w-full bg-black object-contain"
+                />
+              )
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function ReviewCard({
   review,
   currentUserId,
@@ -182,7 +552,11 @@ function ReviewCard({
       );
 
     } catch (error) {
+<<<<<<< HEAD
+      // console.error("[Comments] vote failed =>", error);
+=======
       console.error("[Comments] vote failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
     } finally {
       setVoting(false);
@@ -191,7 +565,15 @@ function ReviewCard({
 
   const handleDelete = async () => {
     if (deleting) return;
+<<<<<<< HEAD
+    const confirmed = await notify.confirm("آیا از حذف این نظر مطمئن هستید؟", {
+      confirmLabel: "حذف نظر",
+      cancelLabel: "انصراف",
+    });
+    if (!confirmed) return;
+=======
     if (!window.confirm("آیا از حذف این نظر مطمئن هستید؟")) return;
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     setDeleting(true);
     try {
@@ -199,7 +581,11 @@ function ReviewCard({
       onDeleted(review.id);
       notify.success("نظر حذف شد");
     } catch (error) {
+<<<<<<< HEAD
+      // console.error("[Comments] delete failed =>", error);
+=======
       console.error("[Comments] delete failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
     } finally {
       setDeleting(false);
@@ -223,7 +609,11 @@ function ReviewCard({
       setReportOpen(false);
       setReportDescription("");
     } catch (error) {
+<<<<<<< HEAD
+      // console.error("[Comments] report failed =>", error);
+=======
       console.error("[Comments] report failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
     } finally {
       setReporting(false);
@@ -280,6 +670,11 @@ function ReviewCard({
           {review.body}
         </p>
 
+<<<<<<< HEAD
+        <ReviewMediaGallery mediaItems={review.media} />
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         {(review.advantages.length > 0 || review.disadvantages.length > 0) && (
           <div className="mb-5 space-y-1">
             {review.advantages.map((item) => (
@@ -440,7 +835,14 @@ export default function Comments({
   reviewCount,
 }: CommentsProps) {
   const currentUser = useAuthStore((state) => state.user);
+<<<<<<< HEAD
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const currentUserId = currentUser?.userId ?? currentUser?.id ?? null;
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const uploadItemsRef = useRef<UploadItem[]>([]);
+=======
+  const currentUserId = currentUser?.userId ?? currentUser?.id ?? null;
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   const [reviews, setReviews] = useState<ProductReview[]>([]);
   const [summary, setSummary] = useState<ProductReviewsSummary | null>(null);
@@ -452,15 +854,43 @@ export default function Comments({
   const [loadingMore, setLoadingMore] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+<<<<<<< HEAD
+  const [mediaCapabilities, setMediaCapabilities] =
+    useState<ReviewMediaCapabilities | null>(null);
+  const [mediaCapabilitiesLoading, setMediaCapabilitiesLoading] =
+    useState(true);
+  const [mediaCapabilitiesError, setMediaCapabilitiesError] = useState<
+    string | null
+  >(null);
+  const [uploadItems, setUploadItems] = useState<UploadItem[]>([]);
+
+  const [rating, setRating] = useState(DEFAULT_REVIEW_RATING);
+=======
 
   const [rating, setRating] = useState(DEFAULT_REVIEW_RATING);
   const [title, setTitle] = useState("");
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const [body, setBody] = useState("");
   const [advantages, setAdvantages] = useState<string[]>([]);
   const [disadvantages, setDisadvantages] = useState<string[]>([]);
   const [recommendStatus, setRecommendStatus] =
     useState<ReviewRecommendStatus>("neutral");
 
+<<<<<<< HEAD
+  useEffect(() => {
+    uploadItemsRef.current = uploadItems;
+  }, [uploadItems]);
+
+  useEffect(() => {
+    return () => {
+      uploadItemsRef.current.forEach((item) => {
+        URL.revokeObjectURL(item.previewUrl);
+      });
+    };
+  }, []);
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const ratingDistribution = useMemo(() => {
     const total = summary?.totalReviews || 1;
     const counts = [
@@ -485,6 +915,50 @@ export default function Comments({
   const displayTotal =
     summary?.totalReviews ?? totalCount ?? reviewCount ?? reviews.length;
 
+<<<<<<< HEAD
+  const mediaAccept = useMemo(() => {
+    if (!mediaCapabilities) return undefined;
+
+    return [
+      ...mediaCapabilities.allowedImageMimeTypes,
+      ...mediaCapabilities.allowedVideoMimeTypes,
+    ].join(",");
+  }, [mediaCapabilities]);
+
+  const uploadHelpText = useMemo(() => {
+    if (!mediaCapabilities) return "";
+
+    const parts = [
+      mediaCapabilities.maxImagesPerReview > 0
+        ? `${mediaCapabilities.maxImagesPerReview} تصویر تا ${formatBytes(
+            mediaCapabilities.maxImageSizeBytes,
+          )}`
+        : "",
+      mediaCapabilities.maxVideosPerReview > 0
+        ? `${mediaCapabilities.maxVideosPerReview} ویدیو تا ${formatBytes(
+            mediaCapabilities.maxVideoSizeBytes,
+          )}`
+        : "",
+      mediaCapabilities.maxVideoDurationSeconds > 0
+        ? `مدت ویدیو تا ${new Intl.NumberFormat("fa-IR").format(
+            mediaCapabilities.maxVideoDurationSeconds,
+          )} ثانیه`
+        : "",
+    ].filter(Boolean);
+
+    return parts.join("، ");
+  }, [mediaCapabilities]);
+
+  const hasPendingUploads = uploadItems.some(
+    (item) => item.status !== "ready",
+  );
+
+  const readyMediaIds = uploadItems
+    .filter((item) => item.status === "ready" && item.mediaId)
+    .map((item) => item.mediaId as string);
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const loadSummary = useCallback(async () => {
     if (!productId) return;
     try {
@@ -492,7 +966,11 @@ export default function Comments({
       setSummary(result);
       setTotalCount(result.totalReviews);
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[Comments] loadSummary failed =>", err);
+=======
       console.error("[Comments] loadSummary failed =>", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     }
   }, [productId]);
 
@@ -521,7 +999,11 @@ export default function Comments({
           result.hasNextPage || result.pageNumber < result.totalPages,
         );
       } catch (err) {
+<<<<<<< HEAD
+        // console.error("[Comments] loadReviews failed =>", err);
+=======
         console.error("[Comments] loadReviews failed =>", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         const message = getAuthErrorMessage(err);
         setError(message);
         if (!append) setReviews([]);
@@ -534,6 +1016,37 @@ export default function Comments({
   );
 
   useEffect(() => {
+<<<<<<< HEAD
+    let active = true;
+
+    async function loadMediaCapabilities() {
+      setMediaCapabilitiesLoading(true);
+      setMediaCapabilitiesError(null);
+
+      try {
+        const capabilities = await getReviewMediaCapabilities();
+        if (!active) return;
+        setMediaCapabilities(capabilities);
+      } catch (err) {
+        // console.error("[Comments] loadReviewMediaCapabilities failed =>", err);
+        if (!active) return;
+        setMediaCapabilities(null);
+        setMediaCapabilitiesError(getAuthErrorMessage(err));
+      } finally {
+        if (active) setMediaCapabilitiesLoading(false);
+      }
+    }
+
+    void loadMediaCapabilities();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     const timer = window.setTimeout(() => {
       void loadReviews(1, false);
       void loadSummary();
@@ -547,18 +1060,201 @@ export default function Comments({
     void loadReviews(page + 1, true);
   };
 
+<<<<<<< HEAD
+  const updateUploadItem = useCallback(
+    (itemId: string, patch: Partial<UploadItem>) => {
+      setUploadItems((prev) =>
+        prev.map((item) =>
+          item.id === itemId ? { ...item, ...patch } : item,
+        ),
+      );
+    },
+    [],
+  );
+
+  const isUploadItemActive = useCallback((itemId: string) => {
+    return uploadItemsRef.current.some((item) => item.id === itemId);
+  }, []);
+
+  const waitUntilMediaReady = useCallback(async (mediaId: string) => {
+    for (let attempt = 0; attempt < REVIEW_MEDIA_MAX_POLL_ATTEMPTS; attempt += 1) {
+      const media = await getReviewMedia(mediaId);
+
+      if (isReviewMediaReady(media)) return media;
+
+      if (isReviewMediaFailed(media)) {
+        throw new Error(media.rejectionReason || "پردازش فایل ناموفق بود.");
+      }
+
+      await delay(REVIEW_MEDIA_POLL_INTERVAL_MS);
+    }
+
+    throw new Error("زمان پردازش فایل بیش از حد طول کشید.");
+  }, []);
+
+  const uploadSelectedFile = useCallback(
+    async (item: UploadItem) => {
+      updateUploadItem(item.id, { status: "uploading", progress: 0 });
+
+      try {
+        const session = await createReviewMediaUpload({
+          fileName: item.file.name,
+          mediaType: item.mediaType,
+          contentType: item.file.type,
+          size: item.file.size,
+        });
+
+        if (!session.mediaId) {
+          throw new Error("شناسه رسانه از سرور دریافت نشد.");
+        }
+
+        if (!isUploadItemActive(item.id)) {
+          await deleteReviewMedia(session.mediaId);
+          return;
+        }
+
+        updateUploadItem(item.id, {
+          mediaId: session.mediaId,
+          status: "uploading",
+        });
+
+        await uploadReviewMediaContent(session.uploadUrl, item.file, (progress) => {
+          updateUploadItem(item.id, { progress });
+        });
+
+        if (!isUploadItemActive(item.id)) {
+          await deleteReviewMedia(session.mediaId);
+          return;
+        }
+
+        updateUploadItem(item.id, { status: "processing", progress: 100 });
+        await completeReviewMediaUpload(session.mediaId);
+
+        if (!isUploadItemActive(item.id)) {
+          await deleteReviewMedia(session.mediaId);
+          return;
+        }
+
+        await waitUntilMediaReady(session.mediaId);
+        updateUploadItem(item.id, {
+          mediaId: session.mediaId,
+          status: "ready",
+          progress: 100,
+          error: undefined,
+        });
+      } catch (error) {
+        // console.error("[Comments] upload review media failed =>", error);
+        updateUploadItem(item.id, {
+          status: "failed",
+          error: getAuthErrorMessage(error),
+        });
+        notify.error(getAuthErrorMessage(error));
+      }
+    },
+    [isUploadItemActive, updateUploadItem, waitUntilMediaReady],
+  );
+
+  const handleFiles = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []);
+    event.target.value = "";
+
+    if (files.length === 0) return;
+
+    if (!isAuthenticated) {
+      notify.info("ابتدا وارد شوید");
+      return;
+    }
+
+    if (!mediaCapabilities) {
+      notify.error("تنظیمات ارسال تصویر و ویدیو هنوز دریافت نشده است.");
+      return;
+    }
+
+    try {
+      validateFiles(files, uploadItems, mediaCapabilities);
+    } catch (validationError) {
+      notify.error(
+        validationError instanceof Error
+          ? validationError.message
+          : "فایل انتخاب‌شده معتبر نیست.",
+      );
+      return;
+    }
+
+    const nextItems = files.map((file) => {
+      const mediaType = getReviewMediaTypeFromFile(file, mediaCapabilities);
+      if (!mediaType) {
+        throw new Error(`فرمت ${file.name} مجاز نیست.`);
+      }
+
+      return {
+        id: createUploadItemId(),
+        file,
+        mediaType,
+        previewUrl: URL.createObjectURL(file),
+        progress: 0,
+        status: "selected" as const,
+      };
+    });
+
+    setUploadItems((prev) => [...prev, ...nextItems]);
+    nextItems.forEach((item) => {
+      void uploadSelectedFile(item);
+    });
+  };
+
+  const handleRemoveUploadItem = async (itemId: string) => {
+    const item = uploadItems.find((candidate) => candidate.id === itemId);
+    if (!item) return;
+
+    setUploadItems((prev) =>
+      prev.filter((candidate) => candidate.id !== itemId),
+    );
+    URL.revokeObjectURL(item.previewUrl);
+
+    if (!item.mediaId) return;
+
+    try {
+      await deleteReviewMedia(item.mediaId);
+    } catch (error) {
+      // console.error("[Comments] delete review media failed =>", error);
+      notify.error(getAuthErrorMessage(error));
+    }
+  };
+
+  const resetForm = () => {
+    setRating(DEFAULT_REVIEW_RATING);
+=======
   const resetForm = () => {
     setRating(DEFAULT_REVIEW_RATING);
     setTitle("");
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     setBody("");
     setAdvantages([]);
     setDisadvantages([]);
     setRecommendStatus("neutral");
+<<<<<<< HEAD
+    uploadItemsRef.current.forEach((item) => {
+      URL.revokeObjectURL(item.previewUrl);
+    });
+    setUploadItems([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
+<<<<<<< HEAD
+    if (!isAuthenticated) {
+      notify.info("ابتدا وارد شوید");
+      return;
+    }
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     if (!productId) {
       notify.error("شناسه محصول نامعتبر است");
       return;
@@ -571,22 +1267,41 @@ export default function Comments({
       notify.error("متن نظر الزامی است");
       return;
     }
+<<<<<<< HEAD
+    if (hasPendingUploads) {
+      notify.error("تا پایان آپلود و پردازش فایل‌ها صبر کنید.");
+      return;
+    }
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     setSubmitting(true);
     try {
       await createProductReview(productId, {
         rating,
+<<<<<<< HEAD
+        title: "",
+=======
         title: title.trim(),
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         body: body.trim(),
         advantages,
         disadvantages,
         recommendStatus,
+<<<<<<< HEAD
+        mediaIds: readyMediaIds,
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       });
       notify.success("نظر شما با موفقیت ثبت شد");
       resetForm();
       await Promise.all([loadReviews(1, false), loadSummary()]);
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[Comments] create review failed =>", err);
+=======
       console.error("[Comments] create review failed =>", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(err));
     } finally {
       setSubmitting(false);
@@ -683,6 +1398,8 @@ export default function Comments({
             className="w-full border-b border-gray-300 pb-4 dark:border-gray-700"
           >
             <div className="mb-4">
+<<<<<<< HEAD
+=======
               <label className="mb-3 inline-block dark:text-gray-300">
                 عنوان نظر:
               </label>
@@ -697,6 +1414,7 @@ export default function Comments({
             </div>
 
             <div className="mb-4">
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
               <label className="mb-4 block dark:text-gray-300">امتیاز شما:</label>
               <div className="flex space-x-2">
                 {[1, 2, 3, 4, 5].map((value) => (
@@ -776,12 +1494,149 @@ export default function Comments({
               </div>
             </div>
 
+<<<<<<< HEAD
+            <div className="mb-5">
+              <label className="mb-3 block dark:text-gray-300">
+                تصویر و ویدیو:
+              </label>
+              <div className="rounded-lg border border-dashed border-gray-300 bg-white p-4 dark:border-gray-700 dark:bg-zinc-800">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                      افزودن رسانه به نظر
+                    </p>
+                    <p className="mt-1 text-xs leading-6 text-gray-500 dark:text-gray-400">
+                      {mediaCapabilitiesLoading
+                        ? "در حال دریافت تنظیمات ارسال رسانه..."
+                        : mediaCapabilitiesError
+                          ? mediaCapabilitiesError
+                          : mediaCapabilities?.enabled
+                            ? uploadHelpText
+                            : "ارسال تصویر و ویدیو غیرفعال است."}
+                    </p>
+                  </div>
+
+                  <label
+                    className={`inline-flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-sm transition ${
+                      mediaCapabilities?.enabled &&
+                      !mediaCapabilitiesLoading &&
+                      !submitting &&
+                      isAuthenticated
+                        ? "bg-primary text-white hover:bg-primary-600"
+                        : "cursor-not-allowed bg-gray-200 text-gray-500 dark:bg-zinc-700 dark:text-gray-400"
+                    }`}
+                  >
+                    <i className="far fa-image" />
+                    انتخاب فایل
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      accept={mediaAccept}
+                      onChange={handleFiles}
+                      disabled={
+                        submitting ||
+                        mediaCapabilitiesLoading ||
+                        !mediaCapabilities?.enabled ||
+                        !isAuthenticated
+                      }
+                      className="sr-only"
+                    />
+                  </label>
+                </div>
+
+                {uploadItems.length > 0 && (
+                  <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    {uploadItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className={`overflow-hidden rounded-lg border bg-custom-light dark:bg-zinc-900 ${
+                          item.status === "failed"
+                            ? "border-red-300 dark:border-red-800"
+                            : "border-gray-200 dark:border-gray-700"
+                        }`}
+                      >
+                        <div className="relative">
+                          {item.mediaType === "video" ? (
+                            <video
+                              src={item.previewUrl}
+                              className="aspect-square w-full bg-black object-cover"
+                              controls={item.status === "ready"}
+                              preload="metadata"
+                            />
+                          ) : (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={item.previewUrl}
+                              alt={item.file.name}
+                              className="aspect-square w-full object-cover"
+                            />
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              void handleRemoveUploadItem(item.id);
+                            }}
+                            disabled={submitting}
+                            className="absolute left-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-red-600 disabled:opacity-60"
+                            aria-label={`حذف ${item.file.name}`}
+                          >
+                            ×
+                          </button>
+                        </div>
+
+                        <div className="space-y-2 p-3">
+                          <p className="truncate text-xs font-medium text-gray-700 dark:text-gray-200">
+                            {item.file.name}
+                          </p>
+                          <div className="h-1.5 overflow-hidden rounded bg-gray-200 dark:bg-gray-700">
+                            <div
+                              className={`h-full transition-all ${
+                                item.status === "failed"
+                                  ? "bg-red-500"
+                                  : item.status === "ready"
+                                    ? "bg-green-500"
+                                    : "bg-primary"
+                              }`}
+                              style={{ width: `${item.progress}%` }}
+                            />
+                          </div>
+                          <p
+                            className={`text-xs ${
+                              item.status === "failed"
+                                ? "text-red-500"
+                                : "text-gray-500 dark:text-gray-400"
+                            }`}
+                          >
+                            {getUploadStatusText(item)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting || hasPendingUploads}
+              className="rounded-lg bg-primary px-20 py-3 text-white hover:bg-primary-600 disabled:opacity-60"
+            >
+              {submitting
+                ? "در حال ثبت..."
+                : hasPendingUploads
+                  ? "در انتظار آماده شدن فایل‌ها"
+                  : "ثبت نظر"}
+=======
             <button
               type="submit"
               disabled={submitting}
               className="rounded-lg bg-primary px-20 py-3 text-white hover:bg-primary-600 disabled:opacity-60"
             >
               {submitting ? "در حال ثبت..." : "ثبت نظر"}
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             </button>
           </form>
 

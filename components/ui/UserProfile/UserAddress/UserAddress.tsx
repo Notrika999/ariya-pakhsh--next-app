@@ -36,7 +36,11 @@ export default function UserAddress() {
       const data = await getCustomerAddresses();
       setAddresses(data);
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[UserAddress] loadAddresses => error", err);
+=======
       console.error("[UserAddress] loadAddresses => error", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(err));
     } finally {
       setLoading(false);
@@ -44,7 +48,11 @@ export default function UserAddress() {
   }, []);
 
   useEffect(() => {
+<<<<<<< HEAD
+    void Promise.resolve().then(loadAddresses);
+=======
     void loadAddresses();
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   }, [loadAddresses]);
 
   const closeModal = () => {
@@ -76,7 +84,11 @@ export default function UserAddress() {
       await loadAddresses();
       notify.success("آدرس پیش‌فرض با موفقیت تنظیم شد.");
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[UserAddress] handleSetDefault => error", err);
+=======
       console.error("[UserAddress] handleSetDefault => error", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(err));
     } finally {
       setActionId(null);
@@ -91,7 +103,11 @@ export default function UserAddress() {
       await loadAddresses();
       notify.success("آدرس با موفقیت حذف شد.");
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[UserAddress] handleDelete => error", err);
+=======
       console.error("[UserAddress] handleDelete => error", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(err));
     } finally {
       setActionId(null);

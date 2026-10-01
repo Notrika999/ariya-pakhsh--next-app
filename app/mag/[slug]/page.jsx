@@ -20,7 +20,22 @@ export async function generateMetadata({ params }) {
     title: { absolute: seo.title },
     description: seo.description,
     alternates: { canonical: seo.canonicalUrl },
+<<<<<<< HEAD
+    robots: {
+      ...seo.robots,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+      googleBot: {
+        ...seo.robots,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
+    },
+=======
     robots: seo.robots,
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     openGraph: {
       title: seo.ogTitle,
       description: seo.ogDescription,

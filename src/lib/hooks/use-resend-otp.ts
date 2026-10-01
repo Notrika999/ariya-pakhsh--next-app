@@ -103,7 +103,11 @@ export function useResendOtp({
 
   // ─── شروع تایمر اولیه ───
   useEffect(() => {
+<<<<<<< HEAD
+    void Promise.resolve().then(() => startTimer(initialCooldown))
+=======
     startTimer(initialCooldown)
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   }, [initialCooldown, startTimer])
 
   // ─── canResend ───

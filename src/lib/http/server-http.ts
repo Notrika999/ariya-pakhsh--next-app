@@ -106,10 +106,17 @@ function resolveBackendBaseUrl(): string {
   }
 
   if (apiUrl.startsWith("/")) {
+<<<<<<< HEAD
+    // console.warn(
+    //   `[server-http] API_URL="${apiUrl}" is a relative path, not a backend base. ` +
+    //     `Using BACKEND_ORIGIN fallback: ${getBackendBaseUrl()}.`,
+    // );
+=======
     console.warn(
       `[server-http] API_URL="${apiUrl}" is a relative path, not a backend base. ` +
         `Using BACKEND_ORIGIN fallback: ${getBackendBaseUrl()}.`,
     );
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     return getBackendBaseUrl();
   }
 
@@ -243,10 +250,22 @@ async function parseResponse<T>(response: Response): Promise<ProxyResponse<T>> {
   let data: T;
   let isJson = false;
 
-  const contentType = response.headers.get("content-type");
-  const text = await response.text();
+  const contentType = response.headers.get("content-type")?.toLowerCase() ?? "";
+  const contentDisposition =
+    response.headers.get("content-disposition")?.toLowerCase() ?? "";
+  const isBinary =
+    contentDisposition.includes("attachment") ||
+    contentType.includes("application/pdf") ||
+    contentType.includes("application/octet-stream") ||
+    contentType.includes("application/zip") ||
+    contentType.startsWith("image/") ||
+    contentType.startsWith("audio/") ||
+    contentType.startsWith("video/");
 
-  if (contentType?.includes("application/json")) {
+  if (isBinary) {
+    data = (await response.arrayBuffer()) as T;
+  } else if (contentType.includes("application/json")) {
+    const text = await response.text();
     try {
       data = JSON.parse(text) as T;
       isJson = true;
@@ -255,6 +274,7 @@ async function parseResponse<T>(response: Response): Promise<ProxyResponse<T>> {
       data = text as unknown as T;
     }
   } else {
+    const text = await response.text();
     data = text as unknown as T;
   }
 
@@ -442,7 +462,7 @@ export async function proxyToBackend<T = unknown>(
       clearTimeout(timeoutId);
 
       if (!result.ok) {
-        console.warn(`[proxyToBackend] ${method} ${path} → ${result.status}`);
+        // console.warn(`[proxyToBackend] ${method} ${path} → ${result.status}`);
       }
 
       return result;
@@ -459,11 +479,11 @@ export async function proxyToBackend<T = unknown>(
         attempt < maxAttempts &&
         (timeout_error || network_error)
       ) {
-        console.warn(
-          `[proxyToBackend] ${method} ${path} → ` +
-            `${timeout_error ? "TIMEOUT" : "NETWORK_ERROR"} ` +
-            `(retry ${attempt + 1}/${maxAttempts})`,
-        );
+        // console.warn(
+        //   `[proxyToBackend] ${method} ${path} → ` +
+        //     `${timeout_error ? "TIMEOUT" : "NETWORK_ERROR"} ` +
+        //     `(retry ${attempt + 1}/${maxAttempts})`,
+        // );
 
         await sleep(computeBackoff(attempt));
         attempt++;

@@ -5,9 +5,17 @@ import React from "react";
 export default function SocialMediaItem({
   image,
   link,
+<<<<<<< HEAD
+  alt,
 }: {
   image: string;
   link: string;
+  alt: string
+=======
+}: {
+  image: string;
+  link: string;
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 }) {
   return (
     <Link
@@ -18,7 +26,11 @@ export default function SocialMediaItem({
         width={30}
         height={30}
         src={image ?? "/images/default.png"}
+<<<<<<< HEAD
+        alt={alt}
+=======
         alt=""
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       />
     </Link>
   );

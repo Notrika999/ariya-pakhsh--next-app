@@ -5,6 +5,17 @@ import HeaderSearch from "../Top/HeaderSearch";
 import CategoryNode from "./CategoryNode";
 
 export default function OffcanvasRight({ isOpen, onClose, menu }) {
+<<<<<<< HEAD
+  useEffect(() => {
+    document.body.classList.toggle("mobile-category-menu-open", isOpen);
+
+    return () => {
+      document.body.classList.remove("mobile-category-menu-open");
+    };
+  }, [isOpen]);
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   // بستن با کلید Escape
   useEffect(() => {
     const onKey = (e) => {

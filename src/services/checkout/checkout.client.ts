@@ -9,6 +9,11 @@ import type {
   CheckoutGatewayFee,
   CheckoutPaymentMethod,
   CheckoutPaymentProvider,
+<<<<<<< HEAD
+  PendingCheckoutOrder,
+  PendingCheckoutOrderItem,
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   CheckoutShippingGroup,
   CheckoutShippingGroupItem,
   CheckoutShippingMethod,
@@ -85,6 +90,64 @@ function mapApiErrors(value: unknown): CheckoutApiErrorItem[] {
     .filter((item) => item.field || item.message || item.code);
 }
 
+<<<<<<< HEAD
+function mapPendingCheckoutOrderItem(
+  value: unknown,
+): PendingCheckoutOrderItem | null {
+  const item = getRecord(value);
+  const orderItemId = String(item.orderItemId ?? item.id ?? "").trim();
+  if (!orderItemId) return null;
+
+  return {
+    orderItemId,
+    productTitle: String(item.productTitle ?? item.productName ?? "محصول"),
+    variantTitle: String(item.variantTitle ?? item.variantName ?? ""),
+    quantity: Math.max(0, toNumber(item.quantity)),
+    imageUrl: toOptionalString(item.imageUrl) ?? null,
+  };
+}
+
+function mapPendingCheckoutOrder(payload: unknown): PendingCheckoutOrder | null {
+  const data = unwrapDataObject(payload);
+  if (data.exists !== true) return null;
+
+  const orderId = String(data.orderId ?? "").trim();
+  if (!orderId) {
+    throw new ApiError(
+      502,
+      "اطلاعات سفارش در انتظار پرداخت ناقص است",
+      "INVALID_PENDING_ORDER_RESPONSE",
+      payload,
+    );
+  }
+
+  const allowedActions = getRecord(data.allowedActions);
+  const items = Array.isArray(data.items)
+    ? data.items
+        .map(mapPendingCheckoutOrderItem)
+        .filter((item): item is PendingCheckoutOrderItem => Boolean(item))
+    : [];
+
+  return {
+    orderId,
+    publicOrderNumber: String(data.publicOrderNumber ?? ""),
+    payableAmount: toNumber(data.payableAmount),
+    createdAt: toOptionalString(data.createdAt) ?? null,
+    expiresAt: toOptionalString(data.expiresAt) ?? null,
+    remainingSeconds: Math.max(0, Math.floor(toNumber(data.remainingSeconds))),
+    providerCode: toOptionalString(data.providerCode) ?? null,
+    displayStatus: String(data.displayStatus ?? "در انتظار پرداخت"),
+    items,
+    allowedActions: {
+      canContinuePayment: allowedActions.canContinuePayment === true,
+      canChangeProvider: allowedActions.canChangeProvider === true,
+      canCancel: allowedActions.canCancel === true,
+    },
+  };
+}
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 // assertSuccess یک تابع است که یک آرگومان unknown و یک آرگومان string را دریافت می کند و یک آبجکت Record<string, unknown> را برمی گرداند.
 function assertSuccess(payload: unknown, fallback: string) {
   const root = getRecord(payload);
@@ -403,12 +466,27 @@ export async function getCheckoutPaymentMethods(): Promise<
   return mapped;
 }
 
+<<<<<<< HEAD
+export async function getPendingCheckoutOrder(): Promise<PendingCheckoutOrder | null> {
+  const response = await apiClient.get(`${BASE}/pending-order`);
+
+  assertSuccess(response.data, "بررسی سفارش در انتظار پرداخت ناموفق بود");
+  return mapPendingCheckoutOrder(response.data);
+}
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 // getCheckoutShippingMethods یک تابع است که یک آبجکت Promise<CheckoutShippingMethod[]> را برمی گرداند.
 export async function getCheckoutShippingMethods(): Promise<
   CheckoutShippingMethod[]
 > {
   const response = await apiClient.get("/shipping/methods");
 
+<<<<<<< HEAD
+  
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   assertSuccess(response.data, "دریافت روش‌های ارسال ناموفق بود");
 
   const mapped = unwrapDataArray(response.data)
@@ -572,6 +650,22 @@ export async function ensureServerCartHasItems(
 
     try {
       cart = await addCartItem({ variantId, quantity });
+<<<<<<< HEAD
+    } catch {
+      // console.warn(
+      //   "[Checkout] addCartItem failed, trying update =>",
+      //   variantId,
+      //   error,
+      // );
+      try {
+        cart = await updateCartItem(variantId, { quantity });
+      } catch {
+        // console.error(
+        //   "[Checkout] updateCartItem failed =>",
+        //   variantId,
+        //   updateError,
+        // );
+=======
     } catch (error) {
       console.warn(
         "[Checkout] addCartItem failed, trying update =>",
@@ -586,6 +680,7 @@ export async function ensureServerCartHasItems(
           variantId,
           updateError,
         );
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       }
     }
   }
@@ -609,12 +704,17 @@ export async function startOrderPayment(
     body.digipayType = payload.digipayType;
   }
 
+<<<<<<< HEAD
+  const response = await apiClient.post("/Payments/start", body);
+
+=======
   console.log("startOrderPayment body => ", body);
 
   const response = await apiClient.post("/Payments/start", body);
 
   console.log("startOrderPayment response => ", response);
 
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   assertSuccess(response.data, "شروع پرداخت ناموفق بود");
 
   const data = unwrapDataObject(response.data);

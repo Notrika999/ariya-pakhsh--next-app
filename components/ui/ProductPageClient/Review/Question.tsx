@@ -78,7 +78,11 @@ function AnswerCard({
         voteType === "like" ? "رأی مثبت ثبت شد" : "رأی منفی ثبت شد",
       );
     } catch (error) {
+<<<<<<< HEAD
+      // console.error("[Question] vote answer failed =>", error);
+=======
       console.error("[Question] vote answer failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
     } finally {
       setVoting(false);
@@ -214,7 +218,11 @@ function QuestionCard({
       });
       notify.success("رأی مثبت ثبت شد");
     } catch (error) {
+<<<<<<< HEAD
+      // console.error("[Question] useful vote failed =>", error);
+=======
       console.error("[Question] useful vote failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
     } finally {
       setUsefulVoting(false);
@@ -235,7 +243,11 @@ function QuestionCard({
       setAnswerBody("");
       onAnswerAdded(question.id);
     } catch (error) {
+<<<<<<< HEAD
+      // console.error("[Question] create answer failed =>", error);
+=======
       console.error("[Question] create answer failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
     } finally {
       setAnswering(false);
@@ -254,7 +266,11 @@ function QuestionCard({
       setReportOpen(false);
       setReportDescription("");
     } catch (error) {
+<<<<<<< HEAD
+      // console.error("[Question] report failed =>", error);
+=======
       console.error("[Question] report failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
     } finally {
       setReporting(false);
@@ -474,7 +490,11 @@ export default function Question({ productId }: QuestionProps) {
           result.hasNextPage || result.pageNumber < result.totalPages,
         );
       } catch (err) {
+<<<<<<< HEAD
+        // console.error("[Question] loadQuestions failed =>", err);
+=======
         console.error("[Question] loadQuestions failed =>", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         setError(getAuthErrorMessage(err));
         if (!append) setQuestions([]);
       } finally {
@@ -524,7 +544,11 @@ export default function Question({ productId }: QuestionProps) {
       setQuestionBody("");
       await loadQuestions(1, false);
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[Question] create question failed =>", err);
+=======
       console.error("[Question] create question failed =>", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(err));
     } finally {
       setSubmitting(false);

@@ -150,7 +150,11 @@ export default function Comments() {
           : loadQuestions(questionsPageNumber),
       ]);
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[UserProfileComments] load failed =>", err);
+=======
       console.error("[UserProfileComments] load failed =>", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setError(getAuthErrorMessage(err));
     } finally {
       setLoading(false);
@@ -180,7 +184,11 @@ export default function Comments() {
       notify.success("نظر حذف شد");
       await Promise.all([loadSummary(), loadReviews(reviewsPageNumber)]);
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[UserProfileComments] delete review failed =>", err);
+=======
       console.error("[UserProfileComments] delete review failed =>", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(err));
     } finally {
       setDeletingReviewId(null);
@@ -199,7 +207,11 @@ export default function Comments() {
       notify.success("نظر ویرایش شد");
       await loadReviews(reviewsPageNumber);
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[UserProfileComments] update review failed =>", err);
+=======
       console.error("[UserProfileComments] update review failed =>", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(err));
       throw err;
     } finally {
@@ -217,7 +229,11 @@ export default function Comments() {
       notify.success("پرسش حذف شد");
       await Promise.all([loadSummary(), loadQuestions(questionsPageNumber)]);
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[UserProfileComments] delete question failed =>", err);
+=======
       console.error("[UserProfileComments] delete question failed =>", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(err));
     } finally {
       setDeletingQuestionId(null);

@@ -4,14 +4,12 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function ToastProvider() {
-  const isDark =
-    typeof document !== "undefined" &&
-    document.documentElement.classList.contains("dark");
-
   return (
     <ToastContainer
       rtl
       position="top-right"
+      className="!z-[2147483647]"
+      style={{ zIndex: 2147483647 }}
       autoClose={3000}
       newestOnTop
       closeOnClick

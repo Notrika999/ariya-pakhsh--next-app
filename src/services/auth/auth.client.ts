@@ -142,9 +142,15 @@ function unwrapApiData<T>(payload: unknown, label: string): T {
     return payload as T;
   }
 
+<<<<<<< HEAD
+  // console.error(`[auth.client] unwrapApiData(${label}) => data field missing`, {
+  //   keys: Object.keys(record),
+  // });
+=======
   console.error(`[auth.client] unwrapApiData(${label}) => data field missing`, {
     keys: Object.keys(record),
   });
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   throw new Error(`${label}: فیلد data در پاسخ پیدا نشد`);
 }
 
@@ -245,6 +251,19 @@ export async function completeUserFromMe(
 
     return me;
   } catch (error) {
+<<<<<<< HEAD
+    // console.warn(
+    //   "[auth.client] completeUserFromMe => getMe failed, fallback to register user",
+    //   error instanceof ApiError
+    //     ? {
+    //         status: error.status,
+    //         code: error.code,
+    //         message: error.message,
+    //         data: error.data,
+    //       }
+    //     : error,
+    // );
+=======
     console.warn(
       "[auth.client] completeUserFromMe => getMe failed, fallback to register user",
       error instanceof ApiError
@@ -256,6 +275,7 @@ export async function completeUserFromMe(
           }
         : error,
     );
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     return user;
   }
 }
@@ -400,6 +420,24 @@ export const register = async (
     return parsed;
   } catch (error) {
     if (error instanceof ApiError) {
+<<<<<<< HEAD
+      // console.error("[auth.client] register => ApiError", {
+      //   status: error.status,
+      //   code: error.code,
+      //   message: error.message,
+      //   data: error.data,
+      //   original:
+      //     error.original && typeof error.original === "object"
+      //       ? {
+      //           name: (error.original as Error).name,
+      //           message: (error.original as Error).message,
+      //           code: (error.original as { code?: string }).code,
+      //         }
+      //       : error.original,
+      // });
+    } else {
+      // console.error("[auth.client] register => unexpected error", error);
+=======
       console.error("[auth.client] register => ApiError", {
         status: error.status,
         code: error.code,
@@ -416,6 +454,7 @@ export const register = async (
       });
     } else {
       console.error("[auth.client] register => unexpected error", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     }
     throw error;
   }
@@ -671,12 +710,21 @@ export const uploadAvatar = async (
     };
   } catch (error) {
     if (error instanceof ApiError) {
+<<<<<<< HEAD
+      // console.error("[auth.client] uploadAvatar error body =>", {
+      //   status: error.status,
+      //   code: error.code,
+      //   message: error.message,
+      //   data: error.data,
+      // });
+=======
       console.error("[auth.client] uploadAvatar error body =>", {
         status: error.status,
         code: error.code,
         message: error.message,
         data: error.data,
       });
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     }
     throw error;
   }
@@ -699,6 +747,16 @@ export const deleteAvatar = async (): Promise<AvatarUploadResponse> => {
       errorMessage: pickString(record, ["errorMessage", "error"]) ?? null,
     };
   } catch (error) {
+<<<<<<< HEAD
+    // console.error("[auth.client] deleteAvatar failed =>", error);
+    if (error instanceof ApiError) {
+      // console.error("[auth.client] deleteAvatar error body =>", {
+      //   status: error.status,
+      //   code: error.code,
+      //   message: error.message,
+      //   data: error.data,
+      // });
+=======
     console.error("[auth.client] deleteAvatar failed =>", error);
     if (error instanceof ApiError) {
       console.error("[auth.client] deleteAvatar error body =>", {
@@ -707,6 +765,7 @@ export const deleteAvatar = async (): Promise<AvatarUploadResponse> => {
         message: error.message,
         data: error.data,
       });
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     }
     throw error;
   }
@@ -775,7 +834,11 @@ function unwrapEmailActionResponse<T>(payload: unknown, label: string): T {
   try {
     return unwrapApiData<T>(payload, label);
   } catch {
+<<<<<<< HEAD
+    // console.warn(`[auth.client] ${label}: fallback to raw payload`);
+=======
     console.warn(`[auth.client] ${label}: fallback to raw payload`);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     return (payload && typeof payload === "object" ? payload : {}) as T;
   }
 }

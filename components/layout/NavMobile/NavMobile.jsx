@@ -42,7 +42,11 @@ export default function NavMobile() {
         const data = await getMegaMenu();
         if (mounted) setMenu(data);
       } catch (error) {
+<<<<<<< HEAD
+        // console.error("[NavMobile] failed to load category menu:", error);
+=======
         console.error("[NavMobile] failed to load category menu:", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         if (mounted) setMenu([]);
       }
     }

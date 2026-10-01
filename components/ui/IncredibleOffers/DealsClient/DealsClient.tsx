@@ -250,7 +250,11 @@ export default function DealsClient({
           };
         });
       } catch (error) {
+<<<<<<< HEAD
+        // console.error("Load more amazing products error:", error);
+=======
         console.error("Load more amazing products error:", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         setLoadMoreError("خطا در بارگذاری محصولات بیشتر");
       } finally {
         if (inFlightPageRef.current === nextPage) {

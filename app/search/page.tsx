@@ -36,7 +36,11 @@ export default async function SearchPage({ searchParams }: Props) {
   try {
     result = await getSearchProductsFromSearchParams(resolvedSearchParams);
   } catch (error) {
+<<<<<<< HEAD
+    // console.error("[SearchPage] search failed =>", error);
+=======
     console.error("[SearchPage] search failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     errorMessage =
       error instanceof Error ? error.message : "خطا در دریافت نتایج جستجو";
     result = {

@@ -28,6 +28,36 @@ export type CheckoutApiErrorItem = {
   code?: string;
 };
 
+<<<<<<< HEAD
+export type PendingCheckoutOrderItem = {
+  orderItemId: string;
+  productTitle: string;
+  variantTitle: string;
+  quantity: number;
+  imageUrl: string | null;
+};
+
+export type PendingCheckoutOrderAllowedActions = {
+  canContinuePayment: boolean;
+  canChangeProvider: boolean;
+  canCancel: boolean;
+};
+
+export type PendingCheckoutOrder = {
+  orderId: string;
+  publicOrderNumber: string;
+  payableAmount: number;
+  createdAt: string | null;
+  expiresAt: string | null;
+  remainingSeconds: number;
+  providerCode: string | null;
+  displayStatus: string;
+  items: PendingCheckoutOrderItem[];
+  allowedActions: PendingCheckoutOrderAllowedActions;
+};
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 export type CheckoutShippingMethod = {
   id: string;
   shippingMethodId: string;
@@ -80,8 +110,15 @@ export type PlaceOrderShippingAddress = {
   recipientFirstName?: string;
   recipientLastName?: string;
   mobile?: string;
+<<<<<<< HEAD
+  phone: string;
+  email: string;
+  latitude: number;
+  longitude: number;
+=======
   phone?: string;
   email?: string;
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 };
 
 export type PlaceOrderShippingSelection = {

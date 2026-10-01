@@ -32,13 +32,21 @@ interface AuthState {
     flowToken: string, 
     phone: string, 
     maskedPhone: string,
+<<<<<<< HEAD
+    deviceFingerPrint: string | null,
+=======
     deviceFingerPrint: string,
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     resendCooldownSeconds?: number
   ) => void;
   setLoginTwoFactorFlow: (
     twoFactorToken: string,
     otpSentTo: string | null,
+<<<<<<< HEAD
+    deviceFingerPrint: string | null,
+=======
     deviceFingerPrint: string,
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     resendCooldownSeconds?: number,
   ) => void;
   setPasswordResetFlow: (

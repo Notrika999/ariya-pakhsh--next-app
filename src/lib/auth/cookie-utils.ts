@@ -103,16 +103,30 @@ function pickDeviceId(data: unknown): string | undefined {
     if (typeof value === "string" && value.length > 0) return value;
   }
 
+<<<<<<< HEAD
+  const tokenWithDeviceId =
+    (typeof root.accessToken === "string" && root.accessToken) ||
+    (typeof root.AccessToken === "string" && root.AccessToken) ||
+    (typeof nested?.accessToken === "string" && nested.accessToken) ||
+    (typeof nested?.AccessToken === "string" && nested.AccessToken) ||
+=======
   const twoFactorToken =
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     (typeof root.twoFactorToken === "string" && root.twoFactorToken) ||
     (typeof nested?.twoFactorToken === "string" && nested.twoFactorToken) ||
     (typeof root.token === "string" && root.token) ||
     (typeof nested?.token === "string" && nested.token) ||
     undefined;
 
+<<<<<<< HEAD
+  if (!tokenWithDeviceId) return undefined;
+
+  const payload = decodeJwtPayload(tokenWithDeviceId);
+=======
   if (!twoFactorToken) return undefined;
 
   const payload = decodeJwtPayload(twoFactorToken);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const fromJwt = payload?.device_id ?? payload?.deviceId;
   return typeof fromJwt === "string" && fromJwt.length > 0 ? fromJwt : undefined;
 }
@@ -136,6 +150,30 @@ export function setDeviceIdFromBody(
   return true;
 }
 
+<<<<<<< HEAD
+export function setDeviceIdFromAccessToken(
+  response: NextResponse,
+  accessToken: string | undefined,
+): boolean {
+  if (!accessToken) return false;
+
+  const payload = decodeJwtPayload(accessToken);
+  const deviceId = payload?.device_id ?? payload?.deviceId;
+  if (typeof deviceId !== "string" || !deviceId.trim()) return false;
+
+  response.cookies.set(AUTH_COOKIE_NAMES.DEVICE_ID, deviceId.trim(), {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: 365 * 24 * 60 * 60,
+  });
+
+  return true;
+}
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 /**
  * بکندهای Bearer-based توکن را در body پاسخ برمی‌گردانند (نه Set-Cookie).
  * این تابع access/refresh/device را از body خوانده و به‌صورت HttpOnly cookie ست می‌کند.
@@ -203,19 +241,40 @@ export function setAuthCookiesFromBody(
   return didSet;
 }
 
+<<<<<<< HEAD
+export function clearAllAuthCookies(
+  response: NextResponse,
+  options: { preserveDeviceId?: boolean } = {},
+): void {
+  const names = new Set<string>([
+    AUTH_COOKIE_NAMES.ACCESS_TOKEN,
+    AUTH_COOKIE_NAMES.REFRESH_TOKEN,
+=======
 export function clearAllAuthCookies(response: NextResponse): void {
   const names = new Set<string>([
     AUTH_COOKIE_NAMES.ACCESS_TOKEN,
     AUTH_COOKIE_NAMES.REFRESH_TOKEN,
     AUTH_COOKIE_NAMES.DEVICE_ID,
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     AUTH_COOKIE_NAMES.AUTH_INDICATOR,
     AUTH_COOKIE_NAMES.ACCESS_EXPIRES_AT,
     LEGACY_AUTH_COOKIE_NAMES.ACCESS_TOKEN,
     LEGACY_AUTH_COOKIE_NAMES.REFRESH_TOKEN,
+<<<<<<< HEAD
+    LEGACY_AUTH_COOKIE_NAMES.AUTH_INDICATOR,
+  ]);
+
+  if (!options.preserveDeviceId) {
+    names.add(AUTH_COOKIE_NAMES.DEVICE_ID);
+    names.add(LEGACY_AUTH_COOKIE_NAMES.DEVICE_ID);
+  }
+
+=======
     LEGACY_AUTH_COOKIE_NAMES.DEVICE_ID,
     LEGACY_AUTH_COOKIE_NAMES.AUTH_INDICATOR,
   ]);
 
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   for (const name of names) {
     response.cookies.set(name, "", {
       httpOnly:

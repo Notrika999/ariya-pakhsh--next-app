@@ -45,6 +45,10 @@ interface Props {
   isLoading?: boolean;
   startTransition: TransitionStartFunction;
   onFilterNavigate?: (params: URLSearchParams) => void;
+<<<<<<< HEAD
+  onErrorRetry?: () => void;
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   timer?: boolean;
   sortOptions?: SortOption[];
   sortQueryParam?: string;
@@ -220,6 +224,10 @@ export default function ProductListSection({
   timer,
   startTransition,
   onFilterNavigate,
+<<<<<<< HEAD
+  onErrorRetry,
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   sortOptions,
   sortQueryParam = "sort",
   sortOptionToQuery,
@@ -416,7 +424,11 @@ export default function ProductListSection({
           ) : errorMessage ? (
             <ErrorState
               message={errorMessage}
+<<<<<<< HEAD
+              onRetry={onErrorRetry ?? (() => router.refresh())}
+=======
               onRetry={() => router.refresh()}
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             />
           ) : (
             <div className="mt-4 grid grid-cols-12 gap-2 [overflow-anchor:none]">

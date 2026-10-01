@@ -19,13 +19,21 @@ export default function HeaderTop() {
           }
         >
           <HeaderSearch
+<<<<<<< HEAD
+            className="order-2 block min-w-0 flex-1 text-left lg:hidden"
+=======
             className="order-2 block min-w-0 flex-1 lg:hidden"
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             inputClassName="h-10 w-full appearance-none rounded-xl border border-gray-200 bg-white py-2 pe-3 ps-9 text-[11px] font-semibold placeholder-gray-400 shadow-sm transition-colors duration-300 focus:border-gray-300 focus:outline-none focus:ring-1 focus:ring-gray-200 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:placeholder-gray-500 dark:focus:border-gray-600 dark:focus:ring-gray-700"
             buttonClassName="absolute right-2 rounded-lg p-1.5 text-gray-400 transition-colors hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-100"
             placeholder="جستجو در کارآپ"
             resultsClassName="fixed inset-x-3 top-[58px] z-50 overflow-hidden rounded-xl border border-gray-100 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.14)] transition-colors duration-300 dark:border-gray-800 dark:bg-custom-dark dark:shadow-[0_18px_45px_rgba(0,0,0,0.45)] lg:hidden"
             resultsVariant="mobile"
             resultsId="mobileHeaderSearchResults"
+<<<<<<< HEAD
+            mobileFullscreenUnder500
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           />
         </Suspense>
 

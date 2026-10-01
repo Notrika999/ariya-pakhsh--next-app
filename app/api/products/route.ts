@@ -79,7 +79,11 @@ export async function GET(request: NextRequest) {
       filterOptions: result.filterOptions,
     });
   } catch (error) {
+<<<<<<< HEAD
+    // console.error("API products error:", error);
+=======
     console.error("API products error:", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     if (error instanceof ProductServiceError) {
       return NextResponse.json(

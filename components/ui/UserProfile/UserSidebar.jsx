@@ -166,7 +166,11 @@ export default function UserSidebar({ variant = "desktop" }) {
       });
       return freshUser;
     } catch (error) {
+<<<<<<< HEAD
+      // console.error("[UserSidebar] getMe after avatar change failed =>", error);
+=======
       console.error("[UserSidebar] getMe after avatar change failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       if (fallbackAvatarUrl && user) {
         setUser({ ...user, avatarUrl: fallbackAvatarUrl });
       }
@@ -211,7 +215,11 @@ export default function UserSidebar({ variant = "desktop" }) {
       await refreshUserFromMe(result.avatarUrl);
       notify.success(result.message || "آواتار با موفقیت به‌روزرسانی شد");
     } catch (error) {
+<<<<<<< HEAD
+      // console.error("[UserSidebar] upload avatar failed =>", error);
+=======
       console.error("[UserSidebar] upload avatar failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
       setPreviewUrl(null);
     } finally {
@@ -239,7 +247,11 @@ export default function UserSidebar({ variant = "desktop" }) {
       }
       notify.success(result.message || "آواتار حذف شد");
     } catch (error) {
+<<<<<<< HEAD
+      // console.error("[UserSidebar] delete avatar failed =>", error);
+=======
       console.error("[UserSidebar] delete avatar failed =>", error);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
     } finally {
       setAvatarBusy(false);

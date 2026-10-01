@@ -5,6 +5,10 @@ import LoginModal from "@/components/modules/auth/LoginModal";
 import UserMenu from "@/components/modules/auth/UserMenu";
 import HeaderCart from "@/components/modules/HeaderCart/HeaderCart";
 import VehicleSelectorTrigger from "@/components/modules/VehicleSelector/VehicleSelectorTrigger";
+<<<<<<< HEAD
+import { usePathname } from "next/navigation";
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import React, {
   useEffect,
   useRef,
@@ -18,6 +22,8 @@ import {
 } from "@/src/lib/stores/auth/auth.store";
 
 export default function HeaderSetting() {
+  const pathname = usePathname();
+  const isProductDetailsPage = pathname.startsWith("/product/");
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== "undefined") {
       return localStorage.getItem("dark-mode") === "true";
@@ -27,9 +33,39 @@ export default function HeaderSetting() {
   const [cartOpen, setCartOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+<<<<<<< HEAD
+  const [cartAttentionActive, setCartAttentionActive] = useState(false);
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const { totalItems } = useCart();
+  const previousTotalItemsRef = useRef(totalItems);
+  const cartAttentionTimerRef = useRef<number | null>(null);
+
+  const user = useCurrentUser();
+  const isAuthenticated = useIsAuthenticated();
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+
+  const showUserMenu = mounted && isAuthenticated && Boolean(user);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      const clickedTrigger = menuRef.current?.contains(target);
+      const clickedMenu = (target as Element).closest?.("[data-user-menu]");
+      if (!clickedTrigger && !clickedMenu) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
 
   const user = useCurrentUser();
   const isAuthenticated = useIsAuthenticated();
@@ -60,6 +96,32 @@ export default function HeaderSetting() {
     localStorage.setItem("dark-mode", String(darkMode));
   }, [darkMode]);
 
+  useEffect(() => {
+    const previousTotalItems = previousTotalItemsRef.current;
+    previousTotalItemsRef.current = totalItems;
+
+    if (totalItems <= previousTotalItems) return;
+
+    setCartAttentionActive(true);
+
+    if (cartAttentionTimerRef.current) {
+      window.clearTimeout(cartAttentionTimerRef.current);
+    }
+
+    cartAttentionTimerRef.current = window.setTimeout(() => {
+      setCartAttentionActive(false);
+      cartAttentionTimerRef.current = null;
+    }, 30_000);
+  }, [totalItems]);
+
+  useEffect(() => {
+    return () => {
+      if (cartAttentionTimerRef.current) {
+        window.clearTimeout(cartAttentionTimerRef.current);
+      }
+    };
+  }, []);
+
   const toggleDarkMode = () => {
     setDarkMode((prev) => !prev);
   };
@@ -67,7 +129,11 @@ export default function HeaderSetting() {
     <div className="order-3 col-span-6 w-auto lg:col-span-4 lg:w-full">
       <div className="flex items-baseline justify-end">
         {/* basket and call and darkmode  */}
+<<<<<<< HEAD
+        <div className="flex items-center gap-x-2 md:me-2 me-0">
+=======
         <div className="flex items-center gap-x-4 md:me-5 me-0">
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           {/* heart  */}
           {/* <a href="" className="hidden">
             <i className="fa-regular fa-heart"></i>
@@ -81,21 +147,40 @@ export default function HeaderSetting() {
           </span>
 
           {/* basket  */}
-          <div
+          <button
+            type="button"
             onClick={() => setCartOpen(true)}
+<<<<<<< HEAD
+            className={[
+              "relative ms-2 cursor-pointer items-center justify-center",
+              isProductDetailsPage ? "flex" : "hidden lg:flex",
+              cartAttentionActive ? "cart-header-attention" : "",
+            ].join(" ")}
+            aria-label="نمایش سبد خرید"
+=======
             className="relative ms-2 hidden lg:flex"
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           >
             <i className="fa-regular fa-bag-shopping"></i>
 
             {totalItems > 0 && (
-              <span className="size-4 text-sm -top-2 -inset-s-2 absolute bg-secondary dark:bg-primary-400 text-white dark:text-gray-100 rounded-lg text-center shadow-sm dark:shadow-[0_0_4px_rgba(255,255,255,0.2)] transition-colors duration-300">
+              <span
+                className={[
+                  "absolute -top-2 -inset-s-2 size-4 rounded-lg bg-secondary text-center text-sm text-white shadow-sm transition-colors duration-300 dark:bg-primary-400 dark:text-gray-100 dark:shadow-[0_0_4px_rgba(255,255,255,0.2)]",
+                  cartAttentionActive ? "cart-header-badge-attention" : "",
+                ].join(" ")}
+              >
                 {totalItems > 99 ? "99+" : totalItems}
               </span>
             )}
+<<<<<<< HEAD
+          </button>
+=======
           </div>
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
           {/* dark mode  */}
-          <div className="md:ms-5 ">
+          <div className="md:ms-2 ">
             <button onClick={toggleDarkMode} className="cursor-pointer">
               <svg
                 xmlns="http://www.w3.org/2000/svg"

@@ -120,10 +120,17 @@ export default function UserInformationSecuritySettings({
             : "احراز هویت دو مرحله‌ای غیرفعال شد."),
       );
     } catch (error) {
+<<<<<<< HEAD
+      // console.error(
+      //   "[UserInformationSecuritySettings] handleTwoFactorToggle error =>",
+      //   error,
+      // );
+=======
       console.error(
         "[UserInformationSecuritySettings] handleTwoFactorToggle error =>",
         error,
       );
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setTwoFactorEnabled(previous);
       setTwoFactorError(getAuthErrorMessage(error));
     } finally {
@@ -168,10 +175,17 @@ export default function UserInformationSecuritySettings({
       );
       return true;
     } catch (error) {
+<<<<<<< HEAD
+      // console.error(
+      //   "[UserInformationSecuritySettings] sendVerificationCode => error",
+      //   error,
+      // );
+=======
       console.error(
         "[UserInformationSecuritySettings] sendVerificationCode => error",
         error,
       );
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setEmailError(getAuthErrorMessage(error));
       return false;
     } finally {
@@ -233,10 +247,17 @@ export default function UserInformationSecuritySettings({
       setVerificationCode("");
       setEmailSuccess(result.message ?? "ایمیل شما با موفقیت تایید شد.");
     } catch (error) {
+<<<<<<< HEAD
+      // console.error(
+      //   "[UserInformationSecuritySettings] handleVerifyEmailCode => error",
+      //   error,
+      // );
+=======
       console.error(
         "[UserInformationSecuritySettings] handleVerifyEmailCode => error",
         error,
       );
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setEmailError(getAuthErrorMessage(error));
     } finally {
       setEmailLoading(false);

@@ -111,6 +111,8 @@ export const AUTH_ONLY_ROUTES = ["/login"] as const;
 
 export const CSRF_HEADER = "x-csrf-protection" as const;
 
+export const SESSION_INVALID_HEADER = "x-session-invalid" as const;
+
 export const SUPER_ADMIN_ROLE = ROLES.SUPER_ADMIN;
 
 export const STAMP_SYNC = {

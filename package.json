@@ -1,12 +1,17 @@
 {
   "name": "carup24",
+<<<<<<< HEAD
+  "version": "1.5.0",
+=======
   "version": "1.0.0",
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:attribution": "node scripts/run-attribution-tests.mjs"
   },
   "dependencies": {
     "@fingerprintjs/fingerprintjs": "^5.2.0",
@@ -18,7 +23,7 @@
     "axios": "^1.16.1",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.17.0",
-    "next": "16.2.4",
+    "next": "16.3.3",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-easy-crop": "^6.0.2",
@@ -39,7 +44,11 @@
     "@types/react-dom": "^19",
     "esbuild": "^0.28.1",
     "eslint": "^9",
+<<<<<<< HEAD
+    "eslint-config-next": "16.3.3",
+=======
     "eslint-config-next": "16.2.4",
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     "serwist": "^9.5.11",
     "tailwindcss": "^4",
     "typescript": "^5"

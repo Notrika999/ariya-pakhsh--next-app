@@ -10,6 +10,13 @@ import { getBrowserFingerprint } from "@/src/lib/helper/fingerprint";
 import { ApiError } from "@/src/lib/http/api-client";
 import { useAuthStore } from "@/src/lib/stores/auth/auth.store";
 import { notify } from "@/src/utils/toast";
+<<<<<<< HEAD
+import {
+  readCachedPhoneAuthFlow,
+  writeCachedPhoneAuthFlow,
+} from "@/src/lib/auth/phone-auth-flow-cache";
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 interface StepMobileProps {
   mobile: string;
@@ -59,10 +66,14 @@ export default function StepMobile({ mobile, setMobile, onNext }: StepMobileProp
   const [error, setError] = useState<string | null>(null);
 
   const {
+<<<<<<< HEAD
+    deviceFingerPrint: storedDeviceFingerPrint,
+=======
     flowToken: storedFlowToken,
     maskedPhone: storedMaskedPhone,
     deviceFingerPrint: storedDeviceFingerPrint,
     resendCooldownSeconds: storedResendCooldownSeconds,
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     setAuthFlow,
   } = useAuthStore();
 
@@ -75,18 +86,28 @@ export default function StepMobile({ mobile, setMobile, onNext }: StepMobileProp
     setLoading(true);
     setError(null);
 
+<<<<<<< HEAD
+    let deviceFingerPrint = storedDeviceFingerPrint;
+=======
     let deviceFingerPrint = storedDeviceFingerPrint ?? "device-id";
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     try {
       const fingerprint = await getBrowserFingerprint();
       deviceFingerPrint = fingerprint?.visitorId ?? deviceFingerPrint;
 
+<<<<<<< HEAD
+      const response = await startPhoneAuth({
+        phoneNumber: mobile,
+        deviceFingerPrint: deviceFingerPrint ?? undefined,
+=======
 
 
       const response = await startPhoneAuth({
         phoneNumber: mobile,
         deviceFingerPrint,
         
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       });
 
   
@@ -116,10 +137,25 @@ export default function StepMobile({ mobile, setMobile, onNext }: StepMobileProp
         maskedPhone: response.maskedPhone,
         deviceFingerPrint,
         resendCooldownSeconds: response.resendCooldownSeconds,
+<<<<<<< HEAD
+        expiresAt:
+          Date.now() +
+          Math.max(
+            response.otpExpiresInSeconds ?? 0,
+            response.resendCooldownSeconds ?? 0,
+            120,
+          ) *
+            1000,
+      });
+      onNext();
+    } catch (err) {
+      // console.error("[StepMobile] start failed =>", err);
+=======
       });
       onNext();
     } catch (err) {
       console.error("[StepMobile] start failed =>", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       const message = getAuthErrorMessage(err);
 
       if (err instanceof ApiError && err.status === 429) {
@@ -127,6 +163,17 @@ export default function StepMobile({ mobile, setMobile, onNext }: StepMobileProp
 
         const authState = useAuthStore.getState();
         const cachedFlow = readCachedPhoneAuthFlow();
+<<<<<<< HEAD
+        const activeFlow = cachedFlow?.phone === mobile ? cachedFlow : null;
+
+        if (activeFlow) {
+          setAuthFlow(
+            activeFlow.flowToken,
+            mobile,
+            activeFlow.maskedPhone,
+            authState.deviceFingerPrint ?? activeFlow.deviceFingerPrint,
+            activeFlow.resendCooldownSeconds,
+=======
         const activeFlowToken =
           authState.flowToken ??
           storedFlowToken ??
@@ -147,6 +194,7 @@ export default function StepMobile({ mobile, setMobile, onNext }: StepMobileProp
               storedResendCooldownSeconds ??
               cachedFlow?.resendCooldownSeconds ??
               120,
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           );
           onNext();
         }

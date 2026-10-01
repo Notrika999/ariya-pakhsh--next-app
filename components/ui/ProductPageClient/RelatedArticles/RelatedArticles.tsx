@@ -23,6 +23,8 @@ type SliderState = {
   isEnd: boolean;
 };
 
+<<<<<<< HEAD
+=======
 function formatReadingTime(minutes?: number | null) {
   if (!minutes || minutes <= 0) return null;
 
@@ -42,6 +44,7 @@ function formatPublishedDate(value?: string | null) {
   }).format(date);
 }
 
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function getArticleHref(article: ProductRelatedArticle) {
   return `/mag/${encodeURIComponent(article.slug)}`;
 }
@@ -50,22 +53,42 @@ function RelatedArticleCard({ article }: { article: ProductRelatedArticle }) {
   const image = getProductImage(
     article.featuredImageThumbnailUrl ?? article.featuredImageUrl,
   );
+<<<<<<< HEAD
+=======
   const metaParts = [
     formatReadingTime(article.readingTimeMinutes),
     formatPublishedDate(article.publishedAt),
   ].filter(Boolean);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   return (
     <article className="h-full min-w-0">
       <Link
         href={getArticleHref(article)}
+<<<<<<< HEAD
+        className="group flex h-full min-h-24 items-center gap-3 overflow-hidden rounded-lg border border-gray-200 bg-white p-2 transition-colors hover:border-primary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-gray-700 dark:bg-custom-dark"
+      >
+        <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-md bg-gray-100 sm:w-28 dark:bg-zinc-800">
+=======
         className="group flex h-full flex-col overflow-hidden rounded-lg border border-gray-200 bg-white transition-colors hover:border-primary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-gray-700 dark:bg-custom-dark"
       >
         <div className="relative aspect-video overflow-hidden bg-gray-100 dark:bg-zinc-800">
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           <Image
             src={image}
             alt={article.featuredImageAlt || article.title}
             fill
+<<<<<<< HEAD
+            sizes="(max-width: 639px) 96px, 112px"
+            className="object-contain p-1 transition-transform duration-300 group-hover:scale-[1.03]"
+          />
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <h3 className="line-clamp-2 text-xs font-bold leading-6 text-gray-900 sm:text-[13px] dark:text-gray-100">
+            {article.title}
+          </h3>
+=======
             sizes="(max-width: 767px) 90vw, (max-width: 1023px) 45vw, 320px"
             className="object-contain p-1 transition-transform duration-300 group-hover:scale-[1.03]"
           />
@@ -104,6 +127,7 @@ function RelatedArticleCard({ article }: { article: ProductRelatedArticle }) {
               ))}
             </p>
           ) : null}
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         </div>
       </Link>
     </article>

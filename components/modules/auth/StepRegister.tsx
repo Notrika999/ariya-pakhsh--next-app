@@ -102,9 +102,15 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
   const handleSubmit = async () => {
     if (!validate()) return;
     if (!registrationToken) {
+<<<<<<< HEAD
+      // console.error("[StepRegister] missing registrationToken", {
+      //   hasDeviceFingerPrint: Boolean(deviceFingerPrint),
+      // });
+=======
       console.error("[StepRegister] missing registrationToken", {
         hasDeviceFingerPrint: Boolean(deviceFingerPrint),
       });
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setErrors({ general: "توکن ثبت‌نام معتبر نیست. لطفاً دوباره تلاش کنید" });
       return;
     }
@@ -120,7 +126,11 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
         email: form.email.trim(),
         password: form.password,
         confirmPassword: form.confirmPassword,
+<<<<<<< HEAD
+        deviceFingerPrint,
+=======
         deviceFingerPrint: deviceFingerPrint ?? "device-id",
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       });
 
       if (!result.success) {
@@ -129,7 +139,11 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
       }
 
       if (!result.userInfoDto) {
+<<<<<<< HEAD
+        // console.error("[StepRegister] missing userInfoDto in register result", result);
+=======
         console.error("[StepRegister] missing userInfoDto in register result", result);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         setErrors({ general: "اطلاعات کاربر از سرور دریافت نشد" });
         return;
       }
@@ -140,6 +154,28 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
       clearAuthFlow();
       onSuccess();
     } catch (err: unknown) {
+<<<<<<< HEAD
+      // console.error("[StepRegister] submit failed", {
+      //   isApiError: err instanceof ApiError,
+      //   name: err instanceof Error ? err.name : typeof err,
+      //   message: err instanceof Error ? err.message : String(err),
+      //   ...(err instanceof ApiError
+      //     ? {
+      //         status: err.status,
+      //         code: err.code,
+      //         data: err.data,
+      //         original:
+      //           err.original && typeof err.original === "object"
+      //             ? {
+      //                 name: (err.original as Error).name,
+      //                 message: (err.original as Error).message,
+      //                 code: (err.original as { code?: string }).code,
+      //               }
+      //             : err.original,
+      //       }
+      //     : { raw: err }),
+      // });
+=======
       console.error("[StepRegister] submit failed", {
         isApiError: err instanceof ApiError,
         name: err instanceof Error ? err.name : typeof err,
@@ -160,6 +196,7 @@ export default function StepRegister({ onSuccess }: StepRegisterProps) {
             }
           : { raw: err }),
       });
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
       if (err instanceof ApiError) {
         const data = err.data as

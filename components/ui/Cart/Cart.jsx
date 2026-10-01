@@ -1,6 +1,10 @@
 "use client";
 // components/ui/Cart/Cart.jsx
 import Image from "next/image";
+<<<<<<< HEAD
+import { useRouter } from "next/navigation";
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import React, { useMemo, useState } from "react";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 import Link from "next/link";
@@ -17,6 +21,10 @@ function getDiscountPercent(price, oldPrice) {
 }
 
 export default function Cart() {
+<<<<<<< HEAD
+  const router = useRouter();
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const {
     items,
     totalItems,
@@ -82,6 +90,18 @@ export default function Cart() {
     }
   };
 
+<<<<<<< HEAD
+  const handleCheckout = async () => {
+    if (!cartSync.canCheckout) return;
+
+    const cartIsCurrent = await cartSync.checkCart();
+    if (cartIsCurrent) {
+      router.push("/checkout");
+    }
+  };
+
+=======
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   if (loading || syncing) {
     return (
       <>
@@ -328,6 +348,32 @@ export default function Cart() {
               </div>
             </div>
 
+<<<<<<< HEAD
+            <button
+              type="button"
+              disabled={!cartSync.canCheckout}
+              onClick={() => void handleCheckout()}
+              className={`flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 font-medium transition-colors duration-200 ${
+                cartSync.canCheckout
+                  ? "bg-primary text-white hover:bg-primary-600"
+                  : "cursor-not-allowed bg-gray-300 text-gray-600 dark:bg-gray-700 dark:text-gray-300"
+              }`}
+            >
+              {cartSync.checking ? (
+                <i
+                  className="far fa-spinner-third animate-spin"
+                  aria-hidden="true"
+                />
+              ) : (
+                <i className="far fa-credit-card" aria-hidden="true" />
+              )}
+              {cartSync.checking
+                ? "در حال بررسی سبد خرید"
+                : cartSync.canCheckout
+                  ? "ادامه فرآیند پرداخت"
+                  : "ابتدا وضعیت سبد را تأیید کنید"}
+            </button>
+=======
             {cartSync.canCheckout ? (
               <Link
                 href="/checkout"
@@ -353,6 +399,7 @@ export default function Cart() {
                   : "ابتدا وضعیت سبد را تأیید کنید"}
               </button>
             )}
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           </div>
         </div>
       </div>

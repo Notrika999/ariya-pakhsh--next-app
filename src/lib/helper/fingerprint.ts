@@ -3,7 +3,7 @@ import FingerprintJS from '@fingerprintjs/fingerprintjs'
 import { json } from 'stream/consumers'
 
 // Cache در Memory
-let fpPromise: Promise<any> | null = null
+let fpPromise: ReturnType<typeof FingerprintJS.load> | null = null
 
 // کلید LocalStorage
 const STORAGE_KEY = 'device_fingerprint'
@@ -11,8 +11,24 @@ const STORAGE_KEY = 'device_fingerprint'
 interface CachedFingerprint {
   visitorId: string
   confidence: number
-  components: any
+  components: Record<string, unknown>
   createdAt: number // فقط برای اطلاعات - نه برای انقضا
+}
+
+interface NavigatorWithDeviceMemory extends Navigator {
+  deviceMemory?: number
+}
+
+function componentValue(component: unknown): unknown {
+  if (
+    component &&
+    typeof component === 'object' &&
+    'value' in component
+  ) {
+    return component.value
+  }
+
+  return undefined
 }
 
 /**
@@ -26,7 +42,7 @@ function getFingerprintFromStorage(): CachedFingerprint | null {
 
     return JSON.parse(stored)
   } catch (error) {
-    console.error('Error reading fingerprint from storage:', error)
+    // console.error('Error reading fingerprint from storage:', error)
     clearFingerprintFromStorage()
     return null
   }
@@ -39,7 +55,7 @@ function saveFingerprintToStorage(data: CachedFingerprint): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
   } catch (error) {
-    console.error('Error saving fingerprint to storage:', error)
+    // console.error('Error saving fingerprint to storage:', error)
   }
 }
 
@@ -60,17 +76,18 @@ async function generateNewFingerprint(): Promise<CachedFingerprint> {
 
   const fp = await fpPromise
   const result = await fp.get()
+  const components = result.components as Record<string, unknown>
 
   const fingerprintData: CachedFingerprint = {
     visitorId: result.visitorId,
     confidence: result.confidence.score,
     components: {
-      canvas: result.components.canvas?.value,
-      webgl: result.components.webgl?.value,
-      audio: result.components.audio?.value,
-      fonts: result.components.fonts?.value,
-      platform: result.components.platform?.value,
-      screen: result.components.screenResolution?.value
+      canvas: componentValue(components.canvas),
+      webgl: componentValue(components.webgl),
+      audio: componentValue(components.audio),
+      fonts: componentValue(components.fonts),
+      platform: componentValue(components.platform),
+      screen: componentValue(components.screenResolution)
     },
     createdAt: Date.now()
   }
@@ -98,7 +115,7 @@ export async function getBrowserFingerprint() {
 
     return newFingerprint
   } catch (error) {
-    console.error('Error generating fingerprint:', error)
+    // console.error('Error generating fingerprint:', error)
     return null
   }
 }
@@ -113,7 +130,7 @@ export async function refreshFingerprint(): Promise<CachedFingerprint | null> {
 
     return await generateNewFingerprint()
   } catch (error) {
-    console.error('Error refreshing fingerprint:', error)
+    // console.error('Error refreshing fingerprint:', error)
     return null
   }
 }
@@ -128,7 +145,7 @@ export function getDeviceInfo() {
     languages: navigator.languages,
     platform: navigator.platform,
     hardwareConcurrency: navigator.hardwareConcurrency,
-    deviceMemory: (navigator as any).deviceMemory,
+    deviceMemory: (navigator as NavigatorWithDeviceMemory).deviceMemory,
     screen: {
       width: window.screen.width,
       height: window.screen.height,

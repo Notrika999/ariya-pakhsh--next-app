@@ -3,6 +3,7 @@ import {
   BrandFilterOption,
   CategoryFilterOption,
 } from "./filters/filters";
+import type { MagazinePost } from "./magazine/magazine.types";
 
 export interface Product {
   id: number | string;
@@ -32,6 +33,7 @@ export interface ProductResponse {
   onSaleProducts?: Product[];
   topCategories?: ProductIndexCategory[];
   topBrands?: ProductIndexBrand[];
+  latestArticles?: MagazinePost[];
 }
 
 export interface ProductIndexCategory {
@@ -49,15 +51,41 @@ export interface ProductIndexBrand {
   name: string;
   slug: string;
   productCount: number;
+  logoSmUrl?: string | null;
+  mediaId?: string | null;
+}
+
+export interface ProductIndexArticle {
+  articleId: string;
+  title: string;
+  slug: string;
+  canonicalUrl?: string | null;
+  excerpt?: string | null;
+  articleType?: number | string | null;
+  featuredImageId?: string | null;
+  featuredImageUrl?: string | null;
+  featuredImageThumbnailUrl?: string | null;
+  featuredImageAlt?: string | null;
+  categoryId?: string | null;
+  categoryTitle?: string | null;
+  categorySlug?: string | null;
+  authorId?: string | null;
+  authorName?: string | null;
+  authorSlug?: string | null;
+  publishedAt?: string | null;
+  updatedAt?: string | null;
+  readingTimeMinutes?: number | null;
+  viewCount?: number | null;
 }
 
 export interface ProductIndexData {
-  featuredProducts: Product[];
-  newestProducts: Product[];
-  bestSellingProducts: Product[];
-  onSaleProducts: Product[];
-  topCategories: ProductIndexCategory[];
-  topBrands: ProductIndexBrand[];
+  featuredProducts?: Product[];
+  newestProducts?: Product[];
+  bestSellingProducts?: Product[];
+  onSaleProducts?: Product[];
+  topCategories?: ProductIndexCategory[];
+  topBrands?: ProductIndexBrand[];
+  latestArticles?: ProductIndexArticle[];
 }
 
 // Products List Category
@@ -184,6 +212,8 @@ export interface Brand {
   name: string;
   slug?: string;
   productCount?: number;
+  logoSmUrl?: string | null;
+  mediaId?: string | null;
 }
 
 export interface HomeProduct {

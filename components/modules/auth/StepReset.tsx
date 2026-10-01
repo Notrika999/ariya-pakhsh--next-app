@@ -39,10 +39,13 @@ export default function StepReset({ onSuccess, onBack }: StepResetProps) {
   );
 
   useEffect(() => {
+<<<<<<< HEAD
+=======
     setCooldown(passwordResetResendCooldownSeconds ?? 0);
   }, [passwordResetResendCooldownSeconds]);
 
   useEffect(() => {
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     if (cooldown <= 0) return;
     const timer = window.setInterval(() => {
       setCooldown((value) => (value > 0 ? value - 1 : 0));
@@ -97,7 +100,11 @@ export default function StepReset({ onSuccess, onBack }: StepResetProps) {
       setSuccessMessage(result.message ?? "رمز عبور با موفقیت تغییر کرد");
       window.setTimeout(() => onSuccess(), 800);
     } catch (err) {
+<<<<<<< HEAD
+      // console.error("[StepReset] reset password failed:", err);
+=======
       console.error("[StepReset] reset password failed:", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setError(getAuthErrorMessage(err));
     } finally {
       setLoading(false);
@@ -134,9 +141,16 @@ export default function StepReset({ onSuccess, onBack }: StepResetProps) {
         result.maskedDestination ?? passwordResetMaskedDestination,
         result.resendCooldownSeconds,
       );
+<<<<<<< HEAD
+      setCooldown(result.resendCooldownSeconds ?? 0);
+      setSuccessMessage("کد بازیابی مجدداً ارسال شد");
+    } catch (err) {
+      // console.error("[StepReset] resend failed:", err);
+=======
       setSuccessMessage("کد بازیابی مجدداً ارسال شد");
     } catch (err) {
       console.error("[StepReset] resend failed:", err);
+>>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setError(getAuthErrorMessage(err));
     } finally {
       setResendLoading(false);
