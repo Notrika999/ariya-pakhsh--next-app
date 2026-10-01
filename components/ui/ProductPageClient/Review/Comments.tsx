@@ -1,6 +1,5 @@
 "use client";
 // components/ui/ProductPageClient/Review/Comments.tsx
-<<<<<<< HEAD
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   completeReviewMediaUpload,
@@ -15,37 +14,21 @@ import {
   getProductReviewsSummary,
   reportProductReview,
   uploadReviewMediaContent,
-=======
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  createProductReview,
-  deleteProductReview,
-  getProductReviews,
-  getProductReviewsSummary,
-  reportProductReview,
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   voteProductReview,
 } from "@/src/services/product/review.client";
 import type {
   ProductReview,
-<<<<<<< HEAD
   ProductReviewMedia,
   ProductReviewMediaType,
   ProductReviewsSummary,
   ReviewMediaCapabilities,
-=======
-  ProductReviewsSummary,
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   ReviewRecommendStatus,
   ReviewVoteType,
 } from "@/src/lib/types/products/review.types";
 import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
 import { useAuthStore } from "@/src/lib/stores/auth/auth.store";
 import { notify } from "@/src/utils/toast";
-<<<<<<< HEAD
 import { getProductImage } from "@/src/utils/product-image";
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 type CommentsProps = {
   productId: string;
@@ -55,7 +38,6 @@ type CommentsProps = {
 
 const PAGE_SIZE = 10;
 const DEFAULT_REVIEW_RATING = 5;
-<<<<<<< HEAD
 const REVIEW_MEDIA_POLL_INTERVAL_MS = 2000;
 const REVIEW_MEDIA_MAX_POLL_ATTEMPTS = 60;
 
@@ -76,8 +58,6 @@ type UploadItem = {
   status: UploadStatus;
   error?: string;
 };
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 const REPORT_REASONS = [
   "محتوای نامناسب",
@@ -87,7 +67,6 @@ const REPORT_REASONS = [
   "سایر",
 ];
 
-<<<<<<< HEAD
 function createUploadItemId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
@@ -226,8 +205,6 @@ function validateFiles(
   }
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function formatReviewDate(value: string): string {
   if (!value) return "";
   const date = new Date(value);
@@ -323,7 +300,6 @@ function TagInput({
   );
 }
 
-<<<<<<< HEAD
 function ReviewMediaGallery({ mediaItems }: { mediaItems: ProductReviewMedia[] }) {
   const [activeMedia, setActiveMedia] = useState<ProductReviewMedia | null>(null);
   const [expanded, setExpanded] = useState(false);
@@ -499,8 +475,6 @@ function ReviewMediaGallery({ mediaItems }: { mediaItems: ProductReviewMedia[] }
   );
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function ReviewCard({
   review,
   currentUserId,
@@ -552,11 +526,7 @@ function ReviewCard({
       );
 
     } catch (error) {
-<<<<<<< HEAD
       // console.error("[Comments] vote failed =>", error);
-=======
-      console.error("[Comments] vote failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
     } finally {
       setVoting(false);
@@ -565,15 +535,11 @@ function ReviewCard({
 
   const handleDelete = async () => {
     if (deleting) return;
-<<<<<<< HEAD
     const confirmed = await notify.confirm("آیا از حذف این نظر مطمئن هستید؟", {
       confirmLabel: "حذف نظر",
       cancelLabel: "انصراف",
     });
     if (!confirmed) return;
-=======
-    if (!window.confirm("آیا از حذف این نظر مطمئن هستید؟")) return;
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     setDeleting(true);
     try {
@@ -581,11 +547,7 @@ function ReviewCard({
       onDeleted(review.id);
       notify.success("نظر حذف شد");
     } catch (error) {
-<<<<<<< HEAD
       // console.error("[Comments] delete failed =>", error);
-=======
-      console.error("[Comments] delete failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
     } finally {
       setDeleting(false);
@@ -609,11 +571,7 @@ function ReviewCard({
       setReportOpen(false);
       setReportDescription("");
     } catch (error) {
-<<<<<<< HEAD
       // console.error("[Comments] report failed =>", error);
-=======
-      console.error("[Comments] report failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
     } finally {
       setReporting(false);
@@ -670,11 +628,8 @@ function ReviewCard({
           {review.body}
         </p>
 
-<<<<<<< HEAD
         <ReviewMediaGallery mediaItems={review.media} />
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         {(review.advantages.length > 0 || review.disadvantages.length > 0) && (
           <div className="mb-5 space-y-1">
             {review.advantages.map((item) => (
@@ -835,14 +790,10 @@ export default function Comments({
   reviewCount,
 }: CommentsProps) {
   const currentUser = useAuthStore((state) => state.user);
-<<<<<<< HEAD
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const currentUserId = currentUser?.userId ?? currentUser?.id ?? null;
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const uploadItemsRef = useRef<UploadItem[]>([]);
-=======
-  const currentUserId = currentUser?.userId ?? currentUser?.id ?? null;
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   const [reviews, setReviews] = useState<ProductReview[]>([]);
   const [summary, setSummary] = useState<ProductReviewsSummary | null>(null);
@@ -854,7 +805,6 @@ export default function Comments({
   const [loadingMore, setLoadingMore] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-<<<<<<< HEAD
   const [mediaCapabilities, setMediaCapabilities] =
     useState<ReviewMediaCapabilities | null>(null);
   const [mediaCapabilitiesLoading, setMediaCapabilitiesLoading] =
@@ -865,18 +815,12 @@ export default function Comments({
   const [uploadItems, setUploadItems] = useState<UploadItem[]>([]);
 
   const [rating, setRating] = useState(DEFAULT_REVIEW_RATING);
-=======
-
-  const [rating, setRating] = useState(DEFAULT_REVIEW_RATING);
-  const [title, setTitle] = useState("");
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const [body, setBody] = useState("");
   const [advantages, setAdvantages] = useState<string[]>([]);
   const [disadvantages, setDisadvantages] = useState<string[]>([]);
   const [recommendStatus, setRecommendStatus] =
     useState<ReviewRecommendStatus>("neutral");
 
-<<<<<<< HEAD
   useEffect(() => {
     uploadItemsRef.current = uploadItems;
   }, [uploadItems]);
@@ -889,8 +833,6 @@ export default function Comments({
     };
   }, []);
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const ratingDistribution = useMemo(() => {
     const total = summary?.totalReviews || 1;
     const counts = [
@@ -915,7 +857,6 @@ export default function Comments({
   const displayTotal =
     summary?.totalReviews ?? totalCount ?? reviewCount ?? reviews.length;
 
-<<<<<<< HEAD
   const mediaAccept = useMemo(() => {
     if (!mediaCapabilities) return undefined;
 
@@ -957,8 +898,6 @@ export default function Comments({
     .filter((item) => item.status === "ready" && item.mediaId)
     .map((item) => item.mediaId as string);
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const loadSummary = useCallback(async () => {
     if (!productId) return;
     try {
@@ -966,11 +905,7 @@ export default function Comments({
       setSummary(result);
       setTotalCount(result.totalReviews);
     } catch (err) {
-<<<<<<< HEAD
       // console.error("[Comments] loadSummary failed =>", err);
-=======
-      console.error("[Comments] loadSummary failed =>", err);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     }
   }, [productId]);
 
@@ -999,11 +934,7 @@ export default function Comments({
           result.hasNextPage || result.pageNumber < result.totalPages,
         );
       } catch (err) {
-<<<<<<< HEAD
         // console.error("[Comments] loadReviews failed =>", err);
-=======
-        console.error("[Comments] loadReviews failed =>", err);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         const message = getAuthErrorMessage(err);
         setError(message);
         if (!append) setReviews([]);
@@ -1016,7 +947,6 @@ export default function Comments({
   );
 
   useEffect(() => {
-<<<<<<< HEAD
     let active = true;
 
     async function loadMediaCapabilities() {
@@ -1045,8 +975,6 @@ export default function Comments({
   }, []);
 
   useEffect(() => {
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     const timer = window.setTimeout(() => {
       void loadReviews(1, false);
       void loadSummary();
@@ -1060,7 +988,6 @@ export default function Comments({
     void loadReviews(page + 1, true);
   };
 
-<<<<<<< HEAD
   const updateUploadItem = useCallback(
     (itemId: string, patch: Partial<UploadItem>) => {
       setUploadItems((prev) =>
@@ -1224,16 +1151,10 @@ export default function Comments({
 
   const resetForm = () => {
     setRating(DEFAULT_REVIEW_RATING);
-=======
-  const resetForm = () => {
-    setRating(DEFAULT_REVIEW_RATING);
-    setTitle("");
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     setBody("");
     setAdvantages([]);
     setDisadvantages([]);
     setRecommendStatus("neutral");
-<<<<<<< HEAD
     uploadItemsRef.current.forEach((item) => {
       URL.revokeObjectURL(item.previewUrl);
     });
@@ -1241,20 +1162,15 @@ export default function Comments({
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-<<<<<<< HEAD
     if (!isAuthenticated) {
       notify.info("ابتدا وارد شوید");
       return;
     }
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     if (!productId) {
       notify.error("شناسه محصول نامعتبر است");
       return;
@@ -1267,41 +1183,27 @@ export default function Comments({
       notify.error("متن نظر الزامی است");
       return;
     }
-<<<<<<< HEAD
     if (hasPendingUploads) {
       notify.error("تا پایان آپلود و پردازش فایل‌ها صبر کنید.");
       return;
     }
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     setSubmitting(true);
     try {
       await createProductReview(productId, {
         rating,
-<<<<<<< HEAD
         title: "",
-=======
-        title: title.trim(),
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         body: body.trim(),
         advantages,
         disadvantages,
         recommendStatus,
-<<<<<<< HEAD
         mediaIds: readyMediaIds,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       });
       notify.success("نظر شما با موفقیت ثبت شد");
       resetForm();
       await Promise.all([loadReviews(1, false), loadSummary()]);
     } catch (err) {
-<<<<<<< HEAD
       // console.error("[Comments] create review failed =>", err);
-=======
-      console.error("[Comments] create review failed =>", err);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(err));
     } finally {
       setSubmitting(false);
@@ -1398,23 +1300,6 @@ export default function Comments({
             className="w-full border-b border-gray-300 pb-4 dark:border-gray-700"
           >
             <div className="mb-4">
-<<<<<<< HEAD
-=======
-              <label className="mb-3 inline-block dark:text-gray-300">
-                عنوان نظر:
-              </label>
-              <input
-                type="text"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                placeholder="عنوان نظر را وارد کنید"
-                disabled={submitting}
-                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-4 text-gray-800 dark:border-gray-700 dark:bg-zinc-800 dark:text-gray-200"
-              />
-            </div>
-
-            <div className="mb-4">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
               <label className="mb-4 block dark:text-gray-300">امتیاز شما:</label>
               <div className="flex space-x-2">
                 {[1, 2, 3, 4, 5].map((value) => (
@@ -1494,7 +1379,6 @@ export default function Comments({
               </div>
             </div>
 
-<<<<<<< HEAD
             <div className="mb-5">
               <label className="mb-3 block dark:text-gray-300">
                 تصویر و ویدیو:
@@ -1629,14 +1513,6 @@ export default function Comments({
                 : hasPendingUploads
                   ? "در انتظار آماده شدن فایل‌ها"
                   : "ثبت نظر"}
-=======
-            <button
-              type="submit"
-              disabled={submitting}
-              className="rounded-lg bg-primary px-20 py-3 text-white hover:bg-primary-600 disabled:opacity-60"
-            >
-              {submitting ? "در حال ثبت..." : "ثبت نظر"}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             </button>
           </form>
 

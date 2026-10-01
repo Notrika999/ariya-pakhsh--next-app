@@ -7,13 +7,10 @@ import {
   useIsAuthenticated,
   useIsAuthBootstrapping,
 } from "@/src/lib/stores/auth/auth.store";
-<<<<<<< HEAD
 import {
   getVehiclePromptRemainingMs,
   VEHICLE_PROMPT_STORAGE_KEY,
 } from "@/src/utils/vehiclePromptStorage";
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 export default function VehicleSelectorHost() {
   const hydrate = useVehicleStore((state) => state.hydrate);
@@ -24,10 +21,7 @@ export default function VehicleSelectorHost() {
   const catalog = useVehicleStore((state) => state.catalog);
   const catalogError = useVehicleStore((state) => state.catalogError);
   const isSaving = useVehicleStore((state) => state.isSaving);
-<<<<<<< HEAD
   const openModal = useVehicleStore((state) => state.openModal);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const closeModal = useVehicleStore((state) => state.closeModal);
   const confirmSelection = useVehicleStore((state) => state.confirmSelection);
   const isAuthenticated = useIsAuthenticated();
@@ -43,7 +37,6 @@ export default function VehicleSelectorHost() {
     void loadCatalog();
   }, [isHydrated, loadCatalog]);
 
-<<<<<<< HEAD
   useEffect(() => {
     if (!isHydrated || selectedVehicles.length > 0 || isModalOpen) return;
 
@@ -86,8 +79,6 @@ export default function VehicleSelectorHost() {
     };
   }, [isHydrated, isModalOpen, openModal, selectedVehicles.length]);
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   if (!isHydrated) return null;
 
   return (

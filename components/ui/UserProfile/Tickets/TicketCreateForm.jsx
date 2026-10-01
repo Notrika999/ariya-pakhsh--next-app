@@ -255,11 +255,7 @@ export default function TicketCreateForm({
       initialOrderItemIdRef.current = "";
       setSelectedOrderItems(nextSelections);
     } catch (error) {
-<<<<<<< HEAD
       // console.error("[TicketCreateForm] load order detail failed =>", error);
-=======
-      console.error("[TicketCreateForm] load order detail failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
       setOrderDetail(null);
       setSelectedOrderItems({});

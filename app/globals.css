@@ -397,7 +397,6 @@ button {
   animation: fadeIn 0.3s ease-out;
 }
 
-<<<<<<< HEAD
 @media (max-width: 1023px) {
   html[data-product-cart-notice="visible"] .back-to-top-button {
     bottom: calc(8.5rem + env(safe-area-inset-bottom));
@@ -454,8 +453,6 @@ button {
   }
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 /* Leaflet pin used in address form map */
 .address-location-pin {
   background: transparent !important;

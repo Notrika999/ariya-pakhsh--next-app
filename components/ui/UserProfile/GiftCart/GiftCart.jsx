@@ -136,11 +136,7 @@ export default function GiftCart() {
       setActiveCards(activeResult.items);
       setUsedCards(usedResult.items);
     } catch (err) {
-<<<<<<< HEAD
       // console.error("[GiftCart] load gift cards failed =>", err);
-=======
-      console.error("[GiftCart] load gift cards failed =>", err);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setError(getAuthErrorMessage(err));
       setActiveCards([]);
       setUsedCards([]);
@@ -162,11 +158,7 @@ export default function GiftCart() {
       const card = await getGiftCardById(id);
       setSelectedCard(card);
     } catch (err) {
-<<<<<<< HEAD
       // console.error("[GiftCart] load gift card detail failed =>", err);
-=======
-      console.error("[GiftCart] load gift card detail failed =>", err);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(err));
     } finally {
       setDetailLoading(false);

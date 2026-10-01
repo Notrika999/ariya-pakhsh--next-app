@@ -91,7 +91,6 @@ export default function MenuClient({ menu }: { menu: Category[] }) {
       closeTimerRef.current = null;
     }, 180);
   };
-<<<<<<< HEAD
 
   const handleRightMenuWheel = (event: React.WheelEvent<HTMLDivElement>) => {
     const element = event.currentTarget;
@@ -108,8 +107,6 @@ export default function MenuClient({ menu }: { menu: Category[] }) {
       event.preventDefault();
     }
   };
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   return (
     <li
@@ -130,14 +127,10 @@ export default function MenuClient({ menu }: { menu: Category[] }) {
         >
           <div className="grid grid-cols-[300px_minmax(0,1fr)_300px] gap-3 overflow-hidden">
             {/* right menu */}
-<<<<<<< HEAD
             <div
               onWheel={handleRightMenuWheel}
               className="h-150 w-75 overscroll-contain pb-1 rounded-2xl bg-gray-light dark:bg-zinc-900 overflow-y-auto "
             >
-=======
-            <div className="h-150 w-75 pb-1 rounded-2xl bg-gray-light dark:bg-zinc-900 overflow-y-auto ">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
               <ul className="my-2 space-y-1">
                 {menu.map((category) => (
                   <MenuItem

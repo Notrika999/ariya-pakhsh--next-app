@@ -2,7 +2,6 @@
 
 import { apiClient, ApiError } from "@/src/lib/http/api-client";
 import type {
-<<<<<<< HEAD
   CreateReviewMediaUploadRequest,
   CreateProductReviewRequest,
   GetProductReviewsParams,
@@ -14,14 +13,6 @@ import type {
   ReportReviewRequest,
   ReviewMediaCapabilities,
   ReviewMediaUploadSession,
-=======
-  CreateProductReviewRequest,
-  GetProductReviewsParams,
-  ProductReview,
-  ProductReviewsPage,
-  ProductReviewsSummary,
-  ReportReviewRequest,
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   ReviewVoteType,
 } from "@/src/lib/types/products/review.types";
 
@@ -47,7 +38,6 @@ function normalizeReviewVote(value: unknown): ReviewVoteType | null {
   return value === "like" || value === "dislike" ? value : null;
 }
 
-<<<<<<< HEAD
 function pickString(
   record: Record<string, unknown>,
   keys: string[],
@@ -169,13 +159,10 @@ function unwrapReviewMediaUploadSession(
   };
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function unwrapReviewsPage(payload: unknown): ProductReviewsPage {
   const root = getRecord(payload);
   const data = getRecord(root.data ?? root);
 
-<<<<<<< HEAD
   const itemsRaw = Array.isArray(payload)
     ? payload
     : Array.isArray(root.data)
@@ -185,13 +172,6 @@ function unwrapReviewsPage(payload: unknown): ProductReviewsPage {
         : Array.isArray(root.items)
           ? root.items
           : [];
-=======
-  const itemsRaw = Array.isArray(data.items)
-    ? data.items
-    : Array.isArray(root.items)
-      ? root.items
-      : [];
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   const items = itemsRaw.map((item) => {
     const record = getRecord(item);
@@ -217,7 +197,6 @@ function unwrapReviewsPage(payload: unknown): ProductReviewsPage {
         record.userVote ?? record.currentUserVote ?? record.myVote,
       ),
       createdAt: String(record.createdAt ?? ""),
-<<<<<<< HEAD
       media: Array.isArray(record.media)
         ? record.media
             .map(mapReviewMedia)
@@ -231,8 +210,6 @@ function unwrapReviewsPage(payload: unknown): ProductReviewsPage {
                 .map(mapReviewMedia)
                 .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
             : [],
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       replies: Array.isArray(record.replies)
         ? record.replies.map((reply) => {
             const replyRecord = getRecord(reply);
@@ -338,7 +315,6 @@ export async function createProductReview(
   }
 }
 
-<<<<<<< HEAD
 export async function getReviewMediaCapabilities(): Promise<ReviewMediaCapabilities> {
   try {
     const response = await apiClient.get("/me/review-media/capabilities");
@@ -451,8 +427,6 @@ export function getReviewMediaTypeFromFile(
   return null;
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 export async function voteProductReview(
   reviewId: string,
   voteType: ReviewVoteType,

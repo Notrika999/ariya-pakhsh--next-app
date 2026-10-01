@@ -33,14 +33,7 @@ function isInstallmentPaymentMethod(method) {
 function isWalletPaymentMethod(method) {
   if (!method) return false;
   const value = `${method.code} ${method.title}`.toLowerCase();
-<<<<<<< HEAD
   return value.includes("wallet") || value.includes("کیف پول");
-=======
-  return (
-    value.includes("wallet") ||
-    value.includes("کیف پول")
-  );
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 }
 
 function isBankGatewayPaymentMethod(method) {
@@ -73,16 +66,11 @@ function getRenderableImageSrc(value) {
   return null;
 }
 
-<<<<<<< HEAD
 function collectGatewayItems(methods, excludedProviderCode) {
   const items = [];
   const normalizedExcludedProviderCode = excludedProviderCode
     ?.trim()
     .toLowerCase();
-=======
-function collectGatewayItems(methods) {
-  const items = [];
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   for (const method of methods) {
     if (!method?.isAvailable || !isBankGatewayPaymentMethod(method)) continue;
@@ -91,10 +79,7 @@ function collectGatewayItems(methods) {
       (provider) =>
         provider?.isAvailable !== false &&
         provider?.code &&
-<<<<<<< HEAD
         provider.code.trim().toLowerCase() !== normalizedExcludedProviderCode &&
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         provider.gatewayType !== "installment",
     );
 
@@ -130,11 +115,8 @@ export default function GatewaySelectModal({
   open,
   amountLabel,
   confirming = false,
-<<<<<<< HEAD
   excludedProviderCode,
   compact = false,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   onClose,
   onConfirm,
 }) {
@@ -158,11 +140,7 @@ export default function GatewaySelectModal({
         const methods = await getCheckoutPaymentMethods();
         if (cancelled) return;
 
-<<<<<<< HEAD
         const items = collectGatewayItems(methods, excludedProviderCode);
-=======
-        const items = collectGatewayItems(methods);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         setGateways(items);
         setSelectedId(items[0]?.id ?? null);
         if (items.length === 0) {
@@ -181,11 +159,7 @@ export default function GatewaySelectModal({
     return () => {
       cancelled = true;
     };
-<<<<<<< HEAD
   }, [excludedProviderCode, open]);
-=======
-  }, [open]);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   useEffect(() => {
     if (!open) return;
@@ -227,7 +201,6 @@ export default function GatewaySelectModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="gateway-select-title"
-<<<<<<< HEAD
         className={[
           "relative z-10 max-h-[90vh] w-full overflow-y-auto rounded-2xl bg-white shadow-xl dark:border dark:border-gray-700 dark:bg-custom-dark",
           compact ? "max-w-xl p-4 sm:p-5" : "max-w-lg p-6",
@@ -236,29 +209,17 @@ export default function GatewaySelectModal({
         <div
           className={`flex items-start justify-between gap-3 ${compact ? "mb-4" : "mb-5"}`}
         >
-=======
-        className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-xl dark:border dark:border-gray-700 dark:bg-custom-dark"
-      >
-        <div className="mb-5 flex items-start justify-between gap-3">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           <div>
             <h2
               id="gateway-select-title"
               className="text-lg font-bold text-gray-800 dark:text-gray-100"
             >
-<<<<<<< HEAD
               {compact ? "انتخاب روش پرداخت" : "انتخاب درگاه پرداخت"}
             </h2>
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               {compact
                 ? "روش مورد نظر را انتخاب کنید و سپس پرداخت را ادامه دهید."
                 : "درگاه مورد نظر را انتخاب کنید و سپس پرداخت را ادامه دهید."}
-=======
-              انتخاب درگاه پرداخت
-            </h2>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              درگاه مورد نظر را انتخاب کنید و سپس پرداخت را ادامه دهید.
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             </p>
             {amountLabel ? (
               <p className="mt-2 text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -280,7 +241,6 @@ export default function GatewaySelectModal({
         </div>
 
         {loading ? (
-<<<<<<< HEAD
           <div
             className={
               compact
@@ -292,13 +252,6 @@ export default function GatewaySelectModal({
               <div
                 key={`gateway-skeleton-${index}`}
                 className={`${compact ? "h-[76px]" : "h-36"} animate-pulse rounded-xl bg-gray-100 dark:bg-zinc-800`}
-=======
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {Array.from({ length: 3 }, (_, index) => (
-              <div
-                key={`gateway-skeleton-${index}`}
-                className="h-36 animate-pulse rounded-xl bg-gray-100 dark:bg-zinc-800"
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
               />
             ))}
           </div>
@@ -307,7 +260,6 @@ export default function GatewaySelectModal({
             {error}
           </p>
         ) : (
-<<<<<<< HEAD
           <div
             className={
               compact
@@ -315,9 +267,6 @@ export default function GatewaySelectModal({
                 : "grid grid-cols-2 gap-3 sm:grid-cols-3"
             }
           >
-=======
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             {gateways.map((gateway) => {
               const isSelected = selectedId === gateway.id;
               const imageSrc = getRenderableImageSrc(gateway.imageUrl);
@@ -329,14 +278,10 @@ export default function GatewaySelectModal({
                   disabled={confirming}
                   onClick={() => setSelectedId(gateway.id)}
                   className={[
-<<<<<<< HEAD
                     "relative rounded-xl border transition-all disabled:cursor-not-allowed disabled:opacity-60",
                     compact
                       ? "flex min-h-[76px] items-center gap-3 p-2.5 text-start"
                       : "flex h-36 flex-col items-center justify-center gap-2 p-3 text-center",
-=======
-                    "flex h-36 flex-col items-center justify-center gap-2 rounded-xl border p-3 text-center transition-all disabled:cursor-not-allowed",
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                     isSelected
                       ? "border-primary bg-blue-50 ring-2 ring-primary/20 dark:bg-zinc-800"
                       : "border-gray-200 bg-white hover:border-primary dark:border-gray-600 dark:bg-zinc-900",
@@ -347,7 +292,6 @@ export default function GatewaySelectModal({
                     <img
                       src={imageSrc}
                       alt={gateway.title}
-<<<<<<< HEAD
                       className={`${compact ? "size-10" : "h-12 w-12"} shrink-0 object-contain`}
                     />
                   ) : (
@@ -374,29 +318,15 @@ export default function GatewaySelectModal({
                       <i className="far fa-check" />
                     </span>
                   ) : null}
-=======
-                      className="h-12 w-12 object-contain"
-                    />
-                  ) : (
-                    <i className="far fa-building-columns text-2xl text-primary" />
-                  )}
-                  <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
-                    {gateway.title}
-                  </span>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                 </button>
               );
             })}
           </div>
         )}
 
-<<<<<<< HEAD
         <div
           className={`flex items-center justify-end gap-3 ${compact ? "mt-4" : "mt-6"}`}
         >
-=======
-        <div className="mt-6 flex items-center justify-end gap-3">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           <button
             type="button"
             disabled={confirming}

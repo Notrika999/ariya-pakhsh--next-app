@@ -55,11 +55,7 @@ export default function LoginWithPass({
   const getDeviceFingerPrint = async () => {
     if (deviceFingerPrint) return deviceFingerPrint;
     const fingerprint = await getBrowserFingerprint();
-<<<<<<< HEAD
     const value = fingerprint?.visitorId ?? null;
-=======
-    const value = fingerprint?.visitorId ?? "device-id";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     setDeviceFingerPrint(value);
     return value;
   };
@@ -119,11 +115,7 @@ export default function LoginWithPass({
       setUser(attachSessionToUser(freshUser, result.sessionInfoDto));
       onSuccess();
     } catch (err) {
-<<<<<<< HEAD
       // console.error("[LoginWithPass] login failed:", err);
-=======
-      console.error("[LoginWithPass] login failed:", err);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       const message = getAuthErrorMessage(err);
 
       if (err instanceof ApiError && err.status === 429) {
@@ -133,11 +125,7 @@ export default function LoginWithPass({
           setLoginTwoFactorFlow(
             loginTwoFactorToken,
             loginTwoFactorOtpSentTo,
-<<<<<<< HEAD
             deviceFingerPrint,
-=======
-            deviceFingerPrint ?? "device-id",
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           );
           onRequiresTwoFactor();
         }
@@ -184,11 +172,7 @@ export default function LoginWithPass({
       );
       onForgotSuccess();
     } catch (err) {
-<<<<<<< HEAD
       // console.error("[LoginWithPass] forgot password failed:", err);
-=======
-      console.error("[LoginWithPass] forgot password failed:", err);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setError(getAuthErrorMessage(err));
     } finally {
       setForgotLoading(false);

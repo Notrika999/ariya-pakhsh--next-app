@@ -237,15 +237,12 @@ export type MagazineContentBlock =
       title: string;
       href: string;
       products: MagazineRelatedProduct[];
-<<<<<<< HEAD
     }
   | {
       type: "productComparison";
       title: string;
       products: MagazineRelatedProduct[];
       attributes: MagazineProductComparisonAttribute[];
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     };
 
 export const MAGAZINE_ANALYTICS_EVENT_TYPES = [
@@ -272,15 +269,12 @@ export interface MagazineRelatedProduct {
   image: string;
 }
 
-<<<<<<< HEAD
 export interface MagazineProductComparisonAttribute {
   attributeId: string;
   name: string;
   values: Record<string, string[]>;
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 export interface MagazineArticleSeo {
   title: string;
   description: string;

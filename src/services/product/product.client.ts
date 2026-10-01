@@ -2,7 +2,6 @@
 // src/services/product/product.client.ts
 import { apiClient } from "@/src/lib/http/api-client";
 
-<<<<<<< HEAD
 export type ProductCompatibilityResult = {
   productId: string;
   vehicleId: string | null;
@@ -14,8 +13,6 @@ type ProductCompatibilityResponse = {
   data?: ProductCompatibilityResult | null;
 };
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 export async function createProductView(slug: string): Promise<void> {
   const normalizedSlug = slug.trim();
   if (!normalizedSlug) return;
@@ -37,7 +34,6 @@ export async function getProductShare(slug: string): Promise<unknown> {
 
   return response.data;
 }
-<<<<<<< HEAD
 
 export async function getProductCompatibility(
   slug: string,
@@ -55,5 +51,3 @@ export async function getProductCompatibility(
 
   return response.data?.data ?? null;
 }
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c

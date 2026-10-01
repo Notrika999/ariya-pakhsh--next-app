@@ -3,17 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-<<<<<<< HEAD
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 import GatewayRedirectConfirmation from "@/components/modules/GatewayRedirectConfirmation/GatewayRedirectConfirmation";
 import CartSynchronizationModal from "@/components/ui/Cart/CartSynchronizationModal";
 import { useCartSynchronization } from "@/components/ui/Cart/useCartSynchronization";
-=======
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
-import GatewayRedirectConfirmation from "@/components/modules/GatewayRedirectConfirmation/GatewayRedirectConfirmation";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import CheckoutDeliveryAddress from "./CheckoutDeliveryAddress";
 import { useCart } from "@/src/context/CartContext";
 import type { CartItem } from "@/src/lib/types/cart/cartTypes";
@@ -23,10 +17,7 @@ import type {
   CheckoutCouponPayload,
   CheckoutGatewayFee,
   CheckoutPaymentMethod,
-<<<<<<< HEAD
   PendingCheckoutOrder,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   CheckoutShippingGroupItem,
   CheckoutShippingMethod,
   CheckoutShippingOptionsResult,
@@ -36,16 +27,12 @@ import type {
 import {
   applyCheckoutCoupon,
   ensureServerCartHasItems,
-<<<<<<< HEAD
   getPendingCheckoutOrder,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   getCheckoutPaymentMethods,
   placeCheckoutOrder,
   previewCheckoutDiscount,
   startOrderPayment,
 } from "@/src/services/checkout/checkout.client";
-<<<<<<< HEAD
 import {
   cancelMyOrder,
   retryMyOrderPayment,
@@ -56,11 +43,6 @@ import { getProductImage } from "@/src/utils/product-image";
 import { notify } from "@/src/utils/toast";
 import { rememberPendingPaymentOrder } from "@/src/utils/paymentRetryStorage";
 import { useCurrentUser } from "@/src/lib/stores/auth/auth.store";
-=======
-import { getAuthErrorMessage } from "@/src/services/auth/auth.client";
-import { notify } from "@/src/utils/toast";
-import { rememberPendingPaymentOrder } from "@/src/utils/paymentRetryStorage";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 const formatMoney = (value: number) =>
   `${new Intl.NumberFormat("fa-IR").format(Math.max(0, Math.round(value)))} تومان`;
@@ -95,7 +77,6 @@ type PendingGatewayPayment = {
   gatewayFee: CheckoutGatewayFee | null;
 };
 
-<<<<<<< HEAD
 function formatPendingExpiresAt(value: string | null): string {
   if (!value) return "—";
   const date = new Date(value);
@@ -127,8 +108,6 @@ function formatRemainingTime(remainingSeconds: number): string {
   return `${formatter.format(minutes)}:${formatter.format(seconds)}`;
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function isGiftCardPaymentMethod(
   method: CheckoutPaymentMethod | null,
 ): boolean {
@@ -161,33 +140,24 @@ function isInstallmentPaymentMethod(
 
 function toShippingAddress(
   address: CustomerAddressDto,
-<<<<<<< HEAD
   userEmail: string,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 ): PlaceOrderShippingAddress {
   return {
     countryCode: "IR",
     countryName: "ایران",
     state: address.province,
     city: address.city,
-<<<<<<< HEAD
     provinceId: address.provinceId,
     cityId: address.cityId,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     postalCode: address.postalCode,
     addressLine: address.addressLine,
     recipientFirstName: address.receiverFirstName,
     recipientLastName: address.receiverLastName,
     mobile: address.receiverMobile,
-<<<<<<< HEAD
     phone: address.receiverMobile,
     email: userEmail.trim(),
     latitude: address.latitude,
     longitude: address.longitude,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   };
 }
 
@@ -312,7 +282,6 @@ function isBankGatewayPaymentMethod(method: CheckoutPaymentMethod): boolean {
   );
 }
 
-<<<<<<< HEAD
 function PendingPaymentWarning({
   order,
   loading,
@@ -457,10 +426,6 @@ function PendingPaymentWarning({
 export default function Checkout() {
   const router = useRouter();
   const currentUser = useCurrentUser();
-=======
-export default function Checkout() {
-  const router = useRouter();
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const {
     items,
     totalItems,
@@ -468,7 +433,6 @@ export default function Checkout() {
     loading: cartLoading,
     syncing: cartSyncing,
     clearCart,
-<<<<<<< HEAD
     refreshCart,
   } = useCart();
   const cartSync = useCartSynchronization({
@@ -476,9 +440,6 @@ export default function Checkout() {
     refreshCart,
     autoCheck: false,
   });
-=======
-  } = useCart();
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   const [selectedAddress, setSelectedAddress] =
     useState<CustomerAddressDto | null>(null);
@@ -511,7 +472,6 @@ export default function Checkout() {
   const [pendingGatewayPayment, setPendingGatewayPayment] =
     useState<PendingGatewayPayment | null>(null);
   const [gatewayStarting, setGatewayStarting] = useState(false);
-<<<<<<< HEAD
   const [pendingPaymentOrder, setPendingPaymentOrder] =
     useState<PendingCheckoutOrder | null>(null);
   const [pendingPaymentLoading, setPendingPaymentLoading] = useState(true);
@@ -550,8 +510,6 @@ export default function Checkout() {
       setPendingPaymentLoading(false);
     }
   }, []);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   const selectPaymentMethod = (method: CheckoutPaymentMethod) => {
     setSelectedPaymentCode(method.code);
@@ -613,7 +571,6 @@ export default function Checkout() {
   }, []);
 
   useEffect(() => {
-<<<<<<< HEAD
     const timer = window.setTimeout(() => {
       void loadPendingPaymentOrder();
     }, 0);
@@ -643,8 +600,6 @@ export default function Checkout() {
   }, [pendingGatewayPayment]);
 
   useEffect(() => {
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     const header = document.querySelector("body > header");
 
     const updateStickyTop = () => {
@@ -828,23 +783,16 @@ export default function Checkout() {
       payload.shippingSelections = shippingSelections;
     }
     if (selectedAddress) {
-<<<<<<< HEAD
       payload.shippingAddress = toShippingAddress(
         selectedAddress,
         currentUser?.email ?? "",
       );
-=======
-      payload.shippingAddress = toShippingAddress(selectedAddress);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     }
 
     return payload;
   }, [
     selectedAddress,
-<<<<<<< HEAD
     currentUser?.email,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     selectedProviderCode,
     selectedShippingMethodId,
     shippingSelections,
@@ -937,7 +885,6 @@ export default function Checkout() {
       return;
     }
 
-<<<<<<< HEAD
     setCouponApplying(true);
     try {
       const resolvedAddress =
@@ -955,18 +902,6 @@ export default function Checkout() {
         ),
       };
 
-=======
-    const payload: CheckoutCouponPayload = {
-      couponCode: couponCode.trim(),
-      providerCode: selectedProviderCode || undefined,
-      shippingMethodId: selectedShippingMethodId,
-      shippingSelections,
-      shippingAddress: toShippingAddress(selectedAddress),
-    };
-
-    setCouponApplying(true);
-    try {
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       const result = await applyCheckoutCoupon(payload);
       setCouponDiscount(result);
       if (result.couponIsApplicable) {
@@ -977,11 +912,7 @@ export default function Checkout() {
         notify.error(result.couponMessage || "کد تخفیف قابل اعمال نیست");
       }
     } catch (err) {
-<<<<<<< HEAD
       // console.error("[Checkout] apply coupon failed =>", err);
-=======
-      console.error("[Checkout] apply coupon failed =>", err);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setAppliedCouponCode(null);
       setCouponDiscount(null);
       notify.error(getAuthErrorMessage(err));
@@ -990,7 +921,6 @@ export default function Checkout() {
     }
   };
 
-<<<<<<< HEAD
   const handlePayPendingPaymentOrder = async () => {
     if (
       !pendingPaymentOrder?.orderId ||
@@ -1049,8 +979,6 @@ export default function Checkout() {
     }
   };
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   // handlePlaceOrder is a function that places an order and redirects to the payment gateway
   const handlePlaceOrder = async () => {
     if (cartLoading || cartSyncing) {
@@ -1061,7 +989,6 @@ export default function Checkout() {
       notify.error("سبد خرید خالی است");
       return;
     }
-<<<<<<< HEAD
     if (pendingPaymentLoading) {
       notify.info("وضعیت سفارش در انتظار پرداخت در حال بررسی است");
       return;
@@ -1082,8 +1009,6 @@ export default function Checkout() {
     const cartIsCurrent = await cartSync.checkCart();
     if (!cartIsCurrent) return;
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     if (!selectedAddress) {
       notify.error("لطفاً آدرس تحویل را انتخاب کنید");
       return;
@@ -1119,10 +1044,6 @@ export default function Checkout() {
       notify.error("لطفاً ابتدا کد تخفیف را اعمال کنید");
       return;
     }
-<<<<<<< HEAD
-=======
-
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     setSubmitting(true);
     try {
       const serverItemCount = await ensureServerCartHasItems(items);
@@ -1133,7 +1054,6 @@ export default function Checkout() {
         return;
       }
 
-<<<<<<< HEAD
       const resolvedAddress =
         await resolveCustomerAddressLocationIds(selectedAddress);
       setSelectedAddress(resolvedAddress);
@@ -1146,12 +1066,6 @@ export default function Checkout() {
         shippingMethodId: selectedShippingMethodId,
         shippingSelections,
         shippingAddress,
-=======
-      const result = await placeCheckoutOrder({
-        shippingMethodId: selectedShippingMethodId,
-        shippingSelections,
-        shippingAddress: toShippingAddress(selectedAddress),
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         paymentMethodCode: selectedPaymentCode,
         providerCode: selectedIsGiftCardPayment
           ? undefined
@@ -1161,13 +1075,9 @@ export default function Checkout() {
           : undefined,
         customerNote: customerNote.trim() || undefined,
         giftCardCode: giftCardCode.trim() || undefined,
-<<<<<<< HEAD
       };
 
       const result = await placeCheckoutOrder(placeOrderPayload);
-=======
-      });
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
       const paymentUrl = result.paymentUrl || result.redirectUrl;
 
@@ -1211,11 +1121,7 @@ export default function Checkout() {
         gatewayFee,
       });
     } catch (err) {
-<<<<<<< HEAD
       // console.error("[Checkout] place order failed =>", err);
-=======
-      console.error("[Checkout] place order failed =>", err);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(err));
     } finally {
       setSubmitting(false);
@@ -1256,13 +1162,9 @@ export default function Checkout() {
     }
 
     if (!pendingGatewayPayment.orderId) {
-<<<<<<< HEAD
       handleGatewayEntryFailure(
         "ورود به درگاه پرداخت انجام نشد. لطفاً بعداً دوباره تلاش کنید.",
       );
-=======
-      notify.error("شناسه سفارش برای شروع پرداخت دریافت نشد");
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       return;
     }
 
@@ -1277,14 +1179,9 @@ export default function Checkout() {
       });
 
       if (!payment.redirectUrl) {
-<<<<<<< HEAD
         handleGatewayEntryFailure(
           "ورود به درگاه پرداخت انجام نشد. لطفاً بعداً دوباره تلاش کنید.",
         );
-=======
-        notify.error("آدرس درگاه از سرویس پرداخت دریافت نشد");
-        setGatewayStarting(false);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         return;
       }
 
@@ -1293,7 +1190,6 @@ export default function Checkout() {
         payment.orderNumber || pendingGatewayPayment.orderNumber,
       );
       window.location.href = payment.redirectUrl;
-<<<<<<< HEAD
     } catch {
       handleGatewayEntryFailure(
         "ورود به درگاه پرداخت انجام نشد. لطفاً بعداً دوباره تلاش کنید.",
@@ -1305,14 +1201,6 @@ export default function Checkout() {
     pendingGatewayPayment,
     router,
   ]);
-=======
-    } catch (err) {
-      console.error("[Checkout] start payment failed =>", err);
-      notify.error(getAuthErrorMessage(err));
-      setGatewayStarting(false);
-    }
-  }, [gatewayStarting, pendingGatewayPayment, router]);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   if (pendingGatewayPayment) {
     return (
@@ -1402,7 +1290,6 @@ export default function Checkout() {
 
   return (
     <SectionContainer>
-<<<<<<< HEAD
       <CartSynchronizationModal {...cartSync.modalProps} />
       {pendingPaymentOrder ? (
         <PendingPaymentWarning
@@ -1431,8 +1318,6 @@ export default function Checkout() {
         </div>
       ) : null}
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Right section */}
         <div className="lg:col-span-2">
@@ -1538,10 +1423,7 @@ export default function Checkout() {
 
             <CheckoutDeliveryAddress
               selectedAddressId={selectedAddress?.id ?? null}
-<<<<<<< HEAD
               userEmail={currentUser?.email ?? ""}
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
               onSelectAddress={handleSelectAddress}
               onShippingOptionsChange={handleShippingOptionsChange}
               customerNote={customerNote}
@@ -1748,11 +1630,7 @@ export default function Checkout() {
                         <h4 className="mb-3 text-sm font-semibold text-gray-700 dark:text-gray-300">
                           روش ارسال این بخش
                         </h4>
-<<<<<<< HEAD
                         <div className="grid grid-cols-1 gap-3 max-[559px]:grid-cols-2 max-[559px]:gap-2 sm:grid-cols-2 lg:grid-cols-4">
-=======
-                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                           {group.methods.map((method, methodIndex) => {
                             const isSelected =
                               selectedShippingIdsByClass[group.key] ===
@@ -1778,11 +1656,7 @@ export default function Checkout() {
                                   }
                                 }}
                                 className={[
-<<<<<<< HEAD
                                   "shipping-method flex aspect-square cursor-pointer flex-col justify-between rounded-lg border p-4 transition-all max-[559px]:aspect-auto max-[559px]:min-h-44 max-[559px]:p-2.5",
-=======
-                                  "shipping-method flex aspect-square cursor-pointer flex-col justify-between rounded-lg border p-4 transition-all",
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                                   isSelected
                                     ? "selected border-primary-500 bg-blue-50 ring-2 ring-primary-500/20 dark:bg-zinc-800"
                                     : "border-gray-300 hover:border-primary-500 dark:border-gray-600",
@@ -1792,37 +1666,22 @@ export default function Checkout() {
                                 data-shipping-cost={method.price}
                               >
                                 <div className="min-w-0">
-<<<<<<< HEAD
                                   <div className="mb-3 flex items-start justify-between gap-2 max-[559px]:mb-2">
                                     <div
                                       className={[
                                         "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg max-[559px]:h-9 max-[559px]:w-9 max-[559px]:text-sm",
-=======
-                                  <div className="mb-3 flex items-start justify-between gap-2">
-                                    <div
-                                      className={[
-                                        "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg",
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                                         style.wrap,
                                       ].join(" ")}
                                     >
                                       <i className={style.icon}></i>
                                     </div>
                                     {isSelected ? (
-<<<<<<< HEAD
                                       <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs text-white max-[559px]:h-5 max-[559px]:w-5 max-[559px]:text-[10px]">
-=======
-                                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs text-white">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                                         <i className="far fa-check"></i>
                                       </span>
                                     ) : null}
                                   </div>
-<<<<<<< HEAD
                                   <h3 className="line-clamp-2 min-h-8 font-bold leading-6 text-gray-800 max-[559px]:text-sm max-[559px]:leading-5 dark:text-white">
-=======
-                                  <h3 className="line-clamp-2 min-h-8 font-bold leading-6 text-gray-800 dark:text-white">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                                     {method.title}
                                   </h3>
                                   {method.description ? (
@@ -1832,11 +1691,7 @@ export default function Checkout() {
                                   ) : null}
                                 </div>
                                 <div>
-<<<<<<< HEAD
                                   <div className="mb-3 flex flex-wrap gap-2 text-[11px] max-[559px]:mb-2 max-[559px]:gap-1 max-[559px]:text-[10px]">
-=======
-                                  <div className="mb-3 flex flex-wrap gap-2 text-[11px]">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                                     {method.estimatedDeliveryDays ? (
                                       <span className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-600 dark:bg-zinc-800 dark:text-gray-300">
                                         {new Intl.NumberFormat("fa-IR").format(
@@ -1851,11 +1706,7 @@ export default function Checkout() {
                                       </span>
                                     ) : null}
                                   </div>
-<<<<<<< HEAD
                                   <div className="font-bold text-gray-900 max-[559px]:text-sm dark:text-white">
-=======
-                                  <div className="font-bold text-gray-900 dark:text-white">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                                     {formatShippingPrice(method)}
                                   </div>
                                 </div>
@@ -1877,11 +1728,7 @@ export default function Checkout() {
                 روش پرداخت
               </h2>
 
-<<<<<<< HEAD
               <div className="flex flex-wrap gap-4 max-[559px]:grid max-[559px]:grid-cols-2 max-[559px]:gap-2">
-=======
-              <div className="flex flex-wrap gap-4">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                 {paymentMethods.map((method, index) => {
                   const isSelected = selectedPaymentCode === method.code;
                   const isBankGateway = isBankGatewayPaymentMethod(method);
@@ -1896,11 +1743,7 @@ export default function Checkout() {
                     <div
                       key={method.code}
                       className={[
-<<<<<<< HEAD
                         "payment-method flex h-[200px] w-[200px] max-w-full rounded-lg border p-4 transition-all max-[559px]:h-36 max-[559px]:w-full max-[559px]:p-2.5",
-=======
-                        "payment-method flex h-[200px] w-[200px] max-w-full rounded-lg border p-4 transition-all",
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                         isSelected
                           ? "selected border-primary-500 bg-blue-50 dark:bg-zinc-800"
                           : "border-gray-300 hover:border-primary-500 dark:border-gray-600",
@@ -1917,17 +1760,10 @@ export default function Checkout() {
                             selectPaymentMethod(method);
                           }
                         }}
-<<<<<<< HEAD
                         className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-3 text-center max-[559px]:gap-2"
                       >
                         <div
                           className={`flex h-14 w-14 items-center justify-center rounded-lg max-[559px]:h-10 max-[559px]:w-10 ${style.wrap}`}
-=======
-                        className="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-3 text-center"
-                      >
-                        <div
-                          className={`flex h-14 w-14 items-center justify-center rounded-lg ${style.wrap}`}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                         >
                           {methodImageSrc ? (
                             <Image
@@ -1936,28 +1772,17 @@ export default function Checkout() {
                               width={56}
                               height={56}
                               unoptimized
-<<<<<<< HEAD
                               className="h-12 w-12 object-contain max-[559px]:h-9 max-[559px]:w-9"
-=======
-                              className="h-12 w-12 object-contain"
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                             />
                           ) : (
                             <i className={style.icon}></i>
                           )}
                         </div>
                         <div className="space-y-1">
-<<<<<<< HEAD
                           <h3 className="font-medium text-gray-800 max-[559px]:text-sm dark:text-white">
                             {method.title}
                           </h3>
                           <p className="text-sm text-gray-600 max-[559px]:line-clamp-2 max-[559px]:text-xs dark:text-gray-400">
-=======
-                          <h3 className="font-medium text-gray-800 dark:text-white">
-                            {method.title}
-                          </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                             {method.description}
                           </p>
                         </div>
@@ -1973,11 +1798,7 @@ export default function Checkout() {
                   <p className="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
                     بانک مقصد
                   </p>
-<<<<<<< HEAD
                   <div className="flex flex-wrap gap-4 max-[559px]:grid max-[559px]:grid-cols-2 max-[559px]:gap-2">
-=======
-                  <div className="flex flex-wrap gap-4">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                     {selectedAvailableProviders.map((provider) => {
                       const isProviderSelected =
                         selectedProviderCode === provider.code;
@@ -1991,11 +1812,7 @@ export default function Checkout() {
                           type="button"
                           onClick={() => setSelectedProviderCode(provider.code)}
                           className={[
-<<<<<<< HEAD
                             "flex h-[200px] w-[200px] max-w-full flex-col items-center justify-center gap-3 rounded-lg border p-4 text-center transition-all max-[559px]:h-36 max-[559px]:w-full max-[559px]:gap-2 max-[559px]:p-2.5",
-=======
-                            "flex h-[200px] w-[200px] max-w-full flex-col items-center justify-center gap-3 rounded-lg border p-4 text-center transition-all",
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                             isProviderSelected
                               ? "border-primary-500 bg-white ring-2 ring-primary-500/30 dark:bg-zinc-900"
                               : "border-gray-300 bg-white hover:border-primary-500 dark:border-gray-600 dark:bg-zinc-900",
@@ -2008,21 +1825,12 @@ export default function Checkout() {
                               width={72}
                               height={72}
                               unoptimized
-<<<<<<< HEAD
                               className="h-16 w-16 object-contain max-[559px]:h-10 max-[559px]:w-10"
                             />
                           ) : (
                             <i className="far fa-building-columns text-2xl text-primary-500 max-[559px]:text-xl"></i>
                           )}
                           <span className="text-sm font-medium text-gray-800 max-[559px]:text-xs dark:text-gray-200">
-=======
-                              className="h-16 w-16 object-contain"
-                            />
-                          ) : (
-                            <i className="far fa-building-columns text-2xl text-primary-500"></i>
-                          )}
-                          <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                             {provider.title}
                           </span>
                         </button>
@@ -2175,7 +1983,6 @@ export default function Checkout() {
 
             <button
               type="button"
-<<<<<<< HEAD
               disabled={
                 submitting ||
                 !cartSync.canCheckout ||
@@ -2197,13 +2004,6 @@ export default function Checkout() {
                   : submitting
                   ? "در حال ثبت سفارش..."
                   : "پرداخت و تکمیل سفارش"}
-=======
-              disabled={submitting}
-              onClick={() => void handlePlaceOrder()}
-              className="flex w-full items-center justify-center rounded-lg bg-green-600 px-4 py-4 font-medium text-white transition-colors duration-200 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {submitting ? "در حال ثبت سفارش..." : "پرداخت و تکمیل سفارش"}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             </button>
 
             <p className="mt-3 text-center text-xs text-gray-500 dark:text-gray-400">

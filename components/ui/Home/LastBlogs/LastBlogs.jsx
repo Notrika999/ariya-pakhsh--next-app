@@ -13,11 +13,7 @@ export default function LastBlogs({ lastBlogLits }) {
     <>
       <h2 className="sr-only">مقالات وبلاگ لوازم خودرو</h2>
 
-<<<<<<< HEAD
       <SectionHeader title="آخرین مقالات" href="/mag" />
-=======
-      <SectionHeader title={"مقالات دسته‌بندی محصولات خودرو"} href={"/mag"} />
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
       <Swiper
         modules={[Autoplay]}
@@ -63,11 +59,7 @@ export default function LastBlogs({ lastBlogLits }) {
                   <h2 className="font-bold text-gray-900 dark:text-gray-100 text-base h-12 leading-6 line-clamp-2 mt-1">
                     {blog.title}
                   </h2>
-<<<<<<< HEAD
                   <p className="text-xs text-gray-600 dark:text-gray-400 h-12 leading-6 line-clamp-2 mt-2">
-=======
-                  <p className="text-sm text-gray-600 dark:text-gray-400 h-12 leading-6 line-clamp-2 mt-2">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                     {blog.description}
                   </p>
                 </div>

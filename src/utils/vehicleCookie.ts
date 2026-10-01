@@ -73,7 +73,6 @@ export const vehicleCookie = {
   set(vehicles: SelectedVehicle[]): void {
     if (typeof window === "undefined") return;
 
-<<<<<<< HEAD
     if (vehicles.length === 0) {
       this.clear();
       return;
@@ -83,11 +82,6 @@ export const vehicleCookie = {
       id: vehicle.id,
       name: vehicle.name,
       label: vehicle.label,
-=======
-    const payload = vehicles.map((vehicle) => ({
-      id: vehicle.id,
-      name: vehicle.name,
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     }));
 
     writeCookie(VEHICLE_COOKIE_NAME, JSON.stringify(payload));
@@ -108,7 +102,3 @@ export const vehicleCookie = {
     }
   },
 };
-<<<<<<< HEAD
-=======
-
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c

@@ -14,13 +14,10 @@ import {
   useIsAuthBootstrapping,
 } from "@/src/lib/stores/auth/auth.store";
 import { useSelectedVehicles } from "@/src/lib/stores/vehicle/vehicle.store";
-<<<<<<< HEAD
 import {
   getProductCompatibility,
   type ProductCompatibilityResult,
 } from "@/src/services/product/product.client";
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import { getDefaultMyVehicle } from "@/src/services/vehicle/vehicle.client";
 import { vehicleCookie } from "@/src/utils/vehicleCookie";
 
@@ -143,32 +140,16 @@ type DefaultVehicleSummary = {
   name: string;
 };
 
-<<<<<<< HEAD
 type CompatibilityState = {
   slug: string;
   vehicleId: string;
   result: ProductCompatibilityResult | null;
 };
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function getCompatibilityVehicleId(item: ProductDetailCompatibility) {
   return item.carId?.trim() ?? "";
 }
 
-<<<<<<< HEAD
-=======
-function isCompatibleWithVehicle(
-  compatibilities: ProductDetailCompatibility[] | undefined,
-  vehicleId: string,
-) {
-  if (!compatibilities?.length) return true;
-  return compatibilities.some(
-    (item) => getCompatibilityVehicleId(item) === vehicleId,
-  );
-}
-
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 export default function Description({
   product,
   selectedVariantId,
@@ -180,12 +161,9 @@ export default function Description({
   const selectedVehicles = useSelectedVehicles();
   const [defaultVehicle, setDefaultVehicle] =
     useState<DefaultVehicleSummary | null>(null);
-<<<<<<< HEAD
   const [compatibilityState, setCompatibilityState] =
     useState<CompatibilityState | null>(null);
   const [showAllCompatibilities, setShowAllCompatibilities] = useState(false);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   useEffect(() => {
     if (isAuthBootstrapping) return;
@@ -228,7 +206,6 @@ export default function Description({
     };
   }, [isAuthBootstrapping, isAuthenticated, selectedVehicles]);
 
-<<<<<<< HEAD
   useEffect(() => {
     const vehicleId = defaultVehicle?.id?.trim();
     const slug = product.slug?.trim();
@@ -277,8 +254,6 @@ export default function Description({
     };
   }, [defaultVehicle?.id, product.slug]);
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const selectedVariant =
     product.variants?.find((v) => v.variantId === selectedVariantId) ??
     product.variants?.find((v) => v.isDefault) ??
@@ -304,7 +279,6 @@ export default function Description({
   const showReview = rating > 0 || reviewCount > 0;
   const compatibilities = product.compatibilities ?? [];
   const hasCompatibilities = compatibilities.length > 0;
-<<<<<<< HEAD
   const hiddenCompatibilitiesCount = Math.max(compatibilities.length - 2, 0);
   const visibleCompatibilities = showAllCompatibilities
     ? compatibilities
@@ -319,11 +293,6 @@ export default function Description({
       ? compatibilityResult.isCompatible ||
         compatibilityResult.isCompatibleWithAllVehicles
       : null;
-=======
-  const isCompatible = defaultVehicle
-    ? isCompatibleWithVehicle(compatibilities, defaultVehicle.id)
-    : null;
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   return (
     <section className="xl:col-span-5 md:mt-7 mt-1 col-span-12 md:pb-10 w-full dark:text-gray-200">
@@ -359,11 +328,7 @@ export default function Description({
         <h1 className="font-black leading-8">{product.name}</h1>
         {product.shortDescription && (
           <div
-<<<<<<< HEAD
             className="text-gray-400 dark:text-gray-500 text-sm leading-8 text-justify"
-=======
-            className="text-gray-400 dark:text-gray-500 text-sm leading-8"
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             dangerouslySetInnerHTML={{ __html: product.shortDescription }}
           />
         )}
@@ -495,7 +460,6 @@ export default function Description({
 
       {/* Compatibilities */}
       <div className="mt-8 space-y-3">
-<<<<<<< HEAD
         <div className="flex items-center gap-2">
           <h4 className="flex items-center gap-2 text-lg font-bold">
             <i className="fas fa-car-side text-primary" aria-hidden="true" />
@@ -532,22 +496,6 @@ export default function Description({
                   : isCompatible === false
                     ? "border border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/40 dark:text-red-300"
                     : "bg-gray-200 text-gray-700 dark:bg-zinc-800 dark:text-gray-100"
-=======
-        <h4 className="flex items-center gap-2 text-lg font-bold">
-          <i className="fas fa-car-side text-primary" aria-hidden="true" />
-          خودروهای سازگار
-        </h4>
-
-        {hasCompatibilities ? (
-          <ul className="flex flex-wrap items-center gap-3">
-            {compatibilities.map((item) => {
-              const isDefaultMatch =
-                defaultVehicle?.id === getCompatibilityVehicleId(item);
-              const chipClass = isDefaultMatch
-                ? isCompatible
-                  ? "border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300"
-                  : "border border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/40 dark:text-red-300"
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                 : "bg-gray-200 text-gray-700 dark:bg-zinc-800 dark:text-gray-100";
 
               return (
@@ -561,7 +509,6 @@ export default function Description({
                 </li>
               );
             })}
-<<<<<<< HEAD
 
             {hiddenCompatibilitiesCount > 0 ? (
               <li>
@@ -587,8 +534,6 @@ export default function Description({
                 </button>
               </li>
             ) : null}
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           </ul>
         ) : (
           <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-2">
@@ -603,69 +548,8 @@ export default function Description({
             </li>
           </ul>
         )}
-<<<<<<< HEAD
       </div>
 
-=======
-
-        {defaultVehicle && isCompatible !== null ? (
-          <p
-            className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold ${
-              isCompatible
-                ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300"
-                : "border-red-200 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300"
-            }`}
-          >
-            <i
-              className={`far ${isCompatible ? "fa-circle-check" : "fa-circle-xmark"}`}
-              aria-hidden="true"
-            />
-            {isCompatible
-              ? "با خودرو شما سازگار است"
-              : "با خودرو شما سازگار نیست"}
-          </p>
-        ) : null}
-      </div>
-
-      {/* Compatibilities
-      {product.compatibilities?.length > 0 && (
-        <div className="mt-8 space-y-3">
-          <h4 className="font-bold text-lg flex items-center gap-2">
-            <i className="fas fa-car-side text-primary" aria-hidden="true" />
-            خودروهای سازگار
-          </h4>
-          <ul className="grid gap-3 lg:grid-cols-2 sm:grid-cols-2 grid-cols-1">
-            {product.compatibilities.map((item) => (
-              <li
-                key={item.carId}
-                className="flex items-center justify-between gap-3 p-3 bg-gray-200 dark:bg-zinc-800 rounded-lg"
-              >
-                <div className="min-w-0">
-                  <p className="line-clamp-1 text-sm font-semibold text-gray-800 dark:text-gray-100">
-                    {item.name}
-                  </p>
-                  {item.model && (
-                    <p className="line-clamp-1 mt-1 text-xs text-gray-600 dark:text-gray-300">
-                      مدل: {item.model}
-                    </p>
-                  )}
-                </div>
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                    item.isIranianCar
-                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
-                      : "bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300"
-                  }`}
-                >
-                  {item.isIranianCar ? "ایرانی" : "وارداتی"}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )} */}
-
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       {/* Attributes of selected variant (non-color) */}
       {displayAttributes.length > 0 && (
         <div className="mt-8 space-y-3">

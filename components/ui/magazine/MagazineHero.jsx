@@ -43,11 +43,7 @@ export default function MagazineHero({
           titleAs={titleAs}
         />
       </div>
-<<<<<<< HEAD
       <div className="grid min-w-0 grid-cols-2 gap-3 lg:col-span-2">
-=======
-      <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-2">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         {rest.map((article) => (
           <div key={getArticleKey(article)} className="min-h-36 min-w-0">
             <FeaturedArticleCard article={article} titleAs={titleAs} />

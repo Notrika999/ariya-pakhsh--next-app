@@ -13,11 +13,7 @@ import {
 import { notify } from "@/src/utils/toast";
 
 const STOCK_ISSUE_PATTERN =
-<<<<<<< HEAD
   /(stock|inventory|availability|available|isactive|active|status|purchasable|sellable|outofstock|out-of-stock|out_of_stock|unavailable|quantity|soldout|sold-out|sold_out)/i;
-=======
-  /(stock|inventory|outofstock|out-of-stock|out_of_stock|unavailable|quantity|soldout|sold-out|sold_out)/i;
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 function unique(values) {
   return Array.from(
@@ -29,7 +25,6 @@ function getIssues(item) {
   return Array.isArray(item?.issues) ? item.issues : [];
 }
 
-<<<<<<< HEAD
 function isUnavailableValue(value) {
   const normalized = String(value ?? "").trim().toLowerCase();
   return ["false", "0", "inactive", "unavailable", "outofstock", "soldout"].includes(
@@ -42,22 +37,12 @@ function hasUnavailableStockIssue(item) {
     (issue) =>
       STOCK_ISSUE_PATTERN.test(String(issue?.issueType || "")) &&
       isUnavailableValue(issue?.newValue),
-=======
-function hasStockIssue(item) {
-  return getIssues(item).some((issue) =>
-    STOCK_ISSUE_PATTERN.test(String(issue?.issueType || "")),
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   );
 }
 
 function hasErrorIssue(item) {
   return (
-<<<<<<< HEAD
     hasUnavailableStockIssue(item) ||
-=======
-    Number(item?.quantity || 0) <= 0 ||
-    hasStockIssue(item) ||
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     getIssues(item).some(
       (issue) => String(issue?.severity || "").toLowerCase() === "error",
     )
@@ -71,7 +56,6 @@ function hasWarningIssue(item) {
 }
 
 function buildSyncState(syncData) {
-<<<<<<< HEAD
   const items = Array.isArray(syncData?.items)
     ? syncData.items.filter(
         (item) =>
@@ -92,22 +76,6 @@ function buildSyncState(syncData) {
       !errorVariantIds.has(item.variantId) &&
       (hasWarningIssue(item) || !hasErrorIssue(item)),
   );
-=======
-  if (!syncData?.hasErrors && !syncData?.hasWarnings) return null;
-
-  const items = Array.isArray(syncData?.items)
-    ? syncData.items.filter((item) => getIssues(item).length > 0)
-    : [];
-  const errorItems = syncData.hasErrors ? items.filter(hasErrorIssue) : [];
-  const errorVariantIds = new Set(errorItems.map((item) => item.variantId));
-  const warningItems = syncData.hasWarnings
-    ? items.filter(
-        (item) =>
-          !errorVariantIds.has(item.variantId) &&
-          (hasWarningIssue(item) || !hasErrorIssue(item)),
-      )
-    : [];
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   if (errorItems.length === 0 && warningItems.length === 0) return null;
 
@@ -139,15 +107,11 @@ function createErrorState(items) {
   };
 }
 
-<<<<<<< HEAD
 export function useCartSynchronization({
   enabled,
   refreshCart,
   autoCheck = true,
 }) {
-=======
-export function useCartSynchronization({ enabled, refreshCart }) {
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const isAuthenticated = useIsAuthenticated();
   const isAuthBootstrapping = useIsAuthBootstrapping();
   const canCheckServerCart =
@@ -156,10 +120,7 @@ export function useCartSynchronization({ enabled, refreshCart }) {
   const [actionLoading, setActionLoading] = useState(false);
   const [syncState, setSyncState] = useState(null);
   const checkedRef = useRef(false);
-<<<<<<< HEAD
   const checkInFlightRef = useRef(false);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const pendingErrorItemsRef = useRef([]);
   const activeSyncState = canCheckServerCart ? syncState : null;
 
@@ -173,15 +134,10 @@ export function useCartSynchronization({ enabled, refreshCart }) {
   }, []);
 
   const checkCart = useCallback(async () => {
-<<<<<<< HEAD
     if (!canCheckServerCart) return true;
     if (checkInFlightRef.current || actionLoading || syncState) return false;
 
     checkInFlightRef.current = true;
-=======
-    if (checking || actionLoading || syncState) return;
-
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     setChecking(true);
     try {
       const response = await synchronizeCart();
@@ -196,7 +152,6 @@ export function useCartSynchronization({ enabled, refreshCart }) {
       } else {
         setSyncState(null);
       }
-<<<<<<< HEAD
       return !nextSyncState;
     } catch {
       notify.error("بررسی وضعیت سبد خرید ناموفق بود");
@@ -206,14 +161,6 @@ export function useCartSynchronization({ enabled, refreshCart }) {
       setChecking(false);
     }
   }, [actionLoading, canCheckServerCart, syncState]);
-=======
-    } catch {
-      notify.error("بررسی وضعیت سبد خرید ناموفق بود");
-    } finally {
-      setChecking(false);
-    }
-  }, [actionLoading, checking, syncState]);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   useEffect(() => {
     if (!canCheckServerCart) {
@@ -222,17 +169,10 @@ export function useCartSynchronization({ enabled, refreshCart }) {
       return;
     }
 
-<<<<<<< HEAD
     if (!autoCheck || checkedRef.current) return;
     checkedRef.current = true;
     void checkCart();
   }, [autoCheck, canCheckServerCart, checkCart]);
-=======
-    if (checkedRef.current) return;
-    checkedRef.current = true;
-    void checkCart();
-  }, [canCheckServerCart, checkCart]);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   const refresh = useCallback(async () => {
     if (typeof refreshCart === "function") {
@@ -324,10 +264,7 @@ export function useCartSynchronization({ enabled, refreshCart }) {
 
   return {
     canCheckout: !checking && !actionLoading && !activeSyncState,
-<<<<<<< HEAD
     checkCart,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     checking,
     modalProps,
   };

@@ -12,15 +12,11 @@ import {
   type HomeSearchPromotion,
 } from "@/src/services/home/search-promotion";
 import Image from "next/image";
-<<<<<<< HEAD
 import {
   ArrowRight as ArrowRightIcon,
   Search as SearchIcon,
   X as XIcon,
 } from "lucide-react";
-=======
-import { Search as SearchIcon, X as XIcon } from "lucide-react";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 type SearchSuggestion = {
   id: string;
@@ -41,10 +37,7 @@ type HeaderSearchProps = {
   resultsVariant?: "default" | "mobile";
   onNavigate?: () => void;
   resultsId?: string;
-<<<<<<< HEAD
   mobileFullscreenUnder500?: boolean;
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 };
 
 const SUGGESTION_SIZE = 8;
@@ -401,11 +394,7 @@ function loadSearchPromotions() {
     .get("/api/home/search-promotions")
     .then((response) => normalizeSearchPromotions(response.data))
     .catch((error) => {
-<<<<<<< HEAD
       // console.error("[HeaderSearch] search promotion route failed =>", error);
-=======
-      console.error("[HeaderSearch] search promotion route failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       return [] as HomeSearchPromotion[];
     })
     .then(async (promotions) => {
@@ -466,10 +455,7 @@ export default function HeaderSearch({
   resultsVariant = "default",
   onNavigate,
   resultsId = "searchResults",
-<<<<<<< HEAD
   mobileFullscreenUnder500 = false,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 }: HeaderSearchProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -538,7 +524,6 @@ export default function HeaderSearch({
 
     return () => window.clearTimeout(timerId);
   }, [currentSearchQuery, isSearchPage]);
-<<<<<<< HEAD
 
   useEffect(() => {
     const timerId = window.setTimeout(() => {
@@ -714,163 +699,9 @@ export default function HeaderSearch({
 
     return () => window.clearTimeout(timerId);
   }, [debounced]);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   // جستجوی پرطرفدار توسط سرور در صفحه جستجو می باشد.
   useEffect(() => {
-<<<<<<< HEAD
-=======
-    const timerId = window.setTimeout(() => {
-      if (isAuthenticated) return;
-
-      setRecentSearches(readRecentSearches());
-    }, 0);
-
-    return () => window.clearTimeout(timerId);
-  }, [isAuthenticated]);
-
-  // جستجوی گذشته کاربر توسط سرور در جستجو می باشد.
-  useEffect(() => {
-    if (!isAuthenticated) {
-      recentRequestIdRef.current += 1;
-      return;
-    }
-
-    const requestId = recentRequestIdRef.current + 1;
-    recentRequestIdRef.current = requestId;
-    const guestRecentSearches = readRecentSearches();
-
-    void apiClient
-      .get("/Search/recent", {
-        params: {
-          Count: searchListSize,
-        },
-      })
-      .then((response) => {
-        if (recentRequestIdRef.current !== requestId) return;
-        const serverRecentSearches = normalizeRecentSearches(
-          response.data,
-          searchListSize,
-        );
-        const unsyncedGuestSearches = getMissingRecentSearches(
-          guestRecentSearches,
-          serverRecentSearches,
-        );
-
-        setRecentSearches(serverRecentSearches);
-
-        if (unsyncedGuestSearches.length === 0) return;
-
-        void apiClient
-          .post("/Search/history/sync", {
-            queries: unsyncedGuestSearches,
-          })
-          .then(() => {
-            if (recentRequestIdRef.current !== requestId) return;
-            const nextSearches = [
-              ...unsyncedGuestSearches,
-              ...serverRecentSearches,
-            ].slice(0, MAX_RECENT_SEARCHES);
-            setRecentSearches(nextSearches);
-            writeRecentSearches(nextSearches);
-          })
-          .catch((error) => {
-            console.error("[HeaderSearch] history sync failed =>", error);
-          });
-      })
-      .catch((error) => {
-        if (recentRequestIdRef.current !== requestId) return;
-        console.error("[HeaderSearch] recent failed =>", error);
-        setRecentSearches([]);
-      });
-  }, [isAuthenticated, searchListSize]);
-
-  useEffect(() => {
-    if (!isSearchPage) return;
-
-    function onSearchResults(event: Event) {
-      const detail = (event as CustomEvent<HeaderSearchResultsEventDetail>)
-        .detail;
-      const eventQuery = String(detail?.query ?? "").trim();
-
-      if (eventQuery !== currentSearchQuery.trim()) return;
-      if (
-        typeof detail.totalCount !== "number" ||
-        !Number.isFinite(detail.totalCount)
-      ) {
-        setSearchResultCount(null);
-        return;
-      }
-
-      setSearchResultCount({
-        query: eventQuery,
-        totalCount: detail.totalCount,
-      });
-    }
-
-    window.addEventListener(HEADER_SEARCH_RESULTS_EVENT, onSearchResults);
-    return () => {
-      window.removeEventListener(HEADER_SEARCH_RESULTS_EVENT, onSearchResults);
-    };
-  }, [currentSearchQuery, isSearchPage]);
-
-  useEffect(() => {
-    if (!autoFocus) return;
-    inputRef.current?.focus();
-  }, [autoFocus]);
-
-  // جستجوی سریع توسط سرور در صفحه جستجو می باشد.
-  useEffect(() => {
-    const requestId = requestIdRef.current + 1;
-    requestIdRef.current = requestId;
-    const term = debounced.trim();
-
-    if (!term) {
-      const timerId = window.setTimeout(() => {
-        setResults([]);
-        setLoading(false);
-        setActiveIndex(-1);
-      }, 0);
-
-      return () => window.clearTimeout(timerId);
-    }
-
-    const timerId = window.setTimeout(() => {
-      setLoading(true);
-      void apiClient
-        .get("/Search/suggest", {
-          params: {
-            Q: term,
-            q: term,
-            Size: SUGGESTION_SIZE,
-            Count: SUGGESTION_SIZE,
-          },
-        })
-        .then((response) => {
-         
-          if (requestIdRef.current !== requestId) return;
-          setResults(normalizeSuggestions(response.data));
-          setActiveIndex(-1);
-        })
-        .catch((error) => {
-          if (requestIdRef.current !== requestId) return;
-          console.error("[HeaderSearch] suggest failed =>", error);
-          setResults([]);
-        })
-        .finally(() => {
-          if (requestIdRef.current === requestId) {
-            setLoading(false);
-          }
-        });
-    }, 0);
-
-    return () => window.clearTimeout(timerId);
-  }, [debounced]);
-
-  // جستجوی پرطرفدار توسط سرور در صفحه جستجو می باشد.
-  useEffect(() => {
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     if (!open || query.trim().length > 0) return;
 
     const requestId = popularRequestIdRef.current + 1;
@@ -892,11 +723,7 @@ export default function HeaderSearch({
         })
         .catch((error) => {
           if (popularRequestIdRef.current !== requestId) return;
-<<<<<<< HEAD
           // console.error("[HeaderSearch] popular failed =>", error);
-=======
-          console.error("[HeaderSearch] popular failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           setPopularSearches([]);
         })
         .finally(() => {
@@ -922,11 +749,7 @@ export default function HeaderSearch({
         })
         .catch((error) => {
           if (searchPromotionRequestIdRef.current !== requestId) return;
-<<<<<<< HEAD
           // console.error("[HeaderSearch] search promotion failed =>", error);
-=======
-          console.error("[HeaderSearch] search promotion failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           setSearchPromotions([]);
         });
     }, 0);
@@ -972,10 +795,7 @@ export default function HeaderSearch({
 
     saveRecentSearch(currentValue);
     onNavigate?.();
-<<<<<<< HEAD
     setMobilePanelOpen(false);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   }
 
   function saveRecentSearch(term: string) {
@@ -993,11 +813,7 @@ export default function HeaderSearch({
         queries: [normalized],
       })
       .catch((error) => {
-<<<<<<< HEAD
         // console.error("[HeaderSearch] history sync failed =>", error);
-=======
-        console.error("[HeaderSearch] history sync failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       });
   }
 
@@ -1010,10 +826,7 @@ export default function HeaderSearch({
 
     saveRecentSearch(normalized);
     onNavigate?.();
-<<<<<<< HEAD
     setMobilePanelOpen(false);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     window.location.href = buildSearchHref(normalized);
   }
 
@@ -1071,14 +884,8 @@ export default function HeaderSearch({
     }
   }
 
-<<<<<<< HEAD
   const searchForm = (
     <div className="flex items-center w-full justify-between">
-=======
-  return (
-    <div className={className}>
-      <div className="flex items-center w-full justify-between">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         <form
           action="/search"
           method="get"
@@ -1141,15 +948,10 @@ export default function HeaderSearch({
               <div
                 id={resultsId}
                 className={
-<<<<<<< HEAD
                 resultsClassName ||
                   (mobilePanelOpen
                     ? "static mt-4 max-h-[calc(100dvh-96px)] overflow-y-auto rounded-none border-0 bg-white shadow-none transition-colors duration-300 dark:bg-custom-dark"
                     : "absolute end-0 start-0 top-[calc(100%+12px)] z-50 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.14)] transition-colors duration-300 dark:border-gray-800 dark:bg-custom-dark dark:shadow-[0_18px_45px_rgba(0,0,0,0.45)]")
-=======
-                  resultsClassName ||
-                  "absolute end-0 start-0 top-[calc(100%+12px)] z-50 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-[0_18px_45px_rgba(15,23,42,0.14)] transition-colors duration-300 dark:border-gray-800 dark:bg-custom-dark dark:shadow-[0_18px_45px_rgba(0,0,0,0.45)]"
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                 }
                 dir="rtl"
               >
@@ -1172,10 +974,7 @@ export default function HeaderSearch({
                               onClick={() => {
                                 saveRecentSearch(term);
                                 setOpen(false);
-<<<<<<< HEAD
                                 setMobilePanelOpen(false);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                                 onNavigate?.();
                               }}
                             >
@@ -1218,10 +1017,7 @@ export default function HeaderSearch({
                               onClick={() => {
                                 saveRecentSearch(term);
                                 setOpen(false);
-<<<<<<< HEAD
                                 setMobilePanelOpen(false);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                                 onNavigate?.();
                               }}
                             >
@@ -1242,10 +1038,7 @@ export default function HeaderSearch({
                             onMouseDown={(event) => event.preventDefault()}
                             onClick={() => {
                               setOpen(false);
-<<<<<<< HEAD
                               setMobilePanelOpen(false);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                               onNavigate?.();
                             }}
                           >
@@ -1298,10 +1091,7 @@ export default function HeaderSearch({
                             onClick={() => {
                               saveRecentSearch(item.title);
                               setOpen(false);
-<<<<<<< HEAD
                               setMobilePanelOpen(false);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                               onNavigate?.();
                             }}
                           >

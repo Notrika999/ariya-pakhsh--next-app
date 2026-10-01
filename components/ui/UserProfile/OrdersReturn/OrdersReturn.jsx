@@ -74,11 +74,7 @@ export default function OrdersReturn() {
         setFallbackOrderId(eligibleOrders[0].orderId);
       }
     } catch (error) {
-<<<<<<< HEAD
       // console.error("[OrdersReturn] load orders failed =>", error);
-=======
-      console.error("[OrdersReturn] load orders failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
       setOrderOptions([]);
     } finally {
@@ -120,11 +116,7 @@ export default function OrdersReturn() {
         setSelections(nextSelections);
         resetReturnForm();
       } catch (error) {
-<<<<<<< HEAD
         // console.error("[OrdersReturn] load order detail failed =>", error);
-=======
-        console.error("[OrdersReturn] load order detail failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         notify.error(getAuthErrorMessage(error));
         setOrderDetail(null);
         setSelections({});
@@ -273,11 +265,7 @@ export default function OrdersReturn() {
         notify.info(`کد پیگیری: ${result.returnId}`);
       }
     } catch (error) {
-<<<<<<< HEAD
       // console.error("[OrdersReturn] submit failed =>", error);
-=======
-      console.error("[OrdersReturn] submit failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
     } finally {
       setSubmitting(false);

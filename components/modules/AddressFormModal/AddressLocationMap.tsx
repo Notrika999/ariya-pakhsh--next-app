@@ -1,24 +1,17 @@
 "use client";
 
-<<<<<<< HEAD
 import { useEffect, useRef, useState } from "react";
-=======
-import { useEffect, useRef } from "react";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { notify } from "@/src/utils/toast";
 
 const DEFAULT_CENTER: L.LatLngExpression = [35.6892, 51.389];
 const DEFAULT_ZOOM = 13;
-<<<<<<< HEAD
 const CURRENT_LOCATION_ZOOM = 17;
 const LOCATION_TIMEOUT_MS = 12_000;
 const LOCATION_DESIRED_ACCURACY_METERS = 25;
 const LOCATION_ACCEPTED_ACCURACY_METERS = 50;
 const LOCATION_MAX_VISIBLE_ACCURACY_METERS = 1_000;
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 function hasCoords(lat: number, lng: number): boolean {
   return (
@@ -28,7 +21,6 @@ function hasCoords(lat: number, lng: number): boolean {
   );
 }
 
-<<<<<<< HEAD
 function formatAccuracy(accuracy: number): string {
   if (accuracy >= 1_000) {
     const kilometers = accuracy / 1_000;
@@ -65,22 +57,6 @@ function createApproximateLocationIcon(): L.DivIcon {
     "></div>`,
     iconSize: [18, 18],
     iconAnchor: [9, 9],
-=======
-function createPinIcon(): L.DivIcon {
-  return L.divIcon({
-    className: "address-location-pin",
-    html: `<div style="
-      width: 28px;
-      height: 28px;
-      border-radius: 50% 50% 50% 0;
-      background: #e11d48;
-      transform: rotate(-45deg);
-      border: 2px solid #fff;
-      box-shadow: 0 2px 8px rgba(0,0,0,.35);
-    "></div>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 28],
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   });
 }
 
@@ -102,7 +78,6 @@ export default function AddressLocationMap({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
-<<<<<<< HEAD
   const approximateMarkerRef = useRef<L.Marker | null>(null);
   const accuracyCircleRef = useRef<L.Circle | null>(null);
   const onChangeRef = useRef(onChange);
@@ -112,10 +87,6 @@ export default function AddressLocationMap({
   const locationRequestIdRef = useRef(0);
   const [locating, setLocating] = useState(false);
   const [locationMessage, setLocationMessage] = useState<string | null>(null);
-=======
-  const onChangeRef = useRef(onChange);
-  const disabledRef = useRef(disabled);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   useEffect(() => {
     onChangeRef.current = onChange;
@@ -125,7 +96,6 @@ export default function AddressLocationMap({
     disabledRef.current = disabled;
   }, [disabled]);
 
-<<<<<<< HEAD
   const clearLocationWatch = () => {
     if (locationWatchIdRef.current !== null) {
       navigator.geolocation.clearWatch(locationWatchIdRef.current);
@@ -206,8 +176,6 @@ export default function AddressLocationMap({
     };
   }, []);
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
@@ -240,12 +208,9 @@ export default function AddressLocationMap({
         markerRef.current.on("dragend", () => {
           const pos = markerRef.current?.getLatLng();
           if (!pos) return;
-<<<<<<< HEAD
           clearAccuracyCircle();
           clearApproximateMarker();
           setLocationMessage(null);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           onChangeRef.current({
             latitude: Number(pos.lat.toFixed(6)),
             longitude: Number(pos.lng.toFixed(6)),
@@ -265,12 +230,9 @@ export default function AddressLocationMap({
     map.on("click", (event: L.LeafletMouseEvent) => {
       if (disabledRef.current) return;
       const { lat, lng } = event.latlng;
-<<<<<<< HEAD
       clearAccuracyCircle();
       clearApproximateMarker();
       setLocationMessage(null);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setMarker(lat, lng);
       onChangeRef.current({
         latitude: Number(lat.toFixed(6)),
@@ -286,7 +248,6 @@ export default function AddressLocationMap({
 
     return () => {
       window.clearTimeout(resizeTimer);
-<<<<<<< HEAD
       accuracyCircleRef.current?.remove();
       approximateMarkerRef.current?.remove();
       map.remove();
@@ -294,11 +255,6 @@ export default function AddressLocationMap({
       markerRef.current = null;
       approximateMarkerRef.current = null;
       accuracyCircleRef.current = null;
-=======
-      map.remove();
-      mapRef.current = null;
-      markerRef.current = null;
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     };
     // Mount once; later lat/lng sync handled below
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -321,12 +277,9 @@ export default function AddressLocationMap({
       markerRef.current.on("dragend", () => {
         const pos = markerRef.current?.getLatLng();
         if (!pos) return;
-<<<<<<< HEAD
         clearAccuracyCircle();
         clearApproximateMarker();
         setLocationMessage(null);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         onChangeRef.current({
           latitude: Number(pos.lat.toFixed(6)),
           longitude: Number(pos.lng.toFixed(6)),
@@ -355,17 +308,12 @@ export default function AddressLocationMap({
   }, [hasError, disabled]);
 
   const handleUseMyLocation = () => {
-<<<<<<< HEAD
     if (disabled || locating) return;
-=======
-    if (disabled) return;
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     if (!navigator.geolocation) {
       notify.error("مرورگر شما از موقعیت‌یابی پشتیبانی نمی‌کند.");
       return;
     }
 
-<<<<<<< HEAD
     clearLocationWatch();
     setLocationMessage(null);
     const requestId = locationRequestIdRef.current + 1;
@@ -459,23 +407,6 @@ export default function AddressLocationMap({
       setLocationMessage("دریافت موقعیت فعلی بیش از حد طول کشید.");
       notify.error("دریافت موقعیت فعلی بیش از حد طول کشید.");
     }, LOCATION_TIMEOUT_MS);
-=======
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const nextLat = Number(position.coords.latitude.toFixed(6));
-        const nextLng = Number(position.coords.longitude.toFixed(6));
-        onChange({ latitude: nextLat, longitude: nextLng });
-        mapRef.current?.setView(
-          [nextLat, nextLng],
-          Math.max(mapRef.current.getZoom(), 15),
-        );
-      },
-      () => {
-        notify.error("دسترسی به موقعیت مکانی ممکن نشد.");
-      },
-      { enableHighAccuracy: true, timeout: 12_000 },
-    );
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   };
 
   return (
@@ -487,7 +418,6 @@ export default function AddressLocationMap({
         <button
           type="button"
           onClick={handleUseMyLocation}
-<<<<<<< HEAD
           disabled={disabled || locating}
           className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-zinc-800 dark:text-gray-200 dark:hover:bg-zinc-700"
         >
@@ -502,16 +432,6 @@ export default function AddressLocationMap({
         </div>
       )}
 
-=======
-          disabled={disabled}
-          className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-600 dark:bg-zinc-800 dark:text-gray-200 dark:hover:bg-zinc-700"
-        >
-          <i className="fa fa-crosshairs" />
-          موقعیت فعلی من
-        </button>
-      </div>
-
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       <div
         className={[
           "h-64 w-full overflow-hidden rounded-lg border z-0",

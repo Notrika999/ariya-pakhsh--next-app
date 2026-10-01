@@ -129,17 +129,10 @@ async function resolveVariantId(
 
       if (variantId) return variantId;
     } catch (error) {
-<<<<<<< HEAD
       // console.error("[ProductCard] resolveVariantId failed =>", {
       //   lookupKey,
       //   error,
       // });
-=======
-      console.error("[ProductCard] resolveVariantId failed =>", {
-        lookupKey,
-        error,
-      });
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     }
   }
 
@@ -152,10 +145,6 @@ export default function ProductCard({
   noTimer = false,
 }: ProductCardProps) {
 
-<<<<<<< HEAD
-=======
-  // console.log(product);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const [wishlist, setWishlist] = useState(false);
   const [wishlistBusy, setWishlistBusy] = useState(false);
   const [expired, setExpired] = useState(false);

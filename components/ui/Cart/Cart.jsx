@@ -1,10 +1,7 @@
 "use client";
 // components/ui/Cart/Cart.jsx
 import Image from "next/image";
-<<<<<<< HEAD
 import { useRouter } from "next/navigation";
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import React, { useMemo, useState } from "react";
 import { SectionContainer } from "@/components/modules/SectionContainer/SectionContainer";
 import Link from "next/link";
@@ -21,10 +18,7 @@ function getDiscountPercent(price, oldPrice) {
 }
 
 export default function Cart() {
-<<<<<<< HEAD
   const router = useRouter();
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const {
     items,
     totalItems,
@@ -90,7 +84,6 @@ export default function Cart() {
     }
   };
 
-<<<<<<< HEAD
   const handleCheckout = async () => {
     if (!cartSync.canCheckout) return;
 
@@ -100,8 +93,6 @@ export default function Cart() {
     }
   };
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   if (loading || syncing) {
     return (
       <>
@@ -348,7 +339,6 @@ export default function Cart() {
               </div>
             </div>
 
-<<<<<<< HEAD
             <button
               type="button"
               disabled={!cartSync.canCheckout}
@@ -373,33 +363,6 @@ export default function Cart() {
                   ? "ادامه فرآیند پرداخت"
                   : "ابتدا وضعیت سبد را تأیید کنید"}
             </button>
-=======
-            {cartSync.canCheckout ? (
-              <Link
-                href="/checkout"
-                className="flex w-full items-center justify-center rounded-lg bg-primary px-4 py-3 font-medium text-white transition-colors duration-200 hover:bg-primary-600"
-              >
-                <i className="far fa-credit-card me-1"></i>
-                ادامه فرآیند پرداخت
-              </Link>
-            ) : (
-              <button
-                type="button"
-                disabled
-                className="flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-gray-300 px-4 py-3 font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300"
-              >
-                {cartSync.checking ? (
-                  <i
-                    className="far fa-spinner-third animate-spin"
-                    aria-hidden="true"
-                  />
-                ) : null}
-                {cartSync.checking
-                  ? "در حال بررسی سبد خرید"
-                  : "ابتدا وضعیت سبد را تأیید کنید"}
-              </button>
-            )}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           </div>
         </div>
       </div>

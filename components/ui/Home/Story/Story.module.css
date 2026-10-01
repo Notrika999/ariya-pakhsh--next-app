@@ -95,15 +95,9 @@
   backdrop-filter: blur(6px);
 }
 
-<<<<<<< HEAD
 :global(body.home-story-open #goftino_w),
 :global(body.home-story-open iframe[src*="goftino"]),
 :global(body.home-story-open [id*="goftino"]) {
-=======
-:global(body.home-story-open #raychat_widget),
-:global(body.home-story-open #raychat_widget.raychat_frame),
-:global(body.home-story-open iframe[src*="raychat"]) {
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   display: none !important;
   visibility: hidden !important;
   pointer-events: none !important;

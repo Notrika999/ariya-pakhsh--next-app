@@ -46,11 +46,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-<<<<<<< HEAD
     // console.error("Amazing products API error:", error);
-=======
-    console.error("Amazing products API error:", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     return NextResponse.json(
       { error: "Failed to fetch amazing products" },

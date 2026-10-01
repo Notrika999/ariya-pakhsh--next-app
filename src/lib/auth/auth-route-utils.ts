@@ -3,7 +3,6 @@
 import "server-only";
 
 import { cookies } from "next/headers";
-<<<<<<< HEAD
 import { after, NextRequest, NextResponse } from "next/server";
 import {
   ATTRIBUTION_IDENTITY_RETRIES,
@@ -12,24 +11,17 @@ import {
   isValidVisitorId,
   sendAttributionIdentity,
 } from "@/src/lib/attribution/attribution";
-=======
-import { NextRequest, NextResponse } from "next/server";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import {
   buildBackendUrl,
   extractSetCookieHeaders,
   ProxyError,
   proxyToBackend,
 } from "@/src/lib/http/server-http";
-<<<<<<< HEAD
 import {
   AUTH_COOKIE_NAME_ALIASES,
   AUTH_COOKIE_NAMES,
   SESSION_INVALID_HEADER,
 } from "./constants";
-=======
-import { AUTH_COOKIE_NAME_ALIASES, AUTH_COOKIE_NAMES } from "./constants";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import {
   clearAllAuthCookies,
   rehostBackendCookies,
@@ -37,10 +29,7 @@ import {
   setAccessExpiryCookie,
   setAuthCookiesFromBody,
   setAuthIndicator,
-<<<<<<< HEAD
   setDeviceIdFromAccessToken,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   setDeviceIdFromBody,
 } from "./cookie-utils";
 
@@ -48,7 +37,6 @@ type CookieReader = {
   get(name: string): { value: string } | undefined;
 };
 
-<<<<<<< HEAD
 function getRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
     ? (value as Record<string, unknown>)
@@ -74,8 +62,6 @@ function pickString(data: unknown, keys: string[]): string | undefined {
   return undefined;
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function getFirstCookieValue(
   cookieStore: CookieReader,
   names: readonly string[],
@@ -87,7 +73,6 @@ function getFirstCookieValue(
   return undefined;
 }
 
-<<<<<<< HEAD
 function getCookieName(rawSetCookie: string): string | null {
   const cookiePart = rawSetCookie.split(";")[0] ?? "";
   const eqIdx = cookiePart.indexOf("=");
@@ -192,8 +177,6 @@ export function scheduleAttributionIdentity(
   return true;
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 async function buildDeviceCookieHeader(): Promise<Record<string, string>> {
   const cookieStore = await cookies();
   const deviceId = getFirstCookieValue(
@@ -214,14 +197,9 @@ export async function handleCustomerAuthPost(
     setAuthIndicator?: boolean;
   },
 ): Promise<NextResponse> {
-<<<<<<< HEAD
   try {
     const cookieStore = await cookies();
     const visitorId = cookieStore.get(ATTRIBUTION_VISITOR_COOKIE_NAME)?.value;
-=======
-  
-  try {
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     const body = await request.json();
     const extraHeaders = await buildDeviceCookieHeader();
 
@@ -235,24 +213,17 @@ export async function handleCustomerAuthPost(
     });
 
     if (!response.ok) {
-<<<<<<< HEAD
       const nextResponse = NextResponse.json(response.data, {
         status: response.status,
       });
       forwardSessionInvalidHeader(nextResponse, response.headers);
       return nextResponse;
-=======
-      return NextResponse.json(response.data, { status: response.status });
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     }
 
     const nextResponse = NextResponse.json(response.data, {
       status: response.status,
     });
-<<<<<<< HEAD
     forwardSessionInvalidHeader(nextResponse, response.headers);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     // 1) بکندهای cookie-based: Set-Cookie را rehost کن
     const setCookies = extractSetCookieHeaders(response.headers);
@@ -261,13 +232,10 @@ export async function handleCustomerAuthPost(
     // 2) بکندهای Bearer-based: توکن‌ها را از body بخوان و کوکی کن
     setAuthCookiesFromBody(nextResponse, response.data);
     setDeviceIdFromBody(nextResponse, response.data);
-<<<<<<< HEAD
     setDeviceIdFromAccessToken(
       nextResponse,
       pickAccessToken(response.data, setCookies),
     );
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     setAccessExpiryCookie(nextResponse, response.data, setCookies);
 
     if (options?.setAuthIndicator) {
@@ -276,10 +244,7 @@ export async function handleCustomerAuthPost(
         setCookies,
       );
       setAuthIndicator(nextResponse, expiresIn);
-<<<<<<< HEAD
       scheduleAttributionIdentity(visitorId, response.data, setCookies);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     }
 
     return nextResponse;
@@ -311,15 +276,11 @@ export async function handleCustomerAuthGet(
       withAuth,
     });
 
-<<<<<<< HEAD
     const nextResponse = NextResponse.json(response.data, {
       status: response.status,
     });
     forwardSessionInvalidHeader(nextResponse, response.headers);
     return nextResponse;
-=======
-    return NextResponse.json(response.data, { status: response.status });
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   } catch (error) {
     if (error instanceof ProxyError) {
       return NextResponse.json(
@@ -369,11 +330,7 @@ export async function handleCustomerAuthLogout(
     message: "خروج با موفقیت انجام شد.",
   });
 
-<<<<<<< HEAD
   clearAllAuthCookies(nextResponse, { preserveDeviceId: true });
-=======
-  clearAllAuthCookies(nextResponse);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   return nextResponse;
 }
 
@@ -382,10 +339,7 @@ export async function handleCustomerAuthRefresh(
 ): Promise<NextResponse> {
   try {
     const cookieStore = await cookies();
-<<<<<<< HEAD
     const visitorId = cookieStore.get(ATTRIBUTION_VISITOR_COOKIE_NAME)?.value;
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     const accessToken = getFirstCookieValue(
       cookieStore,
       AUTH_COOKIE_NAME_ALIASES.ACCESS_TOKEN,
@@ -404,11 +358,7 @@ export async function handleCustomerAuthRefresh(
         { error: "هیچ رفرش توکنی پیدا نشد.", success: false },
         { status: 401 },
       );
-<<<<<<< HEAD
       clearAllAuthCookies(res, { preserveDeviceId: true });
-=======
-      clearAllAuthCookies(res);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       return res;
     }
 
@@ -422,7 +372,6 @@ export async function handleCustomerAuthRefresh(
     }
 
     const backendUrl = buildBackendUrl(backendPath);
-<<<<<<< HEAD
     const refreshBody: { refreshToken: string; deviceId?: string } = {
       refreshToken,
     };
@@ -431,8 +380,6 @@ export async function handleCustomerAuthRefresh(
       refreshBody.deviceId = deviceId;
     }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     const backendResponse = await fetch(backendUrl, {
       method: "POST",
       headers: {
@@ -441,11 +388,7 @@ export async function handleCustomerAuthRefresh(
         ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       },
       // بکند Bearer-based ممکن است refreshToken را در body بخواهد
-<<<<<<< HEAD
       body: JSON.stringify(refreshBody),
-=======
-      body: JSON.stringify({ refreshToken, deviceId }),
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       signal: AbortSignal.timeout(15_000),
     });
 
@@ -456,14 +399,9 @@ export async function handleCustomerAuthRefresh(
         { error: "عملیات نوسازی توکن با شکست مواجه شد.", success: false },
         { status: 401 },
       );
-<<<<<<< HEAD
       forwardSessionInvalidHeader(res, backendResponse.headers);
       rehostBackendCookies(res, setCookies);
       clearAllAuthCookies(res, { preserveDeviceId: true });
-=======
-      rehostBackendCookies(res, setCookies);
-      clearAllAuthCookies(res);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       return res;
     }
 
@@ -472,7 +410,6 @@ export async function handleCustomerAuthRefresh(
       { success: true, ...responseData },
       { status: 200 },
     );
-<<<<<<< HEAD
     forwardSessionInvalidHeader(nextResponse, backendResponse.headers);
 
     rehostBackendCookies(nextResponse, setCookies);
@@ -481,20 +418,12 @@ export async function handleCustomerAuthRefresh(
       nextResponse,
       pickAccessToken(responseData, setCookies),
     );
-=======
-
-    rehostBackendCookies(nextResponse, setCookies);
-    setAuthCookiesFromBody(nextResponse, responseData);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     setAccessExpiryCookie(nextResponse, responseData, setCookies);
     setAuthIndicator(
       nextResponse,
       resolveAccessExpiresInSeconds(responseData, setCookies),
     );
-<<<<<<< HEAD
     scheduleAttributionIdentity(visitorId, responseData, setCookies);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     return nextResponse;
   } catch {
@@ -502,11 +431,7 @@ export async function handleCustomerAuthRefresh(
       { error: "عملیات نوسازی رفرش توکن با شکست مواجه شد.", success: false },
       { status: 500 },
     );
-<<<<<<< HEAD
     clearAllAuthCookies(res, { preserveDeviceId: true });
-=======
-    clearAllAuthCookies(res);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     return res;
   }
 }

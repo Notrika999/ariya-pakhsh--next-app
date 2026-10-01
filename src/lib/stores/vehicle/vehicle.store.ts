@@ -8,20 +8,14 @@ import type {
 import {
   getMyVehicles,
   getVehicleTree,
-<<<<<<< HEAD
   saveMyVehicle,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   saveMyVehicles,
 } from "@/src/services/vehicle/vehicle.client";
 import { userVehicleToSelected } from "@/src/services/vehicle/vehicle.mapper";
 import { vehicleCookie } from "@/src/utils/vehicleCookie";
 import { getIsAuthenticated } from "@/src/lib/stores/auth/auth.store";
 import { notify } from "@/src/utils/toast";
-<<<<<<< HEAD
 import { recordVehiclePromptShown } from "@/src/utils/vehiclePromptStorage";
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 type VehicleState = {
   selectedVehicles: SelectedVehicle[];
@@ -40,7 +34,6 @@ type VehicleState = {
 async function readSelectedVehicles(): Promise<SelectedVehicle[]> {
   if (getIsAuthenticated()) {
     try {
-<<<<<<< HEAD
       const fromCookie = vehicleCookie.get();
       const fromApi = await getMyVehicles();
       const apiVehicleIds = new Set(
@@ -62,22 +55,6 @@ async function readSelectedVehicles(): Promise<SelectedVehicle[]> {
 
       vehicleCookie.set(selectedVehicles);
       return selectedVehicles;
-=======
-      const fromApi = await getMyVehicles();
-      if (fromApi.length > 0) {
-        vehicleCookie.clear();
-        return fromApi.map(userVehicleToSelected);
-      }
-
-      const fromCookie = vehicleCookie.get();
-      if (fromCookie.length > 0) {
-        await saveMyVehicles(fromCookie);
-        vehicleCookie.clear();
-        return fromCookie;
-      }
-
-      return [];
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     } catch {
       return vehicleCookie.get();
     }
@@ -97,24 +74,12 @@ export const useVehicleStore = create<VehicleState>((set, get) => ({
   hydrate: async () => {
     vehicleCookie.clearLegacy();
     const selectedVehicles = await readSelectedVehicles();
-<<<<<<< HEAD
-=======
-    const alreadyHydrated = get().isHydrated;
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     set({
       selectedVehicles,
       isHydrated: true,
-<<<<<<< HEAD
       isModalOpen:
         selectedVehicles.length > 0 ? false : get().isModalOpen,
-=======
-      isModalOpen: alreadyHydrated
-        ? selectedVehicles.length > 0
-          ? false
-          : get().isModalOpen
-        : selectedVehicles.length === 0,
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     });
   },
 
@@ -130,10 +95,7 @@ export const useVehicleStore = create<VehicleState>((set, get) => ({
   },
 
   openModal: () => {
-<<<<<<< HEAD
     recordVehiclePromptShown();
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     set({ isModalOpen: true });
     void get().loadCatalog();
   },
@@ -146,18 +108,10 @@ export const useVehicleStore = create<VehicleState>((set, get) => ({
     try {
       if (getIsAuthenticated()) {
         await saveMyVehicles(vehicles);
-<<<<<<< HEAD
       }
 
       vehicleCookie.set(vehicles);
 
-=======
-        vehicleCookie.clear();
-      } else {
-        vehicleCookie.set(vehicles);
-      }
-
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       set({
         selectedVehicles: vehicles,
         isModalOpen: false,

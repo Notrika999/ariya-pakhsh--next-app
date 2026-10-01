@@ -66,11 +66,7 @@ export interface LoginRequest {
   username: string;
   password: string;
   rememberMe: boolean;
-<<<<<<< HEAD
   deviceFingerPrint?: string | null;
-=======
-  deviceFingerPrint: string;
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 }
 
 export interface LoginResponse {
@@ -98,11 +94,7 @@ export interface LoginResponse {
 export interface VerifyLoginTwoFactorRequest {
   twoFactorToken: string;
   code: string;
-<<<<<<< HEAD
   deviceFingerPrint?: string | null;
-=======
-  deviceFingerPrint: string;
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 }
 
 export type VerifyLoginTwoFactorResponse = LoginResponse;

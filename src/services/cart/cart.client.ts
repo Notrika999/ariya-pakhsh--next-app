@@ -193,7 +193,6 @@ function unwrapCartSynchronization(payload: unknown): CartSynchronizationData {
     .map(mapCartSynchronizationItem)
     .filter((item): item is CartSynchronizationItem => Boolean(item));
 
-<<<<<<< HEAD
   const hasIssueSeverity = (severity: string) =>
     items.some((item) =>
       item.issues.some(
@@ -204,11 +203,6 @@ function unwrapCartSynchronization(payload: unknown): CartSynchronizationData {
   return {
     hasErrors: data.hasErrors === true || hasIssueSeverity("error"),
     hasWarnings: data.hasWarnings === true || hasIssueSeverity("warning"),
-=======
-  return {
-    hasErrors: Boolean(data.hasErrors),
-    hasWarnings: Boolean(data.hasWarnings),
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     items,
   };
 }
@@ -260,7 +254,6 @@ export async function getCart(): Promise<CartDto> {
 }
 
 export async function synchronizeCart(): Promise<CartSynchronizationData> {
-<<<<<<< HEAD
   const requestConfig = cartRequestConfig();
   const response = await apiClient.get(CART_SYNC_ENDPOINT, {
     ...requestConfig,
@@ -270,12 +263,6 @@ export async function synchronizeCart(): Promise<CartSynchronizationData> {
       Pragma: "no-cache",
     },
   });
-=======
-  const response = await apiClient.get(
-    CART_SYNC_ENDPOINT,
-    cartRequestConfig(),
-  );
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   assertSuccess(response.data, "همگام‌سازی سبد خرید ناموفق بود");
   return unwrapCartSynchronization(response.data);

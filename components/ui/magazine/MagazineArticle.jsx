@@ -27,36 +27,15 @@ function ArticleBreadcrumb({ article }) {
   return (
     <nav
       aria-label="مسیر صفحه"
-<<<<<<< HEAD
       className="rounded-xl border border-slate-200/80 bg-white/70 px-4 py-3 text-xs text-slate-500 shadow-[0_10px_30px_-28px_rgba(15,23,42,0.55)] backdrop-blur-sm dark:border-zinc-800 dark:bg-custom-dark/80 dark:text-gray-400"
-=======
-      className="text-sm text-gray-500 dark:text-gray-400"
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     >
       <ol className="flex flex-wrap items-center gap-2">
         <li>
           <Link
-<<<<<<< HEAD
             href="/mag"
             className="inline-flex items-center gap-1.5 font-semibold text-slate-700 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:text-slate-200"
           >
             <i className="far fa-newspaper" aria-hidden="true" />
-=======
-            href="/"
-            className="hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          >
-            فروشگاه
-          </Link>
-        </li>
-        <li aria-hidden="true">
-          <i className="fas fa-angle-left text-[10px]" />
-        </li>
-        <li>
-          <Link
-            href="/mag"
-            className="hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-          >
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             مجله
           </Link>
         </li>
@@ -95,7 +74,6 @@ export default function MagazineArticle({ article }) {
     (block) => block.type === "faqGroup",
   );
   const metaParts = [
-<<<<<<< HEAD
     article.publishedAt
       ? { icon: "far fa-calendar", label: article.publishedAt }
       : null,
@@ -209,103 +187,11 @@ export default function MagazineArticle({ article }) {
       <div className="grid items-start gap-6 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-8">
         <aside className="hidden lg:sticky lg:top-24 lg:block">
           <MagazineTableOfContents items={article.tableOfContents} />
-=======
-    article.author?.displayName,
-    article.author?.jobTitle,
-    article.publishedAt,
-    article.readingTime,
-  ].filter(Boolean);
-
-  return (
-    <article className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-6 pb-16 md:px-6 md:py-8 md:pb-16 lg:px-8">
-      <JsonLd data={article.structuredData} />
-      <ArticleBreadcrumb article={article} />
-
-      <header className="space-y-4 rounded-xl bg-white p-5 md:p-8 dark:bg-custom-dark">
-        <div className="flex flex-wrap items-center gap-2">
-          {article.category ? (
-            <Link
-              href={getBlogHomeHref({ category: article.category.slug })}
-              className="inline-flex rounded-sm bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary"
-            >
-              {article.category.title}
-            </Link>
-          ) : null}
-          {article.articleTypeLabel ? (
-            <span className="inline-flex rounded-sm bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:bg-zinc-800 dark:text-gray-300">
-              {article.articleTypeLabel}
-            </span>
-          ) : null}
-        </div>
-
-        <h1 className="text-2xl font-bold leading-10 text-gray-900 md:text-3xl md:leading-12 dark:text-white">
-          {article.title}
-        </h1>
-
-        {article.excerpt ? (
-          <p className=" text-[15px] text-justify leading-8 text-gray-600 dark:text-gray-300">
-            {article.excerpt}
-          </p>
-        ) : null}
-
-        {metaParts.length ? (
-          <p className="flex flex-wrap items-center gap-x-2 text-xs text-gray-500 dark:text-gray-400">
-            {article.author?.avatar ? (
-              <Image
-                src={article.author.avatar}
-                alt=""
-                width={28}
-                height={28}
-                className="rounded-full object-cover"
-              />
-            ) : null}
-            {metaParts.map((part, index) => (
-              <span
-                key={`${part}-${index}`}
-                className="inline-flex items-center gap-2"
-              >
-                {index > 0 ? (
-                  <span aria-hidden="true" className="opacity-50">
-                    ·
-                  </span>
-                ) : null}
-                {part}
-              </span>
-            ))}
-          </p>
-        ) : null}
-      </header>
-
-      {article.featuredImage ? (
-        <div className="overflow-hidden rounded-xl bg-gray-100 dark:bg-zinc-800">
-          <Image
-            src={article.featuredImage}
-            alt={article.featuredImageAlt || article.title}
-            width={1600}
-            height={900}
-            priority
-            sizes="(max-width: 1023px) 100vw, 1120px"
-            className="h-auto w-full"
-            style={{ width: "100%", height: "auto" }}
-          />
-        </div>
-      ) : null}
-
-      <div className="grid gap-8 lg:grid-cols-12">
-        <aside className="lg:col-span-4">
-          <div className="hidden lg:sticky lg:top-24 lg:block">
-            <MagazineTableOfContents items={article.tableOfContents} />
-          </div>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         </aside>
 
         <div
           id="magazine-article-content"
-<<<<<<< HEAD
           className="min-w-0 rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_22px_60px_-45px_rgba(15,23,42,0.6)] md:p-8 lg:p-10 dark:border-zinc-800 dark:bg-custom-dark"
-=======
-          className="min-w-0 rounded-xl bg-white p-5 md:p-8 lg:col-span-8 dark:bg-custom-dark"
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         >
           {article.tableOfContents.length ? (
             <div className="mb-6 lg:hidden">
@@ -316,7 +202,6 @@ export default function MagazineArticle({ article }) {
             </div>
           ) : null}
 
-<<<<<<< HEAD
           <div className="mx-auto max-w-3xl">
             <MagazineArticleBody
               blocks={article.content}
@@ -352,34 +237,6 @@ export default function MagazineArticle({ article }) {
           </div>
         </div>
 
-=======
-          <MagazineArticleBody
-            blocks={article.content}
-            articleId={article.articleId}
-          />
-
-          {!contentHasFaqs && extraFaqs.length ? (
-            <MagazineArticleBody
-              blocks={[{ type: "faqGroup", items: extraFaqs }]}
-            />
-          ) : null}
-
-          {article.tags.length ? (
-            <ul className="mt-8 flex flex-wrap gap-2">
-              {article.tags.map((tag) => (
-                <li key={tag.slug}>
-                  <Link
-                    href={getBlogHomeHref({ tag: tag.slug })}
-                    className="inline-flex rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-600 transition hover:border-primary hover:text-primary dark:border-zinc-700 dark:bg-custom-dark dark:text-gray-300"
-                  >
-                    {tag.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       </div>
 
       <MagazineRelatedProducts
@@ -388,7 +245,6 @@ export default function MagazineArticle({ article }) {
       />
 
       {relatedArticles.length ? (
-<<<<<<< HEAD
         <section
           aria-labelledby="related-articles-heading"
           className="rounded-2xl border border-t-4 border-slate-200 border-t-cyan-700/70 bg-cyan-50/35 p-5 shadow-[0_18px_55px_-42px_rgba(15,23,42,0.55)] md:p-8 dark:border-cyan-950/70 dark:border-t-cyan-600 dark:bg-cyan-950/10"
@@ -409,15 +265,6 @@ export default function MagazineArticle({ article }) {
               </p>
             </div>
           </div>
-=======
-        <section aria-labelledby="related-articles-heading">
-          <h2
-            id="related-articles-heading"
-            className="mb-4 text-lg font-bold text-gray-900 dark:text-white"
-          >
-            مطالب مرتبط
-          </h2>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           <ArticleGrid articles={relatedArticles} />
         </section>
       ) : null}

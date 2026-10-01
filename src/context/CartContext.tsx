@@ -134,14 +134,10 @@ interface CartContextValue {
   totalPrice: number;
   loading: boolean;
   syncing: boolean;
-<<<<<<< HEAD
   addItem: (
     product: AddCartProductInput,
     options?: { showSuccessToast?: boolean },
   ) => Promise<boolean>;
-=======
-  addItem: (product: AddCartProductInput) => Promise<void>;
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   removeItem: (id: CartItem["id"]) => Promise<void>;
   updateQty: (id: CartItem["id"], quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -196,11 +192,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         ]),
       );
     } catch (error) {
-<<<<<<< HEAD
       // console.error("[Cart] reconcile: getCart failed =>", error);
-=======
-      console.error("[Cart] reconcile: getCart failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       return;
     }
 
@@ -217,11 +209,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           await updateCartItem(variantId, { quantity: localQty });
         }
       } catch (error) {
-<<<<<<< HEAD
         // console.error("[Cart] reconcile item failed =>", variantId, error);
-=======
-        console.error("[Cart] reconcile item failed =>", variantId, error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       }
     }
   }, []);
@@ -244,11 +232,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           strategy: CART_MERGE_STRATEGY,
         });
       } catch (error) {
-<<<<<<< HEAD
         // console.error("[Cart] merge endpoint failed =>", error);
-=======
-        console.error("[Cart] merge endpoint failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       }
 
       // فقط همسان‌سازی؛ بدون re-add همه آیتم‌ها
@@ -257,11 +241,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       cartStorage.clear();
       guestSession.rotate();
     } catch (error) {
-<<<<<<< HEAD
       // console.error("[Cart] mergeGuestCart failed =>", error);
-=======
-      console.error("[Cart] mergeGuestCart failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
     } finally {
       setSyncing(false);
@@ -307,11 +287,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             try {
               await hydrateFromApi();
             } catch (error) {
-<<<<<<< HEAD
               // console.error("[Cart] hydrate on restore failed =>", error);
-=======
-              console.error("[Cart] hydrate on restore failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             } finally {
               setLoading(false);
             }
@@ -353,7 +329,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [hydrateFromApi, isAuthenticated]);
 
   const addItem = useCallback(
-<<<<<<< HEAD
     async (
       product: AddCartProductInput,
       options?: { showSuccessToast?: boolean },
@@ -366,15 +341,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
       const showSuccessToast = options?.showSuccessToast ?? true;
 
-=======
-    async (product: AddCartProductInput) => {
-      const variantId = String(product.variantId ?? product.id ?? "").trim();
-      if (!variantId) {
-        notify.error("شناسه تنوع محصول برای افزودن به سبد موجود نیست");
-        return;
-      }
-
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       const quantity = Math.max(1, Number(product.quantity) || 1);
       const localPayload: CartItem = {
         ...product,
@@ -396,17 +362,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             await addCartItem({ variantId, quantity });
           }
         } catch (error) {
-<<<<<<< HEAD
           // console.warn("[Cart] guest add sync failed (kept local) =>", error);
         }
         if (showSuccessToast) notify.success("به سبد خرید اضافه شد");
         return true;
-=======
-          console.warn("[Cart] guest add sync failed (kept local) =>", error);
-        }
-        notify.success("به سبد خرید اضافه شد");
-        return;
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       }
 
       try {
@@ -420,19 +379,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           const cart = await addCartItem({ variantId, quantity });
           dispatch({ type: "HYDRATE", payload: mapCartDtoToItems(cart) });
         }
-<<<<<<< HEAD
         if (showSuccessToast) notify.success("به سبد خرید اضافه شد");
         return true;
       } catch (error) {
         // console.error("[Cart] addItem failed =>", error);
         notify.error(getAuthErrorMessage(error));
         return false;
-=======
-        notify.success("به سبد خرید اضافه شد");
-      } catch (error) {
-        console.error("[Cart] addItem failed =>", error);
-        notify.error(getAuthErrorMessage(error));
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       }
     },
     [isAuthenticated, state.items],
@@ -447,11 +399,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         try {
           await removeCartItem(variantId);
         } catch (error) {
-<<<<<<< HEAD
           // console.warn("[Cart] guest remove sync failed =>", error);
-=======
-          console.warn("[Cart] guest remove sync failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         }
         return;
       }
@@ -464,11 +412,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           await hydrateFromApi();
         }
       } catch (error) {
-<<<<<<< HEAD
         // console.error("[Cart] removeItem failed =>", error);
-=======
-        console.error("[Cart] removeItem failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         notify.error(getAuthErrorMessage(error));
       }
     },
@@ -488,11 +432,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             await updateCartItem(variantId, { quantity });
           }
         } catch (error) {
-<<<<<<< HEAD
           // console.warn("[Cart] guest qty sync failed =>", error);
-=======
-          console.warn("[Cart] guest qty sync failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         }
         return;
       }
@@ -505,11 +445,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const cart = await updateCartItem(variantId, { quantity });
         dispatch({ type: "HYDRATE", payload: mapCartDtoToItems(cart) });
       } catch (error) {
-<<<<<<< HEAD
         // console.error("[Cart] updateQty failed =>", error);
-=======
-        console.error("[Cart] updateQty failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         notify.error(getAuthErrorMessage(error));
       }
     },
@@ -523,11 +459,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       try {
         await clearCartApi();
       } catch (error) {
-<<<<<<< HEAD
         // console.warn("[Cart] guest clear sync failed =>", error);
-=======
-        console.warn("[Cart] guest clear sync failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       }
       return;
     }
@@ -537,11 +469,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       dispatch({ type: "CLEAR" });
       cartStorage.clear();
     } catch (error) {
-<<<<<<< HEAD
       // console.error("[Cart] clearCart failed =>", error);
-=======
-      console.error("[Cart] clearCart failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(error));
     }
   }, [isAuthenticated]);

@@ -99,14 +99,7 @@ function DiscountCountdown({
   });
 
   useEffect(() => {
-<<<<<<< HEAD
     if (!targetTime) return;
-=======
-    if (!targetTime) {
-      setDisplay({ d: 0, h: 0, m: 0, s: 0, showDays: false, done: true });
-      return;
-    }
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     const tick = () => {
       const diff = Math.max(0, targetTime - Date.now());

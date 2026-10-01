@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-<<<<<<< HEAD
 import { normalizeSectionType } from "@/src/lib/magazine/section-config";
 import SectionHeading from "../SectionHeading";
 
@@ -88,24 +87,15 @@ export function resolveMagazineSectionTone(
       return resolveCategoryTone(categorySlug);
   }
 }
-=======
-import SectionHeading from "../SectionHeading";
-
-export const MAGAZINE_SECTION_SHELL =
-  "rounded-xl bg-white p-5 md:p-8 dark:bg-custom-dark";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 type MagazineSectionProps = {
   title?: string;
   subtitle?: string;
   titleId: string;
   href?: string;
-<<<<<<< HEAD
   sectionType?: string | null;
   categorySlug?: string | null;
   titleAs?: "h1" | "h2";
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   children: ReactNode;
 };
 
@@ -114,7 +104,6 @@ export default function MagazineSection({
   subtitle,
   titleId,
   href,
-<<<<<<< HEAD
   sectionType,
   categorySlug,
   titleAs = "h2",
@@ -122,33 +111,22 @@ export default function MagazineSection({
 }: MagazineSectionProps) {
   const tone = resolveMagazineSectionTone(sectionType, categorySlug);
 
-=======
-  children,
-}: MagazineSectionProps) {
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   return (
     <section
       aria-labelledby={title ? titleId : undefined}
       aria-label={title ? undefined : "بخش مجله"}
-<<<<<<< HEAD
       data-section-tone={tone}
       className={`relative overflow-hidden rounded-2xl border border-t-4 p-5 shadow-[0_18px_55px_-42px_rgba(15,23,42,0.55)] md:p-8 ${SECTION_TONE_CLASSES[tone]}`}
-=======
-      className={MAGAZINE_SECTION_SHELL}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     >
       <SectionHeading
         title={title}
         subtitle={subtitle}
         titleId={titleId}
         href={href}
-<<<<<<< HEAD
         tone={tone}
         sectionType={sectionType}
         categorySlug={categorySlug}
         titleAs={titleAs}
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       />
       {children}
     </section>

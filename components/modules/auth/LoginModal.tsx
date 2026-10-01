@@ -1,9 +1,5 @@
 "use client";
 
-<<<<<<< HEAD
-=======
-import Image from "next/image";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import React, { useEffect, useState } from "react";
 import StepMobile from "./StepMobile";
 import StepMethod from "./StepMethod";
@@ -87,19 +83,9 @@ export default function LoginModal({ open, onClose }: LoginModalProps) {
           </button>
 
           <div className="flex items-center mb-5 justify-center">
-<<<<<<< HEAD
             <BrandLogo
               logoClassName="h-12 w-12"
               textClassName="h-9"
-=======
-            <Image
-              width={80}
-              height={80}
-              className="h-12 w-12 object-contain"
-              src="/images/logo/carup24-logo.png"
-              loading="lazy"
-              alt="کارآپ ۲۴"
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             />
           </div>
 

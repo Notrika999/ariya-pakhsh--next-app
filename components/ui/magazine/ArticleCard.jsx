@@ -19,22 +19,14 @@ function CategoryBadge({ label, tone = "solid" }) {
 
   if (tone === "overlay") {
     return (
-<<<<<<< HEAD
       <span className="inline-flex rounded-full bg-primary/95 px-2.5 py-1 text-[11px] font-medium text-white shadow-sm backdrop-blur-sm">
-=======
-      <span className="inline-flex rounded-sm bg-primary px-2 py-0.5 text-[11px] font-medium text-white">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         {label}
       </span>
     );
   }
 
   return (
-<<<<<<< HEAD
     <span className="inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary">
-=======
-    <span className="inline-flex rounded-sm bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       {label}
     </span>
   );
@@ -88,10 +80,7 @@ function PlayBadge({ size = "md" }) {
  *   variant?: string,
  *   priority?: boolean,
  *   titleAs?: string,
-<<<<<<< HEAD
  *   rank?: number,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
  * }} props
  */
 export default function ArticleCard({
@@ -99,10 +88,7 @@ export default function ArticleCard({
   variant = "default",
   priority = false,
   titleAs,
-<<<<<<< HEAD
   rank,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 }) {
   if (!article) return null;
 
@@ -116,7 +102,6 @@ export default function ArticleCard({
 
   if (variant === "sidebar") {
     return (
-<<<<<<< HEAD
       <article className="h-full">
         <Link
           href={href}
@@ -132,24 +117,12 @@ export default function ArticleCard({
             </span>
           ) : null}
           <div className="relative aspect-square overflow-hidden rounded-lg bg-slate-100 dark:bg-zinc-800">
-=======
-      <article>
-        <Link
-          href={href}
-          className="group grid grid-cols-[88px_minmax(0,1fr)] items-start gap-3 rounded-md p-1.5 transition-colors hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:hover:bg-zinc-800"
-        >
-          <div className="relative aspect-square overflow-hidden rounded-md bg-gray-100 dark:bg-zinc-800">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             <Image
               src={image}
               alt={alt}
               fill
               sizes={SIZE_MAP.sidebar}
-<<<<<<< HEAD
               className="object-cover transition duration-300 group-hover:scale-[1.03]"
-=======
-              className="object-contain p-1"
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             />
           </div>
           <div className="min-w-0">
@@ -157,16 +130,10 @@ export default function ArticleCard({
             <TitleTag className="mt-1 line-clamp-2 text-sm font-semibold leading-6 text-gray-900 dark:text-gray-100">
               {article.title}
             </TitleTag>
-<<<<<<< HEAD
             <Meta
               article={article}
               className="mt-1 line-clamp-1 text-[11px] text-gray-500 dark:text-gray-400"
             />
-=======
-            <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">
-              {article.publishedAt || article.views}
-            </p>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           </div>
         </Link>
       </article>
@@ -178,25 +145,15 @@ export default function ArticleCard({
       <article className="h-full min-w-0">
         <Link
           href={href}
-<<<<<<< HEAD
           className="group grid h-full grid-cols-[7.25rem_minmax(0,1fr)] gap-3 rounded-xl border border-slate-200 bg-white p-2.5 shadow-[0_12px_30px_-27px_rgba(15,23,42,0.55)] transition duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_18px_36px_-28px_rgba(15,23,42,0.5)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:grid-cols-[8.5rem_minmax(0,1fr)] dark:border-zinc-700 dark:bg-custom-dark"
         >
           <div className="relative aspect-4/3 overflow-hidden rounded-lg bg-slate-100 dark:bg-zinc-800">
-=======
-          className="group grid h-full grid-cols-[7.25rem_minmax(0,1fr)] gap-3 rounded-lg border border-gray-200 bg-white p-2 transition-colors hover:border-primary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:grid-cols-[8.5rem_minmax(0,1fr)] dark:border-zinc-700 dark:bg-custom-dark"
-        >
-          <div className="relative aspect-4/3 overflow-hidden rounded-md bg-gray-100 dark:bg-zinc-800">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             <Image
               src={image}
               alt={alt}
               fill
               sizes={SIZE_MAP.compact}
-<<<<<<< HEAD
               className="object-cover transition duration-300 group-hover:scale-[1.03]"
-=======
-              className="object-contain p-1"
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             />
           </div>
           <div className="flex min-w-0 flex-col py-0.5 pe-1">
@@ -204,14 +161,10 @@ export default function ArticleCard({
             <TitleTag className="mt-1 line-clamp-2 text-sm font-semibold leading-6 text-gray-900 dark:text-gray-100">
               {article.title}
             </TitleTag>
-<<<<<<< HEAD
             <Meta
               article={article}
               className="mt-auto pt-2 text-gray-500 dark:text-gray-400"
             />
-=======
-            <Meta article={article} className="mt-auto pt-2" />
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           </div>
         </Link>
       </article>
@@ -223,11 +176,7 @@ export default function ArticleCard({
       <article className="h-full min-w-0">
         <Link
           href={href}
-<<<<<<< HEAD
           className={`group relative block h-full overflow-hidden rounded-xl bg-zinc-900 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.85)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
-=======
-          className={`group relative block h-full overflow-hidden rounded-md bg-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             isHero ? "min-h-72 lg:min-h-112" : "min-h-36"
           }`}
         >
@@ -237,11 +186,7 @@ export default function ArticleCard({
             fill
             sizes={isHero ? SIZE_MAP.featured : SIZE_MAP.overlay}
             priority={priority}
-<<<<<<< HEAD
             className="object-cover transition duration-500 group-hover:scale-[1.025]"
-=======
-            className="object-contain"
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           />
           <span className="absolute inset-0 bg-linear-to-t from-black/85 via-black/30 to-black/5" />
           <span
@@ -272,28 +217,17 @@ export default function ArticleCard({
   }
 
   const isFeatured = variant === "editorial" || variant === "featuredVideo";
-<<<<<<< HEAD
   const showExcerpt = isFeatured;
-=======
-  const showExcerpt = variant === "default" || variant === "video" || isFeatured;
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const showPlay = variant === "video" || variant === "featuredVideo";
 
   return (
     <article className="h-full min-w-0">
       <Link
         href={href}
-<<<<<<< HEAD
         className="group flex h-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_14px_34px_-28px_rgba(15,23,42,0.55)] transition duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_20px_42px_-28px_rgba(15,23,42,0.5)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-zinc-700 dark:bg-custom-dark dark:hover:border-zinc-600"
       >
         <div
           className={`relative overflow-hidden bg-slate-100 dark:bg-zinc-800 ${
-=======
-        className="group flex h-full flex-col overflow-hidden rounded-lg border border-gray-200 bg-white transition-colors hover:border-primary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-zinc-700 dark:bg-custom-dark"
-      >
-        <div
-          className={`relative overflow-hidden bg-gray-100 dark:bg-zinc-800 ${
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             isFeatured ? "aspect-video min-h-52" : "aspect-video"
           }`}
         >
@@ -303,11 +237,7 @@ export default function ArticleCard({
             fill
             sizes={SIZE_MAP[variant] ?? SIZE_MAP.default}
             priority={priority}
-<<<<<<< HEAD
             className="object-cover transition duration-300 group-hover:scale-[1.03]"
-=======
-            className="object-contain p-1"
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           />
           {showPlay ? <PlayBadge size={isFeatured ? "lg" : "md"} /> : null}
           {article.category ? (
@@ -329,14 +259,10 @@ export default function ArticleCard({
               {article.excerpt}
             </p>
           ) : null}
-<<<<<<< HEAD
           <Meta
             article={article}
             className="mt-auto pt-3 text-gray-500 dark:text-gray-400"
           />
-=======
-          <Meta article={article} className="mt-auto pt-3" />
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         </div>
       </Link>
     </article>

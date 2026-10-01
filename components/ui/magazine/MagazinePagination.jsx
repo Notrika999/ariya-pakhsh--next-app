@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getBlogHomeHref } from "@/components/ui/magazine/magazineHomeUtils";
 
-<<<<<<< HEAD
 function getPaginationItems(page, totalPages) {
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, index) => index + 1);
@@ -19,8 +18,6 @@ function getPaginationItems(page, totalPages) {
   return items;
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 export default function MagazinePagination({
   page = 1,
   totalPages = 1,
@@ -28,7 +25,6 @@ export default function MagazinePagination({
 }) {
   if (totalPages <= 1) return null;
 
-<<<<<<< HEAD
   const items = getPaginationItems(page, totalPages);
   const pageHref = (target) =>
     getBlogHomeHref({ ...hrefParams, page: target });
@@ -68,16 +64,6 @@ export default function MagazinePagination({
 
         const target = item;
         const href = pageHref(target);
-=======
-  return (
-    <nav
-      aria-label="صفحه‌بندی"
-      className="mt-10 flex justify-center gap-2"
-    >
-      {Array.from({ length: totalPages }, (_, index) => {
-        const target = index + 1;
-        const href = getBlogHomeHref({ ...hrefParams, page: target });
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         const isCurrent = page === target;
 
         return (
@@ -85,7 +71,6 @@ export default function MagazinePagination({
             key={target}
             href={href}
             aria-current={isCurrent ? "page" : undefined}
-<<<<<<< HEAD
             className={`${itemClassName} ${
               isCurrent
                 ? "border-slate-900 bg-slate-900 text-white shadow-sm dark:border-white dark:bg-white dark:text-slate-950"
@@ -113,16 +98,6 @@ export default function MagazinePagination({
           <i className="far fa-arrow-left" />
         </span>
       )}
-=======
-            className={`flex h-10 w-10 items-center justify-center rounded-lg border ${
-              isCurrent ? "bg-primary text-white" : ""
-            }`}
-          >
-            {target}
-          </Link>
-        );
-      })}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     </nav>
   );
 }

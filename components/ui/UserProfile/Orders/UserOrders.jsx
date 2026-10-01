@@ -6,10 +6,6 @@ import UserOrdersFilter, { ORDER_STATUS_TABS } from "./UserOrdersFilter";
 import UserOrdersList from "./UserOrdersList";
 import GatewayRedirectConfirmation from "@/components/modules/GatewayRedirectConfirmation/GatewayRedirectConfirmation";
 import {
-<<<<<<< HEAD
-=======
-  downloadMyOrderInvoice,
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   getMyOrderById,
   getMyOrderByNumber,
   getMyOrders,
@@ -22,7 +18,6 @@ import { rememberPendingPaymentOrder } from "@/src/utils/paymentRetryStorage";
 const PAGE_SIZE = 10;
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-<<<<<<< HEAD
 const PENDING_PAYMENT_FILTERS = [
   { statusKey: "order.pending_payment" },
   { statusKey: "order.pending" },
@@ -30,8 +25,6 @@ const PENDING_PAYMENT_FILTERS = [
   { paymentStatusKey: "payment.pending" },
   { paymentStatusKey: "payment.awaiting_payment" },
 ];
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 const formatMoney = (value) =>
   `${new Intl.NumberFormat("fa-IR").format(Math.max(0, Math.round(Number(value) || 0)))} تومان`;
@@ -51,7 +44,6 @@ function buildDateRange(daysValue) {
     toDate: toDate.toISOString(),
   };
 }
-<<<<<<< HEAD
 
 function getStatusFilterParams(statusValue) {
   if (!statusValue) return [{}];
@@ -82,18 +74,11 @@ async function getMyOrdersByStatusFilter({ statusValue, ...params }) {
 
   return emptyResult;
 }
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 export default function UserOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [retryingOrderId, setRetryingOrderId] = useState(null);
-<<<<<<< HEAD
-=======
-  const [downloadingInvoiceOrderId, setDownloadingInvoiceOrderId] =
-    useState(null);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const [pendingRetryOrder, setPendingRetryOrder] = useState(null);
 
   const [page, setPage] = useState(1);
@@ -109,7 +94,6 @@ export default function UserOrders() {
   const [searchMode, setSearchMode] = useState(false);
 
   const applyPage = useCallback((data, fallbackPage = 1) => {
-<<<<<<< HEAD
     const resolvedTotalCount = Math.max(0, Number(data.totalCount) || 0);
     const resolvedPageSize = Math.max(1, Number(data.pageSize) || PAGE_SIZE);
     const resolvedTotalPages = Math.max(
@@ -129,14 +113,6 @@ export default function UserOrders() {
     setTotalPages(resolvedTotalPages);
     setHasPreviousPage(resolvedPage > 1);
     setHasNextPage(resolvedPage < resolvedTotalPages);
-=======
-    setOrders(data.items);
-    setPage(data.pageNumber || fallbackPage);
-    setTotalCount(data.totalCount);
-    setTotalPages(Math.max(1, data.totalPages || 1));
-    setHasPreviousPage(Boolean(data.hasPreviousPage));
-    setHasNextPage(Boolean(data.hasNextPage));
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   }, []);
 
   const loadOrders = useCallback(
@@ -146,17 +122,10 @@ export default function UserOrders() {
 
       try {
         const dateParams = buildDateRange(dateRange);
-<<<<<<< HEAD
         const data = await getMyOrdersByStatusFilter({
           pageNumber,
           pageSize: PAGE_SIZE,
           statusValue: status,
-=======
-        const data = await getMyOrders({
-          pageNumber,
-          pageSize: PAGE_SIZE,
-          statusKey: status || undefined,
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           ...dateParams,
         });
         applyPage(data, pageNumber);
@@ -188,17 +157,10 @@ export default function UserOrders() {
       void Promise.all(
         ORDER_STATUS_TABS.filter((tab) => tab.value).map(async (tab) => {
           try {
-<<<<<<< HEAD
             const data = await getMyOrdersByStatusFilter({
               pageNumber: 1,
               pageSize: 1,
               statusValue: tab.value,
-=======
-            const data = await getMyOrders({
-              pageNumber: 1,
-              pageSize: 1,
-              statusKey: tab.value,
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
               ...dateParams,
             });
             return [tab.value, data.totalCount];
@@ -302,7 +264,6 @@ export default function UserOrders() {
     }
   }, [pendingRetryOrder, retryingOrderId]);
 
-<<<<<<< HEAD
   const handleDownloadInvoice = useCallback((order) => {
     const orderId = String(order?.orderId ?? "").trim();
     if (!orderId) return;
@@ -316,33 +277,6 @@ export default function UserOrders() {
     link.click();
     link.remove();
   }, []);
-=======
-  const handleDownloadInvoice = useCallback(
-    async (order) => {
-      if (!order?.orderId || downloadingInvoiceOrderId) return;
-
-      setDownloadingInvoiceOrderId(order.orderId);
-      try {
-        const { blob, fileName } = await downloadMyOrderInvoice(order.orderId);
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download =
-          fileName || `invoice-${order.publicOrderNumber || order.orderId}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-        notify.success("فاکتور سفارش دانلود شد");
-      } catch (error) {
-        notify.error(getAuthErrorMessage(error));
-      } finally {
-        setDownloadingInvoiceOrderId(null);
-      }
-    },
-    [downloadingInvoiceOrderId],
-  );
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   if (pendingRetryOrder) {
     return (
@@ -410,10 +344,6 @@ export default function UserOrders() {
         hasPreviousPage={hasPreviousPage}
         hasNextPage={hasNextPage}
         retryingOrderId={retryingOrderId}
-<<<<<<< HEAD
-=======
-        downloadingInvoiceOrderId={downloadingInvoiceOrderId}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         onPrevPage={() => {
           if (searchMode || !hasPreviousPage) return;
           void loadOrders(page - 1);

@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-<<<<<<< HEAD
   ATTRIBUTION_VISITOR_COOKIE_NAME,
   withCheckoutAttributionCookie,
 } from "@/src/lib/attribution/attribution";
 import { SESSION_INVALID_HEADER } from "@/src/lib/auth/constants";
 import {
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   handleCustomerAuthGet,
   handleCustomerAuthLogout,
   handleCustomerAuthPost,
@@ -56,7 +53,6 @@ type ProxyBodyPayload = {
   headers?: Record<string, string>;
 };
 
-<<<<<<< HEAD
 type ProxyToBackend = typeof proxyToBackend;
 
 type ProxyDependencies = {
@@ -140,55 +136,6 @@ export function createHandleProxy(
     request: NextRequest,
     context: RouteContext,
   ): Promise<NextResponse> {
-=======
-async function getRequestBodyPayload(
-  request: NextRequest,
-): Promise<ProxyBodyPayload> {
-  if (
-    request.method === "GET" ||
-    request.method === "HEAD" ||
-    request.method === "DELETE"
-  ) {
-    return {};
-  }
-
-  const contentType = request.headers.get("content-type") ?? "";
-
-  if (contentType.includes("multipart/form-data")) {
-    const buffer = await request.arrayBuffer();
-    return {
-      rawBody: buffer,
-      headers: { "Content-Type": contentType },
-    };
-  }
-
-  if (contentType.includes("application/json")) {
-    return {
-      body: await request.json().catch(() => undefined),
-    };
-  }
-
-  return {};
-}
-
-function proxyErrorStatus(error: ProxyError): number {
-  if (error.status) return error.status;
-  return error.code === "TIMEOUT" ? 504 : 502;
-}
-
-function proxyErrorMessage(error: ProxyError): string {
-  if (error.code === "UNSAFE_INPUT") return error.message;
-  if (error.code === "TIMEOUT") {
-    return "زمان پاسخ‌گویی سرویس به پایان رسید.";
-  }
-  return "ارتباط با سرویس برقرار نشد.";
-}
-
-async function handleProxy(
-  request: NextRequest,
-  context: RouteContext,
-): Promise<NextResponse> {
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   try {
     const { path } = await context.params;
     const pathKey = path.join("/");
@@ -200,7 +147,6 @@ async function handleProxy(
     if (request.method === "POST") {
       const authHandler = CUSTOMER_AUTH_V1_POST[pathKey];
       if (authHandler === "logout") {
-<<<<<<< HEAD
         return deps.handleCustomerAuthLogout(backendPath);
       }
       if (authHandler === "refresh") {
@@ -208,20 +154,10 @@ async function handleProxy(
       }
       if (authHandler && typeof authHandler === "object") {
         return deps.handleCustomerAuthPost(request, backendPath, authHandler);
-=======
-        return handleCustomerAuthLogout(backendPath);
-      }
-      if (authHandler === "refresh") {
-        return handleCustomerAuthRefresh(backendPath);
-      }
-      if (authHandler && typeof authHandler === "object") {
-        return handleCustomerAuthPost(request, backendPath, authHandler);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       }
     }
 
     if (request.method === "GET" && pathKey === "CustomerAuth/me") {
-<<<<<<< HEAD
       return deps.handleCustomerAuthGet(backendPath);
     }
 
@@ -292,37 +228,6 @@ async function handleProxy(
     return nextResponse;
   } catch (error) {
     // console.error("[api/v1 proxy error]", error);
-=======
-      return handleCustomerAuthGet(backendPath);
-    }
-
-    const payload = await getRequestBodyPayload(request);
-    const guestSessionId =
-      request.headers.get("x-guest-session-id") ??
-      request.headers.get("X-Guest-Session-Id");
-    const forwardHeaders: Record<string, string> = {
-      ...(payload.headers ?? {}),
-    };
-
-    if (guestSessionId?.trim()) {
-      forwardHeaders["X-Guest-Session-Id"] = guestSessionId.trim();
-    }
-
-    const response = await proxyToBackend({
-      method: request.method as "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
-      path: backendPath,
-      params: getQueryParams(request),
-      body: payload.body,
-      rawBody: payload.rawBody,
-      headers: forwardHeaders,
-      withAuth: true,
-      cache: "no-store",
-    });
-
-    return NextResponse.json(response.data, { status: response.status });
-  } catch (error) {
-    console.error("[api/v1 proxy error]", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     if (error instanceof ProxyError) {
       return NextResponse.json(

@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-<<<<<<< HEAD
 import { createPortal } from "react-dom";
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import { trackMagazineArticleEvent } from "@/src/services/magazine/magazine.client";
 
 const READ_THRESHOLDS = [
@@ -21,7 +18,6 @@ function clamp(value) {
 }
 
 function getContentProgress(element) {
-<<<<<<< HEAD
   const contentTop = element.getBoundingClientRect().top + window.scrollY;
   const contentHeight = element.offsetHeight;
   const startOffset = 112;
@@ -35,14 +31,6 @@ function getContentProgress(element) {
     progress,
     active: window.scrollY >= start && window.scrollY <= end + 2,
   };
-=======
-  const rect = element.getBoundingClientRect();
-  const height = rect.height;
-  if (!height) return 0;
-
-  const readingLine = window.innerHeight - 48;
-  return clamp((readingLine - rect.top) / height);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 }
 
 export default function MagazineReadingProgress({
@@ -50,10 +38,7 @@ export default function MagazineReadingProgress({
   contentId = "magazine-article-content",
 }) {
   const [progress, setProgress] = useState(0);
-<<<<<<< HEAD
   const [isActive, setIsActive] = useState(false);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const sentEvents = useRef(new Set());
   const frame = useRef(0);
 
@@ -71,14 +56,9 @@ export default function MagazineReadingProgress({
     if (!content) return undefined;
 
     const update = () => {
-<<<<<<< HEAD
       const { progress: next, active } = getContentProgress(content);
       setProgress(next);
       setIsActive(active);
-=======
-      const next = getContentProgress(content);
-      setProgress(next);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
       if (!articleId) return;
       for (const threshold of READ_THRESHOLDS) {
@@ -103,7 +83,6 @@ export default function MagazineReadingProgress({
     update();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
-<<<<<<< HEAD
     const resizeObserver = new ResizeObserver(onScroll);
     resizeObserver.observe(content);
 
@@ -111,11 +90,6 @@ export default function MagazineReadingProgress({
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       resizeObserver.disconnect();
-=======
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       if (frame.current) window.cancelAnimationFrame(frame.current);
     };
   }, [articleId, contentId]);
@@ -123,7 +97,6 @@ export default function MagazineReadingProgress({
   const percent = Math.round(progress * 100);
   const percentLabel = new Intl.NumberFormat("fa-IR").format(percent);
 
-<<<<<<< HEAD
   if (typeof document === "undefined") return null;
 
   return createPortal(
@@ -133,17 +106,11 @@ export default function MagazineReadingProgress({
           ? "translate-y-0 opacity-100"
           : "translate-y-4 opacity-0"
       }`}
-=======
-  return (
-    <div
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white/95 px-4 py-2 backdrop-blur-sm dark:border-zinc-700 dark:bg-[#0d1117]/95"
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       role="progressbar"
       aria-label="میزان مطالعه مقاله"
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={percent}
-<<<<<<< HEAD
       aria-hidden={!isActive}
     >
       <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/95 px-4 py-3 text-white shadow-[0_18px_45px_-20px_rgba(15,23,42,0.85)] backdrop-blur-md">
@@ -172,23 +139,5 @@ export default function MagazineReadingProgress({
       </div>
     </div>,
     document.body,
-=======
-    >
-      <div className="mx-auto flex max-w-7xl items-center gap-3">
-        <p className="shrink-0 text-[11px] font-medium text-gray-500 dark:text-gray-400">
-          پیشرفت مطالعه
-        </p>
-        <div className="flex h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-zinc-700">
-          <div
-            className="h-full rounded-full bg-primary transition-[width] duration-150 ease-out"
-            style={{ width: `${percent}%` }}
-          />
-        </div>
-        <p className="w-12 shrink-0 text-end text-xs font-semibold tabular-nums text-gray-700 dark:text-gray-200">
-          {percentLabel}٪
-        </p>
-      </div>
-    </div>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   );
 }

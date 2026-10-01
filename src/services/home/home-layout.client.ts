@@ -15,16 +15,9 @@ export async function createHomeLayoutItemView(itemId: string): Promise<void> {
 
 export function trackHomeLayoutItemView(itemId: string): void {
   void createHomeLayoutItemView(itemId).catch((error) => {
-<<<<<<< HEAD
     // console.warn("[home-layout] item view tracking failed", {
     //   itemId,
     //   error,
     // });
-=======
-    console.warn("[home-layout] item view tracking failed", {
-      itemId,
-      error,
-    });
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   });
 }

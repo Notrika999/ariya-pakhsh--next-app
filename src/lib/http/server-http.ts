@@ -106,17 +106,10 @@ function resolveBackendBaseUrl(): string {
   }
 
   if (apiUrl.startsWith("/")) {
-<<<<<<< HEAD
     // console.warn(
     //   `[server-http] API_URL="${apiUrl}" is a relative path, not a backend base. ` +
     //     `Using BACKEND_ORIGIN fallback: ${getBackendBaseUrl()}.`,
     // );
-=======
-    console.warn(
-      `[server-http] API_URL="${apiUrl}" is a relative path, not a backend base. ` +
-        `Using BACKEND_ORIGIN fallback: ${getBackendBaseUrl()}.`,
-    );
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     return getBackendBaseUrl();
   }
 

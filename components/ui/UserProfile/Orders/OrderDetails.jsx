@@ -135,15 +135,12 @@ function canCancelOrderItem(order, item) {
   return quantity > 0 && cancelled < quantity;
 }
 
-<<<<<<< HEAD
 function isCancelledOrderItem(item) {
   const statusKey = String(item?.statusKey ?? "").toLowerCase();
   const statusTitle = String(item?.statusTitleFa ?? "");
   return statusKey.includes("cancel") || statusTitle.includes("لغو");
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function getOrderItemImage(item) {
   return getProductImage(item?.imageUrl);
 }
@@ -197,7 +194,6 @@ function getSnapshotAddress(snapshot) {
     .join("، ");
 }
 
-<<<<<<< HEAD
 function getSnapshotRecipientName(snapshot) {
   const root = getShippingSnapshot(snapshot);
   const nestedAddress = record(root.address);
@@ -219,14 +215,11 @@ function getSnapshotRecipientMobile(snapshot) {
   return getField(address, "Mobile", "mobile");
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function getSnapshotShippingSelections(snapshot) {
   const root = getShippingSnapshot(snapshot);
   return Array.isArray(root.shippingSelections) ? root.shippingSelections : [];
 }
 
-<<<<<<< HEAD
 function normalizeShippingMethodName(value) {
   return String(value ?? "")
     .trim()
@@ -285,12 +278,6 @@ function getShippingMethodTitle(shippingSelections, fallbackTitle) {
     String(fallbackTitle ?? "").trim() ||
     "—"
   );
-=======
-function getShippingSelectionTitle(selection) {
-  const methodName = getField(selection, "methodName", "methodTitle");
-  const className = getField(selection, "shippingClassName", "className");
-  return [className, methodName].filter(Boolean).join(" - ");
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 }
 
 function DetailRow({
@@ -307,7 +294,6 @@ function DetailRow({
     </div>
   );
 }
-<<<<<<< HEAD
 
 function CollapsibleSection({ title, children }) {
   return (
@@ -343,8 +329,6 @@ function OrderItemColor({ item, className = "" }) {
     </span>
   );
 }
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 export default function OrderDetails() {
   const params = useParams();
@@ -450,13 +434,10 @@ export default function OrderDetails() {
 
   const shippingAddress =
     getSnapshotAddress(order.shippingAddressSnapshotJson) || "—";
-<<<<<<< HEAD
   const shippingRecipientName =
     getSnapshotRecipientName(order.shippingAddressSnapshotJson) || "—";
   const shippingRecipientMobile =
     getSnapshotRecipientMobile(order.shippingAddressSnapshotJson) || "—";
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const shippingSelections = getSnapshotShippingSelections(
     order.shippingAddressSnapshotJson,
   );
@@ -467,7 +448,6 @@ export default function OrderDetails() {
   const firstPayment = record(order.payments?.[0]);
   const firstAttempt = record(firstPayment.attempts?.[0]);
   const selectedItemHref = selectedItem ? getOrderItemProductHref(selectedItem) : "";
-<<<<<<< HEAD
   const trackingCode = String(order.primaryTrackingCode ?? "").trim();
   const trackingInfo = getOrderTrackingInfo(
     order.primaryTrackingCode,
@@ -527,8 +507,6 @@ export default function OrderDetails() {
       emphasized: true,
     },
   ].filter(({ amount }) => Number(amount) > 0);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   return (
     <div className="space-y-2 lg:col-span-3">
@@ -554,20 +532,12 @@ export default function OrderDetails() {
             <span
               className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusBadgeClass(order.statusKey)}`}
             >
-<<<<<<< HEAD
               وضعیت سفارش: {order.statusTitleFa || order.statusKey || "—"}
-=======
-              {order.statusTitleFa || order.statusKey || "—"}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             </span>
             <span
               className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${statusBadgeClass(order.paymentStatusKey)}`}
             >
-<<<<<<< HEAD
               وضعیت پرداخت: {order.paymentStatusTitleFa || order.paymentStatusKey || "—"}
-=======
-              {order.paymentStatusTitleFa || order.paymentStatusKey || "—"}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             </span>
           </div>
         </div>
@@ -613,13 +583,8 @@ export default function OrderDetails() {
         </div>
       ) : null}
 
-<<<<<<< HEAD
       <div className="flex flex-col gap-4">
         <div className="space-y-2">
-=======
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="space-y-2 lg:col-span-2">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
             <TitleAfter title={"محصولات سفارش"} />
             {selectedItem ? (
@@ -660,7 +625,6 @@ export default function OrderDetails() {
                           )}
                         </span>
                         <span>مبلغ: {formatMoney(selectedItem.lineTotal)}</span>
-<<<<<<< HEAD
                         <OrderItemColor item={selectedItem} />
                         {selectedItem.statusTitleFa ? (
                           <span>
@@ -675,13 +639,6 @@ export default function OrderDetails() {
                               {selectedItem.statusTitleFa}
                             </span>
                           </span>
-=======
-                        {selectedItem.variantName ? (
-                          <span>تنوع: {selectedItem.variantName}</span>
-                        ) : null}
-                        {selectedItem.statusTitleFa ? (
-                          <span>وضعیت: {selectedItem.statusTitleFa}</span>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                         ) : null}
                       </div>
                     </div>
@@ -733,7 +690,6 @@ export default function OrderDetails() {
                       >
                         {item.productTitle || item.productName || "محصول"}
                       </Link>
-<<<<<<< HEAD
                       <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                         <span>
                           تعداد:{" "}
@@ -758,23 +714,6 @@ export default function OrderDetails() {
                         item={item}
                         className="mt-1 text-sm text-gray-500 dark:text-gray-400"
                       />
-=======
-                      {/* <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                      {[item.variantName, item.sku ? `کد: ${item.sku}` : null]
-                        .filter(Boolean)
-                        .join(" • ")}
-                    </p> */}
-                      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        تعداد:{" "}
-                        {new Intl.NumberFormat("fa-IR").format(item.quantity)}
-                        {item.statusTitleFa ? ` • ${item.statusTitleFa}` : ""}
-                      </p>
-                      {item.variantName ? (
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                          تنوع: {item.variantName}
-                        </p>
-                      ) : null}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                       {item.cancelReason ? (
                         <p className="mt-1 text-sm text-red-600 dark:text-red-400">
                           دلیل لغو: {item.cancelReason}
@@ -786,13 +725,6 @@ export default function OrderDetails() {
                         <p className="font-medium text-gray-800 dark:text-gray-200">
                           {formatMoney(item.lineTotal)}
                         </p>
-<<<<<<< HEAD
-=======
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                          {new Intl.NumberFormat("fa-IR").format(item.quantity)}{" "}
-                          × {formatMoney(item.unitPrice)}
-                        </p>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                       </div>
                       {canCancelOrderItem(order, item) ? (
                         <button
@@ -815,57 +747,19 @@ export default function OrderDetails() {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="rounded-lg bg-gray-50 p-2 dark:bg-zinc-800">
                 <h3 className="mb-3 font-medium text-gray-800 dark:text-gray-200">
-<<<<<<< HEAD
                   تحویل گیرنده: {shippingRecipientName}
                 </h3>
                 <p className="mb-1 text-sm text-gray-600 dark:text-gray-400">
                   شماره تماس: {shippingRecipientMobile}
                 </p>
-=======
-                آدرس تحویل
-                </h3>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                 <p className="text-sm text-gray-600 dark:text-gray-400">
                   {shippingAddress}
                 </p>
               </div>
               <div className="rounded-lg bg-gray-50 p-2 dark:bg-zinc-800">
-<<<<<<< HEAD
                 <p className="font-medium text-gray-800 dark:text-gray-200">
                   روش ارسال: {shippingMethodTitle}
                 </p>
-=======
-                <h3 className="mb-3 font-medium text-gray-800 dark:text-gray-200">
-                  روش ارسال
-                </h3>
-                {shippingSelections.length ? (
-                  <div className="space-y-2">
-                    {shippingSelections.map((selection, index) => (
-                      <div
-                        key={`${getField(
-                          selection,
-                          "shippingClassId",
-                          "methodId",
-                        )}-${index}`}
-                        className="rounded-md border border-gray-200 bg-white p-2 dark:border-gray-700 dark:bg-custom-dark"
-                      >
-                        <p className="font-medium text-gray-800 dark:text-gray-200">
-                          {getShippingSelectionTitle(selection) || "—"}
-                        </p>
-                        <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                          هزینه: {formatMoney(selection.cost)}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="font-medium text-gray-800 dark:text-gray-200">
-                    {order.shippingMethodTitleSnapshot ||
-                      firstShipment.shippingMethodTitle ||
-                      "—"}
-                  </p>
-                )}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                   زمان تقریبی تحویل:{" "}
                   {order.estimatedDeliveryDays
@@ -875,7 +769,6 @@ export default function OrderDetails() {
                     : "—"}
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-<<<<<<< HEAD
                   کد رهگیری: {trackingCode || "—"}
                 </p>
                 {trackingInfo ? (
@@ -889,13 +782,6 @@ export default function OrderDetails() {
                     رهگیری ({trackingInfo.methodName})
                   </a>
                 ) : null}
-=======
-                  کد رهگیری: {firstShipment.trackingCode || "—"}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  شرکت ارسال: {firstShipment.courierName || "—"}
-                </p>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
               </div>
             </div>
           </div>
@@ -943,7 +829,6 @@ export default function OrderDetails() {
         </div>
 
         <div className="space-y-2">
-<<<<<<< HEAD
           {orderSummaryItems.length ? (
             <CollapsibleSection title="خلاصه سفارش">
               <div className="space-y-4">
@@ -1030,127 +915,6 @@ export default function OrderDetails() {
                     </div>
                   );
                 })}
-=======
-          <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
-            <TitleAfter title={"خلاصه سفارش"} />
-            <div className="space-y-4">
-              <DetailRow
-                label="قیمت کالاها"
-                value={formatMoney(order.subtotalAmount)}
-              />
-              <DetailRow
-                label="تخفیف کمپین"
-                value={formatMoney(order.campaignDiscountAmount)}
-              />
-              <DetailRow
-                label="تخفیف کوپن"
-                value={formatMoney(order.couponDiscountAmount)}
-              />
-              <DetailRow
-                label="تخفیف دستی"
-                value={formatMoney(order.manualDiscountAmount)}
-              />
-              <DetailRow
-                label="تخفیف اعمال شده"
-                value={formatMoney(order.appliedDiscountAmount)}
-              />
-              <DetailRow
-                label="هزینه ارسال"
-                value={formatMoney(order.shippingFee)}
-              />
-              <DetailRow
-                label="تخفیف ارسال"
-                value={formatMoney(order.shippingDiscountAmount)}
-              />
-              <DetailRow label="مالیات" value={formatMoney(order.taxAmount)} />
-              <DetailRow
-                label="پرداخت شده"
-                value={formatMoney(order.paidAmount)}
-              />
-              <DetailRow
-                label="مسترد شده"
-                value={formatMoney(order.refundedAmount)}
-              />
-              <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
-                <DetailRow
-                  label="مبلغ قابل پرداخت"
-                  value={formatMoney(order.payableAmount)}
-                  valueClassName="text-primary"
-                />
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
-              </div>
-            </div>
-          ) : null}
-
-<<<<<<< HEAD
-          {order.customerNote ? (
-            <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
-              <TitleAfter title={"یادداشت مشتری"} />
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {order.customerNote}
-              </p>
-            </div>
-=======
-          <div className="rounded-2xl bg-white px-3 py-2 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
-            <TitleAfter title={"اطلاعات پرداخت"} />
-            <div className="space-y-4">
-              <DetailRow
-                label="روش پرداخت"
-                value={firstPayment.methodTitleFa || firstPayment.method}
-              />
-              <DetailRow
-                label="وضعیت پرداخت"
-                value={
-                  firstPayment.statusTitleFa ||
-                  firstPayment.statusKey ||
-                  order.paymentStatusTitleFa
-                }
-              />
-              <DetailRow
-                label="مبلغ"
-                value={formatMoney(firstPayment.amount)}
-              />
-              <DetailRow label="درگاه" value={firstPayment.providerCode} />
-              <DetailRow
-                label="شناسه پرداخت"
-                value={firstAttempt.refIdMasked}
-              />
-              <DetailRow
-                label="تاریخ پرداخت"
-                value={formatDate(firstAttempt.settledAt || order.paidAt)}
-              />
-              <DetailRow
-                label="دلیل خطا"
-                value={firstAttempt.failureReasonFa}
-              />
-            </div>
-          </div>
-
-          {discounts.length ? (
-            <div className="rounded-2xl bg-white p-6 drop-shadow-lg dark:border dark:border-gray-700 dark:bg-custom-dark">
-              <TitleAfter title={"تخفیف‌ها"} />
-              <div className="space-y-3">
-                {discounts.map((discount, index) => {
-                  const item = record(discount);
-                  return (
-                    <div
-                      key={`${item.discountSource}-${index}`}
-                      className="rounded-lg bg-gray-50 p-3 dark:bg-zinc-800"
-                    >
-                      <DetailRow
-                        label={
-                          item.sourceLabel || item.discountSource || "تخفیف"
-                        }
-                        value={formatMoney(item.discountAmount)}
-                      />
-                      {!item.isApplied && item.rejectionReason ? (
-                        <p className="mt-2 text-sm text-red-600 dark:text-red-400">
-                          {item.rejectionReason}
-                        </p>
-                      ) : null}
-                    </div>
-                  );
-                })}
               </div>
             </div>
           ) : null}
@@ -1162,7 +926,6 @@ export default function OrderDetails() {
                 {order.customerNote}
               </p>
             </div>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           ) : null}
 
           {returns.length ? (

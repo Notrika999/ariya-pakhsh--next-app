@@ -35,11 +35,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(result);
   } catch (error) {
-<<<<<<< HEAD
     // console.error("[search/api] failed =>", error);
-=======
-    console.error("[search/api] failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     return NextResponse.json(
       {
         items: [],

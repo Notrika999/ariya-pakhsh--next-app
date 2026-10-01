@@ -23,28 +23,6 @@ type SliderState = {
   isEnd: boolean;
 };
 
-<<<<<<< HEAD
-=======
-function formatReadingTime(minutes?: number | null) {
-  if (!minutes || minutes <= 0) return null;
-
-  return `${new Intl.NumberFormat("fa-IR").format(minutes)} دقیقه مطالعه`;
-}
-
-function formatPublishedDate(value?: string | null) {
-  if (!value) return null;
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-
-  return new Intl.DateTimeFormat("fa-IR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(date);
-}
-
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function getArticleHref(article: ProductRelatedArticle) {
   return `/mag/${encodeURIComponent(article.slug)}`;
 }
@@ -53,32 +31,18 @@ function RelatedArticleCard({ article }: { article: ProductRelatedArticle }) {
   const image = getProductImage(
     article.featuredImageThumbnailUrl ?? article.featuredImageUrl,
   );
-<<<<<<< HEAD
-=======
-  const metaParts = [
-    formatReadingTime(article.readingTimeMinutes),
-    formatPublishedDate(article.publishedAt),
-  ].filter(Boolean);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   return (
     <article className="h-full min-w-0">
       <Link
         href={getArticleHref(article)}
-<<<<<<< HEAD
         className="group flex h-full min-h-24 items-center gap-3 overflow-hidden rounded-lg border border-gray-200 bg-white p-2 transition-colors hover:border-primary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-gray-700 dark:bg-custom-dark"
       >
         <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-md bg-gray-100 sm:w-28 dark:bg-zinc-800">
-=======
-        className="group flex h-full flex-col overflow-hidden rounded-lg border border-gray-200 bg-white transition-colors hover:border-primary/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-gray-700 dark:bg-custom-dark"
-      >
-        <div className="relative aspect-video overflow-hidden bg-gray-100 dark:bg-zinc-800">
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           <Image
             src={image}
             alt={article.featuredImageAlt || article.title}
             fill
-<<<<<<< HEAD
             sizes="(max-width: 639px) 96px, 112px"
             className="object-contain p-1 transition-transform duration-300 group-hover:scale-[1.03]"
           />
@@ -88,46 +52,6 @@ function RelatedArticleCard({ article }: { article: ProductRelatedArticle }) {
           <h3 className="line-clamp-2 text-xs font-bold leading-6 text-gray-900 sm:text-[13px] dark:text-gray-100">
             {article.title}
           </h3>
-=======
-            sizes="(max-width: 767px) 90vw, (max-width: 1023px) 45vw, 320px"
-            className="object-contain p-1 transition-transform duration-300 group-hover:scale-[1.03]"
-          />
-          {article.categoryTitle ? (
-            <span className="absolute right-2.5 top-2.5 rounded-sm bg-primary px-2 py-0.5 text-[11px] font-medium text-white">
-              {article.categoryTitle}
-            </span>
-          ) : null}
-        </div>
-
-        <div className="flex flex-1 flex-col p-3.5">
-          <h3 className="line-clamp-2 text-[15px] font-bold leading-7 text-gray-900 dark:text-gray-100">
-            {article.title}
-          </h3>
-
-          {article.excerpt ? (
-            <p className="mt-2 line-clamp-3 text-sm leading-7 text-gray-500 dark:text-gray-400">
-              {article.excerpt}
-            </p>
-          ) : null}
-
-          {metaParts.length ? (
-            <p className="mt-auto flex flex-wrap items-center gap-x-2 pt-3 text-xs text-gray-500 dark:text-gray-400">
-              {metaParts.map((part, index) => (
-                <span
-                  key={`${part}-${index}`}
-                  className="inline-flex items-center gap-2"
-                >
-                  {index > 0 ? (
-                    <span aria-hidden="true" className="opacity-50">
-                      ·
-                    </span>
-                  ) : null}
-                  {part}
-                </span>
-              ))}
-            </p>
-          ) : null}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         </div>
       </Link>
     </article>

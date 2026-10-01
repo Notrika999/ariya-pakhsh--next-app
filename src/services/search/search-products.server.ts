@@ -468,11 +468,7 @@ async function resolveSearchCategoryOptions(
     return resolved.length > 0 ? resolved : fallback;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-<<<<<<< HEAD
     // console.warn(`[search] category tree request failed: ${message}`);
-=======
-    console.warn(`[search] category tree request failed: ${message}`);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     return fallback;
   }
 }

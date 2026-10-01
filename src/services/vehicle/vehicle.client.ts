@@ -48,7 +48,6 @@ export async function saveMyVehicle(vehicleId: string): Promise<void> {
 export async function saveMyVehicles(
   vehicles: SelectedVehicle[],
 ): Promise<void> {
-<<<<<<< HEAD
   const currentVehicles = await getMyVehicles();
   const selectedVehicleIds = new Set(
     vehicles.map((vehicle) => vehicle.id.trim()).filter(Boolean),
@@ -68,9 +67,6 @@ export async function saveMyVehicles(
     ...vehiclesToDelete.map((vehicle) => deleteMyVehicle(vehicle.id)),
     ...vehicleIdsToAdd.map((vehicleId) => saveMyVehicle(vehicleId)),
   ]);
-=======
-  await Promise.all(vehicles.map((vehicle) => saveMyVehicle(vehicle.id)));
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 }
 
 export async function setDefaultMyVehicle(userVehicleId: string): Promise<void> {

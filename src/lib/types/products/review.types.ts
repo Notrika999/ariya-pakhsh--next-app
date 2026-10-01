@@ -8,7 +8,6 @@ export type ProductReviewReply = {
   createdAt: string;
 };
 
-<<<<<<< HEAD
 export type ProductReviewMediaType = "image" | "video";
 
 export type ProductReviewMediaProcessingStatus =
@@ -39,8 +38,6 @@ export type ProductReviewMedia = {
   rejectionReason?: string | null;
 };
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 export type ProductReview = {
   id: string;
   productId: string;
@@ -58,10 +55,7 @@ export type ProductReview = {
   userVote?: ReviewVoteType | null;
   createdAt: string;
   replies: ProductReviewReply[];
-<<<<<<< HEAD
   media: ProductReviewMedia[];
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 };
 
 export type ProductReviewsPage = {
@@ -87,10 +81,7 @@ export type CreateProductReviewRequest = {
   advantages: string[];
   disadvantages: string[];
   recommendStatus: ReviewRecommendStatus;
-<<<<<<< HEAD
   mediaIds?: string[];
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 };
 
 export type ProductReviewsSummary = {
@@ -117,7 +108,6 @@ export type ReportReviewRequest = {
   reason: string;
   description: string;
 };
-<<<<<<< HEAD
 
 export type ReviewMediaCapabilities = {
   enabled: boolean;
@@ -147,5 +137,3 @@ export type ReviewMediaUploadSession = {
   expiresAt?: string;
   maxAllowedSize?: number;
 };
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c

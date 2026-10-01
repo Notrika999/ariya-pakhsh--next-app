@@ -72,11 +72,7 @@ export function BackToTopButton() {
       onClick={scrollToTop}
       aria-label="بازگشت به بالا"
       className="
-<<<<<<< HEAD
         back-to-top-button group
-=======
-        group 
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         fixed z-50
         bottom-16 left-5
         md:bottom-15 md:left-4

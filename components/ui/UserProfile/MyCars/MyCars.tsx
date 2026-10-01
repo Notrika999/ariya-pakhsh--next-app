@@ -1,9 +1,5 @@
 "use client";
-<<<<<<< HEAD
 // components/ui/UserProfile/MyCars/MyCars.tsx
-=======
-
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import { useCallback, useEffect, useState } from "react";
 import MyCarsTop from "./MyCarsTop";
 import VehicleSelectorModal from "@/components/modules/VehicleSelector/VehicleSelectorModal";

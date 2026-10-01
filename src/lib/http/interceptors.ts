@@ -4,11 +4,7 @@
 import { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { CUSTOMER_AUTH_CLIENT_PATHS } from "@/src/lib/auth/constants";
 import { handleSessionExpired } from "@/src/lib/auth/session-client";
-<<<<<<< HEAD
 import { ApiError, apiClient } from "./api-client";
-=======
-import { apiClient } from "./api-client";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import {
   getIsRefreshing,
   setIsRefreshing,
@@ -21,7 +17,6 @@ type RetryRequest = InternalAxiosRequestConfig & {
   _retry?: boolean;
 };
 
-<<<<<<< HEAD
 function getAxiosError(error: unknown): AxiosError | null {
   if (error && typeof error === "object" && "isAxiosError" in error) {
     return error as AxiosError;
@@ -41,12 +36,6 @@ function isAuthRequest(url: string): boolean {
   return url.includes("/api/auth/") || url.includes("/CustomerAuth/");
 }
 
-=======
-function isAuthRequest(url: string): boolean {
-  return url.includes("/api/auth/") || url.includes("/CustomerAuth/");
-}
-
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function isRefreshRequest(url: string): boolean {
   return url.includes(CUSTOMER_AUTH_CLIENT_PATHS.REFRESH);
 }
@@ -59,7 +48,6 @@ async function clearClientAuthState(): Promise<void> {
 export function setupApiInterceptors(): void {
   apiClient.interceptors.response.use(
     (response) => response,
-<<<<<<< HEAD
     async (error: AxiosError | ApiError) => {
       const axiosError = getAxiosError(error);
       const originalRequest = axiosError?.config as RetryRequest | undefined;
@@ -70,13 +58,6 @@ export function setupApiInterceptors(): void {
         (error instanceof ApiError ? error.status : undefined);
 
       if (status !== 401) {
-=======
-    async (error: AxiosError) => {
-      const originalRequest = error.config as RetryRequest | undefined;
-      if (!originalRequest) return Promise.reject(error);
-
-      if (error.response?.status !== 401) {
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         return Promise.reject(error);
       }
 

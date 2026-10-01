@@ -2,10 +2,7 @@
 
 import {
   AUTH_COOKIE_NAME_ALIASES,
-<<<<<<< HEAD
   AUTH_ROUTES,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   AUTH_USER_STORAGE_KEY,
 } from "./constants";
 
@@ -56,7 +53,6 @@ export function redirectToHome(): void {
   window.location.replace("/");
 }
 
-<<<<<<< HEAD
 export function redirectToLogin(): void {
   if (typeof window === "undefined") return;
   if (window.location.pathname === AUTH_ROUTES.LOGIN) {
@@ -70,8 +66,6 @@ export function redirectToLogin(): void {
   );
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 /** @deprecated از redirectToHome استفاده کنید — همیشه به صفحه اصلی هدایت می‌شود */
 export function redirectToHomeIfProtected(): void {
   redirectToHome();
@@ -84,11 +78,7 @@ export function redirectToHomeIfProtected(): void {
  * - هدایت به صفحه اصلی
  */
 export async function performLogout(
-<<<<<<< HEAD
   options?: { skipServerLogout?: boolean; redirectTo?: "home" | "login" },
-=======
-  options?: { skipServerLogout?: boolean },
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 ): Promise<void> {
   if (logoutInFlight) return logoutInFlight;
 
@@ -119,14 +109,11 @@ export async function performLogout(
     );
     stopProactiveTokenRefresh();
 
-<<<<<<< HEAD
     if (options?.redirectTo === "login") {
       redirectToLogin();
       return;
     }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     redirectToHome();
   })();
 
@@ -141,10 +128,7 @@ export async function performLogout(
 export async function handleSessionExpired(): Promise<void> {
   await performLogout();
 }
-<<<<<<< HEAD
 
 export async function handleSessionInvalidHeader(): Promise<void> {
   await performLogout({ skipServerLogout: true, redirectTo: "login" });
 }
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c

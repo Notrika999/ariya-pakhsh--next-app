@@ -55,11 +55,7 @@ export default function Tickets({ initialTicketId = null }) {
         result.hasNextPage || result.pageNumber < result.totalPages,
       );
     } catch (err) {
-<<<<<<< HEAD
       // console.error("[Tickets] loadTickets failed =>", err);
-=======
-      console.error("[Tickets] loadTickets failed =>", err);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setError(getAuthErrorMessage(err));
       if (!append) setTickets([]);
     } finally {
@@ -121,11 +117,7 @@ export default function Tickets({ initialTicketId = null }) {
       }
       return true;
     } catch (err) {
-<<<<<<< HEAD
       // console.error("[Tickets] createTicket failed =>", err);
-=======
-      console.error("[Tickets] createTicket failed =>", err);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       notify.error(getAuthErrorMessage(err));
       return false;
     } finally {

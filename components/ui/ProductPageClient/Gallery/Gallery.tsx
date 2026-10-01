@@ -169,11 +169,7 @@ export default function Gallery({
     try {
       const sharePayload = await getProductShare(slug);
     } catch (error) {
-<<<<<<< HEAD
       // console.error("[Gallery] product share failed =>", error);
-=======
-      console.error("[Gallery] product share failed =>", error);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     }
   }, [productSlug]);
 

@@ -13,10 +13,7 @@ const COLUMN_CLASS = {
  *   columns?: number,
  *   cardVariant?: string,
  *   titleAs?: string,
-<<<<<<< HEAD
  *   priorityCount?: number,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
  * }} props
  */
 export default function ArticleGrid({
@@ -25,7 +22,6 @@ export default function ArticleGrid({
   columns = 3,
   cardVariant = "default",
   titleAs,
-<<<<<<< HEAD
   priorityCount = 0,
 }) {
   if (!articles.length) {
@@ -38,33 +34,18 @@ export default function ArticleGrid({
           {emptyMessage}
         </p>
       </div>
-=======
-}) {
-  if (!articles.length) {
-    return emptyMessage ? (
-      <p className="rounded-lg border border-dashed border-gray-200 px-4 py-10 text-center text-sm text-gray-500 dark:border-zinc-700 dark:text-gray-400">
-        {emptyMessage}
-      </p>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     ) : null;
   }
 
   return (
     <div className={COLUMN_CLASS[columns] ?? COLUMN_CLASS[3]}>
-<<<<<<< HEAD
       {articles.map((article, index) => (
-=======
-      {articles.map((article) => (
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         <ArticleCard
           key={getArticleKey(article)}
           article={article}
           variant={cardVariant}
           titleAs={titleAs}
-<<<<<<< HEAD
           priority={index < priorityCount}
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         />
       ))}
     </div>

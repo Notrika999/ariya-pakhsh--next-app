@@ -1,9 +1,5 @@
 "use client";
-<<<<<<< HEAD
 // components/ui/checkout/PaymentResult.tsx
-=======
-
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -29,14 +25,10 @@ import {
 const HOME_PATH = "/";
 const ORDERS_PATH = "/user-profile/orders";
 
-<<<<<<< HEAD
 type PaymentResultStatus = "success" | "cancelled" | "failed" | "pending";
 
 const PAYMENT_CONFIRMATION_POLL_INTERVAL_MS = 2500;
 const PAYMENT_CONFIRMATION_MAX_POLLS = 8;
-=======
-type PaymentResultStatus = "success" | "cancelled" | "failed";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 function getFirstParam(
   searchParams: URLSearchParams,
@@ -55,15 +47,11 @@ function resolveStatus(status: string | null): PaymentResultStatus {
 
   const normalized = status.toLowerCase();
 
-<<<<<<< HEAD
   if (
     ["success", "succeeded", "paid", "ok", "true", "1", "0", "00"].includes(
       normalized,
     )
   ) {
-=======
-  if (["success", "succeeded", "paid", "ok", "true", "1"].includes(normalized)) {
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     return "success";
   }
 
@@ -79,7 +67,6 @@ function resolveStatus(status: string | null): PaymentResultStatus {
 }
 
 function resolveCallbackStatus(params: URLSearchParams): PaymentResultStatus {
-<<<<<<< HEAD
   const status = getFirstParam(params, [
     "status",
     "Status",
@@ -97,19 +84,11 @@ function resolveCallbackStatus(params: URLSearchParams): PaymentResultStatus {
     "StatusCode",
   ]);
   if (code === "0" || code === "00") return "success";
-=======
-  const status = getFirstParam(params, ["status", "State", "state"]);
-  if (status) return resolveStatus(status);
-
-  const code = getFirstParam(params, ["ResCode", "resCode", "code", "Code"]);
-  if (code === "0") return "success";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   if (code === "17") return "cancelled";
 
   return "failed";
 }
 
-<<<<<<< HEAD
 function isPaidPaymentStatus(statusKey?: string | null) {
   const normalized = statusKey?.trim().toLowerCase() ?? "";
 
@@ -131,8 +110,6 @@ function isOrderPaid(order: MyOrderDetail | null) {
   );
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error && error.message) return error.message;
   return "پرداخت مجدد ناموفق بود. دوباره تلاش کنید.";
@@ -246,7 +223,6 @@ function getResultCopy(status: PaymentResultStatus) {
     };
   }
 
-<<<<<<< HEAD
   if (status === "pending") {
     return {
       title: "نتیجه سفارش",
@@ -264,8 +240,6 @@ function getResultCopy(status: PaymentResultStatus) {
     };
   }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   return {
     title: "نتیجه سفارش",
     headline: "پرداخت ناموفق بود",
@@ -391,18 +365,14 @@ export default function PaymentResult() {
   const [order, setOrder] = useState<MyOrderDetail | null>(null);
   const [orderLoading, setOrderLoading] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
-<<<<<<< HEAD
   const [
     paymentConfirmationPendingOrderRef,
     setPaymentConfirmationPendingOrderRef,
   ] = useState<string | null>(null);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   const result = useMemo(() => {
     const params = new URLSearchParams(searchParams.toString());
     const status = resolveCallbackStatus(params);
-<<<<<<< HEAD
     const hasGatewayResult = Boolean(
       getFirstParam(params, [
         "status",
@@ -417,8 +387,6 @@ export default function PaymentResult() {
         "StatusCode",
       ]),
     );
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     const copy = getResultCopy(status);
     const rememberedOrder = getRememberedPendingPaymentOrderInfo();
     const orderId =
@@ -442,10 +410,7 @@ export default function PaymentResult() {
 
     return {
       status,
-<<<<<<< HEAD
       hasGatewayResult,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       ...copy,
       message: getFirstParam(params, [
         "message",
@@ -478,23 +443,16 @@ export default function PaymentResult() {
   }, [searchParams]);
 
   useEffect(() => {
-<<<<<<< HEAD
     const orderRef = result.orderId || result.orderNumber;
     const hasOrderRef = Boolean(orderRef);
-=======
-    const hasOrderRef = Boolean(result.orderId || result.orderNumber);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     if (!hasOrderRef) {
       return;
     }
 
     let cancelled = false;
-<<<<<<< HEAD
     let pollCount = 0;
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
     async function loadOrder() {
       setOrderLoading(true);
@@ -510,7 +468,6 @@ export default function PaymentResult() {
         if (cancelled) return;
         setOrder(detail);
 
-<<<<<<< HEAD
         // برخی درگاه‌ها (از جمله IPG دیجی‌پی) ابتدا کاربر را برمی‌گردانند و
         // تأیید نهایی را به‌صورت غیرهم‌زمان در سرور انجام می‌دهند.
         if (
@@ -525,17 +482,11 @@ export default function PaymentResult() {
         }
 
         setPaymentConfirmationPendingOrderRef(null);
-=======
-
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       } catch (error) {
         if (cancelled) return;
         setOrder(null);
         setOrderError(getErrorMessage(error));
-<<<<<<< HEAD
         setPaymentConfirmationPendingOrderRef(null);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       } finally {
         if (!cancelled) setOrderLoading(false);
       }
@@ -545,7 +496,6 @@ export default function PaymentResult() {
 
     return () => {
       cancelled = true;
-<<<<<<< HEAD
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, [result.hasGatewayResult, result.orderId, result.orderNumber]);
@@ -587,16 +537,6 @@ export default function PaymentResult() {
       clearRememberedPendingPaymentOrder();
     }
   }, [displayStatus, orderLoading]);
-=======
-    };
-  }, [result.orderId, result.orderNumber]);
-
-  useEffect(() => {
-    if (result.status === "success" && !orderLoading) {
-      clearRememberedPendingPaymentOrder();
-    }
-  }, [orderLoading, result.status]);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   const handleRetryPayment = async () => {
     const targetOrderId = order?.orderId || result.orderId;
@@ -637,19 +577,11 @@ export default function PaymentResult() {
     ? "شناسه یا شماره سفارش در پاسخ درگاه موجود نیست."
     : orderError;
   const payableOrPaidAmount =
-<<<<<<< HEAD
     displayStatus === "success"
       ? order?.paidAmount || order?.payments[0]?.amount || order?.payableAmount || 0
       : order?.payableAmount || order?.payments[0]?.amount || 0;
   const amountLabel =
     displayStatus === "success" ? "مبلغ پرداختی" : "مبلغ قابل پرداخت";
-=======
-    result.status === "success"
-      ? order?.paidAmount || order?.payments[0]?.amount || order?.payableAmount || 0
-      : order?.payableAmount || order?.payments[0]?.amount || 0;
-  const amountLabel =
-    result.status === "success" ? "مبلغ پرداختی" : "مبلغ قابل پرداخت";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   const actionButtons = (
     <div className="flex w-full flex-col gap-3">
@@ -659,11 +591,7 @@ export default function PaymentResult() {
         </div>
       ) : null}
 
-<<<<<<< HEAD
       {displayStatus === "failed" ? (
-=======
-      {result.status !== "success" ? (
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         <button
           type="button"
           onClick={() => void handleRetryPayment()}
@@ -680,17 +608,10 @@ export default function PaymentResult() {
         مشاهده جزئیات سفارش
       </Link>
       <Link
-<<<<<<< HEAD
         href={displayStatus === "success" ? ORDERS_PATH : HOME_PATH}
         className="inline-flex w-full items-center justify-center rounded-lg border border-gray-300 px-5 py-3 text-sm font-bold text-gray-700 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
       >
         {displayStatus === "success" ? "سفارش‌های من" : "صفحه اصلی"}
-=======
-        href={result.status === "success" ? ORDERS_PATH : HOME_PATH}
-        className="inline-flex w-full items-center justify-center rounded-lg border border-gray-300 px-5 py-3 text-sm font-bold text-gray-700 transition-colors duration-200 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
-      >
-        {result.status === "success" ? "سفارش‌های من" : "صفحه اصلی"}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       </Link>
     </div>
   );
@@ -700,7 +621,6 @@ export default function PaymentResult() {
       <div className="container mx-auto px-4">
         <div className="mx-auto w-full max-w-6xl space-y-6">
           <div
-<<<<<<< HEAD
             className={`overflow-hidden rounded-2xl border bg-white shadow-sm dark:bg-custom-dark ${displayResult.shellClass}`}
           >
             <div className={`p-6 md:p-8 ${displayResult.headerClass}`}>
@@ -718,25 +638,6 @@ export default function PaymentResult() {
                     </h1>
                     <p className="mt-2 max-w-2xl leading-7 text-white/85">
                       {displayResult.description}
-=======
-            className={`overflow-hidden rounded-2xl border bg-white shadow-sm dark:bg-custom-dark ${result.shellClass}`}
-          >
-            <div className={`p-6 md:p-8 ${result.headerClass}`}>
-              <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white/20">
-                    <i className={`text-2xl text-white ${result.icon}`} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white/80">
-                      {result.title}
-                    </p>
-                    <h1 className="mt-1 text-2xl font-black text-white md:text-3xl">
-                      {result.headline}
-                    </h1>
-                    <p className="mt-2 max-w-2xl leading-7 text-white/85">
-                      {result.description}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                     </p>
                   </div>
                 </div>
@@ -764,11 +665,7 @@ export default function PaymentResult() {
                   وضعیت سفارش
                 </p>
                 <p className="mt-2 text-sm font-black text-gray-900 dark:text-gray-100">
-<<<<<<< HEAD
                   {order?.statusTitleFa || order?.statusKey || displayResult.headline}
-=======
-                  {order?.statusTitleFa || order?.statusKey || result.headline}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                 </p>
               </div>
               <div className="border-b border-gray-100 p-5 dark:border-gray-800 md:border-b-0 md:border-l">
@@ -790,13 +687,8 @@ export default function PaymentResult() {
             </div>
           </div>
 
-<<<<<<< HEAD
           <div className={`rounded-xl p-4 text-sm leading-7 ${displayResult.messageClass}`}>
             {displayResult.message || displayResult.fallbackMessage}
-=======
-          <div className={`rounded-xl p-4 text-sm leading-7 ${result.messageClass}`}>
-            {result.message || result.fallbackMessage}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           </div>
 
           {orderLoading ? (
@@ -853,11 +745,7 @@ export default function PaymentResult() {
                   <DetailRow
                     label="وضعیت پرداخت"
                     value={order.paymentStatusTitleFa || order.paymentStatusKey}
-<<<<<<< HEAD
                     valueClassName={displayResult.toneClass}
-=======
-                    valueClassName={result.toneClass}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                   />
                   <DetailRow
                     label="روش پرداخت"

@@ -7,7 +7,6 @@ import {
   getAuthErrorMessage,
   resendLoginTwoFactorOtp,
   resendOtp,
-<<<<<<< HEAD
   startPhoneAuth,
   verifyLoginTwoFactor,
   verifyOtp,
@@ -22,13 +21,6 @@ import { notify } from "@/src/utils/toast";
 import OtpResendCountdown from "./OtpResendCountdown";
 
 const OTP_LENGTH = 4;
-=======
-  verifyLoginTwoFactor,
-  verifyOtp,
-} from "@/src/services/auth/auth.client";
-import { useAuthStore } from "@/src/lib/stores/auth/auth.store";
-import OtpResendCountdown from "./OtpResendCountdown";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 const INVALID_OTP_TOKEN_CODES = new Set(["TOKEN_INVALID", "INVALID_2FA_TOKEN"]);
 
@@ -118,11 +110,7 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
         const verifyBody = {
           twoFactorToken: loginTwoFactorToken,
           code,
-<<<<<<< HEAD
           deviceFingerPrint,
-=======
-          deviceFingerPrint: deviceFingerPrint ?? "device-id",
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         };
 
         const result = await verifyLoginTwoFactor(verifyBody);
@@ -144,11 +132,7 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
         clearLoginTwoFactorFlow();
         onSuccess(false);
       } catch (err) {
-<<<<<<< HEAD
         // console.error("[StepOtp] login 2FA verify failed:", err);
-=======
-        console.error("[StepOtp] login 2FA verify failed:", err);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         setError(getAuthErrorMessage(err));
         setDigits(Array(OTP_LENGTH).fill(""));
         setTimeout(() => inputRefs.current[0]?.focus(), 0);
@@ -171,11 +155,7 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
       const result = await verifyOtp({
         flowToken,
         code,
-<<<<<<< HEAD
         deviceFingerPrint,
-=======
-        deviceFingerPrint: deviceFingerPrint ?? "device-id",
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       });
 
       setVerifyResult(result.isNewUser, result.registrationToken);
@@ -193,11 +173,7 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
 
       onSuccess(result.isNewUser);
     } catch (err) {
-<<<<<<< HEAD
       // console.error("verify error:", err);
-=======
-      console.error("verify error:", err);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setError(getAuthErrorMessage(err));
       setDigits(Array(OTP_LENGTH).fill(""));
       setTimeout(() => inputRefs.current[0]?.focus(), 0);
@@ -268,7 +244,6 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
         const result = await resendLoginTwoFactorOtp(loginTwoFactorToken);
 
         if (!result.success) {
-<<<<<<< HEAD
           if (isInvalidOtpTokenCode(result.errorCode)) {
             clearLoginTwoFactorFlow();
             notify.warning(
@@ -277,8 +252,6 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
             onBack();
             return;
           }
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           setError(result.errorMessage ?? result.message ?? "ارسال مجدد کد انجام نشد");
           return;
         }
@@ -292,11 +265,7 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
           result.maskedPhone ??
             result.maskedDestination ??
             loginTwoFactorOtpSentTo,
-<<<<<<< HEAD
           deviceFingerPrint,
-=======
-          deviceFingerPrint ?? "device-id",
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           nextCooldown,
         );
         setCooldownSeconds(nextCooldown);
@@ -305,7 +274,6 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
         setSuccessMessage(result.message ?? "کد تایید جدید ارسال شد.");
         setTimeout(() => inputRefs.current[0]?.focus(), 0);
       } catch (err) {
-<<<<<<< HEAD
         if (isInvalidOtpTokenError(err)) {
           clearLoginTwoFactorFlow();
           notify.warning(
@@ -314,9 +282,6 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
           onBack();
           return;
         }
-=======
-        console.error("[StepOtp] login 2FA resend failed:", err);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         setError(getAuthErrorMessage(err));
       } finally {
         setResendLoading(false);
@@ -330,7 +295,6 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
     setError(null);
     setSuccessMessage(null);
 
-<<<<<<< HEAD
     const restartPhoneOtpFlow = async () => {
       if (!phone) {
         clearCachedPhoneAuthFlow();
@@ -382,19 +346,14 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
       setTimeout(() => inputRefs.current[0]?.focus(), 0);
     };
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     try {
       const result = await resendOtp({ token: flowToken });
 
       if (!result.success) {
-<<<<<<< HEAD
         if (isInvalidOtpTokenCode(result.errorCode)) {
           await restartPhoneOtpFlow();
           return;
         }
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         setError(result.errorMessage ?? result.message ?? "ارسال مجدد کد انجام نشد");
         return;
       }
@@ -407,7 +366,6 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
         nextToken,
         phone ?? "",
         result.maskedPhone ?? maskedPhone ?? phone ?? "",
-<<<<<<< HEAD
         deviceFingerPrint,
         nextCooldown,
       );
@@ -421,18 +379,12 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
           expiresAt: Date.now() + Math.max(nextCooldown, 120) * 1000,
         });
       }
-=======
-        deviceFingerPrint ?? "device-id",
-        nextCooldown,
-      );
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       setCooldownSeconds(nextCooldown);
       setResendAvailable(false);
       setDigits(Array(OTP_LENGTH).fill(""));
       setSuccessMessage(result.message ?? "کد تایید جدید ارسال شد.");
       setTimeout(() => inputRefs.current[0]?.focus(), 0);
     } catch (err) {
-<<<<<<< HEAD
       if (isInvalidOtpTokenError(err)) {
         try {
           await restartPhoneOtpFlow();
@@ -442,10 +394,6 @@ export default function StepOtp({ onSuccess, onBack }: StepOtpProps) {
       } else {
         setError(getAuthErrorMessage(err));
       }
-=======
-      console.error("[StepOtp] resend failed:", err);
-      setError(getAuthErrorMessage(err));
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     } finally {
       setResendLoading(false);
     }

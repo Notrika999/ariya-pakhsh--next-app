@@ -33,11 +33,8 @@ export type MyOrderItem = {
   productName?: string;
   variantTitle?: string;
   variantName: string;
-<<<<<<< HEAD
   colorName?: string | null;
   colorHex?: string | null;
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   quantity: number;
   unitPrice: number;
   lineTotal: number;
@@ -192,22 +189,16 @@ export type MyOrderDetail = MyOrderListItem & {
   shippingFee: number;
   shippingDiscountAmount: number;
   taxAmount: number;
-<<<<<<< HEAD
   gatewayFeeAmount: number;
   gatewayFeePercent: number;
   gatewayFeeTitle: string;
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   refundedAmount: number;
   customerNote: string;
   selectedShippingMethodId: string;
   shippingMethodTitleSnapshot: string;
   shippingAddressSnapshotJson: string;
   shippingAddressSnapshot: ShippingAddressSnapshot | null;
-<<<<<<< HEAD
   primaryTrackingCode: string;
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   estimatedDeliveryDays: number;
   cancelledAt: string | null;
   closedAt: string | null;
@@ -279,7 +270,6 @@ export type CancelOrderItemResult = {
   message?: string;
   raw: unknown;
 };
-<<<<<<< HEAD
 
 export type CancelOrderPayload = {
   reason?: string;
@@ -289,5 +279,3 @@ export type CancelOrderResult = {
   message?: string;
   raw: unknown;
 };
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c

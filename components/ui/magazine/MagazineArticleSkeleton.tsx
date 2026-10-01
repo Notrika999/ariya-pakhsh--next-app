@@ -41,11 +41,7 @@ export default function MagazineArticleSkeleton() {
         </div>
       </header>
 
-<<<<<<< HEAD
       <Block className="h-[660px] w-full rounded-xl" />
-=======
-      <Block className="aspect-video w-full rounded-xl" />
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
       <div className="grid gap-8 lg:grid-cols-12">
         <aside className="hidden lg:col-span-4 lg:block">

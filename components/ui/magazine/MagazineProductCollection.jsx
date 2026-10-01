@@ -142,14 +142,7 @@ export default function MagazineProductCollection({
                   swiper.params.navigation.prevEl = prevRef.current;
                   swiper.params.navigation.nextEl = nextRef.current;
                 }}
-<<<<<<< HEAD
                 navigation
-=======
-                navigation={{
-                  prevEl: prevRef.current,
-                  nextEl: nextRef.current,
-                }}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                 breakpoints={{
                   640: { slidesPerView: 1.7 },
                   768: { slidesPerView: 2.35 },

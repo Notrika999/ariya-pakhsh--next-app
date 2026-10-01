@@ -8,7 +8,6 @@ function isPriceIssue(issue) {
   return type.includes("price");
 }
 
-<<<<<<< HEAD
 function isStockIssue(issue) {
   const type = String(issue?.issueType || "").toLowerCase();
   return /(stock|inventory|availability|available|isactive|active|status|purchasable|sellable|outofstock|out-of-stock|out_of_stock|unavailable|quantity|soldout|sold-out|sold_out)/i.test(
@@ -53,13 +52,6 @@ function formatIssueValue(value, issue) {
   const numeric = Number(value);
 
   if (Number.isFinite(numeric)) {
-=======
-function formatIssueValue(value, issue) {
-  if (value === null || value === undefined || value === "") return null;
-  const numeric = Number(value);
-
-  if (Number.isFinite(numeric) && numeric > 0) {
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     return isPriceIssue(issue)
       ? `${formatPrice(numeric)} تومان`
       : new Intl.NumberFormat("fa-IR").format(numeric);
@@ -75,16 +67,11 @@ function getIssueTitle(issue) {
   if (type.includes("warranty") || type.includes("guarantee")) {
     return "تغییر گارانتی یا اصالت کالا";
   }
-<<<<<<< HEAD
   if (isStockIssue(issue)) return "تغییر وضعیت موجودی";
-=======
-  if (type.includes("stock") || type.includes("inventory")) return "ناموجودی کالا";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   return issue?.severity === "error" ? "مشکل در موجودی" : "تغییر اطلاعات کالا";
 }
 
-<<<<<<< HEAD
 function getIssueValueLabels(issue) {
   if (isPriceIssue(issue)) {
     return { oldLabel: "قیمت قبلی", newLabel: "قیمت جدید" };
@@ -102,11 +89,6 @@ function IssueRow({ issue }) {
   const oldValue = formatIssueValue(issue?.oldValue, issue);
   const newValue = formatIssueValue(issue?.newValue, issue);
   const { oldLabel, newLabel } = getIssueValueLabels(issue);
-=======
-function IssueRow({ issue }) {
-  const oldValue = formatIssueValue(issue?.oldValue, issue);
-  const newValue = formatIssueValue(issue?.newValue, issue);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm dark:border-gray-700 dark:bg-zinc-900">
@@ -133,20 +115,12 @@ function IssueRow({ issue }) {
         <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
           {oldValue ? (
             <div className="rounded-md bg-gray-50 px-2 py-1 text-gray-600 dark:bg-zinc-800 dark:text-gray-300">
-<<<<<<< HEAD
               {oldLabel}: <span className="font-bold">{oldValue}</span>
-=======
-              قیمت قبلی: <span className="font-bold">{oldValue}</span>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             </div>
           ) : null}
           {newValue ? (
             <div className="rounded-md bg-primary/10 px-2 py-1 text-primary dark:bg-primary/20">
-<<<<<<< HEAD
               {newLabel}: <span className="font-bold">{newValue}</span>
-=======
-              قیمت جدید: <span className="font-bold">{newValue}</span>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             </div>
           ) : null}
         </div>

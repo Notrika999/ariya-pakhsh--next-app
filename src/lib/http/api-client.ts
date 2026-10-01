@@ -11,11 +11,8 @@ import {
 const UNSAFE_INPUT_MESSAGE =
   "\u0644\u0637\u0641\u0627 \u0645\u062a\u0646 \u0631\u0627 \u0628\u062f\u0631\u0633\u062a\u06cc \u0627\u0631\u0633\u0627\u0644 \u06a9\u0646\u06cc\u062f";
 
-<<<<<<< HEAD
 let sessionInvalidRedirectInFlight: Promise<void> | null = null;
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -138,7 +135,6 @@ function extractApiErrorCode(errorData: unknown): string | undefined {
   return undefined;
 }
 
-<<<<<<< HEAD
 function readHeader(headers: unknown, name: string): string | undefined {
   if (!headers || typeof headers !== "object") return undefined;
 
@@ -185,20 +181,12 @@ apiClient.interceptors.response.use(
     return response;
   },
   async (error: AxiosError<unknown> | ApiError) => {
-=======
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error: AxiosError<unknown> | ApiError) => {
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     if (error instanceof ApiError) {
       return Promise.reject(error);
     }
 
-<<<<<<< HEAD
     await enforceSessionInvalidHeader(error.response?.headers);
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     const status = error.response?.status;
     const errorData = error.response?.data;
     const backendMessage = extractApiErrorMessage(errorData);
@@ -244,10 +232,7 @@ apiClient.interceptors.response.use(
             backendMessage || "Bad request",
             backendCode || "BAD_REQUEST",
             errorData,
-<<<<<<< HEAD
             error,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           ),
         );
       case 401:
@@ -257,10 +242,7 @@ apiClient.interceptors.response.use(
             backendMessage || "Session expired",
             backendCode || "UNAUTHORIZED",
             errorData,
-<<<<<<< HEAD
             error,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           ),
         );
       case 403:
@@ -270,10 +252,7 @@ apiClient.interceptors.response.use(
             backendMessage || "Access denied",
             backendCode || "FORBIDDEN",
             errorData,
-<<<<<<< HEAD
             error,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           ),
         );
       case 404:
@@ -283,10 +262,7 @@ apiClient.interceptors.response.use(
             backendMessage || "Resource not found",
             backendCode || "NOT_FOUND",
             errorData,
-<<<<<<< HEAD
             error,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           ),
         );
       case 422:
@@ -296,10 +272,7 @@ apiClient.interceptors.response.use(
             backendMessage || "Validation failed",
             backendCode || "VALIDATION_ERROR",
             errorData,
-<<<<<<< HEAD
             error,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           ),
         );
       case 429:
@@ -309,17 +282,13 @@ apiClient.interceptors.response.use(
             backendMessage || "Too many requests. Slow down.",
             backendCode || "RATE_LIMIT",
             errorData,
-<<<<<<< HEAD
             error,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           ),
         );
       case 500:
       case 502:
       case 503:
         return Promise.reject(
-<<<<<<< HEAD
           new ApiError(
             status,
             "Server-side crash",
@@ -327,9 +296,6 @@ apiClient.interceptors.response.use(
             errorData,
             error,
           ),
-=======
-          new ApiError(status, "Server-side crash", "SERVER_ERROR", errorData),
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         );
       default:
         return Promise.reject(
@@ -338,10 +304,7 @@ apiClient.interceptors.response.use(
             "An unexpected error occurred",
             "UNKNOWN",
             errorData,
-<<<<<<< HEAD
             error,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           ),
         );
     }

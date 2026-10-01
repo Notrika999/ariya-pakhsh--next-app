@@ -18,10 +18,7 @@ import type {
   MagazineInlineNode,
   MagazineInlineStyle,
   MagazinePost,
-<<<<<<< HEAD
   MagazineProductComparisonAttribute,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   MagazineRelatedProduct,
   MagazineSectionFilters,
   MagazineTableCell,
@@ -783,10 +780,7 @@ function mapContentBlocks(
   toc: MagazineTocItem[],
   catalog: MagazineRelatedProduct[] = [],
   categoryLinks: MagazineCategoryLink[] = [],
-<<<<<<< HEAD
   productComparisons: MagazineProductComparison[] = [],
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 ): MagazineContentBlock[] {
   if (!Array.isArray(value)) return [];
 
@@ -938,7 +932,6 @@ function mapContentBlocks(
       continue;
     }
 
-<<<<<<< HEAD
     if (type === "productComparison") {
       const comparison = mapProductComparisonBlock(
         data,
@@ -951,8 +944,6 @@ function mapContentBlocks(
       continue;
     }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     if (type === "productCategory") {
       const cta = mapProductCategory(data, categoryLinks);
       if (cta) blocks.push(cta);
@@ -966,15 +957,12 @@ function mapContentBlocks(
   return blocks;
 }
 
-<<<<<<< HEAD
 type MagazineProductComparison = {
   blockId: string;
   products: MagazineRelatedProduct[];
   attributes: MagazineProductComparisonAttribute[];
 };
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function readProductId(value: unknown): string {
   if (typeof value === "string") return value.trim();
   if (!isRecord(value)) return "";
@@ -1008,7 +996,6 @@ function collectProductIds(data: Record<string, unknown>): string[] {
   return [...new Set(ids)];
 }
 
-<<<<<<< HEAD
 function mapComparisonAttribute(
   value: unknown,
 ): MagazineProductComparisonAttribute | null {
@@ -1126,8 +1113,6 @@ function mapProductComparisonBlock(
   };
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function mapProductCollection(
   data: Record<string, unknown>,
   catalog: MagazineRelatedProduct[],
@@ -1271,15 +1256,11 @@ export function collectMagazineContentProductIds(value: unknown): string[] {
       if (id) ids.push(id);
       continue;
     }
-<<<<<<< HEAD
     if (
       type === "productCollection" ||
       type === "products" ||
       type === "productComparison"
     ) {
-=======
-    if (type === "productCollection" || type === "products") {
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       ids.push(...collectProductIds(data));
     }
   }
@@ -1438,11 +1419,7 @@ function sitePublisherJsonLd(): Record<string, unknown> {
     url: SITE_URL,
     logo: {
       "@type": "ImageObject",
-<<<<<<< HEAD
       url: `${SITE_URL}/images/logo/Logo.png`,
-=======
-      url: `${SITE_URL}/images/logo/carup24-logo.png`,
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     },
   };
 }
@@ -1499,10 +1476,7 @@ function applyRealArticleJsonLdFields(
     delete next.author;
   }
   next.publisher = mergePublisherJsonLd(next.publisher);
-<<<<<<< HEAD
   next["@id"] = `${ctx.articleUrl}#article`;
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   next.mainEntityOfPage = {
     "@type": "WebPage",
     "@id": ctx.articleUrl,
@@ -1524,7 +1498,6 @@ function buildArticleJsonLd(
   );
 }
 
-<<<<<<< HEAD
 function buildArticleWebPageJsonLd(
   ctx: ArticleJsonLdContext,
 ): Record<string, unknown> {
@@ -1548,8 +1521,6 @@ function buildArticleWebPageJsonLd(
   return webPage;
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 function toJsonLd(
   item: unknown,
   article: {
@@ -1682,20 +1653,14 @@ export function mapMagazineArticleDetail(
         .filter((item): item is MagazineRelatedProduct => Boolean(item))
     : [];
   const catalog = mergeProductCatalog(relatedProducts, extraCatalog);
-<<<<<<< HEAD
   const productComparisons = mapProductComparisons(article.productComparisons);
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const author = mapAuthor(article.author);
   const content = mapContentBlocks(
     article.content,
     toc,
     catalog,
     categoryLinks,
-<<<<<<< HEAD
     productComparisons,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   );
   const faqs = Array.isArray(article.faqs)
     ? article.faqs
@@ -1744,7 +1709,6 @@ export function mapMagazineArticleDetail(
     structuredData.unshift(buildArticleJsonLd(articleJsonLdCtx));
   }
 
-<<<<<<< HEAD
   if (
     schemaImage &&
     !structuredData.some((item) => asString(item["@type"]) === "WebPage")
@@ -1752,8 +1716,6 @@ export function mapMagazineArticleDetail(
     structuredData.push(buildArticleWebPageJsonLd(articleJsonLdCtx));
   }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const faqJsonLd = buildFaqPageJsonLd(collectVisibleFaqs(content, faqs));
   if (faqJsonLd) structuredData.push(faqJsonLd);
 

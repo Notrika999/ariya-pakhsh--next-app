@@ -15,10 +15,7 @@ import {
   formatReceiver,
 } from "@/src/lib/address/address-form";
 import { getCheckoutShippingOptions } from "@/src/services/checkout/checkout.client";
-<<<<<<< HEAD
 import { resolveCustomerAddressLocationIds } from "@/src/services/location/location.client";
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import { notify } from "@/src/utils/toast";
 
 function getAddressIcon(title: string): string {
@@ -32,30 +29,22 @@ function getAddressIcon(title: string): string {
 
 interface CheckoutDeliveryAddressProps {
   selectedAddressId: string | null;
-<<<<<<< HEAD
   userEmail: string;
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   onSelectAddress: (address: CustomerAddressDto | null) => void;
   onShippingOptionsChange: (result: CheckoutShippingOptionsResult | null) => void;
   customerNote: string;
   onCustomerNoteChange: (value: string) => void;
 }
 
-<<<<<<< HEAD
 function toShippingAddress(
   address: CustomerAddressDto,
   userEmail: string,
 ): PlaceOrderShippingAddress {
-=======
-function toShippingAddress(address: CustomerAddressDto): PlaceOrderShippingAddress {
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   return {
     countryCode: "IR",
     countryName: "ایران",
     state: address.province,
     city: address.city,
-<<<<<<< HEAD
     provinceId: address.provinceId,
     cityId: address.cityId,
     postalCode: address.postalCode,
@@ -67,19 +56,12 @@ function toShippingAddress(address: CustomerAddressDto): PlaceOrderShippingAddre
     email: userEmail.trim(),
     latitude: address.latitude,
     longitude: address.longitude,
-=======
-    postalCode: address.postalCode,
-    addressLine: address.addressLine,
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   };
 }
 
 export default function CheckoutDeliveryAddress({
   selectedAddressId,
-<<<<<<< HEAD
   userEmail,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   onSelectAddress,
   onShippingOptionsChange,
   customerNote,
@@ -99,7 +81,6 @@ export default function CheckoutDeliveryAddress({
       const requestId = shippingOptionsRequestId.current + 1;
       shippingOptionsRequestId.current = requestId;
 
-<<<<<<< HEAD
       if (!address) {
         onSelectAddress(null);
         onShippingOptionsChange(null);
@@ -131,37 +112,17 @@ export default function CheckoutDeliveryAddress({
       try {
         const options = await getCheckoutShippingOptions({
           shippingAddress,
-=======
-      onSelectAddress(address);
-
-      if (!address) {
-        onShippingOptionsChange(null);
-        return;
-      }
-
-      try {
-        const options = await getCheckoutShippingOptions({
-          shippingAddress: toShippingAddress(address),
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         });
         if (shippingOptionsRequestId.current !== requestId) return;
         onShippingOptionsChange(options);
       } catch (err) {
         if (shippingOptionsRequestId.current !== requestId) return;
-<<<<<<< HEAD
         // console.error("[CheckoutDeliveryAddress] shipping options failed =>", err);
-=======
-        console.error("[CheckoutDeliveryAddress] shipping options failed =>", err);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         onShippingOptionsChange(null);
         notify.error(getAuthErrorMessage(err));
       }
     },
-<<<<<<< HEAD
     [onSelectAddress, onShippingOptionsChange, userEmail],
-=======
-    [onSelectAddress, onShippingOptionsChange],
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   );
 
   const pickDefault = useCallback(
@@ -192,11 +153,7 @@ export default function CheckoutDeliveryAddress({
         setAddresses(data);
         pickDefault(data, options?.preserveSelection);
       } catch (err) {
-<<<<<<< HEAD
         // console.error("[CheckoutDeliveryAddress] load failed =>", err);
-=======
-        console.error("[CheckoutDeliveryAddress] load failed =>", err);
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         notify.error(getAuthErrorMessage(err));
       } finally {
         setLoading(false);

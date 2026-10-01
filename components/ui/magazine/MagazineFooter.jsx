@@ -1,11 +1,6 @@
 import Link from "next/link";
-<<<<<<< HEAD
 import { getBlogHomeHref } from "@/components/ui/magazine/magazineHomeUtils";
 import BrandLogo from "@/components/modules/BrandLogo/BrandLogo";
-=======
-import Image from "next/image";
-import { getBlogHomeHref } from "@/components/ui/magazine/magazineHomeUtils";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
 const STORE_LINKS = [
   { href: "/", label: "فروشگاه کارآپ۲۴" },
@@ -60,23 +55,10 @@ export default function MagazineFooter({ categories = [] }) {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:grid-cols-2 md:px-6 lg:grid-cols-5 lg:px-8">
         <div className="sm:col-span-2 lg:col-span-1">
           <Link href="/mag" className="inline-flex items-center gap-2">
-<<<<<<< HEAD
             <BrandLogo
               logoClassName="h-10 w-10"
               textClassName="h-8"
             />
-=======
-            <Image
-              src="/images/logo/carup24-logo.png"
-              alt="کارآپ ۲۴"
-              width={40}
-              height={40}
-              className="object-contain"
-            />
-            <span className="font-bold">
-              مجله خودرو کارآپ<span className="text-primary">۲۴</span>
-            </span>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           </Link>
           <p className="mt-3 max-w-xs text-sm leading-7 text-gray-500 dark:text-gray-400">
             راهنمای انتخاب، نگهداری و استفاده از لوازم جانبی خودرو برای خرید مطمئن‌تر.

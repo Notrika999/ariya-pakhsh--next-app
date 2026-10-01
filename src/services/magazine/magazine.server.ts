@@ -186,7 +186,6 @@ export const getMagazineArticleBySlug = cache(
       });
 
 
-<<<<<<< HEAD
       // if (response.status === 404 || !response.ok || !isSuccess(response.data)) {
       //   console.warn("[magazine] getMagazineArticleBySlug", {
       //     slug: safeSlug,
@@ -195,16 +194,6 @@ export const getMagazineArticleBySlug = cache(
       //   });
       //   return null;
       // }
-=======
-      if (response.status === 404 || !response.ok || !isSuccess(response.data)) {
-        console.warn("[magazine] getMagazineArticleBySlug", {
-          slug: safeSlug,
-          status: response.status,
-          ok: response.ok,
-        });
-        return null;
-      }
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
       const payload = response.data.data;
       const extraCatalog = await resolveMissingContentProducts(payload);
@@ -219,7 +208,6 @@ export const getMagazineArticleBySlug = cache(
         mappedTypes[block.type] = (mappedTypes[block.type] || 0) + 1;
       }
 
-<<<<<<< HEAD
       // console.info("[magazine] getMagazineArticleBySlug", {
       //   slug: safeSlug,
       //   incomingContentTypes: summarizeMagazineContentTypes(payload),
@@ -239,27 +227,6 @@ export const getMagazineArticleBySlug = cache(
       //   `[magazine] getMagazineArticleBySlug failed slug="${safeSlug}"`,
       //   error,
       // );
-=======
-      console.info("[magazine] getMagazineArticleBySlug", {
-        slug: safeSlug,
-        incomingContentTypes: summarizeMagazineContentTypes(payload),
-        mappedContentTypes: mappedTypes,
-        extraProductsFetched: extraCatalog.length,
-        relatedProducts: article?.relatedProducts.length ?? 0,
-      });
-
-      if (!article) {
-        console.warn(
-          `[magazine] article mapper returned null for slug="${safeSlug}"`,
-        );
-      }
-      return article;
-    } catch (error) {
-      console.warn(
-        `[magazine] getMagazineArticleBySlug failed slug="${safeSlug}"`,
-        error,
-      );
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       return null;
     }
   },

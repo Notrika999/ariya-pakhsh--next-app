@@ -223,13 +223,8 @@ export function OrderDetailsSkeleton() {
           </div>
           <div className="flex flex-wrap gap-3">
             <Pulse className="h-8 w-20 rounded-lg" />
-<<<<<<< HEAD
             <Pulse className="h-7 w-36 rounded-full" />
             <Pulse className="h-7 w-36 rounded-full" />
-=======
-            <Pulse className="h-7 w-24 rounded-full" />
-            <Pulse className="h-7 w-28 rounded-full" />
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
           </div>
         </div>
       </Card>
@@ -250,7 +245,6 @@ export function OrderDetailsSkeleton() {
         </div>
       </Card>
 
-<<<<<<< HEAD
       <div className="flex flex-col gap-4">
         <div className="space-y-2">
           <Card>
@@ -272,29 +266,11 @@ export function OrderDetailsSkeleton() {
                     {index === 2 ? (
                       <Pulse className="h-8 w-20 rounded-lg" />
                     ) : null}
-=======
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="space-y-2 lg:col-span-2">
-          <Card>
-            <Pulse className="mb-4 h-6 w-32" />
-            <div className="space-y-3">
-              {times(3).map((index) => (
-                <div
-                  key={`order-item-${index}`}
-                  className="flex items-center gap-4 rounded-xl border border-gray-100 p-3 dark:border-gray-700"
-                >
-                  <Pulse className="size-20 shrink-0 rounded-xl" />
-                  <div className="flex-1 space-y-2">
-                    <Pulse className="h-4 w-3/4" />
-                    <Pulse className="h-3 w-1/2" />
-                    <Pulse className="h-3 w-24" />
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
                   </div>
                 </div>
               ))}
             </div>
           </Card>
-<<<<<<< HEAD
 
           <Card>
             <Pulse className="mb-4 h-6 w-28" />
@@ -341,28 +317,6 @@ export function OrderDetailsSkeleton() {
               </div>
             </Card>
           ))}
-=======
-        </div>
-        <div className="space-y-2">
-          <Card className="p-4">
-            <Pulse className="mb-4 h-6 w-28" />
-            <div className="space-y-3">
-              {times(4).map((index) => (
-                <div
-                  key={`order-summary-${index}`}
-                  className="flex items-center justify-between"
-                >
-                  <Pulse className="h-3 w-20" />
-                  <Pulse className="h-3 w-24" />
-                </div>
-              ))}
-            </div>
-          </Card>
-          <Card className="p-4">
-            <Pulse className="mb-4 h-6 w-24" />
-            <Pulse className="h-16 w-full" />
-          </Card>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         </div>
       </div>
     </div>

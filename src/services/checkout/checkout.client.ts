@@ -9,11 +9,8 @@ import type {
   CheckoutGatewayFee,
   CheckoutPaymentMethod,
   CheckoutPaymentProvider,
-<<<<<<< HEAD
   PendingCheckoutOrder,
   PendingCheckoutOrderItem,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   CheckoutShippingGroup,
   CheckoutShippingGroupItem,
   CheckoutShippingMethod,
@@ -90,7 +87,6 @@ function mapApiErrors(value: unknown): CheckoutApiErrorItem[] {
     .filter((item) => item.field || item.message || item.code);
 }
 
-<<<<<<< HEAD
 function mapPendingCheckoutOrderItem(
   value: unknown,
 ): PendingCheckoutOrderItem | null {
@@ -146,8 +142,6 @@ function mapPendingCheckoutOrder(payload: unknown): PendingCheckoutOrder | null 
   };
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 // assertSuccess یک تابع است که یک آرگومان unknown و یک آرگومان string را دریافت می کند و یک آبجکت Record<string, unknown> را برمی گرداند.
 function assertSuccess(payload: unknown, fallback: string) {
   const root = getRecord(payload);
@@ -466,7 +460,6 @@ export async function getCheckoutPaymentMethods(): Promise<
   return mapped;
 }
 
-<<<<<<< HEAD
 export async function getPendingCheckoutOrder(): Promise<PendingCheckoutOrder | null> {
   const response = await apiClient.get(`${BASE}/pending-order`);
 
@@ -474,19 +467,14 @@ export async function getPendingCheckoutOrder(): Promise<PendingCheckoutOrder | 
   return mapPendingCheckoutOrder(response.data);
 }
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 // getCheckoutShippingMethods یک تابع است که یک آبجکت Promise<CheckoutShippingMethod[]> را برمی گرداند.
 export async function getCheckoutShippingMethods(): Promise<
   CheckoutShippingMethod[]
 > {
   const response = await apiClient.get("/shipping/methods");
 
-<<<<<<< HEAD
   
 
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   assertSuccess(response.data, "دریافت روش‌های ارسال ناموفق بود");
 
   const mapped = unwrapDataArray(response.data)
@@ -650,7 +638,6 @@ export async function ensureServerCartHasItems(
 
     try {
       cart = await addCartItem({ variantId, quantity });
-<<<<<<< HEAD
     } catch {
       // console.warn(
       //   "[Checkout] addCartItem failed, trying update =>",
@@ -665,22 +652,6 @@ export async function ensureServerCartHasItems(
         //   variantId,
         //   updateError,
         // );
-=======
-    } catch (error) {
-      console.warn(
-        "[Checkout] addCartItem failed, trying update =>",
-        variantId,
-        error,
-      );
-      try {
-        cart = await updateCartItem(variantId, { quantity });
-      } catch (updateError) {
-        console.error(
-          "[Checkout] updateCartItem failed =>",
-          variantId,
-          updateError,
-        );
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       }
     }
   }
@@ -704,17 +675,8 @@ export async function startOrderPayment(
     body.digipayType = payload.digipayType;
   }
 
-<<<<<<< HEAD
   const response = await apiClient.post("/Payments/start", body);
 
-=======
-  console.log("startOrderPayment body => ", body);
-
-  const response = await apiClient.post("/Payments/start", body);
-
-  console.log("startOrderPayment response => ", response);
-
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   assertSuccess(response.data, "شروع پرداخت ناموفق بود");
 
   const data = unwrapDataObject(response.data);

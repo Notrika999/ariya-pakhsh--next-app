@@ -2,19 +2,12 @@
 // components/ui/ProductPageClient/Review/ProductAction.jsx
 
 import React, { useEffect, useState } from "react";
-<<<<<<< HEAD
 import Link from "next/link";
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import { useRouter } from "next/navigation";
 import QuantitySelector from "../../../modules/QuantityProductSelector/QuantityProductSelector";
 import { useCart } from "@/src/context/CartContext";
 import { getProductImage } from "@/src/utils/product-image";
 import { useStockNotify } from "@/src/hooks/useStockNotify";
-<<<<<<< HEAD
-=======
-import { Car } from "lucide-react";
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 import { formatVehicleLabel } from "@/src/services/vehicle/vehicle.service";
 import {
   useSelectedVehicles,
@@ -26,17 +19,11 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
   const [quantity, setQuantity] = useState(1);
   const [isDesktop, setIsDesktop] = useState(false);
   const [added, setAdded] = useState(false);
-<<<<<<< HEAD
   const [showAddedNotice, setShowAddedNotice] = useState(false);
   const [quantityUpdating, setQuantityUpdating] = useState(false);
   const [stickyTop, setStickyTop] = useState(16);
 
   const { addItem, updateQty, removeItem, items } = useCart();
-=======
-  const [stickyTop, setStickyTop] = useState(16);
-
-  const { addItem, updateQty, items } = useCart();
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const { requestNotify, stockNotifyModal } = useStockNotify();
   const selectedVehicles = useSelectedVehicles();
   const openVehicleModal = useVehicleStore((state) => state.openModal);
@@ -91,7 +78,6 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
     queueMicrotask(() => {
       setQuantity(1);
       setAdded(false);
-<<<<<<< HEAD
       setShowAddedNotice(false);
     });
   }, [items, variant?.variantId]);
@@ -111,11 +97,6 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
     };
   }, [added, isOutOfStock, showAddedNotice]);
 
-=======
-    });
-  }, [items, variant?.variantId]);
-
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const price = variant?.salePrice ?? variant?.price ?? 0;
   const originalPrice = variant?.compareAtPrice ?? variant?.price ?? price;
   const hasDiscount = originalPrice > price;
@@ -128,7 +109,6 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
     product?.maxQuantityPerOrder ?? 99,
   );
 
-<<<<<<< HEAD
   const handleAddToCart = async () => {
     if (!variant || isOutOfStock) return;
     setQuantityUpdating(true);
@@ -154,24 +134,6 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
     setQuantityUpdating(false);
     if (!wasAdded) return;
 
-=======
-  const handleAddToCart = () => {
-    if (!variant || isOutOfStock) return;
-    void addItem({
-      id: variant.variantId,
-      variantId: variant.variantId,
-      productId: product.productId,
-      title: product.name,
-      image: getProductImage(
-        variant.images?.[0]?.thumbnailPath ||
-          product.variants?.[0]?.images?.[0]?.thumbnailPath,
-      ),
-      price,
-      oldPrice: originalPrice,
-      href: `/product/${product.publicCode}/${product.slug}`,
-      quantity,
-    });
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     setAdded(true);
     setShowAddedNotice(true);
   };
@@ -185,7 +147,6 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
 
     setQuantity(normalizedQty);
     if (added && variant) {
-<<<<<<< HEAD
       setQuantityUpdating(true);
       void updateQty(variant.variantId, normalizedQty).finally(() => {
         setQuantityUpdating(false);
@@ -218,12 +179,6 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
     });
   };
 
-=======
-      void updateQty(variant.variantId, newQty);
-    }
-  };
-
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const handleBack = () => {
     router.back();
   };
@@ -233,7 +188,6 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
 
   return (
     <>
-<<<<<<< HEAD
       <div className="fixed inset-x-0 bottom-0 z-40 space-y-2.5 border-t border-gray-200 bg-white px-3 py-2.5 pb-[calc(env(safe-area-inset-bottom)+10px)] shadow-[0_-8px_24px_rgba(15,23,42,0.08)] lg:hidden dark:border-gray-700 dark:bg-custom-dark">
         {showAddedNotice && added && !isOutOfStock && (
           <div
@@ -339,39 +293,6 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
               )}
             </button>
           )}
-=======
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white px-3 py-2.5 pb-[calc(env(safe-area-inset-bottom)+10px)] shadow-[0_-8px_24px_rgba(15,23,42,0.08)] lg:hidden dark:border-gray-700 dark:bg-custom-dark">
-        <div className="flex items-center justify-between gap-3">
-          <button
-            type="button"
-            aria-label="بازگشت به صفحه قبل"
-            onClick={handleBack}
-            className="flex size-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-800 shadow-sm transition-colors hover:bg-gray-50 active:scale-95 dark:border-gray-700 dark:bg-zinc-900 dark:text-gray-100 dark:hover:bg-zinc-800"
-          >
-            <i className="far fa-angle-right text-lg" aria-hidden="true" />
-          </button>
-
-          <button
-            type="button"
-            onClick={isOutOfStock ? requestNotify : handleAddToCart}
-            disabled={!isOutOfStock && !variant}
-            className={`h-10 flex-1 rounded-xl px-2 text-xs font-semibold text-white transition-colors ${
-              isOutOfStock
-                ? "bg-primary hover:bg-primary-600"
-                : !variant
-                  ? "cursor-not-allowed bg-gray-400"
-                  : added
-                    ? "bg-green-500"
-                    : "bg-primary hover:bg-primary-600"
-            }`}
-          >
-            {isOutOfStock
-              ? "موجود شد خبرم کن"
-              : added
-                ? "افزوده شد"
-                : "افزودن به سبد خرید"}
-          </button>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
           <div className="min-w-28 text-start" dir="rtl">
             {hasDiscount && (
@@ -462,7 +383,6 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
                 <span className="min-w-0">
                   <span className="block md:text-sm text-xs font-semibold text-gray-800 dark:text-white">
                     مشاوره سازگاری با خودرو
-<<<<<<< HEAD
                   </span>
                   {selectedVehiclesSummary ? (
                     <span className="mt-0.5 block truncate text-[11px] text-gray-500 dark:text-gray-400">
@@ -476,40 +396,6 @@ export default function ProductAction({ product, variant, isOutOfStock }) {
                 </span>
               </button>
 
-=======
-                  </span>
-                  {selectedVehiclesSummary ? (
-                    <span className="mt-0.5 block truncate text-[11px] text-gray-500 dark:text-gray-400">
-                      خودروی من: {selectedVehiclesSummary}
-                    </span>
-                  ) : (
-                    <span className="mt-0.5 block text-[11px] text-gray-500 dark:text-gray-400">
-                      تغییر خودرو
-                    </span>
-                  )}
-                </span>
-              </button>
-
-              {/* Tags */}
-              {/* <div className="flex items-center gap-2 pt-2 flex-wrap">
-                <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-3 py-1 rounded-full">
-                  کالای اصل
-                </span>
-                <span className="text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 px-3 py-1 rounded-full">
-                  کالای نو
-                </span>
-                {product?.warrantyInfo && (
-                  <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full">
-                    {product.warrantyInfo}
-                  </span>
-                )}
-                {isOutOfStock && (
-                  <span className="text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 px-3 py-1 rounded-full">
-                    ناموجود
-                  </span>
-                )}
-              </div> */}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             </div>
           </div>
 

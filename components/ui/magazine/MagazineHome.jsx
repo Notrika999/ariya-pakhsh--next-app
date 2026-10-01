@@ -9,7 +9,6 @@ import MagazinePagination from "@/components/ui/magazine/MagazinePagination";
 import { getCategoryLabel } from "@/components/ui/magazine/magazineHomeUtils";
 import Link from "next/link";
 import SectionRenderer from "./sections/SectionRenderer";
-<<<<<<< HEAD
 import MagazineSection, {
   MAGAZINE_SECTION_SHELL,
 } from "./sections/MagazineSection";
@@ -149,37 +148,6 @@ function MagazinePageFrame({ children, breadcrumbLabel = "" }) {
               </li>
             </>
           ) : null}
-=======
-import { MAGAZINE_SECTION_SHELL } from "./sections/MagazineSection";
-
-function MagazinePageFrame({ children }) {
-  return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-4 overflow-x-clip px-4 py-6 md:gap-5 md:px-6 md:py-8 lg:px-8">
-      <nav
-        aria-label="مسیر صفحه"
-        className="text-sm text-gray-500 dark:text-gray-400"
-      >
-        <ol className="flex flex-wrap items-center gap-2">
-          <li>
-            <Link
-              href="/"
-              className="hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            >
-              فروشگاه
-            </Link>
-          </li>
-          <li aria-hidden="true">
-            <i className="fas fa-angle-left text-[10px]" />
-          </li>
-          <li>
-            <Link
-              href="/mag"
-              className="hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-            >
-              مجله
-            </Link>
-          </li>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         </ol>
       </nav>
       {children}
@@ -202,7 +170,6 @@ export function MagazineListing({
   list = false,
   pageSize,
 }) {
-<<<<<<< HEAD
   const presentation = getListingPresentation({
     query,
     category,
@@ -249,27 +216,6 @@ export function MagazineListing({
           emptyMessage="مقاله‌ای با این مشخصات پیدا نشد."
           titleAs="h2"
           priorityCount={3}
-=======
-  const title = query.trim()
-    ? "نتایج جستجو"
-    : getCategoryLabel(category, categories);
-
-  return (
-    <MagazinePageFrame>
-      <section
-        aria-labelledby="magazine-listing-title"
-        className={MAGAZINE_SECTION_SHELL}
-      >
-        <h1
-          id="magazine-listing-title"
-          className="mb-5 text-lg font-bold text-gray-900 dark:text-white"
-        >
-          {title}
-        </h1>
-        <ArticleGrid
-          articles={posts}
-          emptyMessage="مقاله‌ای با این مشخصات پیدا نشد."
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
         />
         <MagazinePagination
           page={page}
@@ -285,11 +231,7 @@ export function MagazineListing({
             pageSize,
           }}
         />
-<<<<<<< HEAD
       </MagazineSection>
-=======
-      </section>
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     </MagazinePageFrame>
   );
 }

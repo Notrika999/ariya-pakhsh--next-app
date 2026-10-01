@@ -8,7 +8,6 @@ import type { LandingSection } from "@/src/lib/types/landing/landing.types";
 import HeroBannerGrid from "./sections/HeroBannerGrid";
 import ProductSlider from "./sections/ProductSlider";
 
-<<<<<<< HEAD
 function LandingBanner({
   image,
   link = "#",
@@ -32,12 +31,9 @@ function LandingBanner({
 }
 
 export default function LandingRenderer({ sections }: { sections: LandingSection[] }) {
-=======
-export default function LandingRenderer({ sections }: { sections: any }) {
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   return (
     <>
-      {sections.map((section: any, index: number) => {
+      {sections.map((section, index) => {
         switch (section.type) {
           case "heroBannerGrid":
             return <HeroBannerGrid key={index} />;

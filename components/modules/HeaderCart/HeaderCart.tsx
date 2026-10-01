@@ -18,10 +18,7 @@ interface HeaderCartProps {
 }
 
 export default function HeaderCart({ open, onClose }: HeaderCartProps) {
-<<<<<<< HEAD
   const router = useRouter();
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
   const { items, totalPrice, removeItem, updateQty, clearCart, refreshCart } = useCart();
   const [clearing, setClearing] = React.useState(false);
   const [busyId, setBusyId] = React.useState<string | null>(null);
@@ -59,7 +56,6 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
       setBusyId((current) => (current === itemId ? null : current));
     }
   };
-<<<<<<< HEAD
 
   const handleCheckout = async () => {
     if (!cartSync.canCheckout) return;
@@ -70,8 +66,6 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
     onClose();
     router.push("/checkout");
   };
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 
   return (
     <>
@@ -249,7 +243,6 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
               </h3>
             </div>
             <div className="text-end">
-<<<<<<< HEAD
               <button
                 type="button"
                 disabled={!cartSync.canCheckout}
@@ -273,34 +266,6 @@ export default function HeaderCart({ open, onClose }: HeaderCartProps) {
                     ? "تکمیل خرید"
                     : "نیازمند تأیید"}
               </button>
-=======
-              {cartSync.canCheckout ? (
-                <Link
-                  href="/checkout"
-                  onClick={onClose}
-                  className="bg-primary dark:bg-primary-500 hover:bg-primary-600 dark:hover:bg-primary-400 text-white py-2 px-4 rounded-lg shadow-sm transition-colors duration-200"
-                  role="button"
-                  aria-label="تکمیل فرایند خرید"
-                >
-                  تکمیل خرید
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  disabled
-                  className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-lg bg-gray-300 px-4 py-2 text-gray-600 shadow-sm dark:bg-gray-700 dark:text-gray-300"
-                  aria-label="بررسی وضعیت سبد خرید"
-                >
-                  {cartSync.checking ? (
-                    <i
-                      className="far fa-spinner-third animate-spin"
-                      aria-hidden="true"
-                    />
-                  ) : null}
-                  {cartSync.checking ? "بررسی سبد" : "نیازمند تأیید"}
-                </button>
-              )}
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
             </div>
           </div>
         </footer>

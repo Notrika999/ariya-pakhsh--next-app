@@ -70,17 +70,11 @@ export interface GetProductsParams {
   OnSaleCount?: number;
   TopCategoriesCount?: number;
   TopBrandsCount?: number;
-<<<<<<< HEAD
   LatestArticlesCount?: number;
   CacheKey?: string;
   SlidingExpiration?: string;
   AbsoluteExpiration?: string;
   CacheScope?: string;
-=======
-  CacheKey?: string;
-  SlidingExpiration?: string;
-  AbsoluteExpiration?: string;
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 }
 
 const DEFAULT_PRODUCTS_PARAMS: GetProductsParams = {
@@ -90,10 +84,7 @@ const DEFAULT_PRODUCTS_PARAMS: GetProductsParams = {
   OnSaleCount: 15,
   TopCategoriesCount: 15,
   TopBrandsCount: 15,
-<<<<<<< HEAD
   LatestArticlesCount: 6,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 };
 
 function removeEmptyValues<T extends Record<string, unknown>>(value: T) {
@@ -364,15 +355,9 @@ async function resolveBrandSlugsToIdsFromSearch(slugs: string[]) {
 
 function warnOptionalProductRequest(endpoint: string, error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
-<<<<<<< HEAD
   // console.warn(
   //   `[product.server] Optional ${endpoint} request failed: ${message}`,
   // );
-=======
-  console.warn(
-    `[product.server] Optional ${endpoint} request failed: ${message}`,
-  );
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
 }
 
 function asLookupString(value: unknown): string {
@@ -709,20 +694,13 @@ export async function getProducts(
   return {
     ...mapped,
     topCategories: response.data.data.topCategories ?? [],
-<<<<<<< HEAD
     brands: (response.data.data.topBrands ?? []).map((b) => ({
-=======
-    brands: response.data.data.topBrands.map((b) => ({
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
       id: b.brandId,
       name: b.name,
       slug: b.slug,
       productCount: b.productCount,
-<<<<<<< HEAD
       logoSmUrl: b.logoSmUrl,
       mediaId: b.mediaId,
-=======
->>>>>>> 8d61a879ae8984c69b8b6c5e076ef8d8d968f03c
     })),
   };
 }
